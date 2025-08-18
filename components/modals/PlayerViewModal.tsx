@@ -1,31 +1,8 @@
 "use client"
 
 import { useCasting } from "@/components/casting/CastingContext"
-import { useState } from "react"
-import {
-  X,
-  ChevronLeft,
-  ChevronRight,
-  Play,
-  CheckCircle2,
-  XCircle,
-  HelpCircle,
-  Users,
-  Plus,
-  Star,
-  Heart,
-  Calendar,
-  User,
-  MapPin,
-  ImageIcon,
-  Video,
-  FileText,
-  ArrowLeft,
-  ArrowRight,
-  ChevronDown,
-  ChevronUp,
-  MoreHorizontal,
-} from "lucide-react"
+import { useState, useEffect } from "react"
+import { X, ChevronLeft, ChevronRight, Play, CheckCircle2, XCircle, HelpCircle, Users, Plus, Star, Heart, Calendar, User, MapPin, ImageIcon, Video, FileText, ArrowLeft, ArrowRight, ChevronDown, ChevronUp, MoreHorizontal, MessageSquare } from 'lucide-react'
 import { getVideoPlatform } from "@/utils/videoUtils"
 import { generatePlaceholderUrl } from "@/utils/imageUtils"
 import PlayerViewActionsModal from "./PlayerViewActionsModal"
@@ -35,6 +12,7 @@ import VideoEmbed from "@/components/video/VideoEmbed"
 import { motion, AnimatePresence } from "framer-motion"
 import { ModalPortal } from "@/components/ui/modal-portal"
 import { Z_INDEX } from "@/utils/zIndex"
+import type { Note } from "@/types/casting"
 
 export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
   const { state, dispatch } = useCasting()
@@ -55,9 +33,39 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
   const [lastVote, setLastVote] = useState<"yes" | "no" | "maybe" | null>(null)
   const [voteHistory, setVoteHistory] = useState<Array<{ actorId: string; vote: "yes" | "no" | "maybe" | null }>>([])
   const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set())
+  const [showMaybeNotePrompt, setShowMaybeNotePrompt] = useState(false)
+  const [maybeNoteText, setMaybeNoteText] = useState("")
 
   const currentProject = state.projects.find((p) => p.id === state.currentFocus.currentProjectId)
   const currentCharacter = currentProject?.characters.find((c) => c.id === state.currentFocus.characterId)
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Only handle keyboard events if no modals are showing
+      if (showActionsModal || showPhotoViewer || showMaybeNotePrompt) return
+      
+      // Prevent default behavior for arrow keys
+      if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+        event.preventDefault()
+      }
+
+      switch (event.key) {
+        case "ArrowLeft":
+          handleNavigate(-1)
+          break
+        case "ArrowRight":
+          handleNavigate(1)
+          break
+        case "Escape":
+          handleClose()
+          break
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown)
+    return () => window.removeEventListener("keydown", handleKeyDown)
+  }, [showActionsModal, showPhotoViewer, showMaybeNotePrompt])
 
   // Get current terminology for user-friendly messaging with comprehensive fallbacks
   const getCurrentTerminology = () => {
@@ -395,6 +403,15 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
   const handleVote = (vote: "yes" | "no" | "maybe") => {
     if (!state.currentUser) return
 
+    // Special handling for 'maybe' vote - require a note
+    if (vote === "maybe") {
+      const hasExistingNotes = currentActor.notes && currentActor.notes.length > 0
+      if (!hasExistingNotes) {
+        setShowMaybeNotePrompt(true)
+        return
+      }
+    }
+
     setLastVote(vote)
     setVoteHistory((prev) => [...prev, { actorId: currentActor.id, vote }])
 
@@ -407,6 +424,56 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
         userId: state.currentUser.id,
       },
     })
+
+    setIsTransitioning(true)
+
+    setTimeout(() => {
+      if (currentIndex < currentList.length - 1) {
+        handleNavigate(1)
+      } else {
+        setIsTransitioning(false)
+      }
+    }, 800)
+  }
+
+  const handleMaybeWithNote = () => {
+    if (!maybeNoteText.trim() || !state.currentUser || !currentActor || !currentCharacter) return
+
+    // First add the note
+    const note: Note = {
+      id: `note-${Date.now()}-${Math.random()}`,
+      userId: state.currentUser.id,
+      userName: state.currentUser.name,
+      timestamp: Date.now(),
+      text: maybeNoteText.trim(),
+    }
+
+    dispatch({
+      type: "ADD_NOTE",
+      payload: {
+        actorId: currentActor.id,
+        characterId: currentCharacter.id,
+        note,
+      },
+    })
+
+    // Then cast the vote
+    setLastVote("maybe")
+    setVoteHistory((prev) => [...prev, { actorId: currentActor.id, vote: "maybe" }])
+
+    dispatch({
+      type: "CAST_VOTE",
+      payload: {
+        actorId: currentActor.id,
+        characterId: currentCharacter.id,
+        vote: "maybe",
+        userId: state.currentUser.id,
+      },
+    })
+
+    // Reset the prompt
+    setShowMaybeNotePrompt(false)
+    setMaybeNoteText("")
 
     setIsTransitioning(true)
 
@@ -575,12 +642,17 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
               <div className="h-4 w-px bg-gray-300 dark:bg-gray-600"></div>
               <div className="text-lg font-semibold text-gray-700 dark:text-gray-300">{currentActor.name}</div>
             </div>
-            <button
-              onClick={handleClose}
-              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl"
-            >
-              <X className="w-5 h-5" />
-            </button>
+            <div className="flex items-center space-x-4">
+              <div className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-lg">
+                Use ← → keys to navigate
+              </div>
+              <button
+                onClick={handleClose}
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
           </div>
 
           {/* Compact Progress Bar */}
@@ -610,7 +682,6 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
         <div className="flex-1 flex overflow-hidden min-h-0">
           {/* Left Sidebar - Actor Info - Fixed Proportional Width */}
           <div className="w-[25%] min-w-[240px] max-w-[320px] bg-gradient-to-b from-gray-50 to-white dark:from-gray-800 dark:to-gray-900 border-r border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden flex-shrink-0">
-            {/* Keep all existing left sidebar content exactly as is */}
             {/* Actor Photo - Responsive Size */}
             <div className="p-3 sm:p-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
               <AnimatePresence mode="wait">
@@ -973,7 +1044,6 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
 
           {/* Right Panel - Voting & Notes - Fixed Proportional Width */}
           <div className="w-[25%] min-w-[240px] max-w-[320px] bg-gradient-to-b from-gray-50 to-white dark:from-gray-800 dark:to-gray-900 border-l border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden flex-shrink-0">
-            {/* Keep all existing right panel content exactly as is */}
             {/* Voting Section - Responsive */}
             <div className="p-3 sm:p-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
               <h4 className="text-sm sm:text-base font-bold text-gray-900 dark:text-white mb-3 flex items-center">
@@ -1090,6 +1160,53 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
               actorName={currentActor.name}
               onClose={() => setPhotoViewer(false)}
             />
+          </div>
+        )}
+
+        {/* Maybe Note Prompt Modal */}
+        {showMaybeNotePrompt && (
+          <div className="fixed inset-0 bg-black bg-opacity-75 z-[70] flex items-center justify-center">
+            <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4">
+              <div className="p-6">
+                <div className="flex items-center space-x-3 mb-4">
+                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                    <MessageSquare className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900">Add a Note for "Maybe"</h3>
+                    <p className="text-sm text-gray-600">Please explain why you're unsure about this actor</p>
+                  </div>
+                </div>
+                
+                <textarea
+                  value={maybeNoteText}
+                  onChange={(e) => setMaybeNoteText(e.target.value)}
+                  placeholder="Add your thoughts about this actor..."
+                  className="w-full p-3 border border-gray-300 rounded-lg text-sm resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  rows={4}
+                  autoFocus
+                />
+                
+                <div className="flex justify-end space-x-3 mt-4">
+                  <button
+                    onClick={() => {
+                      setShowMaybeNotePrompt(false)
+                      setMaybeNoteText("")
+                    }}
+                    className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleMaybeWithNote}
+                    disabled={!maybeNoteText.trim()}
+                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    Vote Maybe
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </motion.div>

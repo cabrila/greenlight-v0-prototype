@@ -4,7 +4,7 @@ import type React from "react"
 
 import { useCasting } from "@/components/casting/CastingContext"
 import { useState, useEffect, useCallback } from "react"
-import { X, Plus, Trash2, Camera, ChevronLeft, ChevronRight, Check } from "lucide-react"
+import { X, Plus, Trash2, Camera, ChevronLeft, ChevronRight, Check } from 'lucide-react'
 import { extractVideoId, getVideoPlatform } from "@/utils/videoUtils"
 import VideoEmbed from "@/components/video/VideoEmbed"
 import type { VideoEmbed as VideoEmbedType } from "@/types"
@@ -394,7 +394,11 @@ export default function AddActorModal({ onClose, characterId }: AddActorModalPro
       return newSet
     })
     // Clear the field value
-    setFormData((prev) => ({ ...prev, [fieldKey]: fieldKey === "pastProductions" ? [] : "" }))
+    if (fieldKey === "pastProductions") {
+      setFormData((prev) => ({ ...prev, [fieldKey]: [] }))
+    } else {
+      setFormData((prev) => ({ ...prev, [fieldKey]: "" }))
+    }
   }
 
   const handleAddPastProduction = () => {
@@ -508,7 +512,7 @@ export default function AddActorModal({ onClose, characterId }: AddActorModalPro
             <div>
               <h3 className="text-lg font-medium text-gray-900 mb-4">Core Information</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Actor Name */}
+                {/* Actor Name - Required, not deletable */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     {state.terminology.actor.singular} Name *
@@ -522,7 +526,7 @@ export default function AddActorModal({ onClose, characterId }: AddActorModalPro
                   />
                 </div>
 
-                {/* Age */}
+                {/* Age - Required, not deletable */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Age</label>
                   <input
@@ -534,19 +538,7 @@ export default function AddActorModal({ onClose, characterId }: AddActorModalPro
                   />
                 </div>
 
-                {/* Playing Age */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Playing Age</label>
-                  <input
-                    type="text"
-                    value={formData.playingAge}
-                    onChange={(e) => handleInputChange("playingAge", e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                    placeholder="e.g. 20-30"
-                  />
-                </div>
-
-                {/* Gender */}
+                {/* Gender - Required, not deletable */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Gender</label>
                   <select
@@ -562,31 +554,7 @@ export default function AddActorModal({ onClose, characterId }: AddActorModalPro
                   </select>
                 </div>
 
-                {/* Ethnicity */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Ethnicity</label>
-                  <input
-                    type="text"
-                    value={formData.ethnicity}
-                    onChange={(e) => handleInputChange("ethnicity", e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                    placeholder="e.g. Caucasian, Hispanic, Asian"
-                  />
-                </div>
-
-                {/* Location */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
-                  <input
-                    type="text"
-                    value={formData.location}
-                    onChange={(e) => handleInputChange("location", e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                    placeholder="e.g. Los Angeles, CA"
-                  />
-                </div>
-
-                {/* Contact Phone */}
+                {/* Contact Phone - Required, not deletable */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Contact Phone</label>
                   <input
@@ -598,7 +566,7 @@ export default function AddActorModal({ onClose, characterId }: AddActorModalPro
                   />
                 </div>
 
-                {/* Contact Email */}
+                {/* Contact Email - Required, not deletable */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Contact Email</label>
                   <input
@@ -609,19 +577,107 @@ export default function AddActorModal({ onClose, characterId }: AddActorModalPro
                     placeholder="actor@example.com"
                   />
                 </div>
-
-                {/* Agent/Representative - spans full width on last row */}
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Agent/Representative</label>
-                  <input
-                    type="text"
-                    value={formData.agent}
-                    onChange={(e) => handleInputChange("agent", e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                    placeholder="e.g. CAA, WME, or agent name"
-                  />
-                </div>
               </div>
+
+              {/* Deletable Core Fields Section */}
+              {(visibleOptionalFields.has("playingAge") || visibleOptionalFields.has("ethnicity") || visibleOptionalFields.has("location") || visibleOptionalFields.has("agent")) && (
+                <div className="mt-6 border-t border-gray-200 pt-6">
+                  <h4 className="text-md font-medium text-gray-900 mb-4">Additional Core Information</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Playing Age - Deletable */}
+                    {visibleOptionalFields.has("playingAge") && (
+                      <div>
+                        <div className="flex items-center justify-between mb-1">
+                          <label className="block text-sm font-medium text-gray-700">Playing Age</label>
+                          <button
+                            onClick={() => handleRemoveOptionalField("playingAge")}
+                            className="text-gray-400 hover:text-red-600 transition-colors p-1 rounded"
+                            title="Remove field"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                        <input
+                          type="text"
+                          value={formData.playingAge}
+                          onChange={(e) => handleInputChange("playingAge", e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                          placeholder="e.g. 20-30"
+                        />
+                      </div>
+                    )}
+
+                    {/* Ethnicity - Deletable */}
+                    {visibleOptionalFields.has("ethnicity") && (
+                      <div>
+                        <div className="flex items-center justify-between mb-1">
+                          <label className="block text-sm font-medium text-gray-700">Ethnicity</label>
+                          <button
+                            onClick={() => handleRemoveOptionalField("ethnicity")}
+                            className="text-gray-400 hover:text-red-600 transition-colors p-1 rounded"
+                            title="Remove field"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                        <input
+                          type="text"
+                          value={formData.ethnicity}
+                          onChange={(e) => handleInputChange("ethnicity", e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                          placeholder="e.g. Caucasian, Hispanic, Asian"
+                        />
+                      </div>
+                    )}
+
+                    {/* Location - Deletable */}
+                    {visibleOptionalFields.has("location") && (
+                      <div>
+                        <div className="flex items-center justify-between mb-1">
+                          <label className="block text-sm font-medium text-gray-700">Location</label>
+                          <button
+                            onClick={() => handleRemoveOptionalField("location")}
+                            className="text-gray-400 hover:text-red-600 transition-colors p-1 rounded"
+                            title="Remove field"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                        <input
+                          type="text"
+                          value={formData.location}
+                          onChange={(e) => handleInputChange("location", e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                          placeholder="e.g. Los Angeles, CA"
+                        />
+                      </div>
+                    )}
+
+                    {/* Agent/Representative - Deletable */}
+                    {visibleOptionalFields.has("agent") && (
+                      <div className="md:col-span-2">
+                        <div className="flex items-center justify-between mb-1">
+                          <label className="block text-sm font-medium text-gray-700">Agent/Representative</label>
+                          <button
+                            onClick={() => handleRemoveOptionalField("agent")}
+                            className="text-gray-400 hover:text-red-600 transition-colors p-1 rounded"
+                            title="Remove field"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                        <input
+                          type="text"
+                          value={formData.agent}
+                          onChange={(e) => handleInputChange("agent", e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                          placeholder="e.g. CAA, WME, or agent name"
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
 
               {/* Add Additional Fields Button */}
               <div className="mt-6 flex justify-center">
@@ -643,7 +699,13 @@ export default function AddActorModal({ onClose, characterId }: AddActorModalPro
                           Additional Information
                         </div>
                         <div className="max-h-64 overflow-y-auto">
-                          {optionalFields
+                          {[
+                            { key: "playingAge", label: "Playing Age" },
+                            { key: "ethnicity", label: "Ethnicity" },
+                            { key: "location", label: "Location" },
+                            { key: "agent", label: "Agent/Representative" },
+                            ...optionalFields
+                          ]
                             .filter((field) => !visibleOptionalFields.has(field.key))
                             .map((field) => (
                               <button
@@ -655,7 +717,13 @@ export default function AddActorModal({ onClose, characterId }: AddActorModalPro
                                 {field.label}
                               </button>
                             ))}
-                          {optionalFields.filter((field) => !visibleOptionalFields.has(field.key)).length === 0 && (
+                          {[
+                            { key: "playingAge", label: "Playing Age" },
+                            { key: "ethnicity", label: "Ethnicity" },
+                            { key: "location", label: "Location" },
+                            { key: "agent", label: "Agent/Representative" },
+                            ...optionalFields
+                          ].filter((field) => !visibleOptionalFields.has(field.key)).length === 0 && (
                             <div className="px-4 py-3 text-sm text-gray-500 text-center">
                               All additional fields have been added
                             </div>
