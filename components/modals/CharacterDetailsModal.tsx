@@ -1,8 +1,9 @@
 "use client"
 
-import { X, User, Calendar, MapPin, Users, FileText, Star, Clock, CheckCircle, TrendingUp } from "lucide-react"
+import { X, User, Calendar, MapPin, Users, FileText, Star, Clock, CheckCircle, TrendingUp, Edit } from "lucide-react"
 import { useCasting } from "@/components/casting/CastingContext"
 import type { Character } from "@/types/casting"
+import { openModal } from "@/components/modals/ModalManager"
 
 interface CharacterDetailsModalProps {
   onClose: () => void
@@ -235,7 +236,14 @@ export default function CharacterDetailsModal({ onClose, character }: CharacterD
 
         {/* Footer */}
         <div className="bg-slate-50 dark:bg-slate-700 px-6 py-4 border-t border-slate-200 dark:border-slate-600">
-          <div className="flex justify-end">
+          <div className="flex justify-between">
+            <button
+              onClick={() => openModal("editCharacter", { character })}
+              className="px-6 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors font-medium flex items-center space-x-2"
+            >
+              <Edit className="w-4 h-4" />
+              <span>Edit Character</span>
+            </button>
             <button
               onClick={onClose}
               className="px-6 py-2 bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-300 dark:hover:bg-slate-500 transition-colors font-medium"

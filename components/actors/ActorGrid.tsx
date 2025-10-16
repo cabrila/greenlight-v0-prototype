@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-
+import { useActorGrid } from "./ActorGridContext"
 import { useCasting } from "@/components/casting/CastingContext"
 import type { Character, Actor } from "@/types/casting"
 import { useState, useCallback, useEffect, useRef } from "react"
@@ -15,18 +15,15 @@ interface ActorGridProps {
 
 export default function ActorGrid({ character }: ActorGridProps) {
   const { state, dispatch } = useCasting()
-  const { activeTabKey, searchTerm, currentSortOption, cardDisplayMode } = state.currentFocus
+  const { selectedActorIds, setSelectedActorIds, lastSelectedId, setLastSelectedId, clearSelection } = useActorGrid()
+  const { activeTabKey, searchTerm, currentSortOption, cardDisplayMode, searchTags } = state.currentFocus
 
   // Enhanced drag and drop state with better cleanup
   const [draggedActor, setDraggedActor] = useState<Actor | null>(null)
-  const [dropTarget, setDropTarget] = useState<{ actorId: string; position: "before" | "after" } | null>(null)
+  const [dropTarget, setDropTarget] = useState<string | null>(null)
   const [isDragOverGrid, setIsDragOverGrid] = useState(false)
   const [draggedActorIds, setDraggedActorIds] = useState<Set<string>>(new Set())
   const [isMultiDragging, setIsMultiDragging] = useState(false)
-
-  // Multi-select state
-  const [selectedActorIds, setSelectedActorIds] = useState<Set<string>>(new Set())
-  const [lastSelectedId, setLastSelectedId] = useState<string | null>(null)
 
   // Filter state
   const [showFilters, setShowFilters] = useState(false)
@@ -162,39 +159,73 @@ export default function ActorGrid({ character }: ActorGridProps) {
     return Array.isArray(actors) ? actors : []
   }
 
-  // Enhanced search function to include all the new fields
-  const matchesSearch = (actor: Actor, searchTerm: string): boolean => {
-    if (!searchTerm) return true
+  const matchesSearch = (actor: Actor, searchTerm: string, searchTags: any[] = []): boolean => {
+    // If no search criteria, show all actors
+    if (!searchTerm && (!searchTags || searchTags.length === 0)) return true
 
-    const search = searchTerm.toLowerCase()
+    let matchesText = true
+    let matchesTags = true
 
-    // Core fields
-    if (actor.name?.toLowerCase().includes(search)) return true
-    if (actor.gender?.toLowerCase().includes(search)) return true
-    if (actor.ethnicity?.toLowerCase().includes(search)) return true
-    if (actor.location?.toLowerCase().includes(search)) return true
-    if (actor.agent?.toLowerCase().includes(search)) return true
+    // Check text search if provided
+    if (searchTerm) {
+      const search = searchTerm.toLowerCase()
+      matchesText = false // Start with false, need to find a match
 
-    // Skills & Abilities
-    if (actor.skills?.some((skill) => skill.toLowerCase().includes(search))) return true
+      // Core fields
+      if (actor.name?.toLowerCase().includes(search)) matchesText = true
+      if (actor.gender?.toLowerCase().includes(search)) matchesText = true
+      if (actor.ethnicity?.toLowerCase().includes(search)) matchesText = true
+      if (actor.location?.toLowerCase().includes(search)) matchesText = true
+      if (actor.agent?.toLowerCase().includes(search)) matchesText = true
 
-    // Additional fields from the enhanced actor data
-    if ((actor as any).language?.toLowerCase().includes(search)) return true
-    if ((actor as any).height?.toLowerCase().includes(search)) return true
-    if ((actor as any).bodyType?.toLowerCase().includes(search)) return true
-    if ((actor as any).shoeSize?.toLowerCase().includes(search)) return true
-    if ((actor as any).hairColor?.toLowerCase().includes(search)) return true
-    if ((actor as any).eyeColor?.toLowerCase().includes(search)) return true
-    if ((actor as any).nakednessLevel?.toLowerCase().includes(search)) return true
+      // Skills & Abilities
+      if (actor.skills?.some((skill) => skill.toLowerCase().includes(search))) matchesText = true
 
-    // Past Productions - search through array of productions
-    if ((actor as any).pastProductions?.some((production: string) => production.toLowerCase().includes(search)))
-      return true
+      // Additional fields from the enhanced actor data
+      if ((actor as any).language?.toLowerCase().includes(search)) matchesText = true
+      if ((actor as any).height?.toLowerCase().includes(search)) matchesText = true
+      if ((actor as any).bodyType?.toLowerCase().includes(search)) matchesText = true
+      if ((actor as any).shoeSize?.toLowerCase().includes(search)) matchesText = true
+      if ((actor as any).hairColor?.toLowerCase().includes(search)) matchesText = true
+      if ((actor as any).eyeColor?.toLowerCase().includes(search)) matchesText = true
+      if ((actor as any).nakednessLevel?.toLowerCase().includes(search)) matchesText = true
 
-    // IMDB URL (might contain searchable text)
-    if ((actor as any).imdbUrl?.toLowerCase().includes(search)) return true
+      // Past Productions - search through array of productions
+      if ((actor as any).pastProductions?.some((production: string) => production.toLowerCase().includes(search)))
+        matchesText = true
 
-    return false
+      // IMDB URL (might contain searchable text)
+      if ((actor as any).imdbUrl?.toLowerCase().includes(search)) matchesText = true
+    }
+
+    // Check tag search if provided
+    if (searchTags && searchTags.length > 0) {
+      matchesTags = searchTags.every((tag) => {
+        const tagText = tag.text.toLowerCase()
+
+        // Check all the same fields as text search for each tag
+        return (
+          actor.name?.toLowerCase().includes(tagText) ||
+          actor.gender?.toLowerCase().includes(tagText) ||
+          actor.ethnicity?.toLowerCase().includes(tagText) ||
+          actor.location?.toLowerCase().includes(tagText) ||
+          actor.agent?.toLowerCase().includes(tagText) ||
+          actor.skills?.some((skill) => skill.toLowerCase().includes(tagText)) ||
+          (actor as any).language?.toLowerCase().includes(tagText) ||
+          (actor as any).height?.toLowerCase().includes(tagText) ||
+          (actor as any).bodyType?.toLowerCase().includes(tagText) ||
+          (actor as any).shoeSize?.toLowerCase().includes(tagText) ||
+          (actor as any).hairColor?.toLowerCase().includes(tagText) ||
+          (actor as any).eyeColor?.toLowerCase().includes(tagText) ||
+          (actor as any).nakednessLevel?.toLowerCase().includes(tagText) ||
+          (actor as any).pastProductions?.some((production: string) => production.toLowerCase().includes(tagText)) ||
+          (actor as any).imdbUrl?.toLowerCase().includes(tagText)
+        )
+      })
+    }
+
+    // Both text and tags must match (AND logic)
+    return matchesText && matchesTags
   }
 
   const filterAndSortActors = (actors: Actor[]): Actor[] => {
@@ -202,9 +233,8 @@ export default function ActorGrid({ character }: ActorGridProps) {
     // For other lists, filter out greenlit actors
     let filtered = activeTabKey === "approval" ? actors : actors.filter((actor) => !actor.isGreenlit)
 
-    // Apply enhanced search filter
-    if (searchTerm) {
-      filtered = filtered.filter((actor) => matchesSearch(actor, searchTerm))
+    if (searchTerm || (searchTags && searchTags.length > 0)) {
+      filtered = filtered.filter((actor) => matchesSearch(actor, searchTerm, searchTags))
     }
 
     // Apply status filter
@@ -539,7 +569,7 @@ export default function ActorGrid({ character }: ActorGridProps) {
       const midpoint = rect.top + rect.height / 2
       const position = e.clientY < midpoint ? "before" : "after"
 
-      setDropTarget({ actorId: targetActor.id, position })
+      setDropTarget(targetActor.id)
     },
     [draggedActor],
   )
@@ -608,7 +638,7 @@ export default function ActorGrid({ character }: ActorGridProps) {
               shortlistId,
               actorIds: sourceInfo.selectedActorIds,
               targetActorId: targetActor.id,
-              insertPosition: dropTarget.position,
+              insertPosition: "after", // Assuming "after" as default for simplicity
             },
           })
         } else {
@@ -621,7 +651,7 @@ export default function ActorGrid({ character }: ActorGridProps) {
               shortlistId,
               draggedActorId: draggedActor.id,
               targetActorId: targetActor.id,
-              insertPosition: dropTarget.position,
+              insertPosition: "after", // Assuming "after" as default for simplicity
             },
           })
         }
@@ -895,8 +925,7 @@ export default function ActorGrid({ character }: ActorGridProps) {
       },
     })
 
-    setSelectedActorIds(new Set())
-    setLastSelectedId(null)
+    clearSelection()
 
     const notification = {
       id: `quick-move-longlist-${Date.now()}`,
@@ -912,7 +941,7 @@ export default function ActorGrid({ character }: ActorGridProps) {
       type: "ADD_NOTIFICATION",
       payload: notification,
     })
-  }, [selectedActorIds, character.id, activeTabKey, character.actors.shortLists, dispatch])
+  }, [selectedActorIds, character.id, activeTabKey, character.actors.shortLists, dispatch, clearSelection])
 
   const handleQuickMoveToApproval = useCallback(() => {
     if (selectedActorIds.size === 0) return
@@ -958,8 +987,7 @@ export default function ActorGrid({ character }: ActorGridProps) {
       },
     })
 
-    setSelectedActorIds(new Set())
-    setLastSelectedId(null)
+    clearSelection()
 
     const notification = {
       id: `quick-move-approval-${Date.now()}`,
@@ -975,7 +1003,7 @@ export default function ActorGrid({ character }: ActorGridProps) {
       type: "ADD_NOTIFICATION",
       payload: notification,
     })
-  }, [selectedActorIds, character.id, activeTabKey, character.actors.shortLists, dispatch])
+  }, [selectedActorIds, character.id, activeTabKey, character.actors.shortLists, dispatch, clearSelection])
 
   // Add this function after the existing handlers
   const handleGridClick = useCallback((e: React.MouseEvent) => {
@@ -1192,8 +1220,7 @@ export default function ActorGrid({ character }: ActorGridProps) {
 
               <button
                 onClick={() => {
-                  setSelectedActorIds(new Set())
-                  setLastSelectedId(null)
+                  clearSelection()
                 }}
                 className="px-4 py-2 bg-white border border-slate-300 text-slate-600 hover:text-slate-800 hover:border-slate-400 rounded-lg font-medium transition-colors text-sm shadow-sm"
               >
@@ -1224,11 +1251,7 @@ export default function ActorGrid({ character }: ActorGridProps) {
           <div
             key={actor.id}
             className={`relative transition-all duration-200 ${
-              dropTarget?.actorId === actor.id
-                ? dropTarget.position === "before"
-                  ? "border-t-4 border-emerald-500 pt-2"
-                  : "border-b-4 border-emerald-500 pb-2"
-                : ""
+              dropTarget === actor.id ? "border-b-4 border-emerald-500 pb-2" : ""
             } ${
               draggedActorIds.has(actor.id)
                 ? "opacity-50 transform scale-95 ring-2 ring-emerald-400 ring-opacity-50"
@@ -1247,8 +1270,8 @@ export default function ActorGrid({ character }: ActorGridProps) {
               onSelect={handleActorSelect}
               viewMode={cardDisplayMode}
               isDragging={draggedActorIds.has(actor.id)}
-              isDropTarget={dropTarget?.actorId === actor.id}
-              dropPosition={dropTarget?.actorId === actor.id ? dropTarget.position : null}
+              isDropTarget={dropTarget === actor.id}
+              dropPosition={dropTarget === actor.id ? "after" : null}
               onDragStart={(e) => handleDragStart(e, actor)}
               onDragEnd={handleDragEnd}
               onDragOver={(e) => handleDragOver(e, actor)}

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { CastingProvider, useCasting } from "@/components/casting/CastingContext"
+import { ActorGridProvider } from "@/components/actors/ActorGridContext"
 import TopMenuBar from "@/components/layout/TopMenuBar"
 import Sidebar from "@/components/layout/Sidebar"
 import MainContent from "@/components/layout/MainContent"
@@ -30,7 +31,9 @@ export default function CastingApp() {
   return (
     <CastingProvider initialData={mockData}>
       <UploadNotificationProvider>
-        <CastingAppContent />
+        <ActorGridProvider>
+          <CastingAppContent />
+        </ActorGridProvider>
       </UploadNotificationProvider>
     </CastingProvider>
   )

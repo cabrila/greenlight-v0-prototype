@@ -90,6 +90,7 @@ export type CastingAction =
     }
   | { type: "ADD_ACTOR"; payload: { actor: Actor; characterId: string } }
   | { type: "ADD_CHARACTER"; payload: { character: Character; projectId: string } }
+  | { type: "UPDATE_CHARACTER"; payload: { character: Character; projectId: string } }
   | { type: "DELETE_CHARACTER"; payload: string }
   | { type: "UPDATE_ACTOR"; payload: { actorId: string; characterId: string; updates: Partial<Actor> } }
   | {
@@ -169,8 +170,15 @@ export type CastingAction =
   | { type: "UPDATE_GROUP"; payload: { characterId: string; groupId: string; updates: any } }
   | { type: "DELETE_GROUP"; payload: { characterId: string; groupId: string } }
   | { type: "UPDATE_TAB_DEFINITIONS"; payload: TabDefinition[] }
+  | { type: "SET_SEARCH_TAGS"; payload: SearchTag[] }
+  | { type: "ADD_SEARCH_TAG"; payload: SearchTag }
+  | { type: "REMOVE_SEARCH_TAG"; payload: string }
+  | { type: "CLEAR_SEARCH_TAGS" }
+  | { type: "SAVE_CURRENT_SEARCH"; payload: { name: string; isGlobal?: boolean } }
+  | { type: "LOAD_SAVED_SEARCH"; payload: string }
+  | { type: "DELETE_SAVED_SEARCH"; payload: string }
+  | { type: "UPDATE_SAVED_SEARCH"; payload: { id: string; updates: Partial<SavedSearch> } }
 
-// Rest of the existing types remain unchanged...
 export interface User {
   id: string
   name: string
@@ -276,6 +284,8 @@ export interface CurrentFocus {
   cardDisplayMode: "detailed" | "compact" | "player"
   currentSortOption: string
   searchTerm: string
+  searchTags: SearchTag[]
+  savedSearches: SavedSearch[]
   playerView: {
     isOpen: boolean
     currentIndex: number
@@ -333,4 +343,20 @@ export interface ActorNote {
   content: string
   timestamp: number
   userId: string
+}
+
+export interface SearchTag {
+  id: string
+  text: string
+  color?: string
+}
+
+export interface SavedSearch {
+  id: string
+  name: string
+  tags: SearchTag[]
+  searchTerm: string
+  createdAt: number
+  lastUsed: number
+  isGlobal: boolean // true for searches available across all tabs/characters
 }

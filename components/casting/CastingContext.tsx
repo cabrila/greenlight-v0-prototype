@@ -140,6 +140,8 @@ function getInitialState(): CastingState {
       cardDisplayMode: "detailed",
       currentSortOption: "alphabetical",
       searchTerm: "",
+      searchTags: [],
+      savedSearches: [],
       playerView: {
         isOpen: false,
         currentIndex: 0,
@@ -288,6 +290,8 @@ function validateAndCompleteState(state: any): CastingState {
         currentHeadshotIndex: 0,
         ...state.currentFocus?.playerView,
       },
+      searchTags: state.currentFocus?.searchTags || [],
+      savedSearches: state.currentFocus?.savedSearches || [],
     },
 
     // Ensure modals object exists
@@ -652,6 +656,115 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
         },
       }
       break
+
+    case "SET_SEARCH_TAGS":
+      newState = {
+        ...state,
+        currentFocus: {
+          ...state.currentFocus,
+          searchTags: action.payload,
+        },
+      }
+      break
+
+    case "ADD_SEARCH_TAG":
+      newState = {
+        ...state,
+        currentFocus: {
+          ...state.currentFocus,
+          searchTags: [...state.currentFocus.searchTags, action.payload],
+        },
+      }
+      break
+
+    case "REMOVE_SEARCH_TAG":
+      newState = {
+        ...state,
+        currentFocus: {
+          ...state.currentFocus,
+          searchTags: state.currentFocus.searchTags.filter((tag) => tag.id !== action.payload),
+        },
+      }
+      break
+
+    case "CLEAR_SEARCH_TAGS":
+      newState = {
+        ...state,
+        currentFocus: {
+          ...state.currentFocus,
+          searchTags: [],
+        },
+      }
+      break
+
+    case "SAVE_CURRENT_SEARCH": {
+      const { name, isGlobal = false } = action.payload
+      const newSavedSearch = {
+        id: `search-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        name,
+        tags: [...state.currentFocus.searchTags],
+        searchTerm: state.currentFocus.searchTerm,
+        createdAt: Date.now(),
+        lastUsed: Date.now(),
+        isGlobal,
+      }
+
+      newState = {
+        ...state,
+        currentFocus: {
+          ...state.currentFocus,
+          savedSearches: [...state.currentFocus.savedSearches, newSavedSearch],
+        },
+      }
+      break
+    }
+
+    case "LOAD_SAVED_SEARCH": {
+      const savedSearch = state.currentFocus.savedSearches.find((search) => search.id === action.payload)
+      if (savedSearch) {
+        // Update last used timestamp
+        const updatedSavedSearches = state.currentFocus.savedSearches.map((search) =>
+          search.id === action.payload ? { ...search, lastUsed: Date.now() } : search,
+        )
+
+        newState = {
+          ...state,
+          currentFocus: {
+            ...state.currentFocus,
+            searchTerm: savedSearch.searchTerm,
+            searchTags: [...savedSearch.tags],
+            savedSearches: updatedSavedSearches,
+          },
+        }
+      } else {
+        newState = state
+      }
+      break
+    }
+
+    case "DELETE_SAVED_SEARCH":
+      newState = {
+        ...state,
+        currentFocus: {
+          ...state.currentFocus,
+          savedSearches: state.currentFocus.savedSearches.filter((search) => search.id !== action.payload),
+        },
+      }
+      break
+
+    case "UPDATE_SAVED_SEARCH": {
+      const { id, updates } = action.payload
+      newState = {
+        ...state,
+        currentFocus: {
+          ...state.currentFocus,
+          savedSearches: state.currentFocus.savedSearches.map((search) =>
+            search.id === id ? { ...search, ...updates } : search,
+          ),
+        },
+      }
+      break
+    }
 
     case "SET_VIEW_MODE":
       if (action.payload === "player") {
@@ -1140,6 +1253,25 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
                   ?.characters.filter((char) => char.id !== action.payload)[0]?.id || null
               : state.currentFocus.characterId,
         },
+      }
+      break
+
+    case "UPDATE_CHARACTER":
+      newState = {
+        ...state,
+        projects: state.projects.map((project) => {
+          if (project.id !== action.payload.projectId) return project
+
+          const updatedProject = {
+            ...project,
+            characters: project.characters.map((character) =>
+              character.id === action.payload.character.id ? action.payload.character : character,
+            ),
+            modifiedDate: Date.now(),
+          }
+
+          return updatedProject
+        }),
       }
       break
 
@@ -1759,11 +1891,11 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
             // Standard lists
             for (const listKey of ["longList", "audition", "approval"]) {
               const list = updatedActors[listKey as keyof typeof updatedActors] as any[]
-              const actorIndex = list.findIndex((a: any) => a.id === actorId)
+              const actorIndex = list.findIndex((a) => a.id === actorId)
               if (actorIndex !== -1) {
                 actorToMove = list[actorIndex]
                 sourceLocation = { type: "standard", key: listKey }
-                updatedActors[listKey as keyof typeof updatedActors] = list.filter((a: any) => a.id !== actorId)
+                updatedActors[listKey as keyof typeof updatedActors] = list.filter((a) => a.id !== actorId)
                 break
               }
             }
@@ -1789,11 +1921,11 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
                   Array.isArray(updatedActors[key])
                 ) {
                   const list = updatedActors[key] as any[]
-                  const actorIndex = list.findIndex((a: any) => a.id === actorId)
+                  const actorIndex = list.findIndex((a) => a.id === actorId)
                   if (actorIndex !== -1) {
                     actorToMove = list[actorIndex]
                     sourceLocation = { type: "custom", key }
-                    updatedActors[key] = list.filter((a: any) => a.id !== actorId)
+                    updatedActors[key] = list.filter((a) => a.id !== actorId)
                   }
                 }
               })
@@ -2141,7 +2273,7 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
                 actors: targetList,
               }
             } else {
-              updatedActors[listKey as keyof typeof updatedActors] = targetList as any
+              updatedActors[listKey as keyof typeof updatedActors] = targetList
             }
 
             return {

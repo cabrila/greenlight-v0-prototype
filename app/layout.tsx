@@ -9,7 +9,7 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "Greenlight Casting", // Or your application's title
   description: "Casting application prototype", // Or your application's description
-    generator: 'v0.dev'
+    generator: 'v0.app'
 }
 
 export default function RootLayout({

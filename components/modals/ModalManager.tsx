@@ -5,6 +5,7 @@ import { useCasting } from "@/components/casting/CastingContext"
 import AddActorModal from "./AddActorModal"
 import EditActorModal from "./EditActorModal"
 import AddCharacterModal from "./AddCharacterModal"
+import EditCharacterModal from "./EditCharacterModal" // Added EditCharacterModal import
 import AddShortlistModal from "./AddShortlistModal"
 import ProjectManagerModal from "./ProjectManagerModal"
 import CastingBreakdownModal from "./CastingBreakdownModal"
@@ -29,6 +30,7 @@ import CharacterDetailsModal from "./CharacterDetailsModal"
 import UploadActorsMenuModal from "./UploadActorsMenuModal"
 import CreateActorFormModal from "./CreateActorFormModal"
 import SplashScreenModal from "./SplashScreenModal"
+import BookAuditionModal from "./BookAuditionModal"
 
 export interface ModalState {
   type: string | null
@@ -135,6 +137,17 @@ export default function ModalManager() {
         </div>
       )
     }
+
+    if (state.modals.bookAudition?.isOpen) {
+      return (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <BookAuditionModal
+            onClose={() => dispatch({ type: "CLOSE_MODAL", payload: "bookAudition" })}
+            {...state.modals.bookAudition.props}
+          />
+        </div>
+      )
+    }
   }
 
   // Render modal stack
@@ -150,6 +163,8 @@ export default function ModalManager() {
           return <EditActorModal onClose={handleClose} {...modal.data} />
         case "addCharacter":
           return <AddCharacterModal onClose={handleClose} />
+        case "editCharacter":
+          return <EditCharacterModal onClose={handleClose} {...modal.data} />
         case "addShortlist":
           return <AddShortlistModal onClose={handleClose} characterId={modal.data?.characterId} />
         case "projectManager":
@@ -198,6 +213,8 @@ export default function ModalManager() {
           return <CreateActorFormModal onClose={handleClose} characterId={modal.data?.characterId} />
         case "splashScreen":
           return <SplashScreenModal onClose={handleClose} />
+        case "bookAudition":
+          return <BookAuditionModal onClose={handleClose} {...modal.data} />
         default:
           return null
       }

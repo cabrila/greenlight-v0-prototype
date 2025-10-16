@@ -1005,6 +1005,23 @@ export default function ActorCard({
             )}
           </div>
 
+          <div className="flex items-center gap-2 mb-2 text-xs text-slate-600 flex-wrap">
+            {actor.age && <span className="bg-slate-100 px-2 py-1 rounded-md whitespace-nowrap">{actor.age}</span>}
+            {actor.gender && (
+              <span className="bg-slate-100 px-2 py-1 rounded-md whitespace-nowrap">{actor.gender}</span>
+            )}
+            {actor.ethnicity && (
+              <span className="bg-slate-100 px-2 py-1 rounded-md whitespace-nowrap truncate max-w-[120px]">
+                {actor.ethnicity}
+              </span>
+            )}
+            {actor.location && (
+              <span className="bg-slate-100 px-2 py-1 rounded-md whitespace-nowrap truncate max-w-[100px]">
+                {actor.location}
+              </span>
+            )}
+          </div>
+
           {/* Status Display */}
           <div className="overflow-hidden">
             <StatusDisplay compact={true} />

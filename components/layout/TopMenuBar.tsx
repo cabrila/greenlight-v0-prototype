@@ -1,7 +1,7 @@
 "use client"
 
 import { useCasting } from "@/components/casting/CastingContext"
-import { Bell, Folder, FileText, Users, Settings, Clapperboard } from "lucide-react"
+import { Bell, Folder, FileText, Users, Settings, Clapperboard } from 'lucide-react'
 import { openModal } from "@/components/modals/ModalManager"
 import UserMenu from "./UserMenu"
 import { useState, useRef } from "react"
@@ -18,17 +18,12 @@ export default function TopMenuBar() {
     <header className="bg-gradient-to-r from-white via-slate-50 to-white border-b border-slate-200/60 sticky top-0 z-50 backdrop-blur-md shadow-sm">
       <div className="px-6 py-4">
         <div className="flex items-center justify-between">
-          {/* Logo */}
+          {/* Logo - Updated to match splash screen */}
           <div className="flex items-center space-x-3">
-            <div className="relative">
-              <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg">
-                <Clapperboard className="w-6 h-6 text-white" />
-              </div>
+            <div className="p-2 bg-emerald-600 rounded-lg">
+              <Clapperboard className="w-6 h-6 text-white" />
             </div>
-            <div>
-              <h1 className="text-2xl font-bold gradient-text">Greenlight</h1>
-              <p className="text-xs text-slate-500 font-medium">Casting Management</p>
-            </div>
+            <h1 className="text-2xl font-bold text-emerald-600 tracking-wide">GREENLIGHT</h1>
           </div>
 
           {/* Center Menu */}
