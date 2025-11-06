@@ -10,7 +10,8 @@ export interface Actor {
   contactPhone?: string
   contactEmail?: string
   skills?: string[]
-  availability?: string[]
+  availability?: string[] | AvailabilityDate[]
+  availabilityDates?: AvailabilityDate[]
   headshots: string[]
   currentCardHeadshotIndex: number
   userVotes: Record<string, "yes" | "no" | "maybe">
@@ -29,7 +30,6 @@ export interface Actor {
     targetName?: string
     isGreenlit?: boolean
   }
-  // Form submission specific fields
   submissionId?: string
   submissionSource?: "form" | "manual" | "import"
   submissionVideos?: Array<{
@@ -41,6 +41,13 @@ export interface Actor {
   approvalMoveDate?: number
   lastContactDate?: number
   lastContactType?: string
+  projectAssignments?: Array<{
+    projectId: string
+    projectName: string
+    characterId: string
+    characterName: string
+    assignedDate: number
+  }>
 }
 
 export interface CastingState {
@@ -56,7 +63,10 @@ export interface CastingState {
   cardViewSettings: CardViewSettings
   sortOptionDefinitions: SortOption[]
   terminology: Terminology
-  tabDisplayNames: { [tabKey: string]: string } // New: Front-end only display names
+  tabDisplayNames: { [tabKey: string]: string }
+  scheduleEntries: ScheduleEntry[]
+  productionPhases: ProductionPhase[]
+  scenes: Scene[]
 }
 
 export type CastingAction =
@@ -178,6 +188,39 @@ export type CastingAction =
   | { type: "LOAD_SAVED_SEARCH"; payload: string }
   | { type: "DELETE_SAVED_SEARCH"; payload: string }
   | { type: "UPDATE_SAVED_SEARCH"; payload: { id: string; updates: Partial<SavedSearch> } }
+  | { type: "ADD_SCHEDULE_ENTRY"; payload: ScheduleEntry }
+  | { type: "UPDATE_SCHEDULE_ENTRY"; payload: { id: string; updates: Partial<ScheduleEntry> } }
+  | { type: "DELETE_SCHEDULE_ENTRY"; payload: string }
+  | { type: "ADD_PRODUCTION_PHASE"; payload: ProductionPhase }
+  | { type: "UPDATE_PRODUCTION_PHASE"; payload: { id: string; updates: Partial<ProductionPhase> } }
+  | { type: "DELETE_PRODUCTION_PHASE"; payload: string }
+  | { type: "SET_STATUS_FILTER"; payload: string[] }
+  | { type: "SET_AGE_RANGE_FILTER"; payload: { min: number; max: number } }
+  | { type: "SET_LOCATION_FILTER"; payload: string[] }
+  | { type: "CLEAR_ALL_FILTERS" }
+  | { type: "TOGGLE_FILTERS" }
+  | { type: "ADD_SCENE"; payload: Scene }
+  | { type: "UPDATE_SCENE"; payload: { id: string; updates: Partial<Scene> } }
+  | { type: "DELETE_SCENE"; payload: string }
+  | { type: "REORDER_SCENES"; payload: { sceneId: string; newShootDayId: string; newOrder: number } }
+  | {
+      type: "ASSIGN_ACTOR_TO_PROJECT_CHARACTER"
+      payload: {
+        actorId: string
+        projectId: string
+        projectName: string
+        characterId: string
+        characterName: string
+      }
+    }
+  | {
+      type: "REMOVE_ACTOR_ASSIGNMENT"
+      payload: {
+        actorId: string
+        projectId: string
+        characterId: string
+      }
+    }
 
 export interface User {
   id: string
@@ -281,7 +324,7 @@ export interface CurrentFocus {
   currentProjectId: string | null
   characterId: string | null
   activeTabKey: string
-  cardDisplayMode: "detailed" | "compact" | "player"
+  cardDisplayMode: "detailed" | "compact" | "player" | "simple" | "list-view" | "row"
   currentSortOption: string
   searchTerm: string
   searchTags: SearchTag[]
@@ -358,5 +401,7 @@ export interface SavedSearch {
   searchTerm: string
   createdAt: number
   lastUsed: number
-  isGlobal: boolean // true for searches available across all tabs/characters
+  isGlobal: boolean
 }
+
+import type { AvailabilityDate, ScheduleEntry, ProductionPhase, Scene } from "./schedule"
