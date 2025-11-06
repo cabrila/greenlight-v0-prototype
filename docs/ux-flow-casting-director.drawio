@@ -667,7 +667,7 @@
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         
-        <mxCell id="arrow-s4-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.75;entryDx=0;entryDy=0;strokeWidth=2" edge="1" parent="1" source="help-complete" target="project-screen">
+        <mxCell id="arrow-s4-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2" edge="1" parent="1" source="help-complete" target="project-screen">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         
@@ -962,7 +962,7 @@
           </mxGeometry>
         </mxCell>
         
-        <mxCell id="arrow-s7-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.75;entryDx=0;entryDy=0;strokeWidth=2" edge="1" parent="1" source="actor-skip" target="setup-complete">
+        <mxCell id="arrow-s7-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2" edge="1" parent="1" source="actor-skip" target="setup-complete">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="620" y="1695" />
@@ -1156,6 +1156,915 @@
         
         <mxCell id="detail-legend-data" value="Data Entry" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="detail-legend-box">
           <mxGeometry x="120" y="160" width="80" height="40" as="geometry" />
+        </mxCell>
+        
+      </root>
+    </mxGraphModel>
+  </diagram>
+  
+  <!-- Adding new third page for Modal Interaction Flow -->
+  <diagram name="Modal Interaction Flow" id="modal-interaction-flow">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="4000" pageHeight="3000" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- Title -->
+        <mxCell id="modal-title" value="Greenlight - Modal Interaction Flow Map" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=24;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="700" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="modal-subtitle" value="Complete navigation map showing which buttons in which modals lead to other modals" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontColor=#666666" vertex="1" parent="1">
+          <mxGeometry x="40" y="60" width="900" height="30" as="geometry" />
+        </mxCell>
+        
+        <!-- ENTRY POINTS SECTION -->
+        <mxCell id="entry-section-title" value="ENTRY POINTS (Where Modals Are Triggered From)" style="text;html=1;strokeColor=#d6b656;fillColor=#fff2cc;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="120" width="600" height="30" as="geometry" />
+        </mxCell>
+        
+        <!-- Entry Points -->
+        <mxCell id="entry-topmenu" value="TOP MENU BAR" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="80" y="180" width="160" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="entry-sidebar" value="SIDEBAR" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="280" y="180" width="160" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="entry-actorcard" value="ACTOR CARD&lt;br&gt;(Context Menu)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="480" y="180" width="160" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="entry-canvas" value="CANVAS VIEW&lt;br&gt;(Context Menu)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="680" y="180" width="160" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="entry-viewcontrols" value="VIEW CONTROLS&lt;br&gt;(Action Buttons)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="880" y="180" width="160" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- SPLASH SCREEN MODAL SECTION -->
+        <mxCell id="splash-section-title" value="SPLASH SCREEN MODAL (First Visit)" style="text;html=1;strokeColor=#d6b656;fillColor=#fff2cc;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="280" width="600" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="modal-splash" value="SplashScreenModal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;fontSize=14" vertex="1" parent="1">
+          <mxGeometry x="80" y="340" width="200" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- Buttons from Splash Screen -->
+        <mxCell id="splash-btn-project" value="&quot;Project&quot; button" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="340" y="300" width="140" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="splash-btn-database" value="&quot;Database&quot; button" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="340" y="350" width="140" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="splash-btn-notifications" value="&quot;Notifications&quot; button" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="340" y="400" width="140" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="splash-btn-permissions" value="&quot;Permissions&quot; button" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="340" y="450" width="140" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="splash-btn-help" value="&quot;Help&quot; button" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="340" y="500" width="140" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- Target Modals from Splash -->
+        <mxCell id="target-projectmanager" value="ProjectManagerModal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="540" y="300" width="180" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="target-database" value="DatabaseModal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="540" y="350" width="180" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="target-notifications" value="NotificationsModal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="540" y="400" width="180" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="target-permissions" value="UserPermissionsModal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="540" y="450" width="180" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="target-help" value="HelpWizardModal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="540" y="500" width="180" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- Arrows from Splash -->
+        <mxCell id="arrow-splash-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#0066CC" edge="1" parent="1" source="modal-splash" target="splash-btn-project">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow-splash-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#0066CC" edge="1" parent="1" source="modal-splash" target="splash-btn-database">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow-splash-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#0066CC" edge="1" parent="1" source="modal-splash" target="splash-btn-notifications">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow-splash-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#0066CC" edge="1" parent="1" source="modal-splash" target="splash-btn-permissions">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow-splash-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#0066CC" edge="1" parent="1" source="modal-splash" target="splash-btn-help">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow-splash-target-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2" edge="1" parent="1" source="splash-btn-project" target="target-projectmanager">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow-splash-target-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2" edge="1" parent="1" source="splash-btn-database" target="target-database">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow-splash-target-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2" edge="1" parent="1" source="splash-btn-notifications" target="target-notifications">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow-splash-target-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2" edge="1" parent="1" source="splash-btn-permissions" target="target-permissions">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow-splash-target-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2" edge="1" parent="1" source="splash-btn-help" target="target-help">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- PLAYER VIEW MODAL CHAIN SECTION -->
+        <mxCell id="playerview-section-title" value="PLAYER VIEW MODAL CHAIN (Most Complex)" style="text;html=1;strokeColor=#b85450;fillColor=#f8cecc;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="600" width="600" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="modal-playerview" value="PlayerViewModal&lt;br&gt;(Full-screen actor review)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1;fontSize=14" vertex="1" parent="1">
+          <mxGeometry x="80" y="660" width="200" height="70" as="geometry" />
+        </mxCell>
+        
+        <!-- Actions button from PlayerView -->
+        <mxCell id="playerview-btn-actions" value="&quot;Actions&quot; button&lt;br&gt;(Three dots menu)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="340" y="670" width="160" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="modal-playerviewactions" value="PlayerViewActionsModal&lt;br&gt;(Action menu)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;fontSize=13" vertex="1" parent="1">
+          <mxGeometry x="560" y="670" width="200" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- Buttons from PlayerViewActions -->
+        <mxCell id="pva-btn-edit" value="&quot;Edit Actor Details&quot;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="820" y="600" width="160" height="35" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="pva-btn-statuses" value="&quot;Manage Statuses&quot;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="820" y="645" width="160" height="35" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="pva-btn-movelist" value="&quot;Move to Different List&quot;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="820" y="690" width="160" height="35" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="pva-btn-movechar" value="&quot;Move to Different Character&quot;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="820" y="735" width="160" height="35" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="pva-btn-delete" value="&quot;Delete Actor&quot;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="820" y="780" width="160" height="35" as="geometry" />
+        </mxCell>
+        
+        <!-- Target modals from PlayerViewActions -->
+        <mxCell id="target-editactor" value="EditActorModal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;fontSize=12" vertex="1" parent="1">
+          <mxGeometry x="1040" y="600" width="160" height="35" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="target-managestatuses" value="ManageStatusesModal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;fontSize=12" vertex="1" parent="1">
+          <mxGeometry x="1040" y="645" width="160" height="35" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="target-moveactor" value="MoveActorModal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;fontSize=12" vertex="1" parent="1">
+          <mxGeometry x="1040" y="690" width="160" height="35" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="target-moveactortochar" value="MoveActorToCharacterModal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;fontSize=12" vertex="1" parent="1">
+          <mxGeometry x="1040" y="735" width="160" height="35" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="target-confirmdelete" value="ConfirmDeleteModal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1;fontSize=12" vertex="1" parent="1">
+          <mxGeometry x="1040" y="780" width="160" height="35" as="geometry" />
+        </mxCell>
+        
+        <!-- Arrows for PlayerView chain -->
+        <mxCell id="arrow-pv-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#0066CC" edge="1" parent="1" source="modal-playerview" target="playerview-btn-actions">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow-pv-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2" edge="1" parent="1" source="playerview-btn-actions" target="modal-playerviewactions">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow-pva-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#0066CC" edge="1" parent="1" source="modal-playerviewactions" target="pva-btn-edit">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow-pva-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#0066CC" edge="1" parent="1" source="modal-playerviewactions" target="pva-btn-statuses">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow-pva-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#0066CC" edge="1" parent="1" source="modal-playerviewactions" target="pva-btn-movelist">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow-pva-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#0066CC" edge="1" parent="1" source="modal-playerviewactions" target="pva-btn-movechar">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow-pva-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#CC0000" edge="1" parent="1" source="modal-playerviewactions" target="pva-btn-delete">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow-pva-target-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2" edge="1" parent="1" source="pva-btn-edit" target="target-editactor">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow-pva-target-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2" edge="1" parent="1" source="pva-btn-statuses" target="target-managestatuses">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow-pva-target-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2" edge="1" parent="1" source="pva-btn-movelist" target="target-moveactor">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow-pva-target-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2" edge="1" parent="1" source="pva-btn-movechar" target="target-moveactortochar">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow-pva-target-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#CC0000" edge="1" parent="1" source="pva-btn-delete" target="target-confirmdelete">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- UPLOAD ACTORS MENU CHAIN SECTION -->
+        <mxCell id="upload-section-title" value="UPLOAD ACTORS MENU CHAIN" style="text;html=1;strokeColor=#6c8ebf;fillColor=#dae8fc;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="880" width="600" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="modal-uploadmenu" value="UploadActorsMenuModal&lt;br&gt;(Upload hub)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=14" vertex="1" parent="1">
+          <mxGeometry x="80" y="940" width="200" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- Buttons from Upload Menu -->
+        <mxCell id="upload-btn-file" value="&quot;Upload from File&quot; button" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="340" y="920" width="180" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="upload-btn-form" value="&quot;Upload from Form&quot; button" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="340" y="980" width="180" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- Target modals from Upload Menu -->
+        <mxCell id="target-uploadcsv" value="UploadCSVModal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="580" y="920" width="160" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="target-createform" value="CreateActorFormModal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="580" y="980" width="160" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- Arrows for Upload chain -->
+        <mxCell id="arrow-upload-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#0066CC" edge="1" parent="1" source="modal-uploadmenu" target="upload-btn-file">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow-upload-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.75;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#0066CC" edge="1" parent="1" source="modal-uploadmenu" target="upload-btn-form">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow-upload-target-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2" edge="1" parent="1" source="upload-btn-file" target="target-uploadcsv">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow-upload-target-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2" edge="1" parent="1" source="upload-btn-form" target="target-createform">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- MORE ACTIONS MODAL CHAIN SECTION -->
+        <mxCell id="moreactions-section-title" value="MORE ACTIONS MODAL CHAIN (Context Menu)" style="text;html=1;strokeColor=#9673a6;fillColor=#e1d5e7;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="1080" width="600" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="modal-moreactions" value="MoreActionsModal&lt;br&gt;(Right-click menu)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;fontSize=14" vertex="1" parent="1">
+          <mxGeometry x="80" y="1140" width="200" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- Buttons from More Actions -->
+        <mxCell id="more-btn-move" value="&quot;Move Actor&quot;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="340" y="1120" width="140" height="35" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="more-btn-movechar" value="&quot;Move to Character&quot;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="340" y="1165" width="140" height="35" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="more-btn-delete" value="&quot;Delete&quot;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="340" y="1210" width="140" height="35" as="geometry" />
+        </mxCell>
+        
+        <!-- Target modals from More Actions -->
+        <mxCell id="target-moveactor2" value="MoveActorModal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="540" y="1120" width="160" height="35" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="target-moveactortochar2" value="MoveActorToCharacterModal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="540" y="1165" width="160" height="35" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="target-confirmdelete2" value="ConfirmDeleteModal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="540" y="1210" width="160" height="35" as="geometry" />
+        </mxCell>
+        
+        <!-- Arrows for More Actions chain -->
+        <mxCell id="arrow-more-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#0066CC" edge="1" parent="1" source="modal-moreactions" target="more-btn-move">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow-more-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#0066CC" edge="1" parent="1" source="modal-moreactions" target="more-btn-movechar">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow-more-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.75;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#CC0000" edge="1" parent="1" source="modal-moreactions" target="more-btn-delete">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow-more-target-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2" edge="1" parent="1" source="more-btn-move" target="target-moveactor2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow-more-target-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2" edge="1" parent="1" source="more-btn-movechar" target="target-moveactortochar2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow-more-target-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#CC0000" edge="1" parent="1" source="more-btn-delete" target="target-confirmdelete2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- CANVAS MODAL CHAIN SECTION -->
+        <mxCell id="canvas-section-title" value="CANVAS MODAL CHAIN" style="text;html=1;strokeColor=#9673a6;fillColor=#e1d5e7;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="1300" width="600" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="modal-canvas" value="CanvasModal&lt;br&gt;(Visual workspace)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;fontSize=14" vertex="1" parent="1">
+          <mxGeometry x="80" y="1360" width="200" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- Buttons from Canvas -->
+        <mxCell id="canvas-btn-creategroup" value="&quot;Create Group&quot; button" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="340" y="1340" width="160" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="canvas-btn-movemultiple" value="Context menu:&lt;br&gt;&quot;Move Multiple&quot;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="340" y="1390" width="160" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- Target modals from Canvas -->
+        <mxCell id="target-creategroup" value="CreateGroupModal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="560" y="1340" width="160" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="target-movemultiple" value="MoveMultipleActorsModal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="560" y="1390" width="160" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- Arrows for Canvas chain -->
+        <mxCell id="arrow-canvas-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#0066CC" edge="1" parent="1" source="modal-canvas" target="canvas-btn-creategroup">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow-canvas-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.75;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#0066CC" edge="1" parent="1" source="modal-canvas" target="canvas-btn-movemultiple">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow-canvas-target-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2" edge="1" parent="1" source="canvas-btn-creategroup" target="target-creategroup">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow-canvas-target-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2" edge="1" parent="1" source="canvas-btn-movemultiple" target="target-movemultiple">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- DATABASE MODAL CHAIN SECTION -->
+        <mxCell id="database-section-title" value="DATABASE MODAL CHAIN" style="text;html=1;strokeColor=#6c8ebf;fillColor=#dae8fc;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="1500" width="600" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="modal-database" value="DatabaseModal&lt;br&gt;(Actor database browser)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=14" vertex="1" parent="1">
+          <mxGeometry x="80" y="1560" width="200" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- Button from Database -->
+        <mxCell id="database-btn-createform" value="&quot;Create Form&quot; button" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="340" y="1570" width="160" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- Target modal from Database -->
+        <mxCell id="target-createform2" value="CreateActorFormModal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="560" y="1570" width="160" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- Arrows for Database chain -->
+        <mxCell id="arrow-database-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#0066CC" edge="1" parent="1" source="modal-database" target="database-btn-createform">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow-database-target-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2" edge="1" parent="1" source="database-btn-createform" target="target-createform2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- CHARACTER MANAGEMENT SECTION -->
+        <mxCell id="character-section-title" value="CHARACTER MANAGEMENT MODALS" style="text;html=1;strokeColor=#6c8ebf;fillColor=#dae8fc;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="1680" width="600" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="modal-addcharacter" value="AddCharacterModal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=14" vertex="1" parent="1">
+          <mxGeometry x="80" y="1740" width="200" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- Button from AddCharacter -->
+        <mxCell id="char-btn-upload" value="&quot;Upload Characters&quot; button" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="340" y="1745" width="180" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- Target modal from AddCharacter -->
+        <mxCell id="target-uploadcharacters" value="UploadCharactersModal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="580" y="1745" width="160" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- Arrows for Character chain -->
+        <mxCell id="arrow-char-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#0066CC" edge="1" parent="1" source="modal-addcharacter" target="char-btn-upload">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow-char-target-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2" edge="1" parent="1" source="char-btn-upload" target="target-uploadcharacters">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- CHARACTER DETAILS MODAL -->
+        <mxCell id="modal-chardetails" value="CharacterDetailsModal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=14" vertex="1" parent="1">
+          <mxGeometry x="80" y="1820" width="200" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- Button from CharacterDetails -->
+        <mxCell id="chardetails-btn-edit" value="&quot;Edit&quot; button" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="340" y="1825" width="140" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- Target modal from CharacterDetails -->
+        <mxCell id="target-editcharacter" value="EditCharacterModal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="540" y="1825" width="160" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- Arrows for CharacterDetails chain -->
+        <mxCell id="arrow-chardetails-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#0066CC" edge="1" parent="1" source="modal-chardetails" target="chardetails-btn-edit">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow-chardetails-target-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2" edge="1" parent="1" source="chardetails-btn-edit" target="target-editcharacter">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- PROJECT MANAGER MODAL -->
+        <mxCell id="projectmanager-section-title" value="PROJECT MANAGER MODAL" style="text;html=1;strokeColor=#6c8ebf;fillColor=#dae8fc;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="1920" width="600" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="modal-projectmanager" value="ProjectManagerModal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=14" vertex="1" parent="1">
+          <mxGeometry x="80" y="1980" width="200" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- Button from ProjectManager -->
+        <mxCell id="pm-btn-delete" value="&quot;Delete Project&quot; button" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="340" y="1985" width="160" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- Target modal from ProjectManager -->
+        <mxCell id="target-confirmdelete3" value="ConfirmDeleteModal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="560" y="1985" width="160" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- Arrows for ProjectManager chain -->
+        <mxCell id="arrow-pm-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#CC0000" edge="1" parent="1" source="modal-projectmanager" target="pm-btn-delete">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow-pm-target-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#CC0000" edge="1" parent="1" source="pm-btn-delete" target="target-confirmdelete3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- USER PERMISSIONS MODAL -->
+        <mxCell id="userpermissions-section-title" value="USER PERMISSIONS MODAL" style="text;html=1;strokeColor=#d79b00;fillColor=#ffe6cc;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="2080" width="600" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="modal-userpermissions" value="UserPermissionsModal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontStyle=1;fontSize=14" vertex="1" parent="1">
+          <mxGeometry x="80" y="2140" width="200" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- Internal state toggle -->
+        <mxCell id="userperm-toggle" value="Toggle &quot;Show Invite Form&quot;&lt;br&gt;(Internal state)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontStyle=italic" vertex="1" parent="1">
+          <mxGeometry x="340" y="2135" width="180" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- Arrow for UserPermissions -->
+        <mxCell id="arrow-userperm-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;dashed=1" edge="1" parent="1" source="modal-userpermissions" target="userperm-toggle">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- SCHEDULE MODAL -->
+        <mxCell id="schedule-section-title" value="SCHEDULE MODAL (Complex Internal Forms)" style="text;html=1;strokeColor=#82b366;fillColor=#d5e8d4;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="2240" width="600" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="modal-schedule" value="ScheduleModal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;fontSize=14" vertex="1" parent="1">
+          <mxGeometry x="80" y="2300" width="200" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- Internal state toggles for Schedule -->
+        <mxCell id="schedule-toggle-1" value="&quot;Show Phase Form&quot;&lt;br&gt;(Internal state)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontStyle=italic;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="340" y="2260" width="140" height="45" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="schedule-toggle-2" value="&quot;Show Edit Day Form&quot;&lt;br&gt;(Internal state)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontStyle=italic;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="340" y="2315" width="140" height="45" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="schedule-toggle-3" value="&quot;Show Actor Selector&quot;&lt;br&gt;(Internal state)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontStyle=italic;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="340" y="2370" width="140" height="45" as="geometry" />
+        </mxCell>
+        
+        <!-- Arrows for Schedule -->
+        <mxCell id="arrow-schedule-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;dashed=1" edge="1" parent="1" source="modal-schedule" target="schedule-toggle-1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow-schedule-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;dashed=1" edge="1" parent="1" source="modal-schedule" target="schedule-toggle-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow-schedule-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.75;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;dashed=1" edge="1" parent="1" source="modal-schedule" target="schedule-toggle-3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- ALL MODALS REFERENCE SECTION -->
+        <mxCell id="allmodals-section-title" value="COMPLETE MODAL REFERENCE (All 40+ Modals)" style="text;html=1;strokeColor=#666666;fillColor=#f5f5f5;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="1400" y="120" width="600" height="30" as="geometry" />
+        </mxCell>
+        
+        <!-- System Modals -->
+        <mxCell id="system-modals-title" value="SYSTEM &amp; ENTRY MODALS" style="text;html=1;strokeColor=#d6b656;fillColor=#fff2cc;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="1420" y="170" width="300" height="25" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="ref-splash" value="• SplashScreenModal" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="1440" y="200" width="250" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="ref-help" value="• HelpWizardModal" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="1440" y="220" width="250" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="ref-notifications" value="• NotificationsModal" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="1440" y="240" width="250" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="ref-clearcache" value="• ClearCacheModal" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="1440" y="260" width="250" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="ref-nocharwarning" value="• NoCharacterWarningModal" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="1440" y="280" width="250" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- Project Modals -->
+        <mxCell id="project-modals-title" value="PROJECT &amp; TEAM MODALS" style="text;html=1;strokeColor=#6c8ebf;fillColor=#dae8fc;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="1420" y="320" width="300" height="25" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="ref-projectmanager" value="• ProjectManagerModal" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="1440" y="350" width="250" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="ref-castingbreakdown" value="• CastingBreakdownModal" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="1440" y="370" width="250" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="ref-teamsuggestions" value="• TeamSuggestionsModal" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="1440" y="390" width="250" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="ref-userpermissions" value="• UserPermissionsModal" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="1440" y="410" width="250" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="ref-schedule" value="• ScheduleModal" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="1440" y="430" width="250" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- Actor Modals -->
+        <mxCell id="actor-modals-title" value="ACTOR MANAGEMENT MODALS" style="text;html=1;strokeColor=#b85450;fillColor=#f8cecc;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="1420" y="470" width="300" height="25" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="ref-addactor" value="• AddActorModal" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="1440" y="500" width="250" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="ref-editactor" value="• EditActorModal" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="1440" y="520" width="250" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="ref-playerview" value="• PlayerViewModal" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="1440" y="540" width="250" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="ref-playerviewactions" value="• PlayerViewActionsModal" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="1440" y="560" width="250" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="ref-moreactions" value="• MoreActionsModal" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="1440" y="580" width="250" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="ref-moveactor" value="• MoveActorModal" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="1440" y="600" width="250" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="ref-moveactortochar" value="• MoveActorToCharacterModal" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="1440" y="620" width="250" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="ref-movemultiple" value="• MoveMultipleActorsModal" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="1440" y="640" width="250" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="ref-managestatuses" value="• ManageStatusesModal" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="1440" y="660" width="250" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="ref-contactactor" value="• ContactActorModal" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="1440" y="680" width="250" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="ref-confirmdelete" value="• ConfirmDeleteModal" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="1440" y="700" width="250" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- Upload Modals -->
+        <mxCell id="upload-modals-title" value="UPLOAD &amp; IMPORT MODALS" style="text;html=1;strokeColor=#9673a6;fillColor=#e1d5e7;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="1420" y="740" width="300" height="25" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="ref-uploadmenu" value="• UploadActorsMenuModal" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="1440" y="770" width="250" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="ref-uploadcsv" value="• UploadCSVModal" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="1440" y="790" width="250" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="ref-createform" value="• CreateActorFormModal" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="1440" y="810" width="250" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="ref-formpreview" value="• FormPreviewModal (nested)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="1440" y="830" width="250" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="ref-uploadcharacters" value="• UploadCharactersModal" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="1440" y="850" width="250" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="ref-database" value="• DatabaseModal" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="1440" y="870" width="250" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- Character Modals -->
+        <mxCell id="character-modals-title" value="CHARACTER MODALS" style="text;html=1;strokeColor=#6c8ebf;fillColor=#dae8fc;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="1420" y="910" width="300" height="25" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="ref-addcharacter" value="• AddCharacterModal" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="1440" y="940" width="250" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="ref-editcharacter" value="• EditCharacterModal" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="1440" y="960" width="250" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="ref-chardetails" value="• CharacterDetailsModal" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="1440" y="980" width="250" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- Special Modals -->
+        <mxCell id="special-modals-title" value="SPECIAL VIEW MODALS" style="text;html=1;strokeColor=#9673a6;fillColor=#e1d5e7;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="1420" y="1020" width="300" height="25" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="ref-canvas" value="• CanvasModal" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="1440" y="1050" width="250" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="ref-creategroup" value="• CreateGroupModal (nested in Canvas)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="1440" y="1070" width="250" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="ref-photoviewer" value="• PhotoViewerModal (highest z-index)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="1440" y="1090" width="250" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- Other Modals -->
+        <mxCell id="other-modals-title" value="OTHER MODALS" style="text;html=1;strokeColor=#82b366;fillColor=#d5e8d4;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="1420" y="1130" width="300" height="25" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="ref-addshortlist" value="• AddShortlistModal" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="1440" y="1160" width="250" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="ref-bookaudition" value="• BookAuditionModal" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="1440" y="1180" width="250" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="ref-addtab" value="• AddTabModal" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="1440" y="1200" width="250" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="ref-renametab" value="• RenameTabModal" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="1440" y="1220" width="250" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- Z-INDEX REFERENCE -->
+        <mxCell id="zindex-title" value="Z-INDEX LAYERING" style="text;html=1;strokeColor=#666666;fillColor=#f5f5f5;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="1420" y="1280" width="300" height="25" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="zindex-1" value="9997: PhotoViewerModal (always on top)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="1440" y="1310" width="300" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="zindex-2" value="100: Critical Modals (Move, Delete, Actions)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="1440" y="1330" width="300" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="zindex-3" value="80: PlayerViewModal" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="1440" y="1350" width="300" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="zindex-4" value="60: Standard Modals (default)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="1440" y="1370" width="300" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- STATE MANAGEMENT SYSTEMS -->
+        <mxCell id="state-title" value="STATE MANAGEMENT SYSTEMS" style="text;html=1;strokeColor=#666666;fillColor=#f5f5f5;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="1420" y="1420" width="300" height="25" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="state-1" value="1. Modal Stack System (globalModalStack)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="1440" y="1450" width="300" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="state-1-desc" value="   Used by most modals via openModal()" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="1440" y="1470" width="300" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="state-2" value="2. CastingContext System" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="1440" y="1495" width="300" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="state-2-desc" value="   Used by: addActor, editActor, moveActor,&lt;br&gt;   moveActorToCharacter, bookAudition, database" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="1440" y="1515" width="300" height="35" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="state-3" value="3. Local Component State" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="1440" y="1555" width="300" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="state-3-desc" value="   Used by: TabNavigation, SplashScreen,&lt;br&gt;   Canvas, Schedule, UserPermissions" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="1440" y="1575" width="300" height="35" as="geometry" />
+        </mxCell>
+        
+        <!-- LEGEND -->
+        <mxCell id="modal-legend-box" value="LEGEND" style="swimlane;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontSize=12;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="1420" y="1650" width="400" height="280" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="legend-entry" value="Entry Point" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1" vertex="1" parent="modal-legend-box">
+          <mxGeometry x="20" y="40" width="100" height="35" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="legend-modal" value="Modal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1" vertex="1" parent="modal-legend-box">
+          <mxGeometry x="140" y="40" width="100" height="35" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="legend-button" value="Button/Action" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="modal-legend-box">
+          <mxGeometry x="260" y="40" width="100" height="35" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="legend-delete" value="Delete Action" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="modal-legend-box">
+          <mxGeometry x="20" y="90" width="100" height="35" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="legend-internal" value="Internal State" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontStyle=italic" vertex="1" parent="modal-legend-box">
+          <mxGeometry x="140" y="90" width="100" height="35" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="legend-arrow-blue" value="Button Click" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="modal-legend-box">
+          <mxGeometry x="20" y="145" width="100" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="legend-arrow-blue-line" value="" style="endArrow=classic;html=1;rounded=0;strokeWidth=3;strokeColor=#0066CC;" edge="1" parent="modal-legend-box">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="130" y="155" as="sourcePoint" />
+            <mxPoint x="180" y="155" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="legend-arrow-black" value="Opens Modal" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="modal-legend-box">
+          <mxGeometry x="20" y="175" width="100" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="legend-arrow-black-line" value="" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;" edge="1" parent="modal-legend-box">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="130" y="185" as="sourcePoint" />
+            <mxPoint x="180" y="185" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="legend-arrow-red" value="Delete Action" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="modal-legend-box">
+          <mxGeometry x="20" y="205" width="100" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="legend-arrow-red-line" value="" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;strokeColor=#CC0000;" edge="1" parent="modal-legend-box">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="130" y="215" as="sourcePoint" />
+            <mxPoint x="180" y="215" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="legend-arrow-dashed" value="Internal Toggle" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="modal-legend-box">
+          <mxGeometry x="20" y="235" width="100" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="legend-arrow-dashed-line" value="" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;dashed=1;" edge="1" parent="modal-legend-box">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="130" y="245" as="sourcePoint" />
+            <mxPoint x="180" y="245" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- KEY PATTERNS BOX -->
+        <mxCell id="patterns-box" value="KEY INTERACTION PATTERNS" style="swimlane;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontSize=12;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="1420" y="1970" width="400" height="320" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="pattern-1" value="1. Close &amp; Open Chain" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=1" vertex="1" parent="patterns-box">
+          <mxGeometry x="10" y="40" width="380" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="pattern-1-desc" value="   Modal A closes → Modal B opens&lt;br&gt;   (Prevents stacking issues)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10" vertex="1" parent="patterns-box">
+          <mxGeometry x="10" y="60" width="380" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="pattern-2" value="2. Confirmation Required" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=1" vertex="1" parent="patterns-box">
+          <mxGeometry x="10" y="95" width="380" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="pattern-2-desc" value="   Action → ConfirmDeleteModal → Callback&lt;br&gt;   (All delete actions require confirmation)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10" vertex="1" parent="patterns-box">
+          <mxGeometry x="10" y="115" width="380" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="pattern-3" value="3. Nested Modals" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=1" vertex="1" parent="patterns-box">
+          <mxGeometry x="10" y="150" width="380" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="pattern-3-desc" value="   Canvas/PlayerView contain sub-modals&lt;br&gt;   (CreateGroupModal, PhotoViewerModal)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10" vertex="1" parent="patterns-box">
+          <mxGeometry x="10" y="170" width="380" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="pattern-4" value="4. Data Passing" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=1" vertex="1" parent="patterns-box">
+          <mxGeometry x="10" y="205" width="380" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="pattern-4-desc" value="   openModal(type, data) passes context&lt;br&gt;   (actorId, characterId, etc.)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10" vertex="1" parent="patterns-box">
+          <mxGeometry x="10" y="225" width="380" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="pattern-5" value="5. Backdrop Click Closes" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=1" vertex="1" parent="patterns-box">
+          <mxGeometry x="10" y="260" width="380" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="pattern-5-desc" value="   Clicking outside modal closes top modal&lt;br&gt;   (ESC key also closes modals)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10" vertex="1" parent="patterns-box">
+          <mxGeometry x="10" y="280" width="380" height="30" as="geometry" />
         </mxCell>
         
       </root>
