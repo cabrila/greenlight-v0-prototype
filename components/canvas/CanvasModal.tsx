@@ -19,12 +19,23 @@ import {
   ChevronRight,
   Layout,
   Fullscreen,
+  Grid3x3,
+  List,
+  SortAsc,
+  SortDesc,
+  Calendar,
+  Hash,
+  CheckCircle,
+  Heart,
+  Star,
+  XIcon,
 } from "lucide-react"
 import { useCasting } from "@/components/casting/CastingContext"
 import CanvasActorCard from "./CanvasActorCard"
 import CanvasContextMenu from "./CanvasContextMenu"
 import CanvasGroup from "./CanvasGroup"
 import CreateGroupModal from "./CreateGroupModal"
+import CanvasChatbot from "./CanvasChatbot"
 import { openModal, closeAllModals } from "../modals/ModalManager"
 
 interface CanvasActor {
@@ -60,7 +71,7 @@ interface CanvasModalProps {
 }
 
 export default function CanvasModal({ onClose }: CanvasModalProps) {
-  const { state } = useCasting()
+  const { state, dispatch } = useCasting() // Added dispatch here
   const canvasRef = useRef<HTMLDivElement>(null)
   const [zoom, setZoom] = useState(1)
   const [pan, setPan] = useState({ x: 0, y: 0 })
@@ -81,6 +92,21 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [isZooming, setIsZooming] = useState(false)
   const zoomTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  const [savedCanvases, setSavedCanvases] = useState<Array<{ id: string; title: string; timestamp: string }>>([])
+
+  const [actorCardView, setActorCardView] = useState<"standard" | "compact" | "minimal" | "voting">("standard") // Added "voting" view mode
+  const [groupSortOption, setGroupSortOption] = useState<"name" | "date" | "actorCount">("name")
+  const [groupSortDirection, setGroupSortDirection] = useState<"asc" | "desc">("asc")
+
+  // State for group transfer context menu
+  const [groupTransferMenu, setGroupTransferMenu] = useState<{
+    show: boolean
+    x: number
+    y: number
+    groupId: string
+    actorIds: string[]
+  } | null>(null)
 
   // Get all actors from current project
   const currentProject = state.projects.find((p) => p.id === state.currentFocus.currentProjectId)
@@ -112,6 +138,27 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
       actor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       actor.sourceCharacter.toLowerCase().includes(searchQuery.toLowerCase()),
   )
+
+  const sortedGroups = [...canvasGroups].sort((a, b) => {
+    let comparison = 0
+
+    switch (groupSortOption) {
+      case "name":
+        comparison = a.name.localeCompare(b.name)
+        break
+      case "date":
+        // Assuming groups have a creation timestamp in their ID
+        const aTime = Number.parseInt(a.id.split("-")[1]) || 0
+        const bTime = Number.parseInt(b.id.split("-")[1]) || 0
+        comparison = aTime - bTime
+        break
+      case "actorCount":
+        comparison = a.actorIds.length - b.actorIds.length
+        break
+    }
+
+    return groupSortDirection === "asc" ? comparison : -comparison
+  })
 
   // Enhanced wheel handler for cursor-centered zooming
   const handleWheel = useCallback(
@@ -496,6 +543,88 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
     })
   }
 
+  const handleGroupContextMenu = (e: React.MouseEvent, groupId: string) => {
+    e.preventDefault()
+    e.stopPropagation()
+
+    const group = canvasGroups.find((g) => g.id === groupId)
+    if (!group || group.actorIds.length === 0) return
+
+    // Get all actors in the group
+    const groupActors = canvasActors.filter((ca) => group.actorIds.includes(ca.id))
+    const actorIds = groupActors.map((ca) => ca.actorId)
+
+    // Show context menu with tab options
+    showGroupTransferMenu(e.clientX, e.clientY, groupId, actorIds)
+  }
+
+  const showGroupTransferMenu = (x: number, y: number, groupId: string, actorIds: string[]) => {
+    setGroupTransferMenu({ show: true, x, y, groupId, actorIds })
+  }
+
+  const handleTransferGroupToTab = (tabKey: string) => {
+    if (!groupTransferMenu || !currentProject) return
+
+    const { groupId, actorIds } = groupTransferMenu
+    const group = canvasGroups.find((g) => g.id === groupId)
+
+    if (!group || actorIds.length === 0) return
+
+    // Determine destination type
+    let destinationType: "standard" | "shortlist" | "custom" = "standard"
+    let destinationShortlistId: string | undefined
+
+    if (tabKey === "shortLists") {
+      destinationType = "shortlist"
+      const character = currentProject.characters.find((c) => c.id === state.currentFocus.characterId)
+      if (character && character.actors.shortLists.length > 0) {
+        destinationShortlistId = character.actors.shortLists[0].id
+      }
+    } else if (tabKey === "longList" || tabKey === "audition" || tabKey === "approval") {
+      destinationType = "standard"
+    } else {
+      destinationType = "custom"
+    }
+
+    // Find the character for these actors
+    const character = currentProject.characters.find((c) => c.id === state.currentFocus.characterId)
+
+    if (!character) return
+
+    // Dispatch move action for all actors in the group
+    dispatch({
+      type: "MOVE_MULTIPLE_ACTORS",
+      payload: {
+        actorIds,
+        characterId: character.id,
+        sourceLocation: { type: "custom", key: "canvas" },
+        destinationType,
+        destinationKey: tabKey,
+        destinationShortlistId,
+        moveReason: "canvas_group_transfer",
+      },
+    })
+
+    // Show success notification
+    const tabName = state.tabDefinitions.find((t) => t.key === tabKey)?.name || tabKey
+    const notification = {
+      id: `group-transfer-${Date.now()}`,
+      type: "system" as const,
+      title: "Group Transferred",
+      message: `${actorIds.length} actor(s) from "${group.name}" moved to ${tabName}`,
+      timestamp: Date.now(),
+      read: false,
+      priority: "medium" as const,
+    }
+
+    dispatch({
+      type: "ADD_NOTIFICATION",
+      payload: notification,
+    })
+
+    setGroupTransferMenu(null)
+  }
+
   const handleRemoveActor = (canvasActorId: string) => {
     setCanvasActors((prev) => prev.filter((actor) => actor.id !== canvasActorId))
     setSelectedActorIds((prev) => prev.filter((id) => id !== canvasActorId))
@@ -613,8 +742,65 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
     updateGroupBounds()
   }
 
+  const handleCollectiveVote = (vote: "yes" | "no" | "maybe") => {
+    if (!state.currentUser || !currentCharacter || selectedActorIds.length === 0) return
+
+    selectedActorIds.forEach((canvasActorId) => {
+      const canvasActor = canvasActors.find((ca) => ca.id === canvasActorId)
+      if (canvasActor) {
+        dispatch({
+          type: "CAST_VOTE",
+          payload: {
+            actorId: canvasActor.actorId,
+            characterId: currentCharacter.id,
+            vote,
+            userId: state.currentUser.id,
+          },
+        })
+      }
+    })
+
+    // Show notification
+    const notification = {
+      id: `collective-vote-${Date.now()}`,
+      type: "system" as const,
+      title: "Collective Vote Cast",
+      message: `Voted "${vote}" for ${selectedActorIds.length} actor(s)`,
+      timestamp: Date.now(),
+      read: false,
+      priority: "medium" as const,
+    }
+
+    dispatch({
+      type: "ADD_NOTIFICATION",
+      payload: notification,
+    })
+  }
+
+  const handleCollectiveMove = () => {
+    if (selectedActorIds.length === 0) return
+
+    const selectedCanvasActors = canvasActors.filter((ca) => selectedActorIds.includes(ca.id))
+    const actorIds = selectedCanvasActors.map((ca) => ca.actorId)
+
+    if (actorIds.length > 0 && currentCharacter) {
+      openModal("moveMultipleActors", {
+        actorIds,
+        characterId: currentCharacter.id,
+      })
+    }
+  }
+
   const handleSaveCanvas = () => {
+    const title = prompt("Enter a title for this canvas:")
+    if (!title || !title.trim()) {
+      return // User cancelled or entered empty title
+    }
+
+    const canvasId = `canvas-${state.currentFocus.currentProjectId}-${Date.now()}`
     const canvasData = {
+      id: canvasId,
+      title: title.trim(),
       actors: canvasActors,
       groups: canvasGroups,
       zoom,
@@ -623,8 +809,65 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
       sidebarCollapsed,
       timestamp: new Date().toISOString(),
     }
-    localStorage.setItem(`canvas-${state.currentFocus.currentProjectId}`, JSON.stringify(canvasData))
-    alert("Canvas saved successfully!")
+
+    // Save the canvas data
+    localStorage.setItem(canvasId, JSON.stringify(canvasData))
+
+    // Update the list of saved canvases
+    const savedList = JSON.parse(localStorage.getItem(`canvas-list-${state.currentFocus.currentProjectId}`) || "[]")
+    savedList.push({
+      id: canvasId,
+      title: title.trim(),
+      timestamp: canvasData.timestamp,
+    })
+    localStorage.setItem(`canvas-list-${state.currentFocus.currentProjectId}`, JSON.stringify(savedList))
+
+    setSavedCanvases(savedList)
+
+    // Dispatch custom event to notify sidebar of the change
+    window.dispatchEvent(
+      new CustomEvent("canvasListUpdated", {
+        detail: { projectId: state.currentFocus.currentProjectId },
+      }),
+    )
+
+    alert(`Canvas "${title.trim()}" saved successfully!`)
+  }
+
+  const handleLoadSpecificCanvas = (canvasId: string) => {
+    const saved = localStorage.getItem(canvasId)
+    if (saved) {
+      const canvasData = JSON.parse(saved)
+      setCanvasActors(canvasData.actors || [])
+      setCanvasGroups(canvasData.groups || [])
+      setZoom(canvasData.zoom || 1)
+      setPan(canvasData.pan || { x: 0, y: 0 })
+      setShowActorNames(canvasData.showActorNames ?? true)
+      setSidebarCollapsed(canvasData.sidebarCollapsed ?? false)
+    }
+  }
+
+  const handleDeleteCanvas = (canvasId: string, title: string) => {
+    if (!confirm(`Are you sure you want to delete "${title}"?`)) {
+      return
+    }
+
+    // Remove from localStorage
+    localStorage.removeItem(canvasId)
+
+    // Update the list
+    const savedList = JSON.parse(localStorage.getItem(`canvas-list-${state.currentFocus.currentProjectId}`) || "[]")
+    const updatedList = savedList.filter((c: any) => c.id !== canvasId)
+    localStorage.setItem(`canvas-list-${state.currentFocus.currentProjectId}`, JSON.stringify(updatedList))
+
+    setSavedCanvases(updatedList)
+
+    // Dispatch custom event to notify sidebar of the change
+    window.dispatchEvent(
+      new CustomEvent("canvasListUpdated", {
+        detail: { projectId: state.currentFocus.currentProjectId },
+      }),
+    )
   }
 
   const handleLoadCanvas = () => {
@@ -640,15 +883,16 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
     }
   }
 
-  useEffect(() => {
+  const useEffect_handleWheel = () => {
     const canvas = canvasRef.current
     if (canvas) {
       canvas.addEventListener("wheel", handleWheel, { passive: false })
       return () => canvas.removeEventListener("wheel", handleWheel)
     }
-  }, [handleWheel])
+  }
+  useEffect(useEffect_handleWheel, [handleWheel])
 
-  useEffect(() => {
+  const useEffect_handleClickOutside = () => {
     const handleClickOutside = () => {
       setContextMenu((prev) => ({ ...prev, isVisible: false }))
     }
@@ -657,7 +901,8 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
       document.addEventListener("click", handleClickOutside)
       return () => document.removeEventListener("click", handleClickOutside)
     }
-  }, [contextMenu.isVisible])
+  }
+  useEffect(useEffect_handleClickOutside, [contextMenu.isVisible])
 
   useEffect(() => {
     updateGroupBounds()
@@ -667,6 +912,11 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
   useEffect(() => {
     handleLoadCanvas()
   }, [])
+
+  useEffect(() => {
+    const savedList = JSON.parse(localStorage.getItem(`canvas-list-${state.currentFocus.currentProjectId}`) || "[]")
+    setSavedCanvases(savedList)
+  }, [state.currentFocus.currentProjectId])
 
   const handleMoveActorFromContext = (canvasActorId: string) => {
     const canvasActor = canvasActors.find((a) => a.id === canvasActorId)
@@ -700,7 +950,7 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
   }
 
   // Enhanced global mouse event listeners for smooth canvas dragging
-  useEffect(() => {
+  const useEffect_globalMouseEvents = () => {
     const handleGlobalMouseMove = (e: MouseEvent) => {
       if (isDragging) {
         const newPan = {
@@ -738,7 +988,8 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
       document.removeEventListener("mouseup", handleGlobalMouseUp)
       document.removeEventListener("wheel", handleGlobalWheel)
     }
-  }, [isDragging, dragStart, handleWheel])
+  }
+  useEffect(useEffect_globalMouseEvents, [isDragging, dragStart, handleWheel])
 
   // Clean up zoom timeout on unmount
   useEffect(() => {
@@ -748,6 +999,22 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
       }
     }
   }, [])
+
+  // Close group transfer menu on click outside
+  const useEffect_groupTransferMenuClickOutside = () => {
+    const handleClickOutside = () => {
+      setGroupTransferMenu(null)
+    }
+
+    if (groupTransferMenu) {
+      document.addEventListener("click", handleClickOutside)
+      return () => document.removeEventListener("click", handleClickOutside)
+    }
+  }
+  useEffect(useEffect_groupTransferMenuClickOutside, [groupTransferMenu])
+
+  // Get current character and user details for voting functionality
+  const currentCharacter = currentProject?.characters.find((c) => c.id === state.currentFocus.characterId)
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex flex-col">
@@ -762,10 +1029,123 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
         </div>
 
         <div className="flex items-center space-x-2">
-          {/* Selection Controls */}
+          <div className="flex items-center space-x-1 bg-gray-100 rounded-lg p-1">
+            <button
+              onClick={() => setActorCardView("standard")}
+              className={`p-2 rounded transition-colors ${
+                actorCardView === "standard" ? "bg-white shadow-sm" : "hover:bg-white/50"
+              }`}
+              title="Standard View"
+            >
+              <Grid3x3 className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setActorCardView("compact")}
+              className={`p-2 rounded transition-colors ${
+                actorCardView === "compact" ? "bg-white shadow-sm" : "hover:bg-white/50"
+              }`}
+              title="Compact View"
+            >
+              <List className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setActorCardView("minimal")}
+              className={`p-2 rounded transition-colors ${
+                actorCardView === "minimal" ? "bg-white shadow-sm" : "hover:bg-white/50"
+              }`}
+              title="Minimal View"
+            >
+              <Hash className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setActorCardView("voting")}
+              className={`p-2 rounded transition-colors ${
+                actorCardView === "voting" ? "bg-white shadow-sm" : "hover:bg-white/50"
+              }`}
+              title="Voting View"
+            >
+              <CheckCircle className="w-4 h-4" />
+            </button>
+          </div>
+
+          {canvasGroups.length > 0 && (
+            <div className="flex items-center space-x-1 bg-gray-100 rounded-lg p-1">
+              <button
+                onClick={() => setGroupSortOption("name")}
+                className={`px-2 py-1 text-xs rounded transition-colors ${
+                  groupSortOption === "name" ? "bg-white shadow-sm font-medium" : "hover:bg-white/50"
+                }`}
+                title="Sort Groups by Name"
+              >
+                Name
+              </button>
+              <button
+                onClick={() => setGroupSortOption("date")}
+                className={`px-2 py-1 text-xs rounded transition-colors ${
+                  groupSortOption === "date" ? "bg-white shadow-sm font-medium" : "hover:bg-white/50"
+                }`}
+                title="Sort Groups by Date Created"
+              >
+                <Calendar className="w-3 h-3" />
+              </button>
+              <button
+                onClick={() => setGroupSortOption("actorCount")}
+                className={`px-2 py-1 text-xs rounded transition-colors ${
+                  groupSortOption === "actorCount" ? "bg-white shadow-sm font-medium" : "hover:bg-white/50"
+                }`}
+                title="Sort Groups by Actor Count"
+              >
+                <Users className="w-3 h-3" />
+              </button>
+              <button
+                onClick={() => setGroupSortDirection((prev) => (prev === "asc" ? "desc" : "asc"))}
+                className="p-1 hover:bg-white/50 rounded transition-colors"
+                title={`Sort ${groupSortDirection === "asc" ? "Descending" : "Ascending"}`}
+              >
+                {groupSortDirection === "asc" ? <SortAsc className="w-4 h-4" /> : <SortDesc className="w-4 h-4" />}
+              </button>
+            </div>
+          )}
+
           {selectedActorIds.length > 0 && (
             <div className="flex items-center space-x-1 bg-blue-100 rounded-lg p-1">
-              <span className="px-2 text-sm text-blue-800">{selectedActorIds.length} selected</span>
+              <span className="px-2 text-sm text-blue-800 font-medium">{selectedActorIds.length} selected</span>
+
+              {/* Collective voting buttons */}
+              {actorCardView === "voting" && state.currentUser && currentCharacter && (
+                <div className="flex items-center space-x-1 border-l border-blue-200 pl-1 ml-1">
+                  <button
+                    onClick={() => handleCollectiveVote("yes")}
+                    className="p-1.5 bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
+                    title="Vote Yes for all selected"
+                  >
+                    <Heart className="w-3 h-3" />
+                  </button>
+                  <button
+                    onClick={() => handleCollectiveVote("no")}
+                    className="p-1.5 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
+                    title="Vote No for all selected"
+                  >
+                    <XIcon className="w-3 h-3" />
+                  </button>
+                  <button
+                    onClick={() => handleCollectiveVote("maybe")}
+                    className="p-1.5 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                    title="Vote Maybe for all selected"
+                  >
+                    <Star className="w-3 h-3" />
+                  </button>
+                </div>
+              )}
+
+              <button
+                onClick={handleCollectiveMove}
+                className="flex items-center space-x-1 px-2 py-1 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors text-xs"
+                title="Move all selected actors"
+              >
+                <span>Move</span>
+              </button>
+
               <button
                 onClick={() => setShowCreateGroupModal(true)}
                 className="flex items-center space-x-1 px-2 py-1 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
@@ -858,240 +1238,323 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
         </div>
       </div>
 
-      <div className="flex flex-1 overflow-hidden">
-        {/* Canvas Area */}
-        <div className="flex-1 relative overflow-hidden bg-gray-100 canvas-container">
-          <div
-            ref={canvasRef}
-            className={`w-full h-full ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
-            onMouseDown={handleMouseDown}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
-            onMouseLeave={handleMouseUp}
-            onDragOver={handleDragOver}
-            onDrop={handleDrop}
-            data-canvas-background="true"
-            style={{
-              transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
-              transformOrigin: "0 0",
-              willChange: isDragging || isZooming ? "transform" : "auto",
-              transition: isDragging || isZooming ? "none" : "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-            }}
-          >
-            {/* Grid Pattern */}
+      <div className="flex flex-1 overflow-hidden flex-col bg-gray-100 relative">
+        <div className="flex flex-1 overflow-hidden">
+          {/* Canvas Area */}
+          <div className="flex-1 relative overflow-hidden bg-gray-100 canvas-container">
             <div
-              className="absolute inset-0 opacity-20"
+              ref={canvasRef}
+              className={`w-full h-full ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
+              onMouseDown={handleMouseDown}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseUp}
+              onDragOver={handleDragOver}
+              onDrop={handleDrop}
+              data-canvas-background="true"
               style={{
-                backgroundImage: `
-                  linear-gradient(to right, #e5e7eb 1px, transparent 1px),
-                  linear-gradient(to bottom, #e5e7eb 1px, transparent 1px)
-                `,
-                backgroundSize: "50px 50px",
+                transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
+                transformOrigin: "0 0",
+                willChange: isDragging || isZooming ? "transform" : "auto",
+                transition: isDragging || isZooming ? "none" : "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
               }}
-            />
-
-            {/* Canvas Groups */}
-            {canvasGroups.map((group) => (
-              <CanvasGroup
-                key={group.id}
-                group={group}
-                onNameChange={handleGroupNameChange}
-                onDelete={handleDeleteGroup}
-                onDragGroup={handleGroupDrag}
-              />
-            ))}
-
-            {/* Canvas Actors */}
-            {canvasActors.map((canvasActor) => {
-              const group = canvasGroups.find((g) => g.id === canvasActor.groupId)
-              return (
-                <CanvasActorCard
-                  key={canvasActor.id}
-                  canvasActor={canvasActor}
-                  showActorName={showActorNames}
-                  isSelected={selectedActorIds.includes(canvasActor.id)}
-                  isInGroup={!!canvasActor.groupId}
-                  groupColor={group?.color}
-                  onDrag={handleActorDrag}
-                  onCharacterNameChange={handleCharacterNameChange}
-                  onContextMenu={handleContextMenu}
-                  onSelect={handleActorSelect}
-                />
-              )
-            })}
-          </div>
-
-          {/* Instructions */}
-          {canvasActors.length === 0 && (
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="text-center text-gray-500">
-                <div className="text-lg font-medium mb-2">Drag actors from the sidebar to start</div>
-                <div className="text-sm">
-                  • Drag to move actors around
-                  <br />• Ctrl/Cmd+Click to select multiple actors
-                  <br />• Create groups from selected actors
-                  <br />• Drag group headers to move entire groups
-                  <br />• Scroll to zoom in/out at cursor position
-                  <br />• Right-click actors for more options
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Zoom and Pan Instructions */}
-          {canvasActors.length > 0 && selectedActorIds.length === 0 && (
-            <div className="absolute top-4 left-4 bg-white bg-opacity-90 p-3 rounded-lg shadow-lg pointer-events-none">
-              <div className="text-sm text-gray-600">
-                <div className="font-medium mb-1">Navigation:</div>
-                <div>• Scroll to zoom in/out at cursor position</div>
-                <div>• Click and drag to pan around</div>
-                <div>• Ctrl/Cmd+Click to select multiple actors</div>
-                <div className="mt-2 text-xs text-gray-500">Zoom: {Math.round(zoom * 100)}%</div>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Collapsible Right Sidebar with Actors */}
-        <div
-          className={`bg-white border-l border-gray-200 overflow-hidden flex flex-col transition-all duration-300 ${
-            sidebarCollapsed ? "w-20" : "w-80"
-          }`}
-        >
-          {/* Sidebar Header */}
-          <div className="p-4 border-b border-gray-200 flex items-center justify-between">
-            {!sidebarCollapsed && (
-              <>
-                <h3 className="font-semibold text-gray-800">Available Actors</h3>
-                {canvasActors.length > 0 && (
-                  <button
-                    onClick={handleSelectAll}
-                    className="text-sm text-blue-600 hover:text-blue-700"
-                    title="Select All Actors"
-                  >
-                    Select All
-                  </button>
-                )}
-              </>
-            )}
-            <button
-              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-              className="p-1 hover:bg-gray-100 rounded transition-colors"
-              title={sidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
             >
-              {sidebarCollapsed ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
-            </button>
+              {/* Grid Pattern */}
+              <div
+                className="absolute inset-0 opacity-20"
+                style={{
+                  backgroundImage: `
+                    linear-gradient(to right, #e5e7eb 1px, transparent 1px),
+                    linear-gradient(to bottom, #e5e7eb 1px, transparent 1px)
+                  `,
+                  backgroundSize: "50px 50px",
+                }}
+              />
+
+              {sortedGroups.map((group) => (
+                <CanvasGroup
+                  key={group.id}
+                  group={group}
+                  onNameChange={handleGroupNameChange}
+                  onDelete={handleDeleteGroup}
+                  onDragGroup={handleGroupDrag}
+                  onContextMenu={handleGroupContextMenu} // Added context menu handler for groups
+                />
+              ))}
+
+              {canvasActors.map((canvasActor) => {
+                const group = canvasGroups.find((g) => g.id === canvasActor.groupId)
+                return (
+                  <CanvasActorCard
+                    key={canvasActor.id}
+                    canvasActor={canvasActor}
+                    showActorName={showActorNames}
+                    isSelected={selectedActorIds.includes(canvasActor.id)}
+                    isInGroup={!!canvasActor.groupId}
+                    groupColor={group?.color}
+                    viewMode={actorCardView}
+                    onDrag={handleActorDrag}
+                    onCharacterNameChange={handleCharacterNameChange}
+                    onContextMenu={handleContextMenu}
+                    onSelect={handleActorSelect}
+                    characterId={currentCharacter?.id}
+                    dispatch={dispatch}
+                    currentUser={state.currentUser}
+                    allUsers={state.users}
+                  />
+                )
+              })}
+            </div>
+
+            {canvasActors.length === 0 && (
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div className="text-center text-gray-500">
+                  <div className="text-lg font-medium mb-2">Drag actors from the sidebar to start</div>
+                  <div className="text-sm">
+                    • Drag to move actors around
+                    <br />• Ctrl/Cmd+Click or tap checkbox to select multiple
+                    <br />• Long press (500ms) on touch devices for multi-select
+                    <br />• Create groups from selected actors
+                    <br />• Apply collective actions to selected actors
+                    <br />• Drag group headers to move entire groups
+                    <br />• Scroll to zoom in/out at cursor position
+                    <br />• Right-click actors for more options
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Zoom and Pan Instructions */}
+            {canvasActors.length > 0 && selectedActorIds.length === 0 && (
+              <div className="absolute top-4 left-4 bg-white bg-opacity-90 p-3 rounded-lg shadow-lg pointer-events-none">
+                <div className="text-sm text-gray-600">
+                  <div className="font-medium mb-1">Navigation:</div>
+                  <div>• Scroll to zoom in/out at cursor position</div>
+                  <div>• Click and drag to pan around</div>
+                  <div>• Ctrl/Cmd+Click to select multiple actors</div>
+                  <div className="mt-2 text-xs text-gray-500">Zoom: {Math.round(zoom * 100)}%</div>
+                </div>
+              </div>
+            )}
+
+            <CanvasChatbot
+              selectedActorCount={selectedActorIds.length}
+              totalActorCount={canvasActors.length}
+              isDisabled={canvasActors.length === 0}
+            />
           </div>
 
-          {/* Search (only when expanded) */}
-          {!sidebarCollapsed && (
-            <div className="p-4 border-b border-gray-200">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <input
-                  type="text"
-                  placeholder="Search actors..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm"
-                />
-              </div>
-              {searchQuery && (
-                <div className="mt-2 text-xs text-gray-500">
-                  {filteredActors.length} of {uniqueActors.length} actors
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Actors List */}
-          <div className="flex-1 overflow-y-auto p-2">
-            <div className={`space-y-2 ${sidebarCollapsed ? "space-y-1" : ""}`}>
-              {filteredActors.length > 0
-                ? filteredActors.map((actor) => (
-                    <div
-                      key={actor.id}
-                      draggable
-                      onDragStart={(e) => {
-                        e.dataTransfer.setData("text/plain", actor.id)
-                      }}
-                      className={`bg-gray-50 rounded-lg cursor-move hover:bg-gray-100 transition-colors border border-gray-200 hover:border-emerald-300 ${
-                        sidebarCollapsed ? "p-1" : "p-3"
-                      }`}
+          {/* Collapsible Right Sidebar with Actors */}
+          <div
+            className={`bg-white border-l border-gray-200 overflow-hidden flex flex-col transition-all duration-300 ${
+              sidebarCollapsed ? "w-20" : "w-80"
+            }`}
+          >
+            {/* Sidebar Header */}
+            <div className="p-4 border-b border-gray-200 flex items-center justify-between">
+              {!sidebarCollapsed && (
+                <>
+                  <h3 className="font-semibold text-gray-800">Available Actors</h3>
+                  {canvasActors.length > 0 && (
+                    <button
+                      onClick={handleSelectAll}
+                      className="text-sm text-blue-600 hover:text-blue-700"
+                      title="Select All Actors"
                     >
-                      {sidebarCollapsed ? (
-                        // Collapsed view: Just thumbnail
-                        <div className="flex justify-center">
-                          <img
-                            src={actor.headshots?.[0] || "/placeholder.svg?height=40&width=40"}
-                            alt={actor.name}
-                            className="w-12 h-12 rounded-full object-cover border border-gray-200"
-                            title={`${actor.name} - From: ${actor.sourceCharacter}`}
-                          />
-                        </div>
-                      ) : (
-                        // Expanded view: Full details
-                        <div className="flex items-center space-x-3">
-                          <img
-                            src={actor.headshots?.[0] || "/placeholder.svg?height=40&width=40"}
-                            alt={actor.name}
-                            className="w-10 h-10 rounded-full object-cover border border-gray-200"
-                          />
-                          <div className="flex-1 min-w-0">
-                            <div className="font-medium text-gray-800 truncate">{actor.name}</div>
-                            <div className="text-xs text-gray-500 truncate">From: {actor.sourceCharacter}</div>
-                            {actor.age && <div className="text-xs text-gray-400">Age: {actor.age}</div>}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  ))
-                : !sidebarCollapsed && (
-                    <div className="text-center text-gray-500 py-8">
-                      <div className="text-sm">
-                        {searchQuery ? "No actors found matching your search" : "No actors available"}
-                      </div>
-                      {searchQuery && (
-                        <button
-                          onClick={() => setSearchQuery("")}
-                          className="text-emerald-600 hover:text-emerald-700 text-sm mt-2"
-                        >
-                          Clear search
-                        </button>
-                      )}
-                    </div>
+                      Select All
+                    </button>
                   )}
+                </>
+              )}
+              <button
+                onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+                className="p-1 hover:bg-gray-100 rounded transition-colors"
+                title={sidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+              >
+                {sidebarCollapsed ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+              </button>
+            </div>
+
+            {!sidebarCollapsed && savedCanvases.length > 0 && (
+              <div className="p-4 border-b border-gray-200">
+                <h4 className="text-sm font-semibold text-gray-700 mb-2">Saved Canvases</h4>
+                <div className="space-y-1 max-h-40 overflow-y-auto">
+                  {savedCanvases.map((canvas) => (
+                    <div
+                      key={canvas.id}
+                      className="flex items-center justify-between p-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                    >
+                      <button
+                        onClick={() => handleLoadSpecificCanvas(canvas.id)}
+                        className="flex-1 text-left text-sm text-gray-700 hover:text-emerald-600 truncate"
+                        title={`Load "${canvas.title}"`}
+                      >
+                        {canvas.title}
+                      </button>
+                      <button
+                        onClick={() => handleDeleteCanvas(canvas.id, canvas.title)}
+                        className="ml-2 p-1 text-red-400 hover:text-red-600 transition-colors"
+                        title={`Delete "${canvas.title}"`}
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Search (only when expanded) */}
+            {!sidebarCollapsed && (
+              <div className="p-4 border-b border-gray-200">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <input
+                    type="text"
+                    placeholder="Search actors..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm"
+                  />
+                </div>
+                {searchQuery && (
+                  <div className="mt-2 text-xs text-gray-500">
+                    {filteredActors.length} of {uniqueActors.length} actors
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Actors List */}
+            <div className="flex-1 overflow-y-auto p-2">
+              <div className={`space-y-2 ${sidebarCollapsed ? "space-y-1" : ""}`}>
+                {filteredActors.length > 0
+                  ? filteredActors.map((actor) => (
+                      <div
+                        key={actor.id}
+                        draggable
+                        onDragStart={(e) => {
+                          e.dataTransfer.setData("text/plain", actor.id)
+                        }}
+                        className={`bg-gray-50 rounded-lg cursor-move hover:bg-gray-100 transition-colors border border-gray-200 hover:border-emerald-300 ${
+                          sidebarCollapsed ? "p-1" : "p-3"
+                        }`}
+                      >
+                        {sidebarCollapsed ? (
+                          // Collapsed view: Just thumbnail
+                          <div className="flex justify-center">
+                            <img
+                              src={actor.headshots?.[0] || "/placeholder.svg?height=40&width=40"}
+                              alt={actor.name}
+                              className="w-12 h-12 rounded-full object-cover border border-gray-200"
+                              title={`${actor.name} - From: ${actor.sourceCharacter}`}
+                            />
+                          </div>
+                        ) : (
+                          // Expanded view: Full details
+                          <div className="flex items-center space-x-3">
+                            <img
+                              src={actor.headshots?.[0] || "/placeholder.svg?height=40&width=40"}
+                              alt={actor.name}
+                              className="w-10 h-10 rounded-full object-cover border border-gray-200"
+                            />
+                            <div className="flex-1 min-w-0">
+                              <div className="font-medium text-gray-800 truncate">{actor.name}</div>
+                              <div className="text-xs text-gray-500 truncate">From: {actor.sourceCharacter}</div>
+                              {actor.age && <div className="text-xs text-gray-400">Age: {actor.age}</div>}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ))
+                  : !sidebarCollapsed && (
+                      <div className="text-center text-gray-500 py-8">
+                        <div className="text-sm">
+                          {searchQuery ? "No actors found matching your search" : "No actors available"}
+                        </div>
+                        {searchQuery && (
+                          <button
+                            onClick={() => setSearchQuery("")}
+                            className="text-emerald-600 hover:text-emerald-700 text-sm mt-2"
+                          >
+                            Clear search
+                          </button>
+                        )}
+                      </div>
+                    )}
+              </div>
             </div>
           </div>
         </div>
+
+        {/* Context Menu */}
+        {contextMenu.isVisible && (
+          <CanvasContextMenu
+            x={contextMenu.x}
+            y={contextMenu.y}
+            availableGroups={canvasGroups}
+            onRemove={() => handleRemoveActor(contextMenu.actorId)}
+            onDuplicate={() => handleDuplicateActor(contextMenu.actorId)}
+            onMoveActor={() => handleMoveActorFromContext(contextMenu.actorId)}
+            onAddToGroup={(groupId) => handleAddActorToGroup(contextMenu.actorId, groupId)}
+            onCreateNewGroup={() => handleCreateGroupWithActor(contextMenu.actorId)}
+            onClose={() => setContextMenu((prev) => ({ ...prev, isVisible: false }))}
+          />
+        )}
+
+        {groupTransferMenu && (
+          <div
+            className="fixed bg-white border border-gray-200 rounded-xl shadow-2xl z-50 py-2 min-w-[200px]"
+            style={{
+              left: groupTransferMenu.x,
+              top: groupTransferMenu.y,
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="px-4 py-2 border-b border-gray-200">
+              <h4 className="text-sm font-semibold text-gray-700">Transfer Group To:</h4>
+              <p className="text-xs text-gray-500 mt-1">{groupTransferMenu.actorIds.length} actor(s) will be moved</p>
+            </div>
+            <div className="max-h-64 overflow-y-auto">
+              {state.tabDefinitions.map((tab) => {
+                // Skip shortLists tab as it's handled differently
+                if (tab.key === "shortLists") return null
+
+                // Determine icon based on tab key
+                let Icon: React.ComponentType<React.ComponentProps<"svg">> | null = null
+                if (tab.key === "longList") Icon = List
+                if (tab.key === "approval") Icon = CheckCircle
+
+                return (
+                  <button
+                    key={tab.key}
+                    onClick={() => handleTransferGroupToTab(tab.key)}
+                    className="w-full px-4 py-3 text-left text-sm hover:bg-gray-50 flex items-center space-x-3 transition-colors"
+                  >
+                    {Icon && <Icon className="w-4 h-4 text-gray-500" />}
+                    <span>{tab.name}</span>
+                    {tab.key === "approval" && (
+                      <span className="ml-auto text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded">Final</span>
+                    )}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Create Group Modal */}
+        {showCreateGroupModal && (
+          <CreateGroupModal
+            selectedActorIds={selectedActorIds}
+            onCreateGroup={handleCreateGroup}
+            onClose={() => {
+              setShowCreateGroupModal(false)
+              setSelectedActorIds([])
+            }}
+          />
+        )}
       </div>
-
-      {/* Context Menu */}
-      {contextMenu.isVisible && (
-        <CanvasContextMenu
-          x={contextMenu.x}
-          y={contextMenu.y}
-          availableGroups={canvasGroups}
-          onRemove={() => handleRemoveActor(contextMenu.actorId)}
-          onDuplicate={() => handleDuplicateActor(contextMenu.actorId)}
-          onMoveActor={() => handleMoveActorFromContext(contextMenu.actorId)}
-          onAddToGroup={(groupId) => handleAddActorToGroup(contextMenu.actorId, groupId)}
-          onCreateNewGroup={() => handleCreateGroupWithActor(contextMenu.actorId)}
-          onClose={() => setContextMenu((prev) => ({ ...prev, isVisible: false }))}
-        />
-      )}
-
-      {/* Create Group Modal */}
-      {showCreateGroupModal && (
-        <CreateGroupModal
-          selectedActorIds={selectedActorIds}
-          onCreateGroup={handleCreateGroup}
-          onClose={() => {
-            setShowCreateGroupModal(false)
-            setSelectedActorIds([])
-          }}
-        />
-      )}
     </div>
   )
 }
