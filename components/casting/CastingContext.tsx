@@ -1,9 +1,9 @@
 "use client"
 
 import type React from "react"
-import { createContext } from "react"
+import { createContext, useContext, useReducer, useEffect } from "react"
 import type { CastingState, CastingAction } from "@/types/casting"
-import { clearLocalStorage } from "@/utils/localStorage"
+import { clearLocalStorage, saveToLocalStorage, loadFromLocalStorage } from "@/utils/localStorage"
 
 // --- helper ---------------------------------------------
 function safeArray<T>(arr: T[] | undefined | null): T[] {
@@ -1031,4 +1031,50 @@ function getCurrentPlayerViewList(state: CastingState): any[] {
   return currentCharacter.actors[currentTabKey] || []
 }
 
-export { CastingContext, castingReducer, getInitialState }
+export function CastingProvider({
+  children,
+  initialData,
+}: {
+  children: React.ReactNode
+  initialData?: Partial<CastingState>
+}) {
+  // Initialize state with provided data or load from storage
+  const [state, dispatch] = useReducer(castingReducer, getInitialState(), (initial) => {
+    if (initialData) {
+      return validateAndCompleteState({ ...initial, ...initialData })
+    }
+
+    // Try to load from localStorage
+    if (typeof window !== "undefined") {
+      const stored = loadFromLocalStorage()
+      if (stored) {
+        return validateAndCompleteState(stored)
+      }
+    }
+
+    return initial
+  })
+
+  // Save to localStorage whenever state changes
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const timeoutId = setTimeout(() => {
+        saveToLocalStorage(state)
+      }, 500) // Debounce saves
+
+      return () => clearTimeout(timeoutId)
+    }
+  }, [state])
+
+  return <CastingContext.Provider value={{ state, dispatch }}>{children}</CastingContext.Provider>
+}
+
+export function useCasting() {
+  const context = useContext(CastingContext)
+  if (!context) {
+    throw new Error("useCasting must be used within a CastingProvider")
+  }
+  return context
+}
+
+export { CastingContext, castingReducer, getInitialState, getCurrentTerminology, getTabDisplayName }
