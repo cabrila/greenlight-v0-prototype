@@ -5,7 +5,7 @@ import { useActorGrid } from "./ActorGridContext"
 import { useCasting } from "@/components/casting/CastingContext"
 import type { Character, Actor } from "@/types/casting"
 import { useState, useCallback, useEffect, useRef } from "react"
-import { ArrowRightCircle, Mail, Crown, List, CheckCircle, Users, MapPin, Phone } from "lucide-react"
+import { ArrowRightCircle, Mail, Crown, List, CheckCircle, MapPin, Phone, Calendar, Check } from "lucide-react"
 import { openModal } from "@/components/modals/ModalManager"
 import ActorCard from "@/components/actors/ActorCard"
 
@@ -1103,85 +1103,6 @@ export default function ActorGrid({ character }: ActorGridProps) {
 
     return (
       <div
-        className={`bg-white rounded-lg border-2 transition-all duration-200 overflow-hidden cursor-pointer ${
-          selectedActorIds.has(actor.id)
-            ? "border-emerald-500 shadow-lg ring-2 ring-emerald-200"
-            : "border-slate-200 hover:border-emerald-300 hover:shadow-md"
-        }`}
-        onClick={(e) => handleActorSelect(actor.id, e)}
-      >
-        <div className="flex items-center gap-3 p-3">
-          {/* Thumbnail */}
-          <div className="flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden bg-slate-100 border border-slate-200">
-            {actorImage && !imageError ? (
-              <img
-                src={actorImage || "/placeholder.svg"}
-                alt={actor.name}
-                className="w-full h-full object-cover"
-                onError={() => setImageError(true)}
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-slate-400 text-2xl font-bold bg-gradient-to-br from-slate-100 to-slate-200">
-                {actor.name.charAt(0).toUpperCase()}
-              </div>
-            )}
-          </div>
-
-          {/* Info */}
-          <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-slate-900 truncate text-sm">{actor.name}</h3>
-
-            <div className="flex items-center gap-2 mt-1 text-xs text-slate-600">
-              {actor.age && <span>{actor.age} yrs</span>}
-              {actor.age && actor.gender && <span>•</span>}
-              {actor.gender && <span>{actor.gender}</span>}
-            </div>
-
-            <div className="flex items-center gap-1 mt-1">
-              <span className={`text-xs font-medium ${statusColor}`}>{statusText}</span>
-              {voteCount > 0 && (
-                <>
-                  <span className="text-slate-300">•</span>
-                  <span className="text-xs text-slate-500">
-                    {voteCount}/{totalUsers} votes
-                  </span>
-                </>
-              )}
-            </div>
-
-            {/* Contact Info */}
-            {(actor.contactEmail || actor.contactPhone) && (
-              <div className="flex items-center gap-3 mt-2 text-xs text-slate-500">
-                {actor.contactEmail && (
-                  <div className="flex items-center gap-1 truncate">
-                    <Mail className="w-3 h-3 flex-shrink-0" />
-                    <span className="truncate">{actor.contactEmail}</span>
-                  </div>
-                )}
-                {actor.contactPhone && (
-                  <div className="flex items-center gap-1">
-                    <Phone className="w-3 h-3 flex-shrink-0" />
-                    <span>{actor.contactPhone}</span>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {actor.location && (
-              <div className="flex items-center gap-1 mt-1 text-xs text-slate-500">
-                <MapPin className="w-3 h-3 flex-shrink-0" />
-                <span className="truncate">{actor.location}</span>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  if (actors.length === 0) {
-    return (
-      <div
         className={`relative bg-white rounded-lg border-2 transition-all duration-200 overflow-hidden cursor-pointer ${
           selectedActorIds.has(actor.id)
             ? "border-emerald-500 shadow-lg ring-2 ring-emerald-200"
@@ -1393,7 +1314,7 @@ export default function ActorGrid({ character }: ActorGridProps) {
                   draggedActorIds.has(actor.id)
                     ? "opacity-50 transform scale-95 ring-2 ring-emerald-400 ring-opacity-50"
                     : ""
-                }`}
+                } ${dropTarget === actor.id ? "ring-2 ring-blue-500 ring-offset-2 shadow-lg" : ""}`}
                 draggable
                 onDragStart={(e) => handleDragStart(e, actor)}
                 onDragEnd={handleDragEnd}
@@ -1415,7 +1336,7 @@ export default function ActorGrid({ character }: ActorGridProps) {
                 draggedActorIds.has(actor.id)
                   ? "opacity-50 transform scale-95 ring-2 ring-emerald-400 ring-opacity-50"
                   : ""
-              }`}
+              } ${dropTarget === actor.id ? "ring-2 ring-blue-500 ring-offset-2 shadow-lg" : ""}`}
               draggable
               onDragStart={(e) => handleDragStart(e, actor)}
               onDragEnd={handleDragEnd}

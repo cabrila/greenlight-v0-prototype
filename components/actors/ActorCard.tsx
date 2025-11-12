@@ -1591,7 +1591,7 @@ export default function ActorCard({
                     e.stopPropagation()
                     handleVote("yes")
                   }}
-                  className={`px-2 py-1 text-xs font-semibold rounded-xl border-2 transition-all duration-200 shadow-sm hover:shadow-md transform hover:-translate-y-0.5 ${
+                  className={`px-1 py-0.5 text-[10px] font-semibold rounded-lg border transition-all duration-200 shadow-sm hover:shadow-md transform hover:-translate-y-0.5 ${
                     currentUserVote === "yes"
                       ? "bg-gradient-to-r from-emerald-600 to-emerald-700 text-white border-emerald-700"
                       : "bg-gradient-to-r from-emerald-100 to-emerald-200 text-emerald-700 border-emerald-300 hover:from-emerald-200 hover:to-emerald-300"
@@ -1605,7 +1605,7 @@ export default function ActorCard({
                     e.stopPropagation()
                     handleVote("no")
                   }}
-                  className={`px-2 py-1 text-xs font-semibold rounded-xl border-2 transition-all duration-200 shadow-sm hover:shadow-md transform hover:-translate-y-0.5 ${
+                  className={`px-1 py-0.5 text-[10px] font-semibold rounded-lg border transition-all duration-200 shadow-sm hover:shadow-md transform hover:-translate-y-0.5 ${
                     currentUserVote === "no"
                       ? "bg-gradient-to-r from-red-600 to-red-700 text-white border-red-700"
                       : "bg-gradient-to-r from-red-100 to-red-200 text-red-700 border-red-300 hover:from-red-200 hover:to-red-300"
@@ -1619,7 +1619,7 @@ export default function ActorCard({
                     e.stopPropagation()
                     handleVote("maybe")
                   }}
-                  className={`px-2 py-1 text-xs font-semibold rounded-xl border-2 text-center transition-all duration-200 shadow-sm hover:shadow-md transform hover:-translate-y-0.5 ${
+                  className={`px-1 py-0.5 text-[10px] font-semibold rounded-lg border text-center transition-all duration-200 shadow-sm hover:shadow-md transform hover:-translate-y-0.5 ${
                     currentUserVote === "maybe"
                       ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white border-blue-700"
                       : "bg-gradient-to-r from-blue-100 to-blue-200 text-blue-700 border-blue-300 hover:from-blue-200 hover:to-blue-300"
