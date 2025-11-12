@@ -27,6 +27,7 @@ import {
   Clock,
   ImageIcon,
   Play,
+  Check,
 } from "lucide-react"
 import { openModal } from "@/components/modals/ModalManager"
 import type { Note } from "@/types/casting"
@@ -652,13 +653,6 @@ export default function ActorCard({
       return (
         <div className="flex items-center justify-between">
           <span className="text-xs text-slate-400 italic">No status assigned</span>
-          <button
-            onClick={handleManageStatuses}
-            className="flex items-center gap-1 px-2 py-1 text-xs text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-colors flex-shrink-0"
-          >
-            <Plus className="w-3 h-3" />
-            <span className="whitespace-nowrap">Add Status</span>
-          </button>
         </div>
       )
     }
@@ -702,17 +696,6 @@ export default function ActorCard({
               +{actor.statuses.length - displayStatuses.length} more
             </button>
           )}
-        </div>
-
-        {/* Add Status Button */}
-        <div className="flex justify-end">
-          <button
-            onClick={handleManageStatuses}
-            className="flex items-center gap-1 px-2 py-1 text-xs text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-colors flex-shrink-0"
-          >
-            <Tag className="w-3 h-3" />
-            <span className="whitespace-nowrap">Manage Status</span>
-          </button>
         </div>
       </div>
     )
@@ -943,6 +926,35 @@ export default function ActorCard({
   // Determine if this card should appear as dragging
   const shouldShowDragging = isDragging || localDragState.isDragging
 
+  const SelectionCheckbox = () => (
+    <div
+      className="absolute top-2 left-2 z-20 transition-all duration-200"
+      onClick={(e) => {
+        e.stopPropagation()
+        e.preventDefault()
+        if (onSelect) {
+          const syntheticEvent = {
+            ...e,
+            ctrlKey: true, // Force independent toggle
+            preventDefault: () => e.preventDefault(),
+            stopPropagation: () => e.stopPropagation(),
+          } as React.MouseEvent
+          onSelect(actor.id, syntheticEvent)
+        }
+      }}
+    >
+      <div
+        className={`w-4 h-4 rounded border-2 flex items-center justify-center cursor-pointer transition-all duration-200 backdrop-blur-sm ${
+          isSelected
+            ? "bg-emerald-500 border-emerald-600 shadow-lg scale-110"
+            : "bg-white/95 border-slate-400 hover:border-emerald-500 hover:bg-emerald-50 hover:scale-110 shadow-md"
+        }`}
+      >
+        {isSelected && <Check className="w-3 h-3 text-white stroke-[3]" />}
+      </div>
+    </div>
+  )
+
   // Render different views based on viewMode
   if (viewMode === "list-view") {
     return (
@@ -957,6 +969,8 @@ export default function ActorCard({
         onDragOver={handleDragOver}
         onDrop={handleDrop}
       >
+        <SelectionCheckbox />
+
         {/* Drop Position Indicator */}
         {dropPosition === "before" && <div className="absolute -top-1 left-0 right-0 h-0.5 bg-blue-400 rounded" />}
         {dropPosition === "after" && <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-blue-400 rounded" />}
@@ -1044,6 +1058,8 @@ export default function ActorCard({
         onDragOver={handleDragOver}
         onDrop={handleDrop}
       >
+        <SelectionCheckbox />
+
         {/* Drop Position Indicators */}
         {dropPosition === "before" && <div className="absolute -top-1 left-0 right-0 h-0.5 bg-blue-400 rounded z-10" />}
         {dropPosition === "after" && (
@@ -1237,6 +1253,8 @@ export default function ActorCard({
       onDragOver={handleDragOver}
       onDrop={handleDrop}
     >
+      <SelectionCheckbox />
+
       {/* Drop Position Indicators */}
       {dropPosition === "before" && <div className="absolute -top-1 left-0 right-0 h-0.5 bg-blue-400 rounded z-10" />}
       {dropPosition === "after" && <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-blue-400 rounded z-10" />}
@@ -1419,56 +1437,67 @@ export default function ActorCard({
         </div>
 
         {/* Status and Counters Row */}
-        <div className="flex items-center gap-3 mb-3">
-          {/* Contact Status Indicator */}
-          <div className="flex items-center gap-1 flex-shrink-0" title={contactStatus.label}>
-            <contactStatus.icon className={`w-3 h-3 ${contactStatus.color}`} />
-            <span className={`text-xs font-medium ${contactStatus.color}`}>{contactStatus.label}</span>
+        <div className="flex items-center justify-between gap-3 mb-3">
+          <div className="flex items-center gap-3">
+            {/* Contact Status Indicator */}
+            <div className="flex items-center gap-1 flex-shrink-0" title={contactStatus.label}>
+              <contactStatus.icon className={`w-3 h-3 ${contactStatus.color}`} />
+              <span className={`text-xs font-medium ${contactStatus.color}`}>{contactStatus.label}</span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              {/* Notes Count - Clickable */}
+              {actor.notes && actor.notes.length > 0 && (
+                <button
+                  onClick={handleOpenPlayerView}
+                  className="flex items-center gap-1 text-slate-500 bg-slate-100 hover:bg-slate-200 px-2 py-0.5 rounded-lg flex-shrink-0 transition-colors cursor-pointer"
+                  title={`Click to view ${actor.notes.length} note${actor.notes.length !== 1 ? "s" : ""} in Player View`}
+                >
+                  <MessageSquare className="w-3 h-3" />
+                  <span className="text-xs font-medium">{actor.notes.length}</span>
+                </button>
+              )}
+
+              {/* Video Count - Clickable */}
+              {(() => {
+                const videoCount = getVideoCount(actor)
+                if (videoCount > 0) {
+                  return (
+                    <button
+                      onClick={handleOpenPlayerView}
+                      className="flex items-center gap-1 text-slate-500 bg-slate-100 hover:bg-slate-200 px-2 py-0.5 rounded-lg flex-shrink-0 transition-colors cursor-pointer"
+                      title={`Click to view ${videoCount} video${videoCount !== 1 ? "s" : ""} in Player View`}
+                    >
+                      <Play className="w-3 h-3" />
+                      <span className="text-xs font-medium">{videoCount}</span>
+                    </button>
+                  )
+                }
+                return null
+              })()}
+
+              {/* Media Files Count - Clickable */}
+              {actor.headshots && actor.headshots.length > 0 && (
+                <button
+                  onClick={handleOpenPlayerView}
+                  className="flex items-center gap-1 text-slate-500 bg-slate-100 hover:bg-slate-200 px-2 py-0.5 rounded-lg flex-shrink-0 transition-colors cursor-pointer"
+                  title={`Click to view ${actor.headshots.length} photo${actor.headshots.length !== 1 ? "s" : ""} in Player View`}
+                >
+                  <ImageIcon className="w-3 h-3" />
+                  <span className="text-xs font-medium">{actor.headshots.length}</span>
+                </button>
+              )}
+            </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            {/* Notes Count - Clickable */}
-            {actor.notes && actor.notes.length > 0 && (
-              <button
-                onClick={handleOpenPlayerView}
-                className="flex items-center gap-1 text-slate-500 bg-slate-100 hover:bg-slate-200 px-2 py-0.5 rounded-lg flex-shrink-0 transition-colors cursor-pointer"
-                title={`Click to view ${actor.notes.length} note${actor.notes.length !== 1 ? "s" : ""} in Player View`}
-              >
-                <MessageSquare className="w-3 h-3" />
-                <span className="text-xs font-medium">{actor.notes.length}</span>
-              </button>
-            )}
-
-            {/* Video Count - Clickable */}
-            {(() => {
-              const videoCount = getVideoCount(actor)
-              if (videoCount > 0) {
-                return (
-                  <button
-                    onClick={handleOpenPlayerView}
-                    className="flex items-center gap-1 text-slate-500 bg-slate-100 hover:bg-slate-200 px-2 py-0.5 rounded-lg flex-shrink-0 transition-colors cursor-pointer"
-                    title={`Click to view ${videoCount} video${videoCount !== 1 ? "s" : ""} in Player View`}
-                  >
-                    <Play className="w-3 h-3" />
-                    <span className="text-xs font-medium">{videoCount}</span>
-                  </button>
-                )
-              }
-              return null
-            })()}
-
-            {/* Media Files Count - Clickable */}
-            {actor.headshots && actor.headshots.length > 0 && (
-              <button
-                onClick={handleOpenPlayerView}
-                className="flex items-center gap-1 text-slate-500 bg-slate-100 hover:bg-slate-200 px-2 py-0.5 rounded-lg flex-shrink-0 transition-colors cursor-pointer"
-                title={`Click to view ${actor.headshots.length} photo${actor.headshots.length !== 1 ? "s" : ""} in Player View`}
-              >
-                <ImageIcon className="w-3 h-3" />
-                <span className="text-xs font-medium">{actor.headshots.length}</span>
-              </button>
-            )}
-          </div>
+          {/* Manage Status Button - Aligned to the right */}
+          <button
+            onClick={handleManageStatuses}
+            className="flex items-center gap-1 px-2 py-1 text-xs text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-colors flex-shrink-0"
+          >
+            <Tag className="w-3 h-3" />
+            <span className="whitespace-nowrap">Manage Status</span>
+          </button>
         </div>
 
         {/* Status Display */}
@@ -1556,19 +1585,19 @@ export default function ActorCard({
 
             {/* Action Buttons - Hide for cast actors */}
             {!actor.isCast && state.currentUser && state.cardViewSettings.showActionButtons && (
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-3 gap-1">
                 <button
                   onClick={(e) => {
                     e.stopPropagation()
                     handleVote("yes")
                   }}
-                  className={`px-2 py-1.5 text-xs font-semibold rounded-xl border-2 transition-all duration-200 shadow-sm hover:shadow-md transform hover:-translate-y-0.5 ${
+                  className={`px-1 py-0.5 text-[10px] font-semibold rounded-lg border transition-all duration-200 shadow-sm hover:shadow-md transform hover:-translate-y-0.5 ${
                     currentUserVote === "yes"
                       ? "bg-gradient-to-r from-emerald-600 to-emerald-700 text-white border-emerald-700"
                       : "bg-gradient-to-r from-emerald-100 to-emerald-200 text-emerald-700 border-emerald-300 hover:from-emerald-200 hover:to-emerald-300"
                   }`}
                 >
-                  <Heart className="w-3 h-3 mx-auto mb-0.5" />
+                  <Heart className="w-2.5 h-2.5 mx-auto mb-0.5" />
                   Yes
                 </button>
                 <button
@@ -1576,13 +1605,13 @@ export default function ActorCard({
                     e.stopPropagation()
                     handleVote("no")
                   }}
-                  className={`px-2 py-1.5 text-xs font-semibold rounded-xl border-2 transition-all duration-200 shadow-sm hover:shadow-md transform hover:-translate-y-0.5 ${
+                  className={`px-1 py-0.5 text-[10px] font-semibold rounded-lg border transition-all duration-200 shadow-sm hover:shadow-md transform hover:-translate-y-0.5 ${
                     currentUserVote === "no"
                       ? "bg-gradient-to-r from-red-600 to-red-700 text-white border-red-700"
                       : "bg-gradient-to-r from-red-100 to-red-200 text-red-700 border-red-300 hover:from-red-200 hover:to-red-300"
                   }`}
                 >
-                  <X className="w-3 h-3 mx-auto mb-0.5" />
+                  <X className="w-2.5 h-2.5 mx-auto mb-0.5" />
                   No
                 </button>
                 <button
@@ -1590,13 +1619,13 @@ export default function ActorCard({
                     e.stopPropagation()
                     handleVote("maybe")
                   }}
-                  className={`px-2 py-1.5 text-xs font-semibold rounded-xl border-2 text-center transition-all duration-200 shadow-sm hover:shadow-md transform hover:-translate-y-0.5 ${
+                  className={`px-1 py-0.5 text-[10px] font-semibold rounded-lg border text-center transition-all duration-200 shadow-sm hover:shadow-md transform hover:-translate-y-0.5 ${
                     currentUserVote === "maybe"
                       ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white border-blue-700"
                       : "bg-gradient-to-r from-blue-100 to-blue-200 text-blue-700 border-blue-300 hover:from-blue-200 hover:to-blue-300"
                   }`}
                 >
-                  <Star className="w-3 h-3 mx-auto mb-0.5" />
+                  <Star className="w-2.5 h-2.5 mx-auto mb-0.5" />
                   Maybe
                 </button>
               </div>

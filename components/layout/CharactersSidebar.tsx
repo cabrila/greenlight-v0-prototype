@@ -2,15 +2,23 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useCasting, getCurrentTerminology } from "@/components/casting/CastingContext"
-import { Plus, X, ChevronLeft, ChevronRight, Users } from "lucide-react"
+import { Plus, X, ChevronLeft, ChevronRight, Users, Layout, Trash2 } from "lucide-react"
 import { openModal } from "@/components/modals/ModalManager"
 import TerminologyContextMenu from "@/components/ui/TerminologyContextMenu"
+
+interface SavedCanvas {
+  id: string
+  title: string
+  savedAt: string
+  data: any
+}
 
 export default function CharactersSidebar() {
   const { state, dispatch } = useCasting()
   const [isCollapsed, setIsCollapsed] = useState(false)
+  const [savedCanvases, setSavedCanvases] = useState<SavedCanvas[]>([])
   const [contextMenu, setContextMenu] = useState<{
     show: boolean
     x: number
@@ -24,6 +32,41 @@ export default function CharactersSidebar() {
 
   // Get current project's terminology
   const terminology = getCurrentTerminology(state)
+
+  useEffect(() => {
+    const loadSavedCanvases = () => {
+      try {
+        const projectId = state.currentFocus.currentProjectId
+        const saved = localStorage.getItem(`canvas-list-${projectId}`)
+        if (saved) {
+          const canvasList = JSON.parse(saved)
+          // Transform to match the SavedCanvas interface
+          const transformedList = canvasList.map((c: any) => ({
+            id: c.id,
+            title: c.title,
+            savedAt: c.timestamp,
+            data: null, // We don't need the full data here
+          }))
+          setSavedCanvases(transformedList)
+        } else {
+          setSavedCanvases([])
+        }
+      } catch (error) {
+        console.error("Error loading saved canvases:", error)
+      }
+    }
+
+    loadSavedCanvases()
+
+    const handleCanvasListUpdated = (event: CustomEvent) => {
+      if (event.detail.projectId === state.currentFocus.currentProjectId) {
+        loadSavedCanvases()
+      }
+    }
+
+    window.addEventListener("canvasListUpdated", handleCanvasListUpdated as EventListener)
+    return () => window.removeEventListener("canvasListUpdated", handleCanvasListUpdated as EventListener)
+  }, [state.currentFocus.currentProjectId])
 
   const getCharacterCounts = (character: any) => {
     const counts = state.tabDefinitions.map((tabDef) => {
@@ -73,6 +116,50 @@ export default function CharactersSidebar() {
 
   const toggleCollapse = () => {
     setIsCollapsed(!isCollapsed)
+  }
+
+  const handleOpenCanvas = () => {
+    openModal("canvas")
+  }
+
+  const handleLoadCanvas = (canvas: SavedCanvas) => {
+    openModal("canvas", { loadedCanvas: canvas })
+  }
+
+  const handleDeleteCanvas = (canvasId: string, e: React.MouseEvent) => {
+    e.stopPropagation()
+
+    const canvas = savedCanvases.find((c) => c.id === canvasId)
+    if (!canvas) return
+
+    if (!confirm(`Are you sure you want to delete "${canvas.title}"?`)) {
+      return
+    }
+
+    // Remove from localStorage
+    localStorage.removeItem(canvasId)
+
+    // Update the list using project-specific key
+    const projectId = state.currentFocus.currentProjectId
+    const savedList = JSON.parse(localStorage.getItem(`canvas-list-${projectId}`) || "[]")
+    const updatedList = savedList.filter((c: any) => c.id !== canvasId)
+    localStorage.setItem(`canvas-list-${projectId}`, JSON.stringify(updatedList))
+
+    // Update local state
+    const transformedList = updatedList.map((c: any) => ({
+      id: c.id,
+      title: c.title,
+      savedAt: c.timestamp,
+      data: null,
+    }))
+    setSavedCanvases(transformedList)
+
+    // Dispatch event to sync with CanvasModal if it's open
+    window.dispatchEvent(
+      new CustomEvent("canvasListUpdated", {
+        detail: { projectId },
+      }),
+    )
   }
 
   return (
@@ -183,6 +270,56 @@ export default function CharactersSidebar() {
           >
             <Plus className={`w-4 h-4 ${isCollapsed ? "" : "inline mr-1"}`} />
             {!isCollapsed && `Add ${terminology.character.singular}`}
+          </button>
+        </div>
+
+        <div className="mt-6 pt-6 border-t border-slate-200/60">
+          <div className={`flex items-center mb-3 ${isCollapsed ? "justify-center" : "justify-between"}`}>
+            {!isCollapsed ? (
+              <div className="flex items-center space-x-2">
+                <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
+                  <Layout className="w-4 h-4 text-white" />
+                </div>
+                <h3 className="text-sm font-semibold text-gray-700">Casting Canvas</h3>
+              </div>
+            ) : (
+              <Layout className="w-5 h-5 text-gray-400" title="Casting Canvas" />
+            )}
+          </div>
+
+          {!isCollapsed && savedCanvases.length > 0 && (
+            <div className="mb-3 space-y-1.5">
+              {savedCanvases.map((canvas) => (
+                <div
+                  key={canvas.id}
+                  className="p-2.5 rounded-md cursor-pointer hover:bg-blue-50 transition-colors bg-gray-50 flex justify-between items-center group"
+                  onClick={() => handleLoadCanvas(canvas)}
+                >
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium text-sm text-gray-700 truncate">{canvas.title}</div>
+                    <div className="text-xs text-gray-500">{new Date(canvas.savedAt).toLocaleDateString()}</div>
+                  </div>
+                  <button
+                    className="text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-all ml-2"
+                    title="Delete canvas"
+                    onClick={(e) => handleDeleteCanvas(canvas.id, e)}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <button
+            onClick={handleOpenCanvas}
+            className={`bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-medium rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 ${
+              isCollapsed ? "w-10 h-10 flex items-center justify-center mx-auto" : "w-full py-3 px-4"
+            }`}
+            title={isCollapsed ? "Open Canvas" : undefined}
+          >
+            <Layout className={`w-4 h-4 ${isCollapsed ? "" : "inline mr-2"}`} />
+            {!isCollapsed && "Open Canvas"}
           </button>
         </div>
       </div>

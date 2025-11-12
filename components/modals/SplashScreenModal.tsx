@@ -183,7 +183,10 @@ export default function SplashScreenModal({ onClose }: SplashScreenModalProps) {
   }
 
   const handleDatabase = () => {
-    startTimer()
+    onClose()
+    setTimeout(() => {
+      openModal("database")
+    }, 100)
   }
 
   const handleNotifications = () => {

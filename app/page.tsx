@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react"
 import { CastingProvider, useCasting } from "@/components/casting/CastingContext"
 import { ActorGridProvider } from "@/components/actors/ActorGridContext"
-import TopMenuBar from "@/components/layout/TopMenuBar"
 import Sidebar from "@/components/layout/Sidebar"
 import MainContent from "@/components/layout/MainContent"
 import CharactersSidebar from "@/components/layout/CharactersSidebar"
@@ -70,16 +69,12 @@ function CastingAppContent() {
   }, [])
 
   return (
-    <div className="flex flex-col h-screen antialiased text-gray-800 text-sm bg-gray-100">
-      <TopMenuBar />
-
-      <div className="flex flex-1 overflow-hidden">
-        <Sidebar />
-        <div className="flex-1 flex flex-col overflow-hidden min-w-0">
-          <MainContent />
-        </div>
-        <CharactersSidebar />
+    <div className="flex h-screen antialiased text-gray-800 text-sm bg-gray-100">
+      <Sidebar />
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+        <MainContent />
       </div>
+      <CharactersSidebar />
 
       <ModalManager />
 
