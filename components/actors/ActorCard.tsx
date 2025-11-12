@@ -27,6 +27,7 @@ import {
   Clock,
   ImageIcon,
   Play,
+  Check,
 } from "lucide-react"
 import { openModal } from "@/components/modals/ModalManager"
 import type { Note } from "@/types/casting"
@@ -925,6 +926,35 @@ export default function ActorCard({
   // Determine if this card should appear as dragging
   const shouldShowDragging = isDragging || localDragState.isDragging
 
+  const SelectionCheckbox = () => (
+    <div
+      className="absolute top-2 left-2 z-20 transition-all duration-200"
+      onClick={(e) => {
+        e.stopPropagation()
+        e.preventDefault()
+        if (onSelect) {
+          const syntheticEvent = {
+            ...e,
+            ctrlKey: true, // Force independent toggle
+            preventDefault: () => e.preventDefault(),
+            stopPropagation: () => e.stopPropagation(),
+          } as React.MouseEvent
+          onSelect(actor.id, syntheticEvent)
+        }
+      }}
+    >
+      <div
+        className={`w-4 h-4 rounded border-2 flex items-center justify-center cursor-pointer transition-all duration-200 backdrop-blur-sm ${
+          isSelected
+            ? "bg-emerald-500 border-emerald-600 shadow-lg scale-110"
+            : "bg-white/95 border-slate-400 hover:border-emerald-500 hover:bg-emerald-50 hover:scale-110 shadow-md"
+        }`}
+      >
+        {isSelected && <Check className="w-3 h-3 text-white stroke-[3]" />}
+      </div>
+    </div>
+  )
+
   // Render different views based on viewMode
   if (viewMode === "list-view") {
     return (
@@ -939,6 +969,8 @@ export default function ActorCard({
         onDragOver={handleDragOver}
         onDrop={handleDrop}
       >
+        <SelectionCheckbox />
+
         {/* Drop Position Indicator */}
         {dropPosition === "before" && <div className="absolute -top-1 left-0 right-0 h-0.5 bg-blue-400 rounded" />}
         {dropPosition === "after" && <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-blue-400 rounded" />}
@@ -1026,6 +1058,8 @@ export default function ActorCard({
         onDragOver={handleDragOver}
         onDrop={handleDrop}
       >
+        <SelectionCheckbox />
+
         {/* Drop Position Indicators */}
         {dropPosition === "before" && <div className="absolute -top-1 left-0 right-0 h-0.5 bg-blue-400 rounded z-10" />}
         {dropPosition === "after" && (
@@ -1219,6 +1253,8 @@ export default function ActorCard({
       onDragOver={handleDragOver}
       onDrop={handleDrop}
     >
+      <SelectionCheckbox />
+
       {/* Drop Position Indicators */}
       {dropPosition === "before" && <div className="absolute -top-1 left-0 right-0 h-0.5 bg-blue-400 rounded z-10" />}
       {dropPosition === "after" && <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-blue-400 rounded z-10" />}
@@ -1549,7 +1585,7 @@ export default function ActorCard({
 
             {/* Action Buttons - Hide for cast actors */}
             {!actor.isCast && state.currentUser && state.cardViewSettings.showActionButtons && (
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-3 gap-1">
                 <button
                   onClick={(e) => {
                     e.stopPropagation()
@@ -1561,7 +1597,7 @@ export default function ActorCard({
                       : "bg-gradient-to-r from-emerald-100 to-emerald-200 text-emerald-700 border-emerald-300 hover:from-emerald-200 hover:to-emerald-300"
                   }`}
                 >
-                  <Heart className="w-3 h-3 mx-auto mb-0.5" />
+                  <Heart className="w-2.5 h-2.5 mx-auto mb-0.5" />
                   Yes
                 </button>
                 <button
@@ -1575,7 +1611,7 @@ export default function ActorCard({
                       : "bg-gradient-to-r from-red-100 to-red-200 text-red-700 border-red-300 hover:from-red-200 hover:to-red-300"
                   }`}
                 >
-                  <X className="w-3 h-3 mx-auto mb-0.5" />
+                  <X className="w-2.5 h-2.5 mx-auto mb-0.5" />
                   No
                 </button>
                 <button
@@ -1589,7 +1625,7 @@ export default function ActorCard({
                       : "bg-gradient-to-r from-blue-100 to-blue-200 text-blue-700 border-blue-300 hover:from-blue-200 hover:to-blue-300"
                   }`}
                 >
-                  <Star className="w-3 h-3 mx-auto mb-0.5" />
+                  <Star className="w-2.5 h-2.5 mx-auto mb-0.5" />
                   Maybe
                 </button>
               </div>

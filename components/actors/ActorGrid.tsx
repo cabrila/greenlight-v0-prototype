@@ -606,6 +606,9 @@ export default function ActorGrid({ character }: ActorGridProps) {
       const position = e.clientY < midpoint ? "before" : "after"
 
       setDropTarget(targetActor.id)
+
+      // Store position for visual feedback (if needed in future)
+      console.log(`[v0] Drag over ${targetActor.name}, position: ${position}`)
     },
     [draggedActor],
   )
@@ -1178,107 +1181,104 @@ export default function ActorGrid({ character }: ActorGridProps) {
 
   if (actors.length === 0) {
     return (
-      <div className="w-full max-w-none mx-auto px-4 space-y-6">
-        {/* Special messages for Long List and Approval tabs */}
-        {longListMessage && (
-          <div className="bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 rounded-xl p-4 flex items-center space-x-3 shadow-sm">
-            <List className="w-5 h-5 text-blue-600" />
-            <div className="text-sm text-blue-700 font-medium">{longListMessage}</div>
-          </div>
-        )}
-
-        {approvalMessage && (
-          <div className="bg-gradient-to-r from-emerald-50 to-emerald-100 border border-emerald-200 rounded-xl p-4 flex items-center space-x-3 shadow-sm">
-            <Crown className="w-5 h-5 text-emerald-600" />
-            <div className="text-sm text-emerald-700 font-medium">{approvalMessage}</div>
-          </div>
-        )}
-
+      <div
+        className={`relative bg-white rounded-lg border-2 transition-all duration-200 overflow-hidden cursor-pointer ${
+          selectedActorIds.has(actor.id)
+            ? "border-emerald-500 shadow-lg ring-2 ring-emerald-200"
+            : "border-slate-200 hover:border-emerald-300 hover:shadow-md"
+        }`}
+        onClick={(e) => handleActorSelect(actor.id, e)}
+      >
         <div
-          className={`text-center text-gray-500 py-20 min-h-[500px] border-2 border-dashed rounded-2xl flex items-center justify-center transition-all duration-300 ${
-            isDragOverGrid
-              ? isApprovalTab
-                ? "border-emerald-400 bg-gradient-to-br from-emerald-50 via-emerald-100 to-emerald-50 text-emerald-700 shadow-2xl transform scale-105 ring-4 ring-emerald-200 ring-opacity-50"
-                : isLongListTab
-                  ? "border-blue-400 bg-gradient-to-br from-blue-50 via-blue-100 to-blue-50 text-blue-700 shadow-2xl transform scale-105 ring-4 ring-blue-200 ring-opacity-50"
-                  : "border-blue-400 bg-gradient-to-br from-blue-50 to-blue-100 text-blue-700 shadow-lg transform scale-105"
-              : "border-gray-300 hover:border-gray-400"
-          }`}
-          onDragOver={handleGridDragOver}
-          onDragLeave={handleGridDragLeave}
-          onDrop={handleGridDrop}
-          onClick={handleGridClick}
+          className="absolute top-2 left-2 z-10 transition-all duration-200"
+          onClick={(e) => {
+            e.stopPropagation()
+            e.preventDefault()
+            const syntheticEvent = {
+              ...e,
+              ctrlKey: true, // Force independent toggle
+              preventDefault: () => e.preventDefault(),
+              stopPropagation: () => e.stopPropagation(),
+            } as React.MouseEvent
+            handleActorSelect(actor.id, syntheticEvent)
+          }}
         >
-          {isDragOverGrid ? (
-            <div className="flex flex-col items-center space-y-6">
-              <div
-                className={`w-24 h-24 ${
-                  isApprovalTab
-                    ? "bg-gradient-to-br from-emerald-500 to-emerald-600"
-                    : isLongListTab
-                      ? "bg-gradient-to-br from-blue-500 to-blue-600"
-                      : "bg-blue-500"
-                } rounded-full flex items-center justify-center shadow-xl animate-pulse`}
-              >
-                {isApprovalTab ? (
-                  <Crown className="w-12 h-12 text-white" />
-                ) : isLongListTab ? (
-                  <List className="w-12 h-12 text-white" />
-                ) : (
-                  <Users className="w-12 h-12 text-white" />
-                )}
+          <div
+            className={`w-4 h-4 rounded border-2 flex items-center justify-center cursor-pointer transition-all duration-200 backdrop-blur-sm ${
+              selectedActorIds.has(actor.id)
+                ? "bg-emerald-500 border-emerald-600 shadow-lg scale-110"
+                : "bg-white/95 border-slate-400 hover:border-emerald-500 hover:bg-emerald-50 hover:scale-110 shadow-md"
+            }`}
+          >
+            {selectedActorIds.has(actor.id) && <Check className="w-3 h-3 text-white stroke-[3]" />}
+          </div>
+        </div>
+        {/* </CHANGE> */}
+
+        <div className="flex items-center gap-3 p-3">
+          {/* Thumbnail */}
+          <div className="flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden bg-slate-100 border border-slate-200">
+            {actorImage && !imageError ? (
+              <img
+                src={actorImage || "/placeholder.svg"}
+                alt={actor.name}
+                className="w-full h-full object-cover"
+                onError={() => setImageError(true)}
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-slate-400 text-2xl font-bold bg-gradient-to-br from-slate-100 to-slate-200">
+                {actor.name.charAt(0).toUpperCase()}
               </div>
-              <div className="text-center max-w-md">
-                <div className="text-2xl font-bold mb-3">
-                  {isApprovalTab
-                    ? `Move ${isMultiDragging ? `${selectedActorIds.size} actors` : "actor"} to Approval`
-                    : isLongListTab
-                      ? `Move ${isMultiDragging ? `${selectedActorIds.size} actors` : "actor"} to Long List`
-                      : `Drop ${isMultiDragging ? "actors" : "actor"} here`}
-                </div>
-                <div className="text-base opacity-75">
-                  {isApprovalTab
-                    ? `${isMultiDragging ? "These actors will be" : "This actor will be"} ready for final casting decisions and team review`
-                    : isLongListTab
-                      ? `${isMultiDragging ? "These actors will be" : "This actor will be"} reset for fresh evaluation from the beginning`
-                      : `Move ${isMultiDragging ? "selected actors" : "actor"} to this list`}
-                </div>
-                {(isApprovalTab || isLongListTab) && isMultiDragging && (
-                  <div
-                    className={`mt-4 px-6 py-2 ${isApprovalTab ? "bg-emerald-600" : "bg-blue-600"} text-white rounded-full text-sm font-semibold inline-block shadow-lg`}
-                  >
-                    {isApprovalTab ? "Batch Approval Ready" : "Batch Reset Ready"}
+            )}
+          </div>
+
+          {/* Info */}
+          <div className="flex-1 min-w-0">
+            <h3 className="font-semibold text-slate-900 truncate text-sm">{actor.name}</h3>
+
+            <div className="flex items-center gap-2 mt-1 text-xs text-slate-600">
+              {actor.age && <span>{actor.age} yrs</span>}
+              {actor.age && actor.gender && <span>•</span>}
+              {actor.gender && <span>{actor.gender}</span>}
+            </div>
+
+            <div className="flex items-center gap-1 mt-1">
+              <span className={`text-xs font-medium ${statusColor}`}>{statusText}</span>
+              {voteCount > 0 && (
+                <>
+                  <span className="text-slate-300">•</span>
+                  <span className="text-xs text-slate-500">
+                    {voteCount}/{totalUsers} votes
+                  </span>
+                </>
+              )}
+            </div>
+
+            {/* Contact Info */}
+            {(actor.contactEmail || actor.contactPhone) && (
+              <div className="flex items-center gap-3 mt-2 text-xs text-slate-500">
+                {actor.contactEmail && (
+                  <div className="flex items-center gap-1 truncate">
+                    <Mail className="w-3 h-3 flex-shrink-0" />
+                    <span className="truncate">{actor.contactEmail}</span>
+                  </div>
+                )}
+                {actor.contactPhone && (
+                  <div className="flex items-center gap-1">
+                    <Phone className="w-3 h-3 flex-shrink-0" />
+                    <span>{actor.contactPhone}</span>
                   </div>
                 )}
               </div>
-            </div>
-          ) : (
-            <div className="flex flex-col items-center space-y-4">
-              <div className="text-2xl font-medium text-slate-600">
-                {searchTerm
-                  ? `No actors found matching "${searchTerm}"`
-                  : isApprovalTab
-                    ? "No actors in approval yet."
-                    : isLongListTab
-                      ? "No actors in long list yet."
-                      : "No actors in this list."}
+            )}
+
+            {actor.location && (
+              <div className="flex items-center gap-1 mt-1 text-xs text-slate-500">
+                <MapPin className="w-3 h-3 flex-shrink-0" />
+                <span className="truncate">{actor.location}</span>
               </div>
-              <div className="text-base text-slate-500 max-w-md text-center leading-relaxed">
-                {searchTerm ? (
-                  <>
-                    Search includes: Name, Gender, Ethnicity, Language, Height, Body Type, Hair/Eye Color, Skills, Past
-                    Productions, and more.
-                  </>
-                ) : isApprovalTab ? (
-                  "Drag actors here for final approval and casting decisions. Multi-select supported for batch operations."
-                ) : isLongListTab ? (
-                  "Get started by adding actors using the controls above, or drag actors here from other tabs."
-                ) : (
-                  "Drag actors here from other tabs. Use Ctrl/Cmd+Click for multi-select."
-                )}
-              </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     )
@@ -1286,88 +1286,85 @@ export default function ActorGrid({ character }: ActorGridProps) {
 
   return (
     <div className="w-full max-w-none mx-auto px-4 space-y-6">
-      {/* Special messages for Long List and Approval tabs */}
-      {longListMessage && (
-        <div className="bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 rounded-xl p-4 flex items-center space-x-3 shadow-sm">
-          <List className="w-5 h-5 text-blue-600" />
-          <div className="text-sm text-blue-700 font-medium">{longListMessage}</div>
-        </div>
-      )}
-
-      {approvalMessage && (
-        <div className="bg-gradient-to-r from-emerald-50 to-emerald-100 border border-emerald-200 rounded-xl p-4 flex items-center space-x-3 shadow-sm">
-          <Crown className="w-5 h-5 text-emerald-600" />
-          <div className="text-sm text-emerald-700 font-medium">{approvalMessage}</div>
-        </div>
-      )}
-
-      {/* Enhanced Selection Controls with Quick Move buttons */}
-      {selectedActorIds.size > 0 && (
-        <div className="bg-gradient-to-r from-emerald-50 to-emerald-100 border border-emerald-200 rounded-xl p-5 shadow-sm">
-          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-full flex items-center justify-center shadow-lg">
-                  <CheckCircle className="w-5 h-5 text-white" />
+      {selectedActorIds.size > 0 ? (
+        <div className="bg-gradient-to-r from-emerald-50 via-emerald-100 to-emerald-50 border-2 border-emerald-400 rounded-xl p-4 shadow-lg animate-in fade-in duration-300">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+            <div className="flex items-center space-x-3">
+              <div className="relative w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-full flex items-center justify-center shadow-lg">
+                <CheckCircle className="w-6 h-6 text-white" />
+                <div className="absolute -top-1 -right-1 w-5 h-5 bg-white rounded-full flex items-center justify-center text-xs font-bold text-emerald-600 shadow-md">
+                  {selectedActorIds.size}
                 </div>
-                <div>
-                  <div className="text-lg font-semibold text-emerald-800">
-                    {selectedActorIds.size} actor{selectedActorIds.size > 1 ? "s" : ""} selected
-                  </div>
-                  <div className="text-sm text-emerald-600">Ready for batch operations</div>
+              </div>
+              <div>
+                <div className="text-lg font-bold text-emerald-800">
+                  {selectedActorIds.size} Actor{selectedActorIds.size > 1 ? "s" : ""} Selected
                 </div>
+                <div className="text-xs text-emerald-600 hidden sm:block">Shift+Click for range • Escape to clear</div>
               </div>
             </div>
 
-            <div className="flex flex-wrap items-center gap-3">
-              {/* Quick Move Buttons - Only show if not already on that tab */}
-              {activeTabKey !== "longList" && (
-                <button
-                  onClick={handleQuickMoveToLongList}
-                  className="flex items-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors text-sm shadow-sm"
-                >
-                  <List className="w-4 h-4" />
-                  <span>Move to Long List</span>
-                </button>
-              )}
+            <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+              <button
+                onClick={() => {
+                  dispatch({
+                    type: "OPEN_MODAL",
+                    payload: {
+                      type: "bookAudition",
+                      data: {
+                        selectedCharacters: character ? [character.id] : [],
+                        preselectedActors: Array.from(selectedActorIds),
+                      },
+                    },
+                  })
+                }}
+                className="flex items-center space-x-2 px-4 py-2.5 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white rounded-lg font-semibold transition-all duration-200 shadow-md hover:shadow-lg text-sm"
+              >
+                <Calendar className="w-4 h-4" />
+                <span>Book Audition</span>
+              </button>
 
-              {activeTabKey !== "approval" && (
-                <button
-                  onClick={handleQuickMoveToApproval}
-                  className="flex items-center space-x-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium transition-colors text-sm shadow-sm"
-                >
-                  <Crown className="w-4 h-4" />
-                  <span>Move to Approval</span>
-                </button>
-              )}
-
-              {/* Existing buttons */}
               <button
                 onClick={handleMoveToList}
-                className="flex items-center space-x-2 px-4 py-2 bg-slate-600 hover:bg-slate-700 text-white rounded-lg font-medium transition-colors text-sm shadow-sm"
+                className="flex items-center space-x-2 px-3 py-2.5 bg-white border-2 border-slate-300 text-slate-700 hover:border-slate-400 hover:bg-slate-50 rounded-lg font-medium transition-all duration-200 shadow-sm text-sm"
               >
                 <ArrowRightCircle className="w-4 h-4" />
-                <span>Move to List</span>
+                <span className="hidden sm:inline">Move</span>
               </button>
 
               <button
                 onClick={handleContactActors}
-                className="flex items-center space-x-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition-colors text-sm shadow-sm"
+                className="flex items-center space-x-2 px-3 py-2.5 bg-white border-2 border-slate-300 text-slate-700 hover:border-slate-400 hover:bg-slate-50 rounded-lg font-medium transition-all duration-200 shadow-sm text-sm"
               >
                 <Mail className="w-4 h-4" />
-                <span>Contact</span>
+                <span className="hidden sm:inline">Contact</span>
               </button>
 
               <button
                 onClick={() => {
                   clearSelection()
                 }}
-                className="px-4 py-2 bg-white border border-slate-300 text-slate-600 hover:text-slate-800 hover:border-slate-400 rounded-lg font-medium transition-colors text-sm shadow-sm"
+                className="px-3 py-2.5 bg-white border-2 border-emerald-400 text-emerald-700 hover:bg-emerald-50 hover:border-emerald-500 rounded-lg font-semibold transition-all duration-200 shadow-sm text-sm"
               >
-                Clear Selection
+                Clear
               </button>
             </div>
           </div>
+        </div>
+      ) : (
+        // Original Starting Point message - shown when no actors are selected
+        longListMessage && (
+          <div className="bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 rounded-xl p-4 flex items-center space-x-3 shadow-sm">
+            <List className="w-5 h-5 text-blue-600" />
+            <div className="text-sm text-blue-700 font-medium">{longListMessage}</div>
+          </div>
+        )
+      )}
+
+      {approvalMessage && (
+        <div className="bg-gradient-to-r from-emerald-50 to-emerald-100 border border-emerald-200 rounded-xl p-4 flex items-center space-x-3 shadow-sm">
+          <Crown className="w-5 h-5 text-emerald-600" />
+          <div className="text-sm text-emerald-700 font-medium">{approvalMessage}</div>
         </div>
       )}
 

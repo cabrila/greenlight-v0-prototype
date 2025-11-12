@@ -200,19 +200,8 @@ export default function ViewControls() {
     }
   }
 
-  const handleBookAudition = () => {
-    const selectedActors = Array.from(selectedActorIds || new Set())
-
-    dispatch({
-      type: "OPEN_MODAL",
-      payload: {
-        type: "bookAudition",
-        data: {
-          selectedCharacters: currentCharacter ? [currentCharacter.id] : [],
-          preselectedActors: selectedActors,
-        },
-      },
-    })
+  const handleOpenPlayerView = () => {
+    dispatch({ type: "OPEN_PLAYER_VIEW" })
   }
 
   const handleOpenPlayerView = () => {
@@ -256,38 +245,30 @@ export default function ViewControls() {
   return (
     <div className="space-y-3">
       {/* Main Controls Container - Responsive Layout */}
-      <div className="bg-white border border-slate-200 rounded-lg p-4 shadow-sm">
-        <div className="flex flex-wrap items-center gap-3 justify-between">
-          {/* Left Section - Action Buttons, View Presets, Sort, and Filters */}
-          <div className="flex flex-wrap items-center gap-3 flex-1 min-w-0">
+      <div className="bg-white border border-slate-200 rounded-lg p-3 shadow-sm">
+        <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-3">
+          {/* Left Section - Action Buttons and Controls */}
+          <div className="flex flex-wrap items-center gap-2 flex-1 min-w-0">
             {/* Action Buttons - Only show on Long List tab */}
             {isLongListTab && currentCharacter && (
               <div className="flex items-center gap-2 flex-shrink-0">
                 <button
                   onClick={handleAddActor}
                   onContextMenu={(e) => handleContextMenu(e, "actor", "singular")}
-                  className="flex items-center space-x-2 px-3 py-2 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white rounded-lg font-medium transition-all duration-200 text-sm whitespace-nowrap"
+                  className="flex items-center space-x-1.5 px-3 py-2 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white rounded-lg font-medium transition-all duration-200 text-sm whitespace-nowrap shadow-sm"
                 >
                   <Plus className="w-4 h-4" />
-                  <span>Add {terminology.actor.singular}</span>
+                  <span>Add</span>
                 </button>
                 <button
                   onClick={handleUploadActors}
                   onContextMenu={(e) => handleContextMenu(e, "actor", "singular")}
-                  className="flex items-center space-x-2 px-3 py-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg font-medium transition-all duration-200 text-sm whitespace-nowrap"
+                  className="flex items-center space-x-1.5 px-3 py-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg font-medium transition-all duration-200 text-sm whitespace-nowrap shadow-sm"
                 >
                   <Upload className="w-4 h-4" />
                   <span>Upload</span>
                 </button>
-                <button
-                  onClick={handleBookAudition}
-                  disabled={!selectedActorIds || selectedActorIds.size === 0}
-                  className="flex items-center space-x-2 px-3 py-2 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 disabled:from-gray-600 disabled:to-gray-700 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-all duration-200 text-sm whitespace-nowrap"
-                >
-                  <Calendar className="w-4 h-4" />
-                  <span>Book Audition</span>
-                </button>
-                <div className="w-px h-6 bg-slate-300 mx-1"></div>
+                <div className="w-px h-5 bg-slate-300 mx-1"></div>
               </div>
             )}
 
@@ -302,13 +283,13 @@ export default function ViewControls() {
 
             {/* View Mode Presets */}
             <div className="flex items-center flex-shrink-0">
-              <div className="flex items-center bg-slate-100 rounded-lg p-1">
+              <div className="flex items-center bg-slate-100 rounded-lg p-0.5">
                 <button
                   onClick={() => handleViewModeChange("detailed")}
-                  className={`p-2 rounded-md transition-colors ${
+                  className={`p-2 rounded-md transition-all duration-200 ${
                     cardDisplayMode === "detailed"
-                      ? "bg-white text-emerald-600 shadow-sm"
-                      : "text-slate-700 hover:text-slate-900 hover:bg-slate-200"
+                      ? "bg-white text-emerald-600 shadow-sm scale-105"
+                      : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
                   }`}
                   title="Detailed View"
                 >
@@ -316,10 +297,10 @@ export default function ViewControls() {
                 </button>
                 <button
                   onClick={() => handleViewModeChange("simple")}
-                  className={`p-2 rounded-md transition-colors ${
+                  className={`p-2 rounded-md transition-all duration-200 ${
                     cardDisplayMode === "simple"
-                      ? "bg-white text-emerald-600 shadow-sm"
-                      : "text-slate-700 hover:text-slate-900 hover:bg-slate-200"
+                      ? "bg-white text-emerald-600 shadow-sm scale-105"
+                      : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
                   }`}
                   title="Simple View"
                 >
@@ -338,27 +319,27 @@ export default function ViewControls() {
                 </button>
                 <button
                   onClick={() => handleViewModeChange("list-view")}
-                  className={`p-2 rounded-md transition-colors ${
+                  className={`p-2 rounded-md transition-all duration-200 ${
                     cardDisplayMode === "list-view"
-                      ? "bg-white text-emerald-600 shadow-sm"
-                      : "text-slate-700 hover:text-slate-900 hover:bg-slate-200"
+                      ? "bg-white text-emerald-600 shadow-sm scale-105"
+                      : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
                   }`}
                   title="List View"
                 >
                   <List className="w-4 h-4" />
                 </button>
               </div>
-              <div className="w-px h-6 bg-slate-300 mx-3"></div>
+              <div className="w-px h-5 bg-slate-300 mx-2"></div>
             </div>
 
-            {/* Sort Controls */}
-            <div className="flex items-center gap-2 flex-shrink-0">
-              <span className="text-sm font-medium text-slate-700 whitespace-nowrap">Sort:</span>
+            {/* Sort Dropdown */}
+            <div className="flex items-center gap-1.5 flex-shrink-0">
+              <span className="text-sm font-medium text-slate-700 whitespace-nowrap hidden sm:inline">Sort:</span>
               <div className="relative">
                 <select
                   value={currentSortOption}
                   onChange={(e) => handleSortChange(e.target.value)}
-                  className="appearance-none bg-white border border-slate-300 rounded-lg px-3 py-2 pr-8 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors min-w-[120px]"
+                  className="appearance-none bg-white border border-slate-300 rounded-lg px-3 py-2 pr-8 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors min-w-[110px]"
                 >
                   {sortOptions.map((option) => (
                     <option key={option.key} value={option.key}>
@@ -368,7 +349,7 @@ export default function ViewControls() {
                 </select>
                 <SortAsc className="absolute right-2 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4 pointer-events-none" />
               </div>
-              <div className="w-px h-6 bg-slate-300 mx-1"></div>
+              <div className="w-px h-5 bg-slate-300 mx-1"></div>
             </div>
 
             {/* Filters */}
@@ -392,33 +373,31 @@ export default function ViewControls() {
             </div>
           </div>
 
-          {/* Right Section - Enhanced Search Field with Saved Searches */}
-          <div className="relative flex items-center gap-2 flex-shrink-0 w-full sm:w-auto sm:max-w-[400px]">
-            <div className="relative">
-              <button
-                onClick={() => setShowSavedSearches(!showSavedSearches)}
-                className={`p-2 rounded-lg border transition-colors ${
-                  showSavedSearches || savedSearches.length > 0
-                    ? "bg-blue-50 border-blue-300 text-blue-700"
-                    : "bg-white border-slate-300 text-slate-600 hover:text-slate-800 hover:border-slate-400"
-                }`}
-                title="Saved Searches"
-              >
-                <Bookmark className="w-4 h-4" />
-              </button>
+          {/* Right Section - Search Field with Saved Searches */}
+          <div className="flex items-center gap-2 flex-shrink-0 w-full lg:w-auto lg:min-w-[300px] lg:max-w-[400px]">
+            <button
+              onClick={() => setShowSavedSearches(!showSavedSearches)}
+              className={`p-2 rounded-lg border transition-all duration-200 flex-shrink-0 ${
+                showSavedSearches || savedSearches.length > 0
+                  ? "bg-blue-50 border-blue-300 text-blue-700"
+                  : "bg-white border-slate-300 text-slate-600 hover:text-slate-800 hover:border-slate-400"
+              }`}
+              title="Saved Searches"
+            >
+              <Bookmark className="w-4 h-4" />
               {savedSearches.length > 0 && (
                 <span className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
                   {savedSearches.length}
                 </span>
               )}
-            </div>
+            </button>
 
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
+              
               <SearchTags
                 tags={searchTags}
                 onTagsChange={handleSearchTagsChange}
-                placeholder="Search actors, gender, ethnicity, skills... Press Enter to create tags"
+                placeholder="Search actors..."
                 className="w-full"
                 maxTags={8}
                 allowDuplicates={false}
@@ -433,18 +412,15 @@ export default function ViewControls() {
           </div>
         </div>
 
-        {/* Search Help Text */}
+        {/* Search Help Text - More compact */}
         {(searchTags.length > 0 || searchTerm) && (
-          <div className="mt-3 pt-3 border-t border-slate-200">
+          <div className="mt-2 pt-2 border-t border-slate-200">
             <div className="text-xs text-slate-500">
-              <span className="font-medium">Search includes:</span> Name, Gender, Ethnicity, Language, Height, Body
-              Type, Shoe Size, Hair Color, Eye Color, Nakedness Level, Past Productions, Skills & Abilities, Location,
-              Agent
+              <span className="font-medium">Searching:</span> Name, Gender, Ethnicity, Skills, Location
               {searchTags.length > 0 && (
                 <>
-                  <br />
-                  <span className="font-medium">Active search tags:</span>{" "}
-                  {searchTags.map((tag) => tag.text).join(", ")}
+                  {" • "}
+                  <span className="font-medium">Tags:</span> {searchTags.map((tag) => tag.text).join(", ")}
                 </>
               )}
             </div>
