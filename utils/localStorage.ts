@@ -5,10 +5,9 @@ export function saveToLocalStorage(state: any): void {
     // Only save if we're in the browser
     if (typeof window === "undefined") return
 
-    console.log(
-      "[v0] saveToLocalStorage called with state.currentFocus.savedSearches:",
-      state.currentFocus?.savedSearches,
-    )
+    console.log("[v0] ===== saveToLocalStorage START =====")
+    console.log("[v0] Incoming state.currentFocus.savedSearches:", state.currentFocus?.savedSearches)
+    console.log("[v0] Saved searches count:", state.currentFocus?.savedSearches?.length || 0)
 
     // Create a clean copy of the state for storage
     const stateToSave = {
@@ -25,17 +24,23 @@ export function saveToLocalStorage(state: any): void {
       modals: {},
     }
 
-    console.log("[v0] stateToSave.currentFocus.savedSearches:", stateToSave.currentFocus?.savedSearches)
+    console.log("[v0] After creating stateToSave - savedSearches:", stateToSave.currentFocus?.savedSearches)
+    console.log("[v0] After creating stateToSave - count:", stateToSave.currentFocus?.savedSearches?.length || 0)
 
     const serializedState = JSON.stringify(stateToSave)
     localStorage.setItem(STORAGE_KEY, serializedState)
 
-    console.log(
-      "[v0] State saved to localStorage. Saved searches:",
-      stateToSave.currentFocus?.savedSearches?.length || 0,
-    )
+    // Verify the save by reading back
+    const verification = localStorage.getItem(STORAGE_KEY)
+    if (verification) {
+      const parsed = JSON.parse(verification)
+      console.log("[v0] Verification - savedSearches in localStorage:", parsed.currentFocus?.savedSearches?.length || 0)
+    }
+
+    console.log("[v0] State successfully saved to localStorage")
+    console.log("[v0] ===== saveToLocalStorage END =====")
   } catch (error) {
-    console.warn("Failed to save state to localStorage:", error)
+    console.error("[v0] ERROR: Failed to save state to localStorage:", error)
   }
 }
 

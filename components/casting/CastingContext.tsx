@@ -761,9 +761,12 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
     case "SAVE_CURRENT_SEARCH": {
       const { name, isGlobal = false } = action.payload
 
-      console.log("[v0] SAVE_CURRENT_SEARCH - Current searchTags:", state.currentFocus.searchTags)
-      console.log("[v0] SAVE_CURRENT_SEARCH - Current searchTerm:", state.currentFocus.searchTerm)
-      console.log("[v0] SAVE_CURRENT_SEARCH - Current savedSearches count:", state.currentFocus.savedSearches.length)
+      console.log("[v0] ===== SAVE_CURRENT_SEARCH START =====")
+      console.log("[v0] Action payload:", action.payload)
+      console.log("[v0] Current searchTags:", state.currentFocus.searchTags)
+      console.log("[v0] Current searchTerm:", state.currentFocus.searchTerm)
+      console.log("[v0] Current savedSearches count:", state.currentFocus.savedSearches.length)
+      console.log("[v0] Current savedSearches array:", state.currentFocus.savedSearches)
 
       const newSavedSearch = {
         id: `search-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -775,18 +778,25 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
         isGlobal,
       }
 
-      console.log("[v0] Creating saved search:", newSavedSearch)
+      console.log("[v0] New saved search object:", newSavedSearch)
+      console.log("[v0] Tags count in new search:", newSavedSearch.tags.length)
+
+      const updatedSavedSearches = [...state.currentFocus.savedSearches, newSavedSearch]
+
+      console.log("[v0] Updated savedSearches array length:", updatedSavedSearches.length)
+      console.log("[v0] Updated savedSearches array:", updatedSavedSearches)
 
       newState = {
         ...state,
         currentFocus: {
           ...state.currentFocus,
-          savedSearches: [...state.currentFocus.savedSearches, newSavedSearch],
+          savedSearches: updatedSavedSearches,
         },
       }
 
-      console.log("[v0] Total saved searches after save:", newState.currentFocus.savedSearches.length)
-      console.log("[v0] New saved searches array:", newState.currentFocus.savedSearches)
+      console.log("[v0] newState.currentFocus.savedSearches length:", newState.currentFocus.savedSearches.length)
+      console.log("[v0] newState.currentFocus.savedSearches:", newState.currentFocus.savedSearches)
+      console.log("[v0] ===== SAVE_CURRENT_SEARCH END =====")
       break
     }
 
@@ -858,7 +868,10 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
           currentFocus: {
             ...state.currentFocus,
             cardDisplayMode: action.payload,
-            playerView: { ...state.currentFocus.playerView, isOpen: false },
+            playerView: {
+              ...state.currentFocus.playerView,
+              isOpen: false,
+            },
           },
         }
       }
