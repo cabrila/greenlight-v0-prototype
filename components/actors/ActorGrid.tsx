@@ -5,7 +5,7 @@ import { useActorGrid } from "./ActorGridContext"
 import { useCasting } from "@/components/casting/CastingContext"
 import type { Character, Actor } from "@/types/casting"
 import { useState, useCallback, useEffect, useRef } from "react"
-import { ArrowRightCircle, Mail, Crown, List, CheckCircle, Users } from "lucide-react"
+import { ArrowRightCircle, Mail, Crown, List, CheckCircle, Users, MapPin, Phone } from "lucide-react"
 import { openModal } from "@/components/modals/ModalManager"
 import ActorCard from "@/components/actors/ActorCard"
 
@@ -16,7 +16,7 @@ interface ActorGridProps {
 export default function ActorGrid({ character }: ActorGridProps) {
   const { state, dispatch } = useCasting()
   const { selectedActorIds, setSelectedActorIds, lastSelectedId, setLastSelectedId, clearSelection } = useActorGrid()
-  const { activeTabKey, searchTerm, currentSortOption, cardDisplayMode, searchTags } = state.currentFocus
+  const { activeTabKey, searchTerm, currentSortOption, cardDisplayMode, searchTags, filters } = state.currentFocus
 
   // Enhanced drag and drop state with better cleanup
   const [draggedActor, setDraggedActor] = useState<Actor | null>(null)
@@ -25,10 +25,12 @@ export default function ActorGrid({ character }: ActorGridProps) {
   const [draggedActorIds, setDraggedActorIds] = useState<Set<string>>(new Set())
   const [isMultiDragging, setIsMultiDragging] = useState(false)
 
-  // Filter state
   const [showFilters, setShowFilters] = useState(false)
-  const [statusFilter, setStatusFilter] = useState<string[]>([])
-  const [voteFilter, setVoteFilter] = useState<string>("")
+  // Removed local state for filters:
+  // const [statusFilter, setStatusFilter] = useState<string[]>([])
+  // const [ageRangeFilter, setAgeRangeFilter] = useState<{ min: number; max: number }>({ min: 0, max: 100 })
+  // const [locationFilter, setLocationFilter] = useState<string[]>([])
+  const [voteFilter, setVoteFilter] = useState<string>("") // Corrected: Declared voteFilter
 
   // Drag cleanup timeout ref
   const dragCleanupTimeoutRef = useRef<NodeJS.Timeout | null>(null)
@@ -237,9 +239,43 @@ export default function ActorGrid({ character }: ActorGridProps) {
       filtered = filtered.filter((actor) => matchesSearch(actor, searchTerm, searchTags))
     }
 
-    // Apply status filter
-    if (statusFilter.length > 0) {
-      filtered = filtered.filter((actor) => actor.statuses?.some((status) => statusFilter.includes(status.id)))
+    if (filters.status.length > 0) {
+      filtered = filtered.filter((actor) => actor.statuses?.some((status) => filters.status.includes(status.id)))
+    }
+
+    if (filters.ageRange.min > 0 || filters.ageRange.max < 100) {
+      filtered = filtered.filter((actor) => {
+        // Try to parse age from actor.age or actor.playingAge
+        let actorAge: number | null = null
+
+        if (actor.age) {
+          actorAge = Number.parseInt(actor.age)
+        } else if (actor.playingAge) {
+          // Parse playing age range like "25-30" and use the midpoint
+          const match = actor.playingAge.match(/(\d+)-(\d+)/)
+          if (match) {
+            const min = Number.parseInt(match[1])
+            const max = Number.parseInt(match[2])
+            actorAge = Math.floor((min + max) / 2)
+          } else {
+            // Try to parse as single number
+            actorAge = Number.parseInt(actor.playingAge)
+          }
+        }
+
+        if (actorAge === null || isNaN(actorAge)) {
+          return false // Exclude actors without valid age data
+        }
+
+        return actorAge >= filters.ageRange.min && actorAge <= filters.ageRange.max
+      })
+    }
+
+    if (filters.location.length > 0) {
+      filtered = filtered.filter((actor) => {
+        if (!actor.location) return false
+        return filters.location.includes(actor.location.trim())
+      })
     }
 
     // Apply vote filter
@@ -1027,6 +1063,8 @@ export default function ActorGrid({ character }: ActorGridProps) {
 
   const getGridClasses = () => {
     switch (cardDisplayMode) {
+      case "row":
+        return "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full" // Added row view grid layout
       case "list-view":
         return "flex flex-col gap-4 w-full" // Vertical stack with consistent gaps
       case "simple":
@@ -1034,6 +1072,108 @@ export default function ActorGrid({ character }: ActorGridProps) {
       default: // detailed view
         return "grid grid-cols-[repeat(auto-fit,minmax(350px,1fr))] gap-4 w-full justify-items-start" // Auto-fit grid with 350px minimum
     }
+  }
+
+  const MiniatureActorCard = ({ actor }: { actor: Actor }) => {
+    const [imageError, setImageError] = useState(false)
+    const actorImage = actor.headshots && actor.headshots.length > 0 ? actor.headshots[0] : null
+
+    const statusColor =
+      actor.consensusAction?.type === "yes"
+        ? "text-green-600"
+        : actor.consensusAction?.type === "no"
+          ? "text-red-600"
+          : actor.consensusAction?.type === "stay"
+            ? "text-blue-600"
+            : "text-slate-400"
+    const statusText =
+      actor.consensusAction?.type === "yes"
+        ? "Yes"
+        : actor.consensusAction?.type === "no"
+          ? "No"
+          : actor.consensusAction?.type === "stay"
+            ? "Maybe"
+            : "Unvoted"
+
+    const voteCount = actor.userVotes ? Object.keys(actor.userVotes).length : 0
+    const totalUsers = state.users.length
+
+    return (
+      <div
+        className={`bg-white rounded-lg border-2 transition-all duration-200 overflow-hidden cursor-pointer ${
+          selectedActorIds.has(actor.id)
+            ? "border-emerald-500 shadow-lg ring-2 ring-emerald-200"
+            : "border-slate-200 hover:border-emerald-300 hover:shadow-md"
+        }`}
+        onClick={(e) => handleActorSelect(actor.id, e)}
+      >
+        <div className="flex items-center gap-3 p-3">
+          {/* Thumbnail */}
+          <div className="flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden bg-slate-100 border border-slate-200">
+            {actorImage && !imageError ? (
+              <img
+                src={actorImage || "/placeholder.svg"}
+                alt={actor.name}
+                className="w-full h-full object-cover"
+                onError={() => setImageError(true)}
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-slate-400 text-2xl font-bold bg-gradient-to-br from-slate-100 to-slate-200">
+                {actor.name.charAt(0).toUpperCase()}
+              </div>
+            )}
+          </div>
+
+          {/* Info */}
+          <div className="flex-1 min-w-0">
+            <h3 className="font-semibold text-slate-900 truncate text-sm">{actor.name}</h3>
+
+            <div className="flex items-center gap-2 mt-1 text-xs text-slate-600">
+              {actor.age && <span>{actor.age} yrs</span>}
+              {actor.age && actor.gender && <span>•</span>}
+              {actor.gender && <span>{actor.gender}</span>}
+            </div>
+
+            <div className="flex items-center gap-1 mt-1">
+              <span className={`text-xs font-medium ${statusColor}`}>{statusText}</span>
+              {voteCount > 0 && (
+                <>
+                  <span className="text-slate-300">•</span>
+                  <span className="text-xs text-slate-500">
+                    {voteCount}/{totalUsers} votes
+                  </span>
+                </>
+              )}
+            </div>
+
+            {/* Contact Info */}
+            {(actor.contactEmail || actor.contactPhone) && (
+              <div className="flex items-center gap-3 mt-2 text-xs text-slate-500">
+                {actor.contactEmail && (
+                  <div className="flex items-center gap-1 truncate">
+                    <Mail className="w-3 h-3 flex-shrink-0" />
+                    <span className="truncate">{actor.contactEmail}</span>
+                  </div>
+                )}
+                {actor.contactPhone && (
+                  <div className="flex items-center gap-1">
+                    <Phone className="w-3 h-3 flex-shrink-0" />
+                    <span>{actor.contactPhone}</span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {actor.location && (
+              <div className="flex items-center gap-1 mt-1 text-xs text-slate-500">
+                <MapPin className="w-3 h-3 flex-shrink-0" />
+                <span className="truncate">{actor.location}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    )
   }
 
   if (actors.length === 0) {
@@ -1247,38 +1387,61 @@ export default function ActorGrid({ character }: ActorGridProps) {
         onDrop={handleGridDrop}
         onClick={handleGridClick}
       >
-        {actors.map((actor) => (
-          <div
-            key={actor.id}
-            className={`relative transition-all duration-200 ${
-              dropTarget === actor.id ? "border-b-4 border-emerald-500 pb-2" : ""
-            } ${
-              draggedActorIds.has(actor.id)
-                ? "opacity-50 transform scale-95 ring-2 ring-emerald-400 ring-opacity-50"
-                : ""
-            }`}
-            draggable
-            onDragStart={(e) => handleDragStart(e, actor)}
-            onDragEnd={handleDragEnd}
-            onDragOver={(e) => handleDragOver(e, actor)}
-            onDrop={(e) => handleDrop(e, actor)}
-          >
-            <ActorCard
-              actor={actor}
-              character={character}
-              isSelected={selectedActorIds.has(actor.id)}
-              onSelect={handleActorSelect}
-              viewMode={cardDisplayMode}
-              isDragging={draggedActorIds.has(actor.id)}
-              isDropTarget={dropTarget === actor.id}
-              dropPosition={dropTarget === actor.id ? "after" : null}
+        {actors.map((actor) => {
+          if (cardDisplayMode === "row") {
+            return (
+              <div
+                key={actor.id}
+                className={`relative transition-all duration-200 ${
+                  draggedActorIds.has(actor.id)
+                    ? "opacity-50 transform scale-95 ring-2 ring-emerald-400 ring-opacity-50"
+                    : ""
+                }`}
+                draggable
+                onDragStart={(e) => handleDragStart(e, actor)}
+                onDragEnd={handleDragEnd}
+                onDragOver={(e) => handleDragOver(e, actor)}
+                onDrop={(e) => handleDrop(e, actor)}
+              >
+                <MiniatureActorCard actor={actor} />
+              </div>
+            )
+          }
+
+          // Existing card rendering for other views
+          return (
+            <div
+              key={actor.id}
+              className={`relative transition-all duration-200 ${
+                dropTarget === actor.id ? "border-b-4 border-emerald-500 pb-2" : ""
+              } ${
+                draggedActorIds.has(actor.id)
+                  ? "opacity-50 transform scale-95 ring-2 ring-emerald-400 ring-opacity-50"
+                  : ""
+              }`}
+              draggable
               onDragStart={(e) => handleDragStart(e, actor)}
               onDragEnd={handleDragEnd}
               onDragOver={(e) => handleDragOver(e, actor)}
               onDrop={(e) => handleDrop(e, actor)}
-            />
-          </div>
-        ))}
+            >
+              <ActorCard
+                actor={actor}
+                character={character}
+                isSelected={selectedActorIds.has(actor.id)}
+                onSelect={handleActorSelect}
+                viewMode={cardDisplayMode}
+                isDragging={draggedActorIds.has(actor.id)}
+                isDropTarget={dropTarget === actor.id}
+                dropPosition={dropTarget === actor.id ? "after" : null}
+                onDragStart={(e) => handleDragStart(e, actor)}
+                onDragEnd={handleDragEnd}
+                onDragOver={(e) => handleDragOver(e, actor)}
+                onDrop={(e) => handleDrop(e, actor)}
+              />
+            </div>
+          )
+        })}
       </div>
     </div>
   )

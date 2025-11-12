@@ -33,13 +33,18 @@ export default function CreateActorFormModal({ onClose, characterId }: CreateAct
   const currentProject = state.projects.find((p) => p.id === state.currentFocus.currentProjectId)
   const currentCharacter = currentProject?.characters.find((c) => c.id === characterId)
 
+  useEffect(() => {
+    if (!currentCharacter) {
+      onClose()
+    }
+  }, [currentCharacter, onClose])
+
   // Debug logging
   useEffect(() => {
     console.log("🔍 CreateActorFormModal: showPreviewModal state changed:", showPreviewModal)
   }, [showPreviewModal])
 
   if (!currentCharacter) {
-    onClose()
     return null
   }
 

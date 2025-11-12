@@ -19,9 +19,10 @@ interface CanvasGroupProps {
   onNameChange: (id: string, newName: string) => void
   onDelete: (id: string) => void
   onDragGroup: (id: string, deltaX: number, deltaY: number) => void
+  onContextMenu?: (e: React.MouseEvent, groupId: string) => void
 }
 
-export default function CanvasGroup({ group, onNameChange, onDelete, onDragGroup }: CanvasGroupProps) {
+export default function CanvasGroup({ group, onNameChange, onDelete, onDragGroup, onContextMenu }: CanvasGroupProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [editValue, setEditValue] = useState(group.name)
   const [isDragging, setIsDragging] = useState(false)
@@ -110,6 +111,14 @@ export default function CanvasGroup({ group, onNameChange, onDelete, onDragGroup
 
   const groupColor = group.color || "border-gray-400 bg-gray-50"
 
+  const handleContextMenu = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (onContextMenu) {
+      onContextMenu(e, group.id)
+    }
+  }
+
   return (
     <div
       className={`absolute rounded-lg border-4 border-dotted border-${group.color}-500 pointer-events-none`}
@@ -120,6 +129,7 @@ export default function CanvasGroup({ group, onNameChange, onDelete, onDragGroup
         height: group.height + 40,
         opacity: isDragging ? 0.7 : 1,
       }}
+      onContextMenu={handleContextMenu}
     >
       {/* Group Header */}
       <div
@@ -127,6 +137,7 @@ export default function CanvasGroup({ group, onNameChange, onDelete, onDragGroup
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
+        title="Right-click to transfer all actors to a list"
       >
         {isEditing ? (
           <input
@@ -142,7 +153,7 @@ export default function CanvasGroup({ group, onNameChange, onDelete, onDragGroup
         ) : (
           <>
             <span className="text-sm font-medium text-white" onClick={handleNameClick}>
-              {group.name || "Group"}
+              {group.name || "Group"} ({group.actorIds.length})
             </span>
             <button
               onClick={() => onDelete(group.id)}

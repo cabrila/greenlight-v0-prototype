@@ -5,7 +5,7 @@ import { useCasting } from "@/components/casting/CastingContext"
 import AddActorModal from "./AddActorModal"
 import EditActorModal from "./EditActorModal"
 import AddCharacterModal from "./AddCharacterModal"
-import EditCharacterModal from "./EditCharacterModal" // Added EditCharacterModal import
+import EditCharacterModal from "./EditCharacterModal"
 import AddShortlistModal from "./AddShortlistModal"
 import ProjectManagerModal from "./ProjectManagerModal"
 import CastingBreakdownModal from "./CastingBreakdownModal"
@@ -31,6 +31,8 @@ import UploadActorsMenuModal from "./UploadActorsMenuModal"
 import CreateActorFormModal from "./CreateActorFormModal"
 import SplashScreenModal from "./SplashScreenModal"
 import BookAuditionModal from "./BookAuditionModal"
+import ScheduleModal from "./ScheduleModal"
+import DatabaseModal from "./DatabaseModal"
 
 export interface ModalState {
   type: string | null
@@ -148,6 +150,14 @@ export default function ModalManager() {
         </div>
       )
     }
+
+    if (state.modals.database?.isOpen) {
+      return (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <DatabaseModal onClose={() => dispatch({ type: "CLOSE_MODAL", payload: "database" })} />
+        </div>
+      )
+    }
   }
 
   // Render modal stack
@@ -215,6 +225,10 @@ export default function ModalManager() {
           return <SplashScreenModal onClose={handleClose} />
         case "bookAudition":
           return <BookAuditionModal onClose={handleClose} {...modal.data} />
+        case "schedule":
+          return <ScheduleModal onClose={handleClose} />
+        case "database":
+          return <DatabaseModal onClose={handleClose} />
         default:
           return null
       }

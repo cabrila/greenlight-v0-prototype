@@ -1,0 +1,1020 @@
+<mxfile host="app.diagrams.net" modified="2025-01-11T12:00:00.000Z" agent="v0" version="24.0.0">
+  <diagram name="Overview: Casting Director UX Flow" id="overview">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- Title -->
+        <mxCell id="title" value="Greenlight Casting Director - UX Flow Overview" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=24;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="284.5" y="20" width="600" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Legend -->
+        <mxCell id="legend-box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="20" y="80" width="200" height="280" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-title" value="Legend" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="20" y="85" width="200" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-entry" value="Entry Point" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="30" y="120" width="180" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-process" value="Process/Screen" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="30" y="160" width="180" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-decision" value="Decision Point" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="70" y="200" width="100" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-modal" value="Modal Dialog" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="30" y="270" width="180" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-endpoint" value="End State" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="30" y="310" width="180" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Swim Lane 1: Entry & Project Setup -->
+        <mxCell id="lane1-bg" value="1. Entry &amp; Project Setup" style="swimlane;horizontal=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="250" y="80" width="900" height="180" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="entry-start" value="App Load" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1" vertex="1" parent="lane1-bg">
+          <mxGeometry x="20" y="40" width="100" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="entry-splash" value="SplashScreenModal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="lane1-bg">
+          <mxGeometry x="150" y="40" width="120" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="entry-decision" value="User Choice?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="lane1-bg">
+          <mxGeometry x="300" y="30" width="100" height="70" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="entry-new" value="New Project&#xa;(Button)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="lane1-bg">
+          <mxGeometry x="430" y="20" width="100" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="entry-open" value="Open Project&#xa;(Button)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="lane1-bg">
+          <mxGeometry x="430" y="70" width="100" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="entry-database" value="Database&#xa;(Button)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="lane1-bg">
+          <mxGeometry x="430" y="120" width="100" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="entry-project-mgr" value="ProjectManager&#xa;Modal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="lane1-bg">
+          <mxGeometry x="560" y="30" width="110" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="entry-characters" value="Add Characters&#xa;(Upload/Manual)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="lane1-bg">
+          <mxGeometry x="700" y="30" width="110" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="entry-main" value="Main Interface" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1" vertex="1" parent="lane1-bg">
+          <mxGeometry x="770" y="100" width="110" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Arrows for Lane 1 -->
+        <mxCell id="arrow1-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="lane1-bg" source="entry-start" target="entry-splash">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow1-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="lane1-bg" source="entry-splash" target="entry-decision">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow1-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.25;exitDx=0;exitDy=0;" edge="1" parent="lane1-bg" source="entry-decision" target="entry-new">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow1-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="lane1-bg" source="entry-decision" target="entry-open">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow1-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.75;exitDx=0;exitDy=0;" edge="1" parent="lane1-bg" source="entry-decision" target="entry-database">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow1-6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="lane1-bg" source="entry-new" target="entry-project-mgr">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow1-7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="lane1-bg" source="entry-open" target="entry-project-mgr">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow1-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="lane1-bg" source="entry-project-mgr" target="entry-characters">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow1-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="lane1-bg" source="entry-characters" target="entry-main">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- UserMenu Flow -->
+        <mxCell id="user-menu-box" value="UserMenu (from avatar button)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="lane1-bg">
+          <mxGeometry x="560" y="100" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow1-10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;" edge="1" parent="lane1-bg" source="entry-database" target="user-menu-box">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Swim Lane 2: Main Casting Workflow -->
+        <mxCell id="lane2-bg" value="2. Main Casting Workflow" style="swimlane;horizontal=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="250" y="280" width="900" height="140" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="workflow-longlist" value="Long List&#xa;(Initial Pool)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="lane2-bg">
+          <mxGeometry x="20" y="40" width="100" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="workflow-audition" value="Audition&#xa;(Under Review)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="lane2-bg">
+          <mxGeometry x="160" y="40" width="100" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="workflow-approval" value="Approval&#xa;(Team Vote)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="lane2-bg">
+          <mxGeometry x="300" y="40" width="100" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="workflow-greenlit" value="Greenlit&#xa;(Approved)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="lane2-bg">
+          <mxGeometry x="440" y="40" width="100" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="workflow-cast" value="Cast&#xa;(Final Selection)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1" vertex="1" parent="lane2-bg">
+          <mxGeometry x="580" y="40" width="100" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="workflow-voting" value="Team Voting&#xa;&amp; Consensus" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="lane2-bg">
+          <mxGeometry x="720" y="40" width="100" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Arrows for Lane 2 -->
+        <mxCell id="arrow2-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="lane2-bg" source="workflow-longlist" target="workflow-audition">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow2-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="lane2-bg" source="workflow-audition" target="workflow-approval">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow2-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="lane2-bg" source="workflow-approval" target="workflow-greenlit">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow2-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="lane2-bg" source="workflow-greenlit" target="workflow-cast">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow2-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;" edge="1" parent="lane2-bg" source="workflow-approval" target="workflow-voting">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Swim Lane 3: Alternative Workflows -->
+        <mxCell id="lane3-bg" value="3. Alternative Workflows &amp; Tools" style="swimlane;horizontal=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="250" y="440" width="900" height="140" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="alt-shortlists" value="Shortlists&#xa;(Custom Groups)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="lane3-bg">
+          <mxGeometry x="20" y="40" width="100" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="alt-canvas" value="Canvas Mode&#xa;(Visual Layout)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="lane3-bg">
+          <mxGeometry x="150" y="40" width="100" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="alt-player" value="Player View&#xa;(Detail Modal)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="lane3-bg">
+          <mxGeometry x="280" y="40" width="100" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="alt-tabs" value="Custom Tabs&#xa;(Organize Views)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="lane3-bg">
+          <mxGeometry x="410" y="40" width="100" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="alt-schedule" value="Schedule&#xa;(Calendar)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="lane3-bg">
+          <mxGeometry x="540" y="40" width="100" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="alt-reports" value="Reports&#xa;(Analytics)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="lane3-bg">
+          <mxGeometry x="670" y="40" width="100" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Swim Lane 4: Key Modal Interactions -->
+        <mxCell id="lane4-bg" value="4. Key Modal Interactions" style="swimlane;horizontal=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="250" y="600" width="900" height="140" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="modal-playerview" value="PlayerViewModal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="lane4-bg">
+          <mxGeometry x="20" y="40" width="110" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="modal-upload" value="UploadActors&#xa;MenuModal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="lane4-bg">
+          <mxGeometry x="160" y="40" width="110" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="modal-usermenu" value="UserMenu&#xa;(Settings)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="lane4-bg">
+          <mxGeometry x="300" y="40" width="110" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="modal-canvas" value="CanvasModal&#xa;(Group Create)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="lane4-bg">
+          <mxGeometry x="440" y="40" width="110" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="modal-database" value="DatabaseModal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="lane4-bg">
+          <mxGeometry x="580" y="40" width="110" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="modal-help" value="HelpWizardModal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="lane4-bg">
+          <mxGeometry x="720" y="40" width="110" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Reference Box -->
+        <mxCell id="ref-box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="20" y="400" width="200" height="340" as="geometry" />
+        </mxCell>
+        <mxCell id="ref-title" value="Key Interaction Patterns" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="20" y="405" width="200" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="ref-content" value="• Drag &amp; Drop: Move actors between statuses&#xa;&#xa;• Right-click: Context menu for quick actions&#xa;&#xa;• Double-click: Open PlayerViewModal&#xa;&#xa;• Voting: Thumbs up/down with consensus tracking&#xa;&#xa;• Shortlists: Create custom actor groups&#xa;&#xa;• Canvas: Visual arrangement of actors&#xa;&#xa;• Filters: Search, sort, and filter actors&#xa;&#xa;• Bulk Actions: Select multiple actors&#xa;&#xa;• UserMenu: Access from avatar button in top-right" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="30" y="435" width="180" height="295" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+  <diagram name="Detailed: Entry &amp; Project Setup" id="detailed-entry">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="1600" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- Title -->
+        <mxCell id="detail-title" value="Detailed Entry &amp; Project Setup Flow" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=24;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="284.5" y="20" width="600" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Section 1: App Load -->
+        <mxCell id="s1-title" value="1. App Load &amp; Initial State" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="80" width="300" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="s1-start" value="User Opens App" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="120" width="120" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="s1-check" value="Check Local&#xa;Storage" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="200" y="110" width="100" height="70" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="s1-first" value="First Visit" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="340" y="90" width="100" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="s1-returning" value="Returning User" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="340" y="150" width="100" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Arrows Section 1 -->
+        <mxCell id="s1-arrow1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="s1-start" target="s1-check">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="s1-arrow2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.25;exitDx=0;exitDy=0;" edge="1" parent="1" source="s1-check" target="s1-first">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="s1-arrow3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.75;exitDx=0;exitDy=0;" edge="1" parent="1" source="s1-check" target="s1-returning">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Section 2: Splash Screen -->
+        <mxCell id="s2-title" value="2. SplashScreenModal" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="220" width="300" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="s2-splash" value="SplashScreenModal&#xa;Opens" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="260" width="140" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="s2-options" value="User Sees&#xa;3 Main Options" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="220" y="245" width="120" height="80" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="s2-new" value="New Project&#xa;Button" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="380" y="200" width="100" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="s2-open" value="Open Project&#xa;Button" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="380" y="265" width="100" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="s2-database" value="Database&#xa;Button" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="380" y="330" width="100" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Top Bar Options -->
+        <mxCell id="s2-topbar" value="Top Bar Options" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="380" y="390" width="150" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="s2-notifications" value="Notifications&#xa;(Bell Icon)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="380" y="420" width="100" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="s2-settings" value="Settings&#xa;(Gear Icon)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="500" y="420" width="100" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="s2-user" value="User Avatar&#xa;(Opens UserMenu)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="620" y="420" width="100" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="s2-help" value="Help&#xa;(? Icon)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="740" y="420" width="100" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Arrows Section 2 -->
+        <mxCell id="s2-arrow1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="s2-splash" target="s2-options">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="s2-arrow2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.2;exitDx=0;exitDy=0;" edge="1" parent="1" source="s2-options" target="s2-new">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="s2-arrow3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="s2-options" target="s2-open">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="s2-arrow4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.8;exitDx=0;exitDy=0;" edge="1" parent="1" source="s2-options" target="s2-database">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Section 3: UserMenu Flow -->
+        <mxCell id="s3-title" value="3. UserMenu Flow (from Avatar Button)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="500" width="400" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="s3-usermenu" value="UserMenu&#xa;Opens" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="540" width="120" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="s3-status" value="Status Section&#xa;(Available/Busy/Away)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="200" y="520" width="140" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="s3-initials" value="Change Initials&#xa;Button" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="200" y="570" width="140" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="s3-account" value="Account Settings&#xa;(Expandable)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="200" y="620" width="140" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="s3-darkmode" value="Dark Mode&#xa;Toggle" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="200" y="670" width="140" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="s3-switch" value="Switch User&#xa;(Expandable)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="200" y="720" width="140" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="s3-helpsupport" value="Help &amp; Support&#xa;Button" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="200" y="770" width="140" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="s3-signout" value="Sign Out&#xa;Button" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="200" y="820" width="140" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Account Settings Submenu -->
+        <mxCell id="s3-account-sub" value="Account Settings Submenu" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=1;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="380" y="600" width="180" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="s3-profile" value="Profile Settings" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="380" y="625" width="140" height="35" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="s3-notifpref" value="Notification Preferences" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="380" y="670" width="140" height="35" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="s3-privacy" value="Privacy &amp; Security" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="380" y="715" width="140" height="35" as="geometry" />
+        </mxCell>
+
+        <!-- Switch User Submenu -->
+        <mxCell id="s3-switch-sub" value="Switch User Submenu" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=1;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="560" y="700" width="150" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="s3-userlist" value="List of Other Users&#xa;(Click to Switch)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="560" y="725" width="140" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Arrows Section 3 -->
+        <mxCell id="s3-arrow1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="s3-usermenu" target="s3-status">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="s3-arrow2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="s3-usermenu" target="s3-initials">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="s3-arrow3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;" edge="1" parent="1" source="s3-account" target="s3-profile">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="s3-arrow4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;" edge="1" parent="1" source="s3-switch" target="s3-userlist">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Section 4: Project Manager -->
+        <mxCell id="s4-title" value="4. ProjectManager Modal (After New/Open Project)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="900" width="500" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="s4-timer" value="3-Second Timer&#xa;Starts" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="40" y="940" width="120" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="s4-projectmgr" value="ProjectManager&#xa;Modal Opens" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="200" y="940" width="140" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="s4-choice" value="New or&#xa;Existing?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="380" y="925" width="100" height="80" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="s4-newform" value="New Project Form&#xa;(Name, Description)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="520" y="900" width="140" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="s4-selectlist" value="Select from&#xa;Existing Projects" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="520" y="970" width="140" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Arrows Section 4 -->
+        <mxCell id="s4-arrow1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="s4-timer" target="s4-projectmgr">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="s4-arrow2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="s4-projectmgr" target="s4-choice">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="s4-arrow3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.25;exitDx=0;exitDy=0;" edge="1" parent="1" source="s4-choice" target="s4-newform">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="s4-arrow4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.75;exitDx=0;exitDy=0;" edge="1" parent="1" source="s4-choice" target="s4-selectlist">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Section 5: Character Setup -->
+        <mxCell id="s5-title" value="5. Character Setup" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="1060" width="300" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="s5-prompt" value="Add Characters&#xa;Prompt" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="40" y="1100" width="120" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="s5-method" value="Choose&#xa;Method?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="200" y="1085" width="100" height="80" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="s5-manual" value="Manual Entry&#xa;(AddCharacter)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="340" y="1050" width="120" height="45" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="s5-csv" value="CSV Upload&#xa;(UploadCharacters)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="340" y="1105" width="120" height="45" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="s5-skip" value="Skip&#xa;(Add Later)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="340" y="1160" width="120" height="45" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="s5-validate" value="Validate&#xa;Characters" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="500" y="1085" width="100" height="80" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="s5-error" value="Show Errors&#xa;(Fix Required)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="640" y="1050" width="120" height="45" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="s5-success" value="Characters&#xa;Added" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="640" y="1160" width="120" height="45" as="geometry" />
+        </mxCell>
+
+        <!-- Arrows Section 5 -->
+        <mxCell id="s5-arrow1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="s5-prompt" target="s5-method">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="s5-arrow2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.2;exitDx=0;exitDy=0;" edge="1" parent="1" source="s5-method" target="s5-manual">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="s5-arrow3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="s5-method" target="s5-csv">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="s5-arrow4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.8;exitDx=0;exitDy=0;" edge="1" parent="1" source="s5-method" target="s5-skip">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="s5-arrow5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="s5-manual" target="s5-validate">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="s5-arrow6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="s5-csv" target="s5-validate">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="s5-arrow7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.25;exitDx=0;exitDy=0;" edge="1" parent="1" source="s5-validate" target="s5-error">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="s5-arrow8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.75;exitDx=0;exitDy=0;" edge="1" parent="1" source="s5-validate" target="s5-success">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="s5-arrow9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;dashed=1;" edge="1" parent="1" source="s5-error" target="s5-method">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="620" y="1073" />
+              <mxPoint x="620" y="1000" />
+              <mxPoint x="320" y="1000" />
+              <mxPoint x="320" y="1125" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Section 6: Actor Acquisition (Optional) -->
+        <mxCell id="s6-title" value="6. Actor Acquisition (Optional)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="1250" width="350" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="s6-prompt" value="Add Actors&#xa;Now?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="40" y="1290" width="100" height="80" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="s6-yes" value="Yes, Add Actors" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="180" y="1270" width="120" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="s6-no" value="No, Skip" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="180" y="1330" width="120" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="s6-upload-menu" value="UploadActors&#xa;MenuModal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="340" y="1270" width="120" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="s6-csv-actors" value="CSV Upload" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="500" y="1250" width="100" height="35" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="s6-form-actors" value="Create Form" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="500" y="1295" width="100" height="35" as="geometry" />
+        </mxCell>
+
+        <!-- Arrows Section 6 -->
+        <mxCell id="s6-arrow1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.25;exitDx=0;exitDy=0;" edge="1" parent="1" source="s6-prompt" target="s6-yes">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="s6-arrow2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.75;exitDx=0;exitDy=0;" edge="1" parent="1" source="s6-prompt" target="s6-no">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="s6-arrow3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="s6-yes" target="s6-upload-menu">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="s6-arrow4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.25;exitDx=0;exitDy=0;" edge="1" parent="1" source="s6-upload-menu" target="s6-csv-actors">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="s6-arrow5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.75;exitDx=0;exitDy=0;" edge="1" parent="1" source="s6-upload-menu" target="s6-form-actors">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Section 7: Transition to Main -->
+        <mxCell id="s7-title" value="7. Transition to Main Interface" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="1410" width="350" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="s7-setup-complete" value="Setup Complete" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="40" y="1450" width="120" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="s7-load-data" value="Load Project&#xa;Data" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="200" y="1450" width="120" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="s7-main-interface" value="Main Interface&#xa;(ActorGrid View)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="360" y="1450" width="140" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Arrows Section 7 -->
+        <mxCell id="s7-arrow1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="s7-setup-complete" target="s7-load-data">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="s7-arrow2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="s7-load-data" target="s7-main-interface">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Alternative Paths Box -->
+        <mxCell id="alt-box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="800" y="80" width="320" height="400" as="geometry" />
+        </mxCell>
+        <mxCell id="alt-title" value="Alternative Paths &amp; Notes" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="800" y="85" width="320" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="alt-content" value="• Users can close SplashScreen at any time&#xa;&#xa;• Help Wizard can be accessed from ? icon&#xa;&#xa;• Notifications modal shows unread count&#xa;&#xa;• Settings icon opens UserPermissions modal&#xa;&#xa;• Database button opens DatabaseModal directly&#xa;&#xa;• UserMenu accessible from avatar button&#xa;  - Change status (Available/Busy/Away)&#xa;  - Change initials&#xa;  - Account Settings submenu&#xa;  - Dark Mode toggle&#xa;  - Switch User submenu&#xa;  - Help &amp; Support&#xa;  - Sign Out&#xa;&#xa;• 3-second timer gives visual feedback&#xa;&#xa;• ProjectManager handles both new and existing&#xa;&#xa;• Character setup is flexible (manual/CSV/skip)&#xa;&#xa;• Actor acquisition is optional at setup&#xa;&#xa;• All modals can be reopened later from main UI" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="810" y="120" width="300" height="350" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+  <diagram name="Modal Interaction Flow Map" id="modal-interactions">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="1600" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- Title -->
+        <mxCell id="modal-title" value="Modal Interaction Flow Map - Button Navigation" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=24;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="234.5" y="20" width="700" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Entry Points Section -->
+        <mxCell id="entry-section" value="Entry Points (Where Modals Are Triggered)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="80" width="400" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="ep-topmenu" value="Top Menu Bar" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="120" width="120" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="ep-sidebar" value="Sidebar" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="180" y="120" width="120" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="ep-actorcard" value="Actor Card" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="320" y="120" width="120" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="ep-canvas" value="Canvas" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="460" y="120" width="120" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="ep-viewcontrols" value="View Controls" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="600" y="120" width="120" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- SplashScreenModal Chain -->
+        <mxCell id="splash-section" value="1. SplashScreenModal Chain" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="200" width="300" height="25" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="m-splash" value="SplashScreenModal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="235" width="140" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="m-splash-btn1" value="&quot;New Project&quot;&#xa;button" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="220" y="200" width="90" height="35" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="m-splash-btn2" value="&quot;Open Project&quot;&#xa;button" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="220" y="242" width="90" height="35" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="m-splash-btn3" value="&quot;Database&quot;&#xa;button" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="220" y="284" width="90" height="35" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="m-splash-btn4" value="Bell icon&#xa;(Notifications)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="220" y="326" width="90" height="35" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="m-splash-btn5" value="Gear icon&#xa;(Settings)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="220" y="368" width="90" height="35" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="m-splash-btn6" value="Avatar button&#xa;(UserMenu)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="220" y="410" width="90" height="35" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="m-projectmgr" value="ProjectManager&#xa;Modal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="350" y="210" width="110" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="m-database" value="DatabaseModal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="350" y="284" width="110" height="35" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="m-notifications" value="Notifications&#xa;Modal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="350" y="326" width="110" height="35" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="m-userpermissions" value="UserPermissions&#xa;Modal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="350" y="368" width="110" height="35" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="m-usermenu" value="UserMenu" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="350" y="410" width="110" height="35" as="geometry" />
+        </mxCell>
+
+        <!-- Arrows for Splash Chain -->
+        <mxCell id="splash-arrow1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0000FF;" edge="1" parent="1" source="m-splash" target="m-splash-btn1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="splash-arrow2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0000FF;" edge="1" parent="1" source="m-splash-btn1" target="m-projectmgr">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="splash-arrow3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0000FF;" edge="1" parent="1" source="m-splash-btn2" target="m-projectmgr">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="splash-arrow4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0000FF;" edge="1" parent="1" source="m-splash-btn3" target="m-database">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="splash-arrow5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0000FF;" edge="1" parent="1" source="m-splash-btn4" target="m-notifications">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="splash-arrow6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0000FF;" edge="1" parent="1" source="m-splash-btn5" target="m-userpermissions">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="splash-arrow7" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0000FF;" edge="1" parent="1" source="m-splash-btn6" target="m-usermenu">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- UserMenu Chain -->
+        <mxCell id="usermenu-section" value="2. UserMenu Chain (from Avatar Button)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="500" y="200" width="350" height="25" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="m-usermenu2" value="UserMenu" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="500" y="235" width="120" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="m-usermenu-status" value="Status buttons&#xa;(Available/Busy/Away)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="660" y="200" width="120" height="35" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="m-usermenu-initials" value="&quot;Change Initials&quot;&#xa;button" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="660" y="242" width="120" height="35" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="m-usermenu-account" value="&quot;Account Settings&quot;&#xa;(expandable)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="660" y="284" width="120" height="35" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="m-usermenu-dark" value="&quot;Dark Mode&quot;&#xa;toggle" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="660" y="326" width="120" height="35" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="m-usermenu-switch" value="&quot;Switch User&quot;&#xa;(expandable)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="660" y="368" width="120" height="35" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="m-usermenu-help" value="&quot;Help &amp; Support&quot;&#xa;button" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="660" y="410" width="120" height="35" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="m-usermenu-signout" value="&quot;Sign Out&quot;&#xa;button" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="660" y="452" width="120" height="35" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="m-initials-modal" value="Change Initials&#xa;Modal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="820" y="242" width="110" height="35" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="m-account-submenu" value="Account Settings&#xa;Submenu" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="820" y="284" width="110" height="35" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="m-switch-submenu" value="Switch User&#xa;List" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="820" y="368" width="110" height="35" as="geometry" />
+        </mxCell>
+
+        <!-- Arrows for UserMenu Chain -->
+        <mxCell id="usermenu-arrow1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0000FF;" edge="1" parent="1" source="m-usermenu2" target="m-usermenu-initials">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="usermenu-arrow2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0000FF;" edge="1" parent="1" source="m-usermenu-initials" target="m-initials-modal">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="usermenu-arrow3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0000FF;" edge="1" parent="1" source="m-usermenu-account" target="m-account-submenu">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="usermenu-arrow4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0000FF;" edge="1" parent="1" source="m-usermenu-switch" target="m-switch-submenu">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- PlayerView Chain -->
+        <mxCell id="player-section" value="3. PlayerViewModal Chain" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="520" width="300" height="25" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="m-playerview" value="PlayerViewModal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="555" width="130" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="m-player-actions-btn" value="&quot;Actions&quot; button&#xa;(⋮ menu)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="210" y="555" width="100" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="m-player-actions" value="PlayerView&#xa;ActionsModal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="350" y="555" width="110" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="m-player-edit-btn" value="&quot;Edit Actor&quot;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="500" y="520" width="90" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="m-player-move-btn" value="&quot;Move Actor&quot;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="500" y="555" width="90" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="m-player-movechar-btn" value="&quot;Move to Character&quot;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="500" y="590" width="90" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="m-player-status-btn" value="&quot;Manage Statuses&quot;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="500" y="625" width="90" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="m-player-delete-btn" value="&quot;Delete&quot;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="500" y="660" width="90" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="m-edit-actor" value="EditActorModal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="630" y="520" width="100" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="m-move-actor" value="MoveActorModal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="630" y="555" width="100" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="m-move-char" value="MoveActorTo&#xa;CharacterModal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="630" y="590" width="100" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="m-manage-status" value="ManageStatuses&#xa;Modal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="630" y="625" width="100" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="m-confirm-delete" value="ConfirmDelete&#xa;Modal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="630" y="660" width="100" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Arrows for PlayerView Chain -->
+        <mxCell id="player-arrow1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0000FF;" edge="1" parent="1" source="m-playerview" target="m-player-actions-btn">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="player-arrow2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0000FF;" edge="1" parent="1" source="m-player-actions-btn" target="m-player-actions">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="player-arrow3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0000FF;" edge="1" parent="1" source="m-player-actions" target="m-player-edit-btn">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="player-arrow4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0000FF;" edge="1" parent="1" source="m-player-edit-btn" target="m-edit-actor">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="player-arrow5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0000FF;" edge="1" parent="1" source="m-player-move-btn" target="m-move-actor">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="player-arrow6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0000FF;" edge="1" parent="1" source="m-player-movechar-btn" target="m-move-char">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="player-arrow7" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0000FF;" edge="1" parent="1" source="m-player-status-btn" target="m-manage-status">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="player-arrow8" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#FF0000;" edge="1" parent="1" source="m-player-delete-btn" target="m-confirm-delete">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Upload Actors Chain -->
+        <mxCell id="upload-section" value="4. UploadActorsMenuModal Chain" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="730" width="300" height="25" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="m-upload-menu" value="UploadActors&#xa;MenuModal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="765" width="130" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="m-upload-csv-btn" value="&quot;Upload CSV&quot;&#xa;button" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="210" y="750" width="100" height="35" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="m-upload-form-btn" value="&quot;Create Form&quot;&#xa;button" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="210" y="795" width="100" height="35" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="m-upload-csv" value="UploadCSVModal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="350" y="750" width="110" height="35" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="m-create-form" value="CreateActorForm&#xa;Modal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="350" y="795" width="110" height="35" as="geometry" />
+        </mxCell>
+
+        <!-- Arrows for Upload Chain -->
+        <mxCell id="upload-arrow1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0000FF;" edge="1" parent="1" source="m-upload-menu" target="m-upload-csv-btn">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="upload-arrow2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0000FF;" edge="1" parent="1" source="m-upload-csv-btn" target="m-upload-csv">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="upload-arrow3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0000FF;" edge="1" parent="1" source="m-upload-form-btn" target="m-create-form">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- More Actions Chain -->
+        <mxCell id="more-section" value="5. MoreActionsModal Chain" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="870" width="300" height="25" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="m-more-actions" value="MoreActions&#xa;Modal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="905" width="130" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="m-more-move-btn" value="&quot;Move Actor&quot;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="210" y="890" width="100" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="m-more-movechar-btn" value="&quot;Move to Character&quot;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="210" y="925" width="100" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="m-more-delete-btn" value="&quot;Delete&quot;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="210" y="960" width="100" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="m-more-move" value="MoveActorModal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="350" y="890" width="110" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="m-more-movechar" value="MoveActorTo&#xa;CharacterModal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="350" y="925" width="110" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="m-more-delete" value="ConfirmDelete&#xa;Modal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="350" y="960" width="110" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Arrows for More Actions Chain -->
+        <mxCell id="more-arrow1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0000FF;" edge="1" parent="1" source="m-more-actions" target="m-more-move-btn">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="more-arrow2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0000FF;" edge="1" parent="1" source="m-more-move-btn" target="m-more-move">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="more-arrow3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0000FF;" edge="1" parent="1" source="m-more-movechar-btn" target="m-more-movechar">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="more-arrow4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#FF0000;" edge="1" parent="1" source="m-more-delete-btn" target="m-more-delete">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Canvas Chain -->
+        <mxCell id="canvas-section" value="6. CanvasModal Chain" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="500" y="730" width="250" height="25" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="m-canvas" value="CanvasModal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="500" y="765" width="120" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="m-canvas-create-btn" value="&quot;Create Group&quot;&#xa;button" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="660" y="750" width="100" height="35" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="m-canvas-move-btn" value="&quot;Move Multiple&quot;&#xa;action" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="660" y="795" width="100" height="35" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="m-create-group" value="CreateGroup&#xa;Modal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="800" y="750" width="100" height="35" as="geometry" />
+        </mxCell>
+
+        <!-- Arrows for Canvas Chain -->
+        <mxCell id="canvas-arrow1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0000FF;" edge="1" parent="1" source="m-canvas" target="m-canvas-create-btn">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="canvas-arrow2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0000FF;" edge="1" parent="1" source="m-canvas-create-btn" target="m-create-group">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Additional Modals Section -->
+        <mxCell id="additional-section" value="7. Other Key Modals" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="1040" width="250" height="25" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="m-database2" value="DatabaseModal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="40" y="1075" width="110" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="m-character" value="AddCharacter&#xa;Modal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="170" y="1075" width="110" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="m-schedule" value="ScheduleModal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="300" y="1075" width="110" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="m-shortlist" value="AddShortlist&#xa;Modal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="430" y="1075" width="110" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="m-help" value="HelpWizard&#xa;Modal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="560" y="1075" width="110" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Legend Box -->
+        <mxCell id="legend-box2" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="40" y="1160" width="880" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-title2" value="Complete Modal List by Category" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="1165" width="880" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-content2" value="Entry/System: SplashScreenModal, HelpWizardModal, NotificationsModal, UserPermissions, UserMenu&#xa;&#xa;Project Management: ProjectManager, CastingBreakdown, AddCharacter, EditCharacter, UploadCharactersModal&#xa;&#xa;Actor Management: PlayerViewModal, PlayerViewActionsModal, EditActorModal, MoveActorModal, MoveActorToCharacterModal, ManageStatusesModal, MoreActionsModal, ConfirmDeleteModal&#xa;&#xa;Upload/Import: UploadActorsMenuModal, UploadCSVModal, CreateActorFormModal, DatabaseModal&#xa;&#xa;Shortlists &amp; Organization: AddShortlistModal, EditShortlistModal, ShortlistDetailsModal, CanvasModal, CreateGroupModal&#xa;&#xa;Scheduling: ScheduleModal, AddEventModal, EditEventModal&#xa;&#xa;Settings &amp; Permissions: UserPermissionsModal, ManageRolesModal, InviteUserModal&#xa;&#xa;Arrow Colors: Blue = Button Click, Black = Modal Open, Red = Delete Action, Dashed = Internal State Change" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="50" y="1195" width="860" height="155" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

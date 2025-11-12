@@ -1,9 +1,22 @@
 "use client"
 
 import type React from "react"
-
+import { useEffect } from "react"
 import { useCasting } from "@/components/casting/CastingContext"
-import { Search, Grid3X3, List, LayoutGrid, SortAsc, Filter, Plus, Upload, Bookmark, Calendar } from "lucide-react"
+import {
+  Search,
+  Grid3X3,
+  List,
+  LayoutGrid,
+  SortAsc,
+  Filter,
+  Plus,
+  Upload,
+  Bookmark,
+  Calendar,
+  Play,
+  RectangleVertical,
+} from "lucide-react"
 import { useState } from "react"
 import { openModal } from "@/components/modals/ModalManager"
 import TerminologyContextMenu from "@/components/ui/TerminologyContextMenu"
@@ -15,7 +28,7 @@ import { useActorGrid } from "@/components/actors/ActorGridContext"
 export default function ViewControls() {
   const { state, dispatch } = useCasting()
   const { selectedActorIds } = useActorGrid()
-  const { searchTerm, searchTags, savedSearches, cardDisplayMode, currentSortOption } = state.currentFocus
+  const { searchTerm, searchTags, savedSearches, cardDisplayMode, currentSortOption, filters } = state.currentFocus
 
   const currentProject = state.projects.find((p) => p.id === state.currentFocus.currentProjectId)
   const currentCharacter = currentProject?.characters.find((c) => c.id === state.currentFocus.characterId)
@@ -68,8 +81,84 @@ export default function ViewControls() {
   const { activeTabKey } = state.currentFocus
   const isLongListTab = activeTabKey === "longList"
 
-  const [showFilters, setShowFilters] = useState(false)
   const [showSavedSearches, setShowSavedSearches] = useState(false)
+
+  const [activeFiltersCount, setActiveFiltersCount] = useState(0)
+
+  const getUniqueLocations = (): string[] => {
+    if (!currentCharacter) return []
+
+    const locations = new Set<string>()
+    const allActors: any[] = []
+
+    // Collect all actors from all lists
+    if (Array.isArray(currentCharacter.actors.longList)) {
+      allActors.push(...currentCharacter.actors.longList)
+    }
+    if (Array.isArray(currentCharacter.actors.audition)) {
+      allActors.push(...currentCharacter.actors.audition)
+    }
+    if (Array.isArray(currentCharacter.actors.approval)) {
+      allActors.push(...currentCharacter.actors.approval)
+    }
+
+    // Extract locations
+    allActors.forEach((actor) => {
+      if (actor.location && actor.location.trim()) {
+        locations.add(actor.location.trim())
+      }
+    })
+
+    return Array.from(locations).sort()
+  }
+
+  const uniqueLocations = getUniqueLocations()
+
+  useEffect(() => {
+    let count = 0
+    if (filters.status.length > 0) count++
+    if (filters.ageRange.min > 0 || filters.ageRange.max < 100) count++
+    if (filters.location.length > 0) count++
+    setActiveFiltersCount(count)
+  }, [filters])
+
+  const handleStatusFilterChange = (statusId: string) => {
+    const newStatusFilter = filters.status.includes(statusId)
+      ? filters.status.filter((id) => id !== statusId)
+      : [...filters.status, statusId]
+
+    dispatch({
+      type: "SET_STATUS_FILTER",
+      payload: newStatusFilter,
+    })
+  }
+
+  const handleLocationFilterChange = (location: string) => {
+    const newLocationFilter = filters.location.includes(location)
+      ? filters.location.filter((loc) => loc !== location)
+      : [...filters.location, location]
+
+    dispatch({
+      type: "SET_LOCATION_FILTER",
+      payload: newLocationFilter,
+    })
+  }
+
+  const handleAgeRangeChange = (type: "min" | "max", value: number) => {
+    dispatch({
+      type: "SET_AGE_RANGE_FILTER",
+      payload: {
+        ...filters.ageRange,
+        [type]: value,
+      },
+    })
+  }
+
+  const handleClearAllFilters = () => {
+    dispatch({
+      type: "CLEAR_ALL_FILTERS",
+    })
+  }
 
   const handleSearchTagsChange = (tags: SearchTag[]) => {
     dispatch({
@@ -85,7 +174,7 @@ export default function ViewControls() {
     })
   }
 
-  const handleViewModeChange = (mode: "detailed" | "simple" | "list-view") => {
+  const handleViewModeChange = (mode: "detailed" | "simple" | "list-view" | "row") => {
     dispatch({
       type: "SET_VIEW_MODE",
       payload: mode,
@@ -124,6 +213,10 @@ export default function ViewControls() {
         },
       },
     })
+  }
+
+  const handleOpenPlayerView = () => {
+    dispatch({ type: "OPEN_PLAYER_VIEW" })
   }
 
   const sortOptions = state.sortOptionDefinitions || [
@@ -198,6 +291,15 @@ export default function ViewControls() {
               </div>
             )}
 
+            <button
+              onClick={handleOpenPlayerView}
+              className="flex items-center space-x-2 px-3 py-2 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white rounded-lg font-medium transition-all duration-200 text-sm whitespace-nowrap shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+            >
+              <Play className="w-4 h-4" />
+              <span>Player View</span>
+            </button>
+            <div className="w-px h-6 bg-slate-300 mx-1"></div>
+
             {/* View Mode Presets */}
             <div className="flex items-center flex-shrink-0">
               <div className="flex items-center bg-slate-100 rounded-lg p-1">
@@ -220,6 +322,17 @@ export default function ViewControls() {
                       : "text-slate-700 hover:text-slate-900 hover:bg-slate-200"
                   }`}
                   title="Simple View"
+                >
+                  <RectangleVertical className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => handleViewModeChange("row")}
+                  className={`p-2 rounded-md transition-colors ${
+                    cardDisplayMode === "row"
+                      ? "bg-white text-emerald-600 shadow-sm"
+                      : "text-slate-700 hover:text-slate-900 hover:bg-slate-200"
+                  }`}
+                  title="Row View (3 Columns)"
                 >
                   <Grid3X3 className="w-4 h-4" />
                 </button>
@@ -261,15 +374,20 @@ export default function ViewControls() {
             {/* Filters */}
             <div className="flex items-center gap-2 flex-shrink-0">
               <button
-                onClick={() => setShowFilters(!showFilters)}
-                className={`flex items-center space-x-2 px-3 py-2 rounded-lg border transition-colors text-sm ${
-                  showFilters
+                onClick={() => dispatch({ type: "TOGGLE_FILTERS" })}
+                className={`flex items-center space-x-2 px-3 py-2 rounded-lg border transition-colors text-sm relative ${
+                  filters.showFilters
                     ? "bg-emerald-50 border-emerald-300 text-emerald-700"
                     : "bg-white border-slate-300 text-slate-600 hover:text-slate-800 hover:border-slate-400"
                 }`}
               >
                 <Filter className="w-4 h-4" />
                 <span>Filters</span>
+                {activeFiltersCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-emerald-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-semibold">
+                    {activeFiltersCount}
+                  </span>
+                )}
               </button>
             </div>
           </div>
@@ -335,15 +453,30 @@ export default function ViewControls() {
       </div>
 
       {/* Expanded Filters Panel */}
-      {showFilters && (
-        <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 shadow-sm">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {filters.showFilters && (
+        <div className="bg-slate-50 border border-slate-200 rounded-lg p-5 shadow-sm">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-base font-semibold text-slate-800">Filter Options</h3>
+            {activeFiltersCount > 0 && (
+              <button
+                onClick={handleClearAllFilters}
+                className="text-sm text-emerald-600 hover:text-emerald-700 font-medium transition-colors"
+              >
+                Clear All Filters ({activeFiltersCount})
+              </button>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* Card View Settings */}
             <div>
-              <h4 className="text-sm font-semibold text-slate-700 mb-3">Display Options</h4>
+              <h4 className="text-sm font-semibold text-slate-700 mb-3 flex items-center">
+                <LayoutGrid className="w-4 h-4 mr-2 text-slate-500" />
+                Display Options
+              </h4>
               <div className="space-y-2">
                 {Object.entries(state.cardViewSettings).map(([key, value]) => (
-                  <label key={key} className="flex items-center space-x-2 cursor-pointer">
+                  <label key={key} className="flex items-center space-x-2 cursor-pointer group">
                     <input
                       type="checkbox"
                       checked={value}
@@ -355,7 +488,7 @@ export default function ViewControls() {
                       }
                       className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 w-4 h-4"
                     />
-                    <span className="text-sm text-slate-600 capitalize">
+                    <span className="text-sm text-slate-600 capitalize group-hover:text-slate-800 transition-colors">
                       {key.replace(/([A-Z])/g, " $1").toLowerCase()}
                     </span>
                   </label>
@@ -363,26 +496,144 @@ export default function ViewControls() {
               </div>
             </div>
 
-            {/* Status Filters */}
             <div>
-              <h4 className="text-sm font-semibold text-slate-700 mb-3">Status Filters</h4>
-              <div className="text-sm text-slate-500 italic">Coming soon...</div>
+              <h4 className="text-sm font-semibold text-slate-700 mb-3 flex items-center">
+                <Filter className="w-4 h-4 mr-2 text-slate-500" />
+                Status Filters
+                {filters.status.length > 0 && (
+                  <span className="ml-2 bg-emerald-100 text-emerald-700 text-xs px-2 py-0.5 rounded-full font-semibold">
+                    {filters.status.length}
+                  </span>
+                )}
+              </h4>
+              <div className="space-y-2 max-h-48 overflow-y-auto pr-2">
+                {state.predefinedStatuses.length > 0 ? (
+                  state.predefinedStatuses.map((status) => (
+                    <label key={status.id} className="flex items-center space-x-2 cursor-pointer group">
+                      <input
+                        type="checkbox"
+                        checked={filters.status.includes(status.id)}
+                        onChange={() => handleStatusFilterChange(status.id)}
+                        className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 w-4 h-4"
+                      />
+                      <span
+                        className="text-xs px-2 py-1 rounded-md font-medium transition-all"
+                        style={{
+                          backgroundColor: status.bgColor,
+                          color: status.textColor,
+                        }}
+                      >
+                        {status.label}
+                      </span>
+                    </label>
+                  ))
+                ) : (
+                  <div className="text-sm text-slate-500 italic">No statuses available</div>
+                )}
+              </div>
             </div>
 
-            {/* Age Range */}
             <div>
-              <h4 className="text-sm font-semibold text-slate-700 mb-3">Age Range</h4>
-              <div className="text-sm text-slate-500 italic">Coming soon...</div>
+              <h4 className="text-sm font-semibold text-slate-700 mb-3 flex items-center">
+                <SortAsc className="w-4 h-4 mr-2 text-slate-500" />
+                Age Range
+                {(filters.ageRange.min > 0 || filters.ageRange.max < 100) && (
+                  <span className="ml-2 bg-emerald-100 text-emerald-700 text-xs px-2 py-0.5 rounded-full font-semibold">
+                    Active
+                  </span>
+                )}
+              </h4>
+              <div className="space-y-4">
+                <div>
+                  <label className="text-xs text-slate-600 mb-1 block">
+                    Minimum Age: <span className="font-semibold text-slate-800">{filters.ageRange.min}</span>
+                  </label>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={filters.ageRange.min}
+                    onChange={(e) => handleAgeRangeChange("min", Number(e.target.value))}
+                    className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-slate-600 mb-1 block">
+                    Maximum Age: <span className="font-semibold text-slate-800">{filters.ageRange.max}</span>
+                  </label>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={filters.ageRange.max}
+                    onChange={(e) => handleAgeRangeChange("max", Number(e.target.value))}
+                    className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600"
+                  />
+                </div>
+                <div className="text-xs text-slate-500 bg-white rounded-md p-2 border border-slate-200">
+                  Showing actors aged <span className="font-semibold text-emerald-600">{filters.ageRange.min}</span> to{" "}
+                  <span className="font-semibold text-emerald-600">{filters.ageRange.max}</span>
+                </div>
+              </div>
             </div>
 
-            {/* Location */}
             <div>
-              <h4 className="text-sm font-semibold text-slate-700 mb-3">Location</h4>
-              <div className="text-sm text-slate-500 italic">Coming soon...</div>
+              <h4 className="text-sm font-semibold text-slate-700 mb-3 flex items-center">
+                <Search className="w-4 h-4 mr-2 text-slate-500" />
+                Location
+                {filters.location.length > 0 && (
+                  <span className="ml-2 bg-purple-100 text-purple-700 text-xs px-2 py-0.5 rounded-full font-semibold">
+                    {filters.location.length}
+                  </span>
+                )}
+              </h4>
+              <div className="space-y-2 max-h-48 overflow-y-auto pr-2">
+                {uniqueLocations.length > 0 ? (
+                  uniqueLocations.map((location) => (
+                    <label key={location} className="flex items-center space-x-2 cursor-pointer group">
+                      <input
+                        type="checkbox"
+                        checked={filters.location.includes(location)}
+                        onChange={() => handleLocationFilterChange(location)}
+                        className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 w-4 h-4"
+                      />
+                      <span className="text-sm text-slate-600 group-hover:text-slate-800 transition-colors truncate">
+                        {location}
+                      </span>
+                    </label>
+                  ))
+                ) : (
+                  <div className="text-sm text-slate-500 italic">No locations available</div>
+                )}
+              </div>
             </div>
           </div>
+
+          {activeFiltersCount > 0 && (
+            <div className="mt-4 pt-4 border-t border-slate-300">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-sm font-medium text-slate-700">Active Filters:</span>
+                {filters.status.length > 0 && (
+                  <span className="bg-emerald-100 text-emerald-700 text-xs px-3 py-1 rounded-full font-medium">
+                    {filters.status.length} Status{filters.status.length > 1 ? "es" : ""}
+                  </span>
+                )}
+                {(filters.ageRange.min > 0 || filters.ageRange.max < 100) && (
+                  <span className="bg-blue-100 text-blue-700 text-xs px-3 py-1 rounded-full font-medium">
+                    Age: {filters.ageRange.min}-{filters.ageRange.max}
+                  </span>
+                )}
+                {filters.location.length > 0 && (
+                  <span className="bg-purple-100 text-purple-700 text-xs px-3 py-1 rounded-full font-medium">
+                    {filters.location.length} Location{filters.location.length > 1 ? "s" : ""}
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       )}
+
       {/* Terminology Context Menu */}
       {contextMenu && (
         <TerminologyContextMenu
