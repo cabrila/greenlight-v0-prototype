@@ -5,6 +5,11 @@ export function saveToLocalStorage(state: any): void {
     // Only save if we're in the browser
     if (typeof window === "undefined") return
 
+    console.log(
+      "[v0] saveToLocalStorage called with state.currentFocus.savedSearches:",
+      state.currentFocus?.savedSearches,
+    )
+
     // Create a clean copy of the state for storage
     const stateToSave = {
       ...state,
@@ -19,6 +24,8 @@ export function saveToLocalStorage(state: any): void {
       // Don't save modal states
       modals: {},
     }
+
+    console.log("[v0] stateToSave.currentFocus.savedSearches:", stateToSave.currentFocus?.savedSearches)
 
     const serializedState = JSON.stringify(stateToSave)
     localStorage.setItem(STORAGE_KEY, serializedState)
