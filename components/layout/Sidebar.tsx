@@ -22,6 +22,7 @@ import {
 } from "lucide-react"
 import { openModal } from "@/components/modals/ModalManager"
 import { useState, useEffect, useRef } from "react"
+import { mockData } from "@/lib/mockData"
 import UserMenu from "./UserMenu"
 
 export default function Sidebar() {
@@ -146,31 +147,11 @@ export default function Sidebar() {
     setIsLoadingDemo(true)
 
     try {
-      console.log("[v0] Fetching demo data from API route...")
-
-      const response = await fetch("/api/load-demo-data")
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || `HTTP error! status: ${response.status}`)
-      }
-
-      // Parse the JSON data
-      const demoData = await response.json()
-      console.log("[v0] Demo data fetched successfully:", demoData)
-
-      // Dispatch the data to the reducer to update the application state
-      dispatch({ type: "LOAD_DEMO_DATA", payload: demoData })
-
-      console.log("[v0] Demo data loaded successfully into application state")
+      await new Promise((resolve) => setTimeout(resolve, 500))
+      dispatch({ type: "LOAD_DEMO_DATA", payload: mockData })
+      console.log("Demo data loaded successfully")
     } catch (error) {
-      console.error("[v0] Error loading demo data:", error)
-
-      // Show user-friendly error message
-      alert(
-        "Failed to load demo data. Please check your internet connection and try again.\n\n" +
-          `Error: ${error instanceof Error ? error.message : "Unknown error"}`,
-      )
+      console.error("Error loading demo data:", error)
     } finally {
       setIsLoadingDemo(false)
     }
