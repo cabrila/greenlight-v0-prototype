@@ -1,9 +1,9 @@
 "use client"
 
 import type React from "react"
-import { createContext, useContext, useReducer, useEffect } from "react"
-import type { CastingState, CastingAction } from "@/types/casting"
-import { clearLocalStorage, saveToLocalStorage, loadFromLocalStorage } from "@/utils/localStorage"
+import { createContext, type ReactNode, useReducer, useEffect, useContext } from "react"
+import type { CastingState, CastingAction, Actor } from "@/types/casting"
+import { saveToLocalStorage, clearLocalStorage, loadFromLocalStorage } from "@/utils/localStorage"
 
 // --- helper ---------------------------------------------
 function safeArray<T>(arr: T[] | undefined | null): T[] {
@@ -760,14 +760,6 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
 
     case "SAVE_CURRENT_SEARCH": {
       const { name, isGlobal = false } = action.payload
-
-      console.log("[v0] ===== SAVE_CURRENT_SEARCH START =====")
-      console.log("[v0] Action payload:", action.payload)
-      console.log("[v0] Current searchTags:", state.currentFocus.searchTags)
-      console.log("[v0] Current searchTerm:", state.currentFocus.searchTerm)
-      console.log("[v0] Current savedSearches count:", state.currentFocus.savedSearches.length)
-      console.log("[v0] Current savedSearches array:", state.currentFocus.savedSearches)
-
       const newSavedSearch = {
         id: `search-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         name,
@@ -778,25 +770,17 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
         isGlobal,
       }
 
-      console.log("[v0] New saved search object:", newSavedSearch)
-      console.log("[v0] Tags count in new search:", newSavedSearch.tags.length)
-
-      const updatedSavedSearches = [...state.currentFocus.savedSearches, newSavedSearch]
-
-      console.log("[v0] Updated savedSearches array length:", updatedSavedSearches.length)
-      console.log("[v0] Updated savedSearches array:", updatedSavedSearches)
+      console.log("[v0] Creating saved search:", newSavedSearch)
 
       newState = {
         ...state,
         currentFocus: {
           ...state.currentFocus,
-          savedSearches: updatedSavedSearches,
+          savedSearches: [...state.currentFocus.savedSearches, newSavedSearch],
         },
       }
 
-      console.log("[v0] newState.currentFocus.savedSearches length:", newState.currentFocus.savedSearches.length)
-      console.log("[v0] newState.currentFocus.savedSearches:", newState.currentFocus.savedSearches)
-      console.log("[v0] ===== SAVE_CURRENT_SEARCH END =====")
+      console.log("[v0] Total saved searches after save:", newState.currentFocus.savedSearches.length)
       break
     }
 
@@ -868,10 +852,7 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
           currentFocus: {
             ...state.currentFocus,
             cardDisplayMode: action.payload,
-            playerView: {
-              ...state.currentFocus.playerView,
-              isOpen: false,
-            },
+            playerView: { ...state.currentFocus.playerView, isOpen: false },
           },
         }
       }
@@ -988,7 +969,7 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
       }
 
       // Initialize notifications array with the vote notification
-      const newNotifications = [voteNotification, ...state.notifications]
+      let newNotifications = [voteNotification, ...state.notifications]
 
       // Process the vote and update projects
       const updatedProjects = state.projects.map((project) => ({
@@ -998,8 +979,69 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
 
           const updateActorVote = (actor: any) => {
             if (actor.id !== actorId) return actor
-            const newVotes = { ...actor.userVotes, [votingUserId]: vote }
-            return { ...actor, userVotes: newVotes }
+            const newVotes = { ...actor.userVotes }
+            if (newVotes[votingUserId] === vote) {
+              delete newVotes[votingUserId]
+            } else {
+              newVotes[votingUserId] = vote
+            }
+
+            // Calculate consensus with special handling for Approval list
+            const totalUsers = state.users.length
+            const yesVotes = Object.values(newVotes).filter((v) => v === "yes").length
+            const noVotes = Object.values(newVotes).filter((v) => v === "no").length
+            const maybeVotes = Object.values(newVotes).filter((v) => v === "maybe").length
+
+            let consensusAction = null
+            let isSoftRejected = false
+            let isGreenlit = false
+            let isCast = false
+
+            // Special handling for Approval list - greenlight when ALL users vote Yes
+            if (actor.currentListKey === "approval" && yesVotes === totalUsers && totalUsers > 0) {
+              consensusAction = { type: "yes", isGreenlit: true }
+              isGreenlit = true
+              isCast = true
+
+              // Create greenlight notification and add it to the notifications array
+              const greenlightNotification = {
+                id: `greenlight-${Date.now()}-${Math.random()}`,
+                type: "system" as const,
+                title: "Actor Greenlit!",
+                message: `🎉 ${actorName} has been officially cast as ${characterName}! All team members voted Yes.`,
+                timestamp: Date.now(),
+                read: false,
+                priority: "high" as const,
+                actorId,
+                characterId,
+              }
+
+              newNotifications = [greenlightNotification, ...newNotifications]
+            } else if (yesVotes === totalUsers && actor.currentListKey !== "approval" && totalUsers > 0) {
+              const currentTabIndex = state.tabDefinitions.findIndex((t) => t.key === actor.currentListKey)
+              const nextTab = state.tabDefinitions[currentTabIndex + 1]
+              if (nextTab && nextTab.key !== "shortLists") {
+                consensusAction = { type: "yes", targetKey: nextTab.key, targetName: nextTab.name }
+              } else {
+                consensusAction = { type: "yes", targetKey: "approval", targetName: "Approval" }
+              }
+            } else if (noVotes === totalUsers && totalUsers > 0) {
+              if (actor.currentListKey !== "approval") {
+                consensusAction = { type: "no", targetKey: "longList", targetName: "Long List" }
+                isSoftRejected = true
+              }
+            } else if (yesVotes + noVotes + maybeVotes === totalUsers && totalUsers > 0) {
+              consensusAction = { type: "stay" }
+            }
+
+            return {
+              ...actor,
+              userVotes: newVotes,
+              consensusAction,
+              isSoftRejected,
+              isGreenlit,
+              isCast,
+            }
           }
 
           return {
@@ -1013,6 +1055,1713 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
                 ...sl,
                 actors: sl.actors.map(updateActorVote),
               })),
+              ...Object.fromEntries(
+                Object.entries(character.actors)
+                  .filter(([key]) => !["longList", "audition", "approval", "shortLists"].includes(key))
+                  .map(([key, actors]) => [key, Array.isArray(actors) ? actors.map(updateActorVote) : actors]),
+              ),
+            },
+          }
+        }),
+      }))
+
+      newState = {
+        ...state,
+        notifications: newNotifications,
+        projects: updatedProjects,
+      }
+      break
+
+    case "ADD_CONTACT_STATUS": {
+      const { actorIds, characterId, contactType, templateName, timestamp } = action.payload
+
+      // Create a contact status based on the template type
+      const getContactStatusFromTemplate = (type: string, name: string) => {
+        const statusId = `contact-${type}-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`
+
+        switch (type) {
+          case "audition":
+            return {
+              id: statusId,
+              label: "Audition Invite Sent",
+              bgColor: "bg-purple-200",
+              textColor: "text-purple-700",
+              category: "contact",
+              isCustom: false,
+              timestamp,
+              templateUsed: name,
+            }
+          case "callback":
+            return {
+              id: statusId,
+              label: "Callback Invite Sent",
+              bgColor: "bg-pink-200",
+              textColor: "text-pink-700",
+              category: "contact",
+              isCustom: false,
+              timestamp,
+              templateUsed: name,
+            }
+          case "rejection":
+            return {
+              id: statusId,
+              label: "Rejection Sent",
+              bgColor: "bg-red-200",
+              textColor: "text-red-700",
+              category: "contact",
+              isCustom: false,
+              timestamp,
+              templateUsed: name,
+            }
+          case "offer":
+            return {
+              id: statusId,
+              label: "Offer Sent",
+              bgColor: "bg-green-200",
+              textColor: "text-green-700",
+              category: "contact",
+              isCustom: false,
+              timestamp,
+              templateUsed: name,
+            }
+          case "general":
+          default:
+            return {
+              id: statusId,
+              label: "General Contact",
+              bgColor: "bg-blue-200",
+              textColor: "text-blue-700",
+              category: "contact",
+              isCustom: false,
+              timestamp,
+              templateUsed: name,
+            }
+        }
+      }
+
+      const contactStatus = getContactStatusFromTemplate(contactType, templateName)
+
+      newState = {
+        ...state,
+        projects: state.projects.map((project) => ({
+          ...project,
+          characters: project.characters.map((character) => {
+            if (character.id !== characterId) return character
+
+            const updateActorWithContactStatus = (actors: any[]) =>
+              actors.map((actor) => {
+                if (actorIds.includes(actor.id)) {
+                  // Remove any existing contact statuses of the same type to avoid duplicates
+                  const existingStatuses = actor.statuses || []
+                  const filteredStatuses = existingStatuses.filter(
+                    (status: any) => !(status.category === "contact" && status.label === contactStatus.label),
+                  )
+
+                  return {
+                    ...actor,
+                    statuses: [...filteredStatuses, contactStatus],
+                    lastContactDate: timestamp,
+                    lastContactType: contactType,
+                  }
+                }
+                return actor
+              })
+
+            return {
+              ...character,
+              actors: {
+                ...character.actors,
+                longList: updateActorWithContactStatus(character.actors.longList),
+                audition: updateActorWithContactStatus(character.actors.audition),
+                approval: updateActorWithContactStatus(character.actors.approval),
+                shortLists: character.actors.shortLists.map((sl) => ({
+                  ...sl,
+                  actors: updateActorWithContactStatus(sl.actors),
+                })),
+                // Handle custom tabs
+                ...Object.fromEntries(
+                  Object.entries(character.actors)
+                    .filter(([key]) => !["longList", "audition", "approval", "shortLists"].includes(key))
+                    .map(([key, actors]) => [
+                      key,
+                      Array.isArray(actors) ? updateActorWithContactStatus(actors) : actors,
+                    ]),
+                ),
+              },
+            }
+          }),
+        })),
+      }
+      break
+    }
+
+    case "ADD_ACTOR":
+      const addActorProject = state.projects.find((p) => p.id === state.currentFocus.currentProjectId)
+      const addActorCharacter = addActorProject?.characters.find((c) => c.id === action.payload.characterId)
+
+      // Enhanced notification for form submissions
+      const isFormSubmission = action.payload.actor.submissionSource === "form"
+      const addActorNotification = {
+        id: `actor-added-${Date.now()}-${Math.random()}`,
+        type: isFormSubmission ? ("system" as const) : ("user" as const),
+        title: isFormSubmission ? "New Form Submission Processed" : "New Actor Added",
+        message: isFormSubmission
+          ? `${action.payload.actor.name} submitted their information via form and has been automatically added to ${addActorCharacter?.name || "Unknown Character"}`
+          : `${action.payload.actor.name} was added to ${addActorCharacter?.name || "Unknown Character"}`,
+        timestamp: Date.now(),
+        read: false,
+        priority: isFormSubmission ? ("medium" as const) : ("low" as const),
+        actorId: action.payload.actor.id,
+        characterId: action.payload.characterId,
+        metadata: isFormSubmission
+          ? {
+              submissionId: action.payload.actor.submissionId,
+              source: "form_submission",
+              hasPhotos: action.payload.actor.headshots?.length > 0,
+              hasVideos: action.payload.actor.submissionVideos?.length > 0,
+            }
+          : undefined,
+      }
+
+      newState = {
+        ...state,
+        notifications: [addActorNotification, ...state.notifications],
+        projects: state.projects.map((project) => ({
+          ...project,
+          characters: project.characters.map((character) => {
+            if (character.id !== action.payload.characterId) return character
+
+            // Ensure actors object exists and has proper structure
+            const safeActors = character.actors || {
+              longList: [],
+              audition: [],
+              approval: [],
+              shortLists: [],
+            }
+
+            // Ensure longList is always an array
+            const currentLongList = safeArray(safeActors.longList)
+
+            return {
+              ...character,
+              actors: {
+                ...safeActors,
+                longList: [action.payload.actor, ...currentLongList],
+              },
+            }
+          }),
+        })),
+      }
+      break
+
+    case "ADD_CHARACTER":
+      const addCharacterNotification = {
+        id: `character-added-${Date.now()}-${Math.random()}`,
+        type: "user" as const,
+        title: "New Character Added",
+        message: `Character "${action.payload.character.name}" was added to the project`,
+        timestamp: Date.now(),
+        read: false,
+        priority: "medium" as const,
+        characterId: action.payload.character.id,
+      }
+
+      newState = {
+        ...state,
+        notifications: [addCharacterNotification, ...state.notifications],
+        projects: state.projects.map((project) => {
+          if (project.id !== action.payload.projectId) return project
+
+          const updatedProject = {
+            ...project,
+            characters: [...project.characters, action.payload.character],
+            modifiedDate: Date.now(),
+          }
+
+          return updatedProject
+        }),
+        // Auto-select the new character if it's the first one or if no character is currently selected
+        currentFocus: {
+          ...state.currentFocus,
+          characterId: state.currentFocus.characterId || action.payload.character.id,
+        },
+      }
+      break
+
+    case "DELETE_CHARACTER":
+      newState = {
+        ...state,
+        projects: state.projects.map((project) => {
+          if (project.id !== state.currentFocus.currentProjectId) return project
+
+          const updatedCharacters = project.characters.filter((char) => char.id !== action.payload)
+          const updatedProject = {
+            ...project,
+            characters: updatedCharacters,
+            modifiedDate: Date.now(),
+          }
+
+          return updatedProject
+        }),
+        // If deleting current character, switch to first available character
+        currentFocus:
+          state.currentFocus.characterId === action.payload
+            ? {
+                ...state.currentFocus,
+                characterId:
+                  state.projects
+                    .find((p) => p.id === state.currentFocus.currentProjectId)
+                    ?.characters.filter((char) => char.id !== action.payload)[0]?.id || null,
+                activeTabKey: "longList",
+              }
+            : state.currentFocus,
+      }
+      break
+
+    case "UPDATE_CHARACTER":
+      newState = {
+        ...state,
+        projects: state.projects.map((project) => {
+          if (project.id !== action.payload.projectId) return project
+
+          const updatedProject = {
+            ...project,
+            characters: project.characters.map((character) =>
+              character.id === action.payload.character.id ? action.payload.character : character,
+            ),
+            modifiedDate: Date.now(),
+          }
+
+          return updatedProject
+        }),
+      }
+      break
+
+    case "UPDATE_ACTOR":
+      newState = {
+        ...state,
+        projects: state.projects.map((project) => ({
+          ...project,
+          characters: project.characters.map((character) => {
+            if (character.id !== action.payload.characterId) return character
+
+            const updateActorInList = (actors: any[]) =>
+              actors.map((actor) =>
+                actor.id === action.payload.actorId ? { ...actor, ...action.payload.updates } : actor,
+              )
+
+            // Update actor in all lists
+            const updatedActors = { ...character.actors }
+
+            // Update in standard lists
+            updatedActors.longList = updateActorInList(character.actors.longList)
+            updatedActors.audition = updateActorInList(character.actors.audition)
+            updatedActors.approval = updateActorInList(character.actors.approval)
+
+            // Update in shortlists
+            updatedActors.shortLists = character.actors.shortLists.map((sl) => ({
+              ...sl,
+              actors: updateActorInList(sl.actors),
+            }))
+
+            // Update in custom tabs
+            Object.keys(character.actors).forEach((key) => {
+              if (
+                !["longList", "audition", "approval", "shortLists"].includes(key) &&
+                Array.isArray(character.actors[key])
+              ) {
+                updatedActors[key] = updateActorInList(character.actors[key] as any[])
+              }
+            })
+
+            return {
+              ...character,
+              actors: updatedActors,
+            }
+          }),
+        })),
+      }
+      break
+
+    case "MOVE_ACTOR": {
+      console.log("🔄 CastingContext: MOVE_ACTOR action received:", action.payload)
+
+      const {
+        actorId,
+        sourceLocation,
+        destinationType,
+        destinationKey,
+        destinationShortlistId,
+        characterId,
+        moveReason,
+      } = action.payload
+
+      // Find the current project and character for context
+      const moveProject = state.projects.find((p) => p.id === state.currentFocus.currentProjectId)
+      const moveCharacter = moveProject?.characters.find((c) => c.id === characterId)
+
+      if (!moveCharacter) {
+        console.error("❌ CastingContext: Character not found:", characterId)
+        return state
+      }
+
+      console.log("📍 CastingContext: Found character:", moveCharacter.name)
+
+      // Find the actor to move and get its name for the notification
+      let actorToMove: any = null
+      let sourceListName = ""
+      let destinationListName = ""
+
+      console.log("🔍 CastingContext: Searching for actor in source location:", sourceLocation)
+
+      // First, find the actor and determine source list name
+      if (sourceLocation?.type === "standard") {
+        const sourceList = safeArray(
+          moveCharacter.actors[sourceLocation.key as keyof typeof moveCharacter.actors] as any[],
+        )
+        actorToMove = sourceList.find((a: any) => a.id === actorId)
+        const sourceTab = state.tabDefinitions.find((tab) => tab.key === sourceLocation.key)
+        sourceListName = sourceTab?.name || sourceLocation.key
+        console.log("📋 CastingContext: Found in standard list:", sourceListName, "Actor:", actorToMove?.name)
+      } else if (sourceLocation?.type === "shortlist") {
+        const sourceShortlist = moveCharacter.actors.shortLists.find((sl) => sl.id === sourceLocation.shortlistId)
+        if (sourceShortlist) {
+          actorToMove = sourceShortlist.actors.find((a) => a.id === actorId)
+          sourceListName = `shortlist "${sourceShortlist.name}"`
+          console.log("📋 CastingContext: Found in shortlist:", sourceListName, "Actor:", actorToMove?.name)
+        }
+      } else if (sourceLocation?.type === "custom") {
+        const sourceList = safeArray(
+          moveCharacter.actors[sourceLocation.key as keyof typeof moveCharacter.actors] as any[],
+        )
+        actorToMove = sourceList.find((a: any) => a.id === actorId)
+        sourceListName = sourceLocation.key
+        console.log("📋 CastingContext: Found in custom list:", sourceListName, "Actor:", actorToMove?.name)
+      }
+
+      if (!actorToMove) {
+        console.error("❌ CastingContext: Actor not found:", actorId)
+        return state
+      }
+
+      console.log("✅ CastingContext: Actor found:", actorToMove.name)
+
+      // Determine destination list name
+      if (destinationType === "standard") {
+        const destTab = state.tabDefinitions.find((tab) => tab.key === destinationKey)
+        destinationListName = destTab?.name || destinationKey
+      } else if (destinationType === "shortlist") {
+        const destShortlist = moveCharacter.actors.shortLists.find((sl) => sl.id === destinationShortlistId)
+        destinationListName = destShortlist ? `shortlist "${destShortlist.name}"` : "shortlist"
+      } else if (destinationType === "custom") {
+        destinationListName = destinationKey
+      }
+
+      console.log("🎯 CastingContext: Moving from", sourceListName, "to", destinationListName)
+
+      // Enhanced notification messages based on move reason and destination
+      let notificationMessage = `${actorToMove?.name || "Actor"} was moved from ${sourceListName} to ${destinationListName} for ${moveCharacter.name}`
+      let notificationTitle = "Actor Moved"
+      let notificationPriority: "low" | "medium" | "high" = "low"
+
+      if (destinationKey === "approval") {
+        notificationMessage = `${actorToMove?.name || "Actor"} was moved to Approval for final review on ${moveCharacter.name}`
+        notificationTitle = "Moved to Approval"
+        notificationPriority = "medium"
+      } else if (destinationKey === "longList") {
+        notificationMessage = `${actorToMove?.name || "Actor"} was moved to Long List for fresh evaluation on ${moveCharacter.name}`
+        notificationTitle = "Moved to Long List"
+        notificationPriority = "low"
+      }
+
+      const moveActorNotification = {
+        id: `move-actor-${Date.now()}-${Math.random()}`,
+        type: "user" as const,
+        title: notificationTitle,
+        message: notificationMessage,
+        timestamp: Date.now(),
+        read: false,
+        priority: notificationPriority,
+        actorId: actorId,
+        characterId: characterId,
+        userId: state.currentUser?.id,
+      }
+
+      // Update the projects with the actor move
+      const updatedProjects = state.projects.map((project) => ({
+        ...project,
+        characters: project.characters.map((character) => {
+          if (character.id !== characterId) return character
+
+          console.log("🔧 CastingContext: Updating character:", character.name)
+
+          // Find the actor to move
+          let actorToMove: any = null
+          const updatedActors = { ...character.actors }
+
+          // Remove actor from source location
+          if (sourceLocation?.type === "standard") {
+            const sourceList = safeArray(updatedActors[sourceLocation.key as keyof typeof updatedActors] as any[])
+            actorToMove = sourceList.find((a: any) => a.id === actorId)
+            updatedActors[sourceLocation.key as keyof typeof updatedActors] = sourceList.filter(
+              (a: any) => a.id !== actorId,
+            )
+            console.log("➖ CastingContext: Removed from standard list:", sourceLocation.key)
+          } else if (sourceLocation?.type === "shortlist") {
+            updatedActors.shortLists = updatedActors.shortLists.map((sl) => {
+              if (sl.id === sourceLocation.shortlistId) {
+                actorToMove = sl.actors.find((a) => a.id === actorId)
+                console.log("➖ CastingContext: Removed from shortlist:", sl.name)
+                return { ...sl, actors: sl.actors.filter((a) => a.id !== actorId) }
+              }
+              return sl
+            })
+          } else if (sourceLocation?.type === "custom") {
+            const sourceList = safeArray(updatedActors[sourceLocation.key as keyof typeof updatedActors] as any[])
+            actorToMove = sourceList.find((a: any) => a.id === actorId)
+            updatedActors[sourceLocation.key as keyof typeof updatedActors] = sourceList.filter(
+              (a: any) => a.id !== actorId,
+            )
+            console.log("➖ CastingContext: Removed from custom list:", sourceLocation.key)
+          }
+
+          if (!actorToMove) {
+            console.error("❌ CastingContext: Actor not found during removal")
+            return character
+          }
+
+          // Enhanced state reset logic based on destination and move reason
+          const resetActor = {
+            ...actorToMove,
+            currentListKey: destinationKey,
+            currentShortlistId: destinationType === "shortlist" ? destinationShortlistId : undefined,
+          }
+
+          // Apply different reset strategies based on destination
+          if (destinationKey === "longList" && moveReason === "reset") {
+            // Complete reset for Long List moves
+            console.log("🔄 CastingContext: Complete reset for Long List move")
+            resetActor.userVotes = {}
+            resetActor.consensusAction = null
+            resetActor.isSoftRejected = false
+            resetActor.isGreenlit = false
+            resetActor.isCast = false
+            resetActor.statuses = resetActor.statuses?.filter((s: any) => s.category !== "contact") || []
+            resetActor.lastContactDate = undefined
+            resetActor.lastContactType = undefined
+          } else if (destinationKey === "approval" && moveReason === "final_review") {
+            // Preserve voting data for Approval moves but reset cast status
+            console.log("👑 CastingContext: Preserving data for Approval move")
+            resetActor.userVotes = actorToMove.userVotes || {}
+            resetActor.consensusAction = null
+            resetActor.isSoftRejected = false
+            resetActor.isGreenlit = false
+            resetActor.isCast = false
+            resetActor.readyForApproval = true
+            resetActor.approvalMoveDate = Date.now()
+          } else {
+            // Standard reset for other moves
+            console.log("🔄 CastingContext: Standard reset for move")
+            resetActor.userVotes = {}
+            resetActor.consensusAction = null
+            resetActor.isSoftRejected = false
+            resetActor.isGreenlit = false
+            resetActor.isCast = false
+          }
+
+          console.log("🔄 CastingContext: Applied reset logic based on destination and reason")
+
+          // Add actor to destination
+          if (destinationType === "standard") {
+            const destList = safeArray(updatedActors[destinationKey as keyof typeof updatedActors] as any[])
+            updatedActors[destinationKey as keyof typeof updatedActors] = [resetActor, ...destList]
+            console.log("➕ CastingContext: Added to standard list:", destinationKey)
+          } else if (destinationType === "shortlist") {
+            updatedActors.shortLists = updatedActors.shortLists.map((sl) => {
+              if (sl.id === destinationShortlistId) {
+                console.log("➕ CastingContext: Added to shortlist:", sl.name)
+                return { ...sl, actors: [resetActor, ...sl.actors] }
+              }
+              return sl
+            })
+          } else if (destinationType === "custom") {
+            const destList = safeArray(updatedActors[destinationKey as keyof typeof updatedActors] as any[])
+            updatedActors[destinationKey as keyof typeof updatedActors] = [resetActor, ...destList]
+            console.log("➕ CastingContext: Added to custom list:", destinationKey)
+          }
+
+          console.log("✅ CastingContext: Actor move completed for character")
+
+          return {
+            ...character,
+            actors: updatedActors,
+          }
+        }),
+      }))
+
+      console.log("✅ CastingContext: MOVE_ACTOR action completed successfully")
+
+      newState = {
+        ...state,
+        notifications: [moveActorNotification, ...state.notifications],
+        projects: updatedProjects,
+      }
+      break
+    }
+
+    case "MOVE_MULTIPLE_ACTORS": {
+      const {
+        actorIds,
+        sourceLocation,
+        destinationType,
+        destinationKey,
+        destinationShortlistId,
+        characterId,
+        moveReason,
+      } = action.payload
+
+      if (!actorIds || actorIds.length === 0) return state
+
+      // Find the current project and character for context
+      const moveProject = state.projects.find((p) => p.id === state.currentFocus.currentProjectId)
+      const moveCharacter = moveProject?.characters.find((c) => c.id === characterId)
+
+      if (!moveCharacter) return state
+
+      // Enhanced notification messages based on move reason and destination
+      let notificationMessage = `${actorIds.length} actors were moved to ${destinationType === "shortlist" ? "a shortlist" : destinationKey} for ${moveCharacter.name}`
+      let notificationTitle = "Multiple Actors Moved"
+      let notificationPriority: "low" | "medium" | "high" = "medium"
+
+      if (destinationKey === "approval") {
+        notificationMessage = `${actorIds.length} actors were moved to Approval for final review on ${moveCharacter.name}`
+        notificationTitle = "Multiple Actors Moved to Approval"
+        notificationPriority = "medium"
+      } else if (destinationKey === "longList") {
+        notificationMessage = `${actorIds.length} actors were moved to Long List for fresh evaluation on ${moveCharacter.name}`
+        notificationTitle = "Multiple Actors Moved to Long List"
+        notificationPriority = "low"
+      }
+
+      const moveActorNotification = {
+        id: `move-actors-${Date.now()}-${Math.random()}`,
+        type: "user" as const,
+        title: notificationTitle,
+        message: notificationMessage,
+        timestamp: Date.now(),
+        read: false,
+        priority: notificationPriority,
+        characterId: characterId,
+        userId: state.currentUser?.id,
+      }
+
+      // Update the projects with the actor moves
+      const updatedProjects = state.projects.map((project) => ({
+        ...project,
+        characters: project.characters.map((character) => {
+          if (character.id !== characterId) return character
+
+          // Find all actors to move
+          const actorsToMove: any[] = []
+          const updatedActors = { ...character.actors }
+
+          // Remove actors from source location
+          if (sourceLocation?.type === "standard") {
+            const sourceList = safeArray(updatedActors[sourceLocation.key as keyof typeof updatedActors] as any[])
+            const foundActors = sourceList.filter((a: any) => actorIds.includes(a.id))
+            actorsToMove.push(...foundActors)
+            updatedActors[sourceLocation.key as keyof typeof updatedActors] = sourceList.filter(
+              (a: any) => !actorIds.includes(a.id),
+            )
+          } else if (sourceLocation?.type === "shortlist") {
+            updatedActors.shortLists = updatedActors.shortLists.map((sl) => {
+              if (sl.id === sourceLocation.shortlistId) {
+                const foundActors = sl.actors.filter((a) => actorIds.includes(a.id))
+                actorsToMove.push(...foundActors)
+                return { ...sl, actors: sl.actors.filter((a) => !actorIds.includes(a.id)) }
+              }
+              return sl
+            })
+          } else if (sourceLocation?.type === "custom") {
+            const sourceList = safeArray(updatedActors[sourceLocation.key as keyof typeof updatedActors] as any[])
+            const foundActors = sourceList.filter((a: any) => actorIds.includes(a.id))
+            actorsToMove.push(...foundActors)
+            updatedActors[sourceLocation.key as keyof typeof updatedActors] = sourceList.filter(
+              (a: any) => !actorIds.includes(a.id),
+            )
+          }
+
+          if (actorsToMove.length === 0) return character
+
+          // Enhanced state reset logic based on destination and move reason
+          const resetActors = actorsToMove.map((actor) => {
+            const resetActor = {
+              ...actor,
+              currentListKey: destinationKey,
+              currentShortlistId: destinationType === "shortlist" ? destinationShortlistId : undefined,
+            }
+
+            // Apply different reset strategies based on destination
+            if (destinationKey === "longList" && moveReason === "reset") {
+              // Complete reset for Long List moves
+              resetActor.userVotes = {}
+              resetActor.consensusAction = null
+              resetActor.isSoftRejected = false
+              resetActor.isGreenlit = false
+              resetActor.isCast = false
+              resetActor.statuses = resetActor.statuses?.filter((s: any) => s.category !== "contact") || []
+              resetActor.lastContactDate = undefined
+              resetActor.lastContactType = undefined
+            } else if (destinationKey === "approval" && moveReason === "final_review") {
+              // Preserve voting data for Approval moves but reset cast status
+              resetActor.userVotes = actor.userVotes || {}
+              resetActor.consensusAction = null
+              resetActor.isSoftRejected = false
+              resetActor.isGreenlit = false
+              resetActor.isCast = false
+              resetActor.readyForApproval = true
+              resetActor.approvalMoveDate = Date.now()
+            } else {
+              // Standard reset for other moves
+              resetActor.userVotes = {}
+              resetActor.consensusAction = null
+              resetActor.isSoftRejected = false
+              resetActor.isGreenlit = false
+              resetActor.isCast = false
+            }
+
+            return resetActor
+          })
+
+          // Add actors to destination
+          if (destinationType === "standard") {
+            const destList = safeArray(updatedActors[destinationKey as keyof typeof updatedActors] as any[])
+            updatedActors[destinationKey as keyof typeof updatedActors] = [...resetActors, ...destList]
+          } else if (destinationType === "shortlist") {
+            updatedActors.shortLists = updatedActors.shortLists.map((sl) => {
+              if (sl.id === destinationShortlistId) {
+                return { ...sl, actors: [...resetActors, ...sl.actors] }
+              }
+              return sl
+            })
+          } else if (destinationType === "custom") {
+            const destList = safeArray(updatedActors[destinationKey as keyof typeof updatedActors] as any[])
+            updatedActors[destinationKey as keyof typeof updatedActors] = [...resetActors, ...destList]
+          }
+
+          return {
+            ...character,
+            actors: updatedActors,
+          }
+        }),
+      }))
+
+      newState = {
+        ...state,
+        notifications: [moveActorNotification, ...state.notifications],
+        projects: updatedProjects,
+      }
+      break
+    }
+
+    case "REORDER_MULTIPLE_ACTORS": {
+      const { characterId, listType, listKey, shortlistId, actorIds, targetActorId, insertPosition } = action.payload
+
+      newState = {
+        ...state,
+        projects: state.projects.map((project) => ({
+          ...project,
+          characters: project.characters.map((character) => {
+            if (character.id !== characterId) return character
+
+            const updatedActors = { ...character.actors }
+
+            // Get the appropriate list
+            let targetList: any[] = []
+            if (listType === "shortlist" && shortlistId) {
+              const shortlistIndex = updatedActors.shortLists.findIndex((sl) => sl.id === shortlistId)
+              if (shortlistIndex === -1) return character
+              targetList = [...updatedActors.shortLists[shortlistIndex].actors]
+            } else if (listType === "standard" || listType === "custom") {
+              targetList = [...safeArray(updatedActors[listKey as keyof typeof updatedActors] as any[])]
+            } else {
+              return character
+            }
+
+            // Find target index
+            const targetIndex = targetList.findIndex((a) => a.id === targetActorId)
+            if (targetIndex === -1) return character
+
+            // Remove all selected actors from the list
+            const actorsToMove = targetList.filter((a) => actorIds.includes(a.id))
+            const remainingActors = targetList.filter((a) => !actorIds.includes(a.id))
+
+            // Find new target index after removal
+            const newTargetIndex = remainingActors.findIndex((a) => a.id === targetActorId)
+            if (newTargetIndex === -1) return character
+
+            // Insert actors at new position
+            const insertIndex = insertPosition === "before" ? newTargetIndex : newTargetIndex + 1
+            remainingActors.splice(insertIndex, 0, ...actorsToMove)
+
+            // Update sort order for all actors in the list
+            remainingActors.forEach((actor, index) => {
+              actor.sortOrder = index
+            })
+
+            // Update the appropriate list
+            if (listType === "shortlist" && shortlistId) {
+              const shortlistIndex = updatedActors.shortLists.findIndex((sl) => sl.id === shortlistId)
+              updatedActors.shortLists[shortlistIndex] = {
+                ...updatedActors.shortLists[shortlistIndex],
+                actors: remainingActors,
+              }
+            } else if (listType === "standard" || listType === "custom") {
+              updatedActors[listKey as keyof typeof updatedActors] = remainingActors as any
+            }
+
+            return {
+              ...character,
+              actors: updatedActors,
+            }
+          }),
+        })),
+      }
+      break
+    }
+
+    case "UPDATE_CARD_SETTINGS":
+      newState = {
+        ...state,
+        cardViewSettings: {
+          ...state.cardViewSettings,
+          [action.payload.field]: action.payload.value,
+        },
+      }
+      break
+
+    case "CREATE_PROJECT":
+      // Ensure new projects have default terminology
+      const newProject = {
+        ...action.payload,
+        terminology: getDefaultTerminology(),
+      }
+
+      newState = {
+        ...state,
+        projects: [newProject, ...state.projects],
+      }
+      break
+
+    case "UPDATE_PROJECT":
+      newState = {
+        ...state,
+        projects: state.projects.map((project) => (project.id === action.payload.id ? action.payload : project)),
+      }
+      break
+
+    case "DELETE_PROJECT":
+      newState = {
+        ...state,
+        projects: state.projects.filter((project) => project.id !== action.payload),
+        // If deleting current project, switch to first available project
+        currentFocus:
+          state.currentFocus.currentProjectId === action.payload
+            ? {
+                ...state.currentFocus,
+                currentProjectId: state.projects.find((p) => p.id !== action.payload)?.id || null,
+                characterId: null,
+                activeTabKey: "longList",
+              }
+            : state.currentFocus,
+      }
+      break
+
+    case "OPEN_MODAL":
+      newState = {
+        ...state,
+        modals: {
+          ...state.modals,
+          [action.payload.type]: {
+            isOpen: true,
+            props: action.payload.props || {},
+          },
+        },
+      }
+      break
+
+    case "CLOSE_MODAL":
+      newState = {
+        ...state,
+        modals: {
+          ...state.modals,
+          [action.payload]: {
+            isOpen: false,
+            props: {},
+          },
+        },
+      }
+      break
+
+    case "ADD_NOTIFICATION":
+      newState = {
+        ...state,
+        notifications: [action.payload, ...state.notifications],
+      }
+      break
+
+    case "MARK_NOTIFICATION_READ":
+      newState = {
+        ...state,
+        notifications: state.notifications.map((notification) =>
+          notification.id === action.payload ? { ...notification, read: true } : notification,
+        ),
+      }
+      break
+
+    case "MARK_ALL_NOTIFICATIONS_READ":
+      newState = {
+        ...state,
+        notifications: state.notifications.map((notification) => ({ ...notification, read: true })),
+      }
+      break
+
+    case "DELETE_NOTIFICATION":
+      newState = {
+        ...state,
+        notifications: state.notifications.filter((notification) => notification.id !== action.payload),
+      }
+      break
+
+    case "DELETE_SELECTED_NOTIFICATIONS":
+      newState = {
+        ...state,
+        notifications: state.notifications.filter((notification) => !action.payload.includes(notification.id)),
+      }
+      break
+
+    case "MOVE_ACTOR_TO_CHARACTER": {
+      const { actorId, sourceCharacterId, destinationCharacterId } = action.payload
+
+      // Find the actor to move from the source character
+      let actorToMove: any = null
+      let sourceLocation: any = null
+
+      const updatedProjects = state.projects.map((project) => {
+        const updatedCharacters = project.characters.map((character) => {
+          if (character.id === sourceCharacterId) {
+            // Find and remove actor from source character
+            const updatedActors = { ...character.actors }
+
+            // Check all possible locations for the actor
+            // Standard lists
+            for (const listKey of ["longList", "audition", "approval"]) {
+              const list = safeArray(updatedActors[listKey as keyof typeof updatedActors] as any[])
+              const actorIndex = list.findIndex((a) => a.id === actorId)
+              if (actorIndex !== -1) {
+                actorToMove = list[actorIndex]
+                sourceLocation = { type: "standard", key: listKey }
+                updatedActors[listKey as keyof typeof updatedActors] = list.filter((a) => a.id !== actorId)
+                break
+              }
+            }
+
+            // Check shortlists if not found in standard lists
+            if (!actorToMove) {
+              updatedActors.shortLists = updatedActors.shortLists.map((sl) => {
+                const actorIndex = sl.actors.findIndex((a) => a.id === actorId)
+                if (actorIndex !== -1) {
+                  actorToMove = sl.actors[actorIndex]
+                  sourceLocation = { type: "shortlist", shortlistId: sl.id }
+                  return { ...sl, actors: sl.actors.filter((a) => a.id !== actorId) }
+                }
+                return sl
+              })
+            }
+
+            // Check custom tabs if not found elsewhere
+            if (!actorToMove) {
+              Object.keys(updatedActors).forEach((key) => {
+                if (
+                  !["longList", "audition", "approval", "shortLists"].includes(key) &&
+                  Array.isArray(updatedActors[key])
+                ) {
+                  const list = safeArray(updatedActors[key] as any[])
+                  const actorIndex = list.findIndex((a) => a.id === actorId)
+                  if (actorIndex !== -1) {
+                    actorToMove = list[actorIndex]
+                    sourceLocation = { type: "custom", key }
+                    updatedActors[key] = list.filter((a) => a.id !== actorId)
+                  }
+                }
+              })
+            }
+
+            return {
+              ...character,
+              actors: updatedActors,
+            }
+          } else if (character.id === destinationCharacterId && actorToMove) {
+            // Add actor to destination character's long list
+            const resetActor = {
+              ...actorToMove,
+              currentListKey: "longList",
+              currentShortlistId: undefined,
+              userVotes: {}, // Reset votes for new character
+              consensusAction: null,
+              isSoftRejected: false,
+              isGreenlit: false,
+              isCast: false,
+            }
+
+            return {
+              ...character,
+              actors: {
+                ...character.actors,
+                longList: [resetActor, ...character.actors.longList],
+              },
+            }
+          }
+          return character
+        })
+
+        return {
+          ...project,
+          characters: updatedCharacters,
+        }
+      })
+
+      if (actorToMove) {
+        // Find character names for notification
+        const sourceCharacter = state.projects.flatMap((p) => p.characters).find((c) => c.id === sourceCharacterId)
+        const destinationCharacter = state.projects
+          .flatMap((p) => p.characters)
+          .find((c) => c.id === destinationCharacterId)
+
+        const moveNotification = {
+          id: `move-character-${Date.now()}-${Math.random()}`,
+          type: "user" as const,
+          title: "Actor Moved to Different Character",
+          message: `${actorToMove.name} was moved from ${sourceCharacter?.name || "Unknown"} to ${destinationCharacter?.name || "Unknown"}`,
+          timestamp: Date.now(),
+          read: false,
+          priority: "medium" as const,
+          actorId: actorId,
+          characterId: destinationCharacterId,
+        }
+
+        newState = {
+          ...state,
+          notifications: [moveNotification, ...state.notifications],
+          projects: updatedProjects,
+        }
+      } else {
+        newState = state
+      }
+      break
+    }
+
+    case "DELETE_ACTOR": {
+      const { actorId, characterId } = action.payload
+
+      // Find the actor name for the notification
+      let actorName = "Unknown Actor"
+      const currentProject = state.projects.find((p) => p.id === state.currentFocus.currentProjectId)
+      const currentCharacter = currentProject?.characters.find((c) => c.id === characterId)
+
+      if (currentCharacter) {
+        const allActors = [
+          ...currentCharacter.actors.longList,
+          ...currentCharacter.actors.audition,
+          ...currentCharacter.actors.approval,
+          ...currentCharacter.actors.shortLists.flatMap((sl) => sl.actors),
+        ]
+        const actor = allActors.find((a) => a.id === actorId)
+        if (actor) actorName = actor.name
+      }
+
+      const deleteNotification = {
+        id: `delete-actor-${Date.now()}-${Math.random()}`,
+        type: "user" as const,
+        title: "Actor Deleted",
+        message: `${actorName} was removed from ${currentCharacter?.name || "Unknown Character"}`,
+        timestamp: Date.now(),
+        read: false,
+        priority: "low" as const,
+        characterId: characterId,
+      }
+
+      newState = {
+        ...state,
+        notifications: [deleteNotification, ...state.notifications],
+        projects: state.projects.map((project) => ({
+          ...project,
+          characters: project.characters.map((character) => {
+            if (character.id !== characterId) return character
+
+            const removeActorFromList = (actors: any[]) => actors.filter((actor) => actor.id !== actorId)
+
+            return {
+              ...character,
+              actors: {
+                ...character.actors,
+                longList: removeActorFromList(character.actors.longList),
+                audition: removeActorFromList(character.actors.audition),
+                approval: removeActorFromList(character.actors.approval),
+                shortLists: character.actors.shortLists.map((sl) => ({
+                  ...sl,
+                  actors: removeActorFromList(sl.actors),
+                })),
+                // Handle custom tabs
+                ...Object.fromEntries(
+                  Object.entries(character.actors)
+                    .filter(([key]) => !["longList", "audition", "approval", "shortLists"].includes(key))
+                    .map(([key, actors]) => [key, Array.isArray(actors) ? removeActorFromList(actors) : actors]),
+                ),
+              },
+            }
+          }),
+        })),
+      }
+      break
+    }
+
+    case "ADD_NOTE": {
+      const { actorId, characterId, note } = action.payload
+
+      console.log("📝 CastingContext: ADD_NOTE action received:", { actorId, characterId, note })
+
+      newState = {
+        ...state,
+        projects: state.projects.map((project) => ({
+          ...project,
+          characters: project.characters.map((character) => {
+            if (character.id !== characterId) return character
+
+            const updateActorNotes = (actors: any[]) =>
+              actors.map((actor) => {
+                if (actor.id === actorId) {
+                  const updatedActor = { ...actor, notes: [...(actor.notes || []), note] }
+                  console.log(
+                    "✅ CastingContext: Added note to actor:",
+                    updatedActor.name,
+                    "Notes count:",
+                    updatedActor.notes.length,
+                  )
+                  return updatedActor
+                }
+                return actor
+              })
+
+            return {
+              ...character,
+              actors: {
+                ...character.actors,
+                longList: updateActorNotes(character.actors.longList),
+                audition: updateActorNotes(character.actors.audition),
+                approval: updateActorNotes(character.actors.approval),
+                shortLists: character.actors.shortLists.map((sl) => ({
+                  ...sl,
+                  actors: updateActorNotes(sl.actors),
+                })),
+                // Handle custom tabs
+                ...Object.fromEntries(
+                  Object.entries(character.actors)
+                    .filter(([key]) => !["longList", "audition", "approval", "shortLists"].includes(key))
+                    .map(([key, actors]) => [key, Array.isArray(actors) ? updateActorNotes(actors) : actors]),
+                ),
+              },
+            }
+          }),
+        })),
+      }
+      break
+    }
+
+    case "UPDATE_NOTE": {
+      const { actorId, characterId, noteId, text } = action.payload
+
+      console.log("📝 CastingContext: UPDATE_NOTE action received:", { actorId, characterId, noteId, text })
+
+      newState = {
+        ...state,
+        projects: state.projects.map((project) => ({
+          ...project,
+          characters: project.characters.map((character) => {
+            if (character.id !== characterId) return character
+
+            const updateActorNotes = (actors: any[]) =>
+              actors.map((actor) => {
+                if (actor.id === actorId) {
+                  const updatedActor = {
+                    ...actor,
+                    notes: (actor.notes || []).map((note: any) => (note.id === noteId ? { ...note, text } : note)),
+                  }
+                  console.log("✅ CastingContext: Updated note for actor:", updatedActor.name)
+                  return updatedActor
+                }
+                return actor
+              })
+
+            return {
+              ...character,
+              actors: {
+                ...character.actors,
+                longList: updateActorNotes(character.actors.longList),
+                audition: updateActorNotes(character.actors.audition),
+                approval: updateActorNotes(character.actors.approval),
+                shortLists: character.actors.shortLists.map((sl) => ({
+                  ...sl,
+                  actors: updateActorNotes(sl.actors),
+                })),
+                // Handle custom tabs
+                ...Object.fromEntries(
+                  Object.entries(character.actors)
+                    .filter(([key]) => !["longList", "audition", "approval", "shortLists"].includes(key))
+                    .map(([key, actors]) => [key, Array.isArray(actors) ? updateActorNotes(actors) : actors]),
+                ),
+              },
+            }
+          }),
+        })),
+      }
+      break
+    }
+
+    case "DELETE_NOTE": {
+      const { actorId, characterId, noteId } = action.payload
+
+      console.log("📝 CastingContext: DELETE_NOTE action received:", { actorId, characterId, noteId })
+
+      newState = {
+        ...state,
+        projects: state.projects.map((project) => ({
+          ...project,
+          characters: project.characters.map((character) => {
+            if (character.id !== characterId) return character
+
+            const updateActorNotes = (actors: any[]) =>
+              actors.map((actor) => {
+                if (actor.id === actorId) {
+                  const updatedActor = {
+                    ...actor,
+                    notes: (actor.notes || []).filter((note: any) => note.id !== noteId),
+                  }
+                  console.log(
+                    "✅ CastingContext: Deleted note from actor:",
+                    updatedActor.name,
+                    "Notes count:",
+                    updatedActor.notes.length,
+                  )
+                  return updatedActor
+                }
+                return actor
+              })
+
+            return {
+              ...character,
+              actors: {
+                ...character.actors,
+                longList: updateActorNotes(character.actors.longList),
+                audition: updateActorNotes(character.actors.audition),
+                approval: updateActorNotes(character.actors.approval),
+                shortLists: character.actors.shortLists.map((sl) => ({
+                  ...sl,
+                  actors: updateActorNotes(sl.actors),
+                })),
+                // Handle custom tabs
+                ...Object.fromEntries(
+                  Object.entries(character.actors)
+                    .filter(([key]) => !["longList", "audition", "approval", "shortLists"].includes(key))
+                    .map(([key, actors]) => [key, Array.isArray(actors) ? updateActorNotes(actors) : actors]),
+                ),
+              },
+            }
+          }),
+        })),
+      }
+      break
+    }
+
+    case "REORDER_ACTORS": {
+      const { characterId, listType, listKey, shortlistId, draggedActorId, targetActorId, insertPosition } =
+        action.payload
+
+      newState = {
+        ...state,
+        projects: state.projects.map((project) => ({
+          ...project,
+          characters: project.characters.map((character) => {
+            if (character.id !== characterId) return character
+
+            const updatedActors = { ...character.actors }
+
+            // Get the appropriate list
+            let targetList: any[] = []
+            if (listType === "shortlist" && shortlistId) {
+              const shortlistIndex = updatedActors.shortLists.findIndex((sl) => sl.id === shortlistId)
+              if (shortlistIndex === -1) return character
+              targetList = [...updatedActors.shortLists[shortlistIndex].actors]
+            } else if (listType === "standard" || listType === "custom") {
+              targetList = [...safeArray(updatedActors[listKey as keyof typeof updatedActors] as any[])]
+            } else {
+              return character
+            }
+
+            // Find indices
+            const draggedIndex = targetList.findIndex((a) => a.id === draggedActorId)
+            const targetIndex = targetList.findIndex((a) => a.id === targetActorId)
+
+            if (draggedIndex === -1 || targetIndex === -1) return character
+
+            // Remove dragged actor
+            const draggedActor = targetList[draggedIndex]
+            targetList.splice(draggedIndex, 1)
+
+            // Recalculate target index after removal
+            const newTargetIndex = targetList.findIndex((a) => a.id === targetActorId)
+            if (newTargetIndex === -1) return character
+
+            // Insert at new position
+            const insertIndex = insertPosition === "before" ? newTargetIndex : newTargetIndex + 1
+            targetList.splice(insertIndex, 0, draggedActor)
+
+            // Update sort order for all actors in the list
+            targetList.forEach((actor, index) => {
+              actor.sortOrder = index
+            })
+
+            // Update the appropriate list
+            if (listType === "shortlist" && shortlistId) {
+              const shortlistIndex = updatedActors.shortLists.findIndex((sl) => sl.id === shortlistId)
+              updatedActors.shortLists[shortlistIndex] = {
+                ...updatedActors.shortLists[shortlistIndex],
+                actors: targetList,
+              }
+            } else if (listType === "standard" || listType === "custom") {
+              updatedActors[listKey as keyof typeof updatedActors] = targetList
+            }
+
+            return {
+              ...character,
+              actors: updatedActors,
+            }
+          }),
+        })),
+      }
+      break
+    }
+
+    case "ADD_SHORTLIST": {
+      const { characterId, group } = action.payload
+
+      newState = {
+        ...state,
+        projects: state.projects.map((project) => ({
+          ...project,
+          characters: project.characters.map((character) => {
+            if (character.id !== characterId) return character
+
+            return {
+              ...character,
+              actors: {
+                ...character.actors,
+                shortLists: [...character.actors.shortLists, group],
+              },
+            }
+          }),
+        })),
+      }
+      break
+    }
+
+    case "DELETE_SHORTLIST": {
+      const { characterId, groupId } = action.payload
+
+      newState = {
+        ...state,
+        projects: state.projects.map((project) => ({
+          ...project,
+          characters: project.characters.map((character) => {
+            if (character.id !== characterId) return character
+
+            return {
+              ...character,
+              actors: {
+                ...character.actors,
+                shortLists: character.actors.shortLists.filter((sl) => sl.id !== groupId),
+              },
+            }
+          }),
+        })),
+      }
+      break
+    }
+
+    case "RENAME_SHORTLIST": {
+      const { characterId, groupId, updates } = action.payload
+
+      newState = {
+        ...state,
+        projects: state.projects.map((project) => ({
+          ...project,
+          characters: project.characters.map((character) => {
+            if (character.id !== characterId) return character
+
+            return {
+              ...character,
+              actors: {
+                ...character.actors,
+                shortLists: character.actors.shortLists.map((sl) => (sl.id === groupId ? { ...sl, ...updates } : sl)),
+              },
+            }
+          }),
+        })),
+      }
+      break
+    }
+
+    case "ADD_TAB": {
+      const { tabKey, tabName } = action.payload
+
+      // Add to tab definitions - insert before "Approval" tab
+      const newTabDefinition = {
+        key: tabKey,
+        name: tabName,
+        isCustom: true,
+      }
+
+      // Find the index of the "Approval" tab
+      const approvalIndex = state.tabDefinitions.findIndex((tab) => tab.key === "approval")
+
+      let updatedTabDefinitions
+      if (approvalIndex !== -1) {
+        // Insert before the "Approval" tab
+        updatedTabDefinitions = [
+          ...state.tabDefinitions.slice(0, approvalIndex),
+          newTabDefinition,
+          ...state.tabDefinitions.slice(approvalIndex),
+        ]
+      } else {
+        // If "Approval" tab not found, add at the end
+        updatedTabDefinitions = [...state.tabDefinitions, newTabDefinition]
+      }
+
+      // Add empty list to all characters in all projects
+      const updatedProjects = state.projects.map((project) => ({
+        ...project,
+        characters: project.characters.map((character) => ({
+          ...character,
+          actors: {
+            ...character.actors,
+            [tabKey]: [],
+          },
+        })),
+      }))
+
+      newState = {
+        ...state,
+        tabDefinitions: updatedTabDefinitions,
+        projects: updatedProjects,
+      }
+      break
+    }
+
+    case "RENAME_TAB": {
+      const { oldKey, newKey, newName } = action.payload
+
+      // Update tab definitions
+      const updatedTabDefinitions = state.tabDefinitions.map((tab) =>
+        tab.key === oldKey ? { ...tab, key: newKey, name: newName } : tab,
+      )
+
+      // Update all characters in all projects
+      const updatedProjects = state.projects.map((project) => ({
+        ...project,
+        characters: project.characters.map((character) => {
+          const updatedActors = { ...character.actors }
+
+          // If the key changed, move the actors to the new key
+          if (oldKey !== newKey && updatedActors[oldKey]) {
+            updatedActors[newKey] = updatedActors[oldKey]
+            delete updatedActors[oldKey]
+          }
+
+          return {
+            ...character,
+            actors: updatedActors,
+          }
+        }),
+      }))
+
+      // Update current focus if necessary
+      const updatedCurrentFocus = {
+        ...state.currentFocus,
+        activeTabKey: state.currentFocus.activeTabKey === oldKey ? newKey : state.currentFocus.activeTabKey,
+      }
+
+      newState = {
+        ...state,
+        tabDefinitions: updatedTabDefinitions,
+        projects: updatedProjects,
+        currentFocus: updatedCurrentFocus,
+      }
+      break
+    }
+
+    case "DELETE_TAB": {
+      const { tabKey } = action.payload
+
+      // Don't allow deletion of system tabs
+      if (tabKey === "longList" || tabKey === "approval") {
+        console.warn("Cannot delete system tabs")
+        return state
+      }
+
+      // Remove from tab definitions
+      const updatedTabDefinitions = state.tabDefinitions.filter((tab) => tab.key !== tabKey)
+
+      // Move all actors from the deleted tab to Long List and remove the tab from all characters
+      const updatedProjects = state.projects.map((project) => ({
+        ...project,
+        characters: project.characters.map((character) => {
+          const updatedActors = { ...character.actors }
+
+          // Get actors from the tab being deleted
+          const actorsToMove = updatedActors[tabKey] || []
+
+          // Move actors to Long List if there are any
+          if (Array.isArray(actorsToMove) && actorsToMove.length > 0) {
+            // Reset actor states when moving to Long List
+            const resetActors = actorsToMove.map((actor: any) => ({
+              ...actor,
+              currentListKey: "longList",
+              currentShortlistId: undefined,
+              userVotes: {},
+              consensusAction: null,
+              isSoftRejected: false,
+              isGreenlit: false,
+              isCast: false,
+            }))
+
+            updatedActors.longList = [...updatedActors.longList, ...resetActors]
+          }
+
+          // Remove the deleted tab
+          delete updatedActors[tabKey]
+
+          return {
+            ...character,
+            actors: updatedActors,
+          }
+        }),
+      }))
+
+      // Update current focus if necessary
+      const updatedCurrentFocus = {
+        ...state.currentFocus,
+        activeTabKey: state.currentFocus.activeTabKey === tabKey ? "longList" : state.currentFocus.activeTabKey,
+      }
+
+      // Remove custom display name if it exists
+      const updatedDisplayNames = { ...state.tabDisplayNames }
+      delete updatedDisplayNames[tabKey]
+
+      newState = {
+        ...state,
+        tabDefinitions: updatedTabDefinitions,
+        projects: updatedProjects,
+        currentFocus: updatedCurrentFocus,
+        tabDisplayNames: updatedDisplayNames,
+      }
+      break
+    }
+
+    case "CREATE_GROUP": {
+      const { characterId, group } = action.payload
+
+      newState = {
+        ...state,
+        projects: state.projects.map((project) => ({
+          ...project,
+          characters: project.characters.map((character) => {
+            if (character.id !== characterId) return character
+
+            return {
+              ...character,
+              actors: {
+                ...character.actors,
+                shortLists: [...character.actors.shortLists, group],
+              },
+            }
+          }),
+        })),
+      }
+      break
+    }
+
+    case "UPDATE_GROUP": {
+      const { characterId, groupId, updates } = action.payload
+
+      newState = {
+        ...state,
+        projects: state.projects.map((project) => ({
+          ...project,
+          characters: project.characters.map((character) => {
+            if (character.id !== characterId) return character
+
+            return {
+              ...character,
+              actors: {
+                ...character.actors,
+                shortLists: character.actors.shortLists.map((sl) => (sl.id === groupId ? { ...sl, ...updates } : sl)),
+              },
+            }
+          }),
+        })),
+      }
+      break
+    }
+
+    case "DELETE_GROUP": {
+      const { characterId, groupId } = action.payload
+
+      newState = {
+        ...state,
+        projects: state.projects.map((project) => ({
+          ...project,
+          characters: project.characters.map((character) => {
+            if (character.id !== characterId) return character
+
+            return {
+              ...character,
+              actors: {
+                ...character.actors,
+                shortLists: character.actors.shortLists.filter((sl) => sl.id !== groupId),
+              },
+            }
+          }),
+        })),
+      }
+      break
+    }
+
+    case "ADD_SCHEDULE_ENTRY": {
+      newState = {
+        ...state,
+        scheduleEntries: [...state.scheduleEntries, action.payload],
+      }
+      break
+    }
+
+    case "UPDATE_SCHEDULE_ENTRY": {
+      newState = {
+        ...state,
+        scheduleEntries: state.scheduleEntries.map((entry) =>
+          entry.id === action.payload.id ? { ...entry, ...action.payload.updates } : entry,
+        ),
+      }
+      break
+    }
+
+    case "DELETE_SCHEDULE_ENTRY": {
+      newState = {
+        ...state,
+        scheduleEntries: state.scheduleEntries.filter((entry) => entry.id !== action.payload),
+      }
+      break
+    }
+
+    case "ADD_SCENE": {
+      newState = {
+        ...state,
+        scenes: [...state.scenes, action.payload],
+      }
+      break
+    }
+
+    case "UPDATE_SCENE": {
+      newState = {
+        ...state,
+        scenes: state.scenes.map((scene) =>
+          scene.id === action.payload.id ? { ...scene, ...action.payload.updates } : scene,
+        ),
+      }
+      break
+    }
+
+    case "DELETE_SCENE": {
+      newState = {
+        ...state,
+        scenes: state.scenes.filter((scene) => scene.id !== action.payload),
+      }
+      break
+    }
+
+    case "REORDER_SCENES": {
+      newState = {
+        ...state,
+        scenes: action.payload,
+      }
+      break
+    }
+
+    // </CHANGE> Add reducer cases for actor project-character assignments
+    case "ASSIGN_ACTOR_TO_PROJECT_CHARACTER": {
+      const { actorId, projectId, projectName, characterId, characterName } = action.payload
+
+      // Update all instances of this actor across all projects
+      const updatedProjects = state.projects.map((project) => ({
+        ...project,
+        characters: project.characters.map((character) => {
+          // Update actor in all lists
+          const updateActorInList = (actors: Actor[]) =>
+            actors.map((actor) => {
+              if (actor.id === actorId) {
+                const existingAssignments = actor.projectAssignments || []
+                // Check if assignment already exists
+                const assignmentExists = existingAssignments.some(
+                  (a) => a.projectId === projectId && a.characterId === characterId,
+                )
+
+                if (!assignmentExists) {
+                  return {
+                    ...actor,
+                    projectAssignments: [
+                      ...existingAssignments,
+                      {
+                        projectId,
+                        projectName,
+                        characterId,
+                        characterName,
+                        assignedDate: Date.now(),
+                      },
+                    ],
+                  }
+                }
+              }
+              return actor
+            })
+
+          return {
+            ...character,
+            actors: {
+              ...character.actors,
+              longList: Array.isArray(character.actors.longList)
+                ? updateActorInList(character.actors.longList)
+                : character.actors.longList,
+              audition: Array.isArray(character.actors.audition)
+                ? updateActorInList(character.actors.audition)
+                : character.actors.audition,
+              approval: Array.isArray(character.actors.approval)
+                ? updateActorInList(character.actors.approval)
+                : character.actors.approval,
+              shortLists: Array.isArray(character.actors.shortLists)
+                ? character.actors.shortLists.map((shortlist) => ({
+                    ...shortlist,
+                    actors: Array.isArray(shortlist.actors) ? updateActorInList(shortlist.actors) : shortlist.actors,
+                  }))
+                : character.actors.shortLists,
             },
           }
         }),
@@ -1021,63 +2770,197 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
       newState = {
         ...state,
         projects: updatedProjects,
-        notifications: newNotifications,
+      }
+      break
+    }
+
+    case "REMOVE_ACTOR_ASSIGNMENT": {
+      const { actorId, projectId, characterId } = action.payload
+
+      // Update all instances of this actor across all projects
+      const updatedProjects = state.projects.map((project) => ({
+        ...project,
+        characters: project.characters.map((character) => {
+          // Update actor in all lists
+          const updateActorInList = (actors: Actor[]) =>
+            actors.map((actor) => {
+              if (actor.id === actorId && actor.projectAssignments) {
+                return {
+                  ...actor,
+                  projectAssignments: actor.projectAssignments.filter(
+                    (a) => !(a.projectId === projectId && a.characterId === characterId),
+                  ),
+                }
+              }
+              return actor
+            })
+
+          return {
+            ...character,
+            actors: {
+              ...character.actors,
+              longList: Array.isArray(character.actors.longList)
+                ? updateActorInList(character.actors.longList)
+                : character.actors.longList,
+              audition: Array.isArray(character.actors.audition)
+                ? updateActorInList(character.actors.audition)
+                : character.actors.audition,
+              approval: Array.isArray(character.actors.approval)
+                ? updateActorInList(character.actors.approval)
+                : character.actors.approval,
+              shortLists: Array.isArray(character.actors.shortLists)
+                ? character.actors.shortLists.map((shortlist) => ({
+                    ...shortlist,
+                    actors: Array.isArray(shortlist.actors) ? updateActorInList(shortlist.actors) : shortlist.actors,
+                  }))
+                : character.actors.shortLists,
+            },
+          }
+        }),
+      }))
+
+      newState = {
+        ...state,
+        projects: updatedProjects,
+      }
+      break
+    }
+
+    case "SET_STATUS_FILTER":
+      newState = {
+        ...state,
+        currentFocus: {
+          ...state.currentFocus,
+          filters: {
+            ...state.currentFocus.filters,
+            status: action.payload,
+          },
+        },
+      }
+      break
+
+    case "SET_AGE_RANGE_FILTER":
+      newState = {
+        ...state,
+        currentFocus: {
+          ...state.currentFocus,
+          filters: {
+            ...state.currentFocus.filters,
+            ageRange: action.payload,
+          },
+        },
+      }
+      break
+
+    case "SET_LOCATION_FILTER":
+      newState = {
+        ...state,
+        currentFocus: {
+          ...state.currentFocus,
+          filters: {
+            ...state.currentFocus.filters,
+            location: action.payload,
+          },
+        },
+      }
+      break
+
+    case "CLEAR_ALL_FILTERS":
+      newState = {
+        ...state,
+        currentFocus: {
+          ...state.currentFocus,
+          filters: {
+            ...state.currentFocus.filters, // Keep existing properties like showFilters
+            status: [],
+            ageRange: { min: 0, max: 100 },
+            location: [],
+          },
+        },
+      }
+      break
+
+    // </CHANGE> Add TOGGLE_FILTERS action to toggle filter panel visibility
+    case "TOGGLE_FILTERS":
+      newState = {
+        ...state,
+        currentFocus: {
+          ...state.currentFocus,
+          filters: {
+            ...state.currentFocus.filters,
+            showFilters: !state.currentFocus.filters.showFilters,
+          },
+        },
+      }
+      break
+
+    case "ADD_PRODUCTION_PHASE":
+      newState = {
+        ...state,
+        productionPhases: [...state.productionPhases, action.payload],
+      }
+      break
+
+    case "UPDATE_PRODUCTION_PHASE":
+      newState = {
+        ...state,
+        productionPhases: state.productionPhases.map((phase) =>
+          phase.id === action.payload.id ? { ...phase, ...action.payload.updates } : phase,
+        ),
+      }
+      break
+
+    case "DELETE_PRODUCTION_PHASE":
+      newState = {
+        ...state,
+        productionPhases: state.productionPhases.filter((phase) => phase.id !== action.payload),
+        // Also remove any schedule entries associated with this phase
+        scheduleEntries: state.scheduleEntries.filter((entry) => entry.phaseId !== action.payload),
       }
       break
 
     default:
-      console.warn("Unhandled action type:", action.type)
-      break
+      return state
+  }
+
+  // Save to localStorage after every state change (except LOAD_FROM_STORAGE)
+  if (action.type !== "LOAD_FROM_STORAGE") {
+    saveToLocalStorage(newState)
   }
 
   return newState
 }
 
-function getCurrentPlayerViewList(state: CastingState): any[] {
+// Helper function to get current player view list
+function getCurrentPlayerViewList(state: CastingState) {
   const currentProject = state.projects.find((p) => p.id === state.currentFocus.currentProjectId)
   const currentCharacter = currentProject?.characters.find((c) => c.id === state.currentFocus.characterId)
+
   if (!currentCharacter) return []
 
-  const currentTabKey = state.currentFocus.activeTabKey
-  if (!currentTabKey) return []
+  const { activeTabKey } = state.currentFocus
 
-  return currentCharacter.actors[currentTabKey] || []
+  if (activeTabKey === "shortLists") {
+    return currentCharacter.actors.shortLists.flatMap((sl) => sl.actors)
+  }
+
+  return currentCharacter.actors[activeTabKey] || []
 }
 
-export function CastingProvider({
-  children,
-  initialData,
-}: {
-  children: React.ReactNode
-  initialData?: Partial<CastingState>
-}) {
-  // Initialize state with provided data or load from storage
-  const [state, dispatch] = useReducer(castingReducer, getInitialState(), (initial) => {
-    if (initialData) {
-      return validateAndCompleteState({ ...initial, ...initialData })
-    }
+export function CastingProvider({ children }: { children: ReactNode }) {
+  const [state, dispatch] = useReducer(castingReducer, getInitialState())
 
-    // Try to load from localStorage
-    if (typeof window !== "undefined") {
-      const stored = loadFromLocalStorage()
-      if (stored) {
-        return validateAndCompleteState(stored)
-      }
-    }
-
-    return initial
-  })
-
-  // Save to localStorage whenever state changes
+  // Load from localStorage on mount
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const timeoutId = setTimeout(() => {
-        saveToLocalStorage(state)
-      }, 500) // Debounce saves
-
-      return () => clearTimeout(timeoutId)
+    const savedState = loadFromLocalStorage()
+    if (savedState) {
+      dispatch({ type: "LOAD_FROM_STORAGE", payload: savedState })
+    } else {
+      // If no saved state, ensure currentUser is set
+      const initialState = getInitialState()
+      dispatch({ type: "SET_CURRENT_USER", payload: initialState.users[0] })
     }
-  }, [state])
+  }, [])
 
   return <CastingContext.Provider value={{ state, dispatch }}>{children}</CastingContext.Provider>
 }
@@ -1090,4 +2973,5 @@ export function useCasting() {
   return context
 }
 
-export { CastingContext, castingReducer, getInitialState, getCurrentTerminology, getTabDisplayName }
+// Export helper functions
+export { getCurrentTerminology, getTabDisplayName }

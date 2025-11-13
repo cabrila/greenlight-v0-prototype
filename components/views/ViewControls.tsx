@@ -237,6 +237,13 @@ export default function ViewControls() {
     return false
   }
 
+  const handleLoadSavedSearch = (searchId: string) => {
+    dispatch({
+      type: "LOAD_SAVED_SEARCH",
+      payload: searchId,
+    })
+  }
+
   return (
     <div className="space-y-3">
       {/* Main Controls Container - Responsive Layout */}
@@ -387,7 +394,6 @@ export default function ViewControls() {
             </button>
 
             <div className="relative flex-1">
-              
               <SearchTags
                 tags={searchTags}
                 onTagsChange={handleSearchTagsChange}
@@ -395,6 +401,8 @@ export default function ViewControls() {
                 className="w-full"
                 maxTags={8}
                 allowDuplicates={false}
+                savedSearches={savedSearches}
+                onLoadSavedSearch={handleLoadSavedSearch}
               />
             </div>
 
