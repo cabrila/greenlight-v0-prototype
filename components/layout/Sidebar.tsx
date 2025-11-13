@@ -146,15 +146,13 @@ export default function Sidebar() {
     setIsLoadingDemo(true)
 
     try {
-      console.log("[v0] Fetching demo data from external URL...")
+      console.log("[v0] Fetching demo data from API route...")
 
-      // Fetch the JSON file from the specified URL
-      const response = await fetch(
-        "https://storage.googleapis.com/gl-assets-public/demodata/Jurassic_Park_-_Remake_complete_export.json",
-      )
+      const response = await fetch("/api/load-demo-data")
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
+        const errorData = await response.json()
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`)
       }
 
       // Parse the JSON data
