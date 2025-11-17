@@ -4,7 +4,7 @@ import type React from "react"
 
 import { useCasting } from "@/components/casting/CastingContext"
 import { useState, useEffect } from "react"
-import { X, Upload, Plus, Trash2, Camera, Check } from "lucide-react"
+import { X, Upload, Plus, Trash2, Camera, Check } from 'lucide-react'
 import VideoMarkerTimeline from "@/components/video/VideoMarkerTimeline"
 import VideoEmbed from "@/components/video/VideoEmbed"
 import { parseVideoUrl, type VideoEmbed as VideoEmbedType } from "@/utils/videoUtils"
@@ -1006,6 +1006,30 @@ export default function EditActorModal({ onClose, actor, characterId }: EditActo
                         }}
                         className="mb-3"
                       />
+
+                      {/* CHANGE: Added optional video password field */}
+                      <div className="mb-3">
+                        <label className="block text-xs font-medium text-gray-700 mb-1">
+                          Password (optional)
+                        </label>
+                        <input
+                          type="text"
+                          value={video.videoPassword || ""}
+                          onChange={(e) => {
+                            setFormData((prev) => ({
+                              ...prev,
+                              vimeoVideos: prev.vimeoVideos.map((v) =>
+                                v.id === video.id ? { ...v, videoPassword: e.target.value } : v,
+                              ),
+                            }))
+                          }}
+                          className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                          placeholder="Enter password for password-protected video"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">
+                          If this video is password-protected, add the password here so viewers can access it easily
+                        </p>
+                      </div>
 
                       {/* Actor Tags Display */}
                       {video.taggedActorNames && video.taggedActorNames.length > 0 && (
