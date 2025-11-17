@@ -36,6 +36,7 @@ export interface Actor {
     url: string
     embedUrl: string
     platform: string
+    videoPassword?: string
   }>
   readyForApproval?: boolean
   approvalMoveDate?: number
@@ -47,6 +48,32 @@ export interface Actor {
     characterId: string
     characterName: string
     assignedDate: number
+  }>
+  vimeoVideos?: Array<{
+    id: string
+    url: string
+    videoId: string
+    platform: "vimeo" | "youtube"
+    title?: string
+    taggedActorNames?: string[]
+    isTagged?: boolean
+    markIn?: number
+    markOut?: number
+    duration?: number
+    videoPassword?: string
+  }>
+  youtubeVideos?: Array<{
+    id: string
+    url: string
+    videoId: string
+    platform: "youtube"
+    title?: string
+    taggedActorNames?: string[]
+    isTagged?: boolean
+    markIn?: number
+    markOut?: number
+    duration?: number
+    videoPassword?: string
   }>
 }
 
@@ -221,6 +248,7 @@ export type CastingAction =
         characterId: string
       }
     }
+}
 
 export interface User {
   id: string
