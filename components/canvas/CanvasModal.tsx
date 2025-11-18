@@ -3,33 +3,7 @@
 import type React from "react"
 
 import { useState, useRef, useCallback, useEffect } from "react"
-import {
-  X,
-  ZoomIn,
-  ZoomOut,
-  RotateCcw,
-  Save,
-  Eye,
-  EyeOff,
-  Search,
-  Users,
-  Trash2,
-  Maximize2,
-  ChevronLeft,
-  ChevronRight,
-  Layout,
-  Fullscreen,
-  Grid3x3,
-  List,
-  SortAsc,
-  SortDesc,
-  Calendar,
-  Hash,
-  CheckCircle,
-  Heart,
-  Star,
-  XIcon,
-} from "lucide-react"
+import { X, ZoomIn, ZoomOut, RotateCcw, Save, Eye, EyeOff, Search, Users, Trash2, Maximize2, ChevronLeft, ChevronRight, Layout, Fullscreen, Grid3x3, List, SortAsc, SortDesc, Calendar, Hash, CheckCircle, Heart, Star, XIcon, Plus } from 'lucide-react'
 import { useCasting } from "@/components/casting/CastingContext"
 import CanvasActorCard from "./CanvasActorCard"
 import CanvasContextMenu from "./CanvasContextMenu"
@@ -107,6 +81,8 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
     groupId: string
     actorIds: string[]
   } | null>(null)
+
+  const [showDatabaseOverlay, setShowDatabaseOverlay] = useState(false)
 
   // Get all actors from current project
   const currentProject = state.projects.find((p) => p.id === state.currentFocus.currentProjectId)
@@ -227,9 +203,11 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
       const isGroup = target.closest("[data-canvas-group]")
       const isUIElement = target.closest("button, input, textarea, select, .ui-element")
       const isNavigationControl = target.closest(".image-navigation")
+      const isDatabaseOverlay = target.closest(".database-overlay") // Check if click is inside database overlay
 
-      // Only start canvas dragging if we're not clicking on interactive elements
-      if (!isActorCard && !isGroup && !isUIElement && !isNavigationControl) {
+      // Only start canvas dragging if we're not clicking on interactive elements,
+      // including the database overlay
+      if (!isActorCard && !isGroup && !isUIElement && !isNavigationControl && !isDatabaseOverlay) {
         // Clear selection if clicking on empty canvas
         if (!e.ctrlKey && !e.metaKey) {
           setSelectedActorIds([])
@@ -1016,6 +994,61 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
   // Get current character and user details for voting functionality
   const currentCharacter = currentProject?.characters.find((c) => c.id === state.currentFocus.characterId)
 
+  const handleAddDatabaseActorToCanvas = (actorId: string) => {
+    const actor = uniqueActors.find((a) => a.id === actorId)
+    if (!actor) return
+
+    // Check if actor is already on canvas
+    const alreadyOnCanvas = canvasActors.some((ca) => ca.actorId === actorId)
+    if (alreadyOnCanvas) {
+      alert(`${actor.name} is already on the canvas`)
+      return
+    }
+
+    // Calculate stacked position (find next available spot)
+    const STACK_OFFSET_X = 20
+    const STACK_OFFSET_Y = 20
+    const START_X = 50
+    const START_Y = 50
+
+    let newX = START_X
+    let newY = START_Y
+
+    // Find the last positioned actor to stack after it
+    if (canvasActors.length > 0) {
+      const lastActor = canvasActors[canvasActors.length - 1]
+      newX = lastActor.x + STACK_OFFSET_X
+      newY = lastActor.y + STACK_OFFSET_Y
+    }
+
+    const newCanvasActor: CanvasActor = {
+      id: `canvas-${Date.now()}-${Math.random()}`,
+      actorId: actor.id,
+      x: newX,
+      y: newY,
+      characterName: actor.sourceCharacter || "",
+      actor,
+    }
+
+    setCanvasActors((prev) => [...prev, newCanvasActor])
+    
+    // Show success notification
+    const notification = {
+      id: `add-actor-canvas-${Date.now()}`,
+      type: "system" as const,
+      title: "Actor Added to Canvas",
+      message: `${actor.name} has been added to the canvas`,
+      timestamp: Date.now(),
+      read: false,
+      priority: "low" as const,
+    }
+
+    dispatch({
+      type: "ADD_NOTIFICATION",
+      payload: notification,
+    })
+  }
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex flex-col">
       {/* Header */}
@@ -1227,6 +1260,19 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
             <span>Save</span>
           </button>
 
+          <button
+            onClick={() => setShowDatabaseOverlay(!showDatabaseOverlay)}
+            className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-all shadow-sm hover:shadow-md ${
+              showDatabaseOverlay
+                ? "bg-gradient-to-r from-indigo-500 to-indigo-600 text-white"
+                : "bg-white text-slate-700 hover:bg-slate-50 border border-slate-300"
+            }`}
+            title="Add actors from database to canvas"
+          >
+            <Plus className="w-4 h-4" />
+            <span className="font-medium">Add from Database</span>
+          </button>
+
           {/* Close Button */}
           <button
             onClick={handleCanvasClose}
@@ -1240,6 +1286,90 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
 
       <div className="flex flex-1 overflow-hidden flex-col bg-gray-100 relative">
         <div className="flex flex-1 overflow-hidden">
+          {showDatabaseOverlay && (
+            <div className="absolute left-0 top-0 bottom-0 w-80 bg-white border-r border-slate-200 shadow-xl z-40 flex flex-col database-overlay">
+              {/* Overlay Header */}
+              <div className="p-4 border-b border-slate-200 flex items-center justify-between bg-gradient-to-r from-indigo-50 to-indigo-100">
+                <div>
+                  <h3 className="font-semibold text-slate-900">Add from Database</h3>
+                  <p className="text-xs text-slate-600 mt-1">
+                    Click actor to add to canvas
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowDatabaseOverlay(false)}
+                  className="p-2 hover:bg-white rounded-lg transition-colors"
+                >
+                  <X className="w-5 h-5 text-slate-600" />
+                </button>
+              </div>
+
+              {/* Search */}
+              <div className="p-4 border-b border-slate-200">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <input
+                    type="text"
+                    placeholder="Search actors..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                  />
+                </div>
+              </div>
+
+              {/* Actor List */}
+              <div className="flex-1 overflow-y-auto p-2">
+                <div className="space-y-2">
+                  {filteredActors.length > 0 ? (
+                    filteredActors.map((actor) => {
+                      const isOnCanvas = canvasActors.some((ca) => ca.actorId === actor.id)
+                      
+                      return (
+                        <button
+                          key={actor.id}
+                          onClick={() => !isOnCanvas && handleAddDatabaseActorToCanvas(actor.id)}
+                          disabled={isOnCanvas}
+                          className={`w-full bg-slate-50 rounded-lg p-3 transition-all border ${
+                            isOnCanvas
+                              ? "opacity-50 cursor-not-allowed border-slate-200"
+                              : "hover:bg-indigo-50 hover:border-indigo-300 border-slate-200 cursor-pointer"
+                          }`}
+                        >
+                          <div className="flex items-center space-x-3">
+                            <img
+                              src={actor.headshots?.[0] || "/placeholder.svg?height=40&width=40"}
+                              alt={actor.name}
+                              className="w-10 h-10 rounded-full object-cover border border-gray-200"
+                            />
+                            <div className="flex-1 min-w-0 text-left">
+                              <div className="font-medium text-gray-800 truncate flex items-center gap-2">
+                                {actor.name}
+                                {isOnCanvas && (
+                                  <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">
+                                    On Canvas
+                                  </span>
+                                )}
+                              </div>
+                              <div className="text-xs text-gray-500 truncate">From: {actor.sourceCharacter}</div>
+                              {actor.age && <div className="text-xs text-gray-400">Age: {actor.age}</div>}
+                            </div>
+                          </div>
+                        </button>
+                      )
+                    })
+                  ) : (
+                    <div className="text-center text-gray-500 py-8">
+                      <div className="text-sm">
+                        {searchQuery ? "No actors found matching your search" : "No actors available"}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Canvas Area */}
           <div className="flex-1 relative overflow-hidden bg-gray-100 canvas-container">
             <div
@@ -1306,7 +1436,7 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
               })}
             </div>
 
-            {canvasActors.length === 0 && (
+            {canvasActors.length === 0 && !showDatabaseOverlay && ( // Only show instructions if no actors and overlay is closed
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                 <div className="text-center text-gray-500">
                   <div className="text-lg font-medium mb-2">Drag actors from the sidebar to start</div>
@@ -1325,7 +1455,7 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
             )}
 
             {/* Zoom and Pan Instructions */}
-            {canvasActors.length > 0 && selectedActorIds.length === 0 && (
+            {canvasActors.length > 0 && selectedActorIds.length === 0 && !showDatabaseOverlay && ( // Only show if actors exist, none selected and overlay closed
               <div className="absolute top-4 left-4 bg-white bg-opacity-90 p-3 rounded-lg shadow-lg pointer-events-none">
                 <div className="text-sm text-gray-600">
                   <div className="font-medium mb-1">Navigation:</div>

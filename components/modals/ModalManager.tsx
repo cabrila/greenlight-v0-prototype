@@ -33,6 +33,7 @@ import SplashScreenModal from "./SplashScreenModal"
 import BookAuditionModal from "./BookAuditionModal"
 import ScheduleModal from "./ScheduleModal"
 import DatabaseModal from "./DatabaseModal"
+import AssignToProjectModal from "./AssignToProjectModal"
 
 export interface ModalState {
   type: string | null
@@ -229,6 +230,8 @@ export default function ModalManager() {
           return <ScheduleModal onClose={handleClose} />
         case "database":
           return <DatabaseModal onClose={handleClose} />
+        case "assignToProject":
+          return <AssignToProjectModal onClose={handleClose} {...modal.data} />
         default:
           return null
       }
