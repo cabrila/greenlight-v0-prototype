@@ -2,21 +2,31 @@
 
 import type React from "react"
 import { useState } from "react"
-import { X, FolderOpen, User, Plus, Check } from 'lucide-react'
+import { X, FolderOpen, User, Plus, Check, Layers } from 'lucide-react'
 import { useCasting } from "@/components/casting/CastingContext"
 import type { Actor } from "@/types/casting"
 
 interface AssignToProjectModalProps {
   onClose: () => void
-  actor: Actor
-  sourceCharacterId: string
+  actor?: Actor
+  actors?: Actor[]
+  sourceCharacterId?: string
 }
 
-export default function AssignToProjectModal({ onClose, actor, sourceCharacterId }: AssignToProjectModalProps) {
+export default function AssignToProjectModal({
+  onClose,
+  actor,
+  actors,
+  sourceCharacterId,
+}: AssignToProjectModalProps) {
   const { state, dispatch } = useCasting()
   const [selectedProjectId, setSelectedProjectId] = useState<string>("")
   const [selectedCharacterId, setSelectedCharacterId] = useState<string>("")
   const [addToCanvas, setAddToCanvas] = useState(false)
+
+  // Support both single and batch assignment
+  const actorsToAssign = actors || (actor ? [actor] : [])
+  const isBatchMode = actorsToAssign.length > 1
 
   const selectedProject = state.projects.find((p) => p.id === selectedProjectId)
 
@@ -31,82 +41,141 @@ export default function AssignToProjectModal({ onClose, actor, sourceCharacterId
 
     if (!project || !character) return
 
-    // Check if already assigned
-    const alreadyAssigned = actor.projectAssignments?.some(
-      (a) => a.projectId === selectedProjectId && a.characterId === selectedCharacterId,
-    )
+    let assignedCount = 0
+    let skippedCount = 0
 
-    if (alreadyAssigned && !addToCanvas) {
-      alert("This actor is already assigned to this project and character")
-      return
-    }
+    // Process each actor
+    actorsToAssign.forEach((actorToAssign) => {
+      // Check if already assigned
+      const alreadyAssigned = actorToAssign.projectAssignments?.some(
+        (a) => a.projectId === selectedProjectId && a.characterId === selectedCharacterId,
+      )
 
-    if (!alreadyAssigned) {
-      // Assign actor to project-character
-      dispatch({
-        type: "ASSIGN_ACTOR_TO_PROJECT_CHARACTER",
-        payload: {
-          actorId: actor.id,
-          projectId: selectedProjectId,
-          projectName: project.name,
-          characterId: selectedCharacterId,
-          characterName: character.name,
-        },
-      })
-    }
+      if (alreadyAssigned && !addToCanvas) {
+        skippedCount++
+        return
+      }
 
-    // If addToCanvas is checked, also add to canvas
-    if (addToCanvas) {
-      // Dispatch notification to add to canvas
-      const notification = {
-        id: `add-to-canvas-${Date.now()}`,
+      if (!alreadyAssigned) {
+        // Assign actor to project-character
+        dispatch({
+          type: "ASSIGN_ACTOR_TO_PROJECT_CHARACTER",
+          payload: {
+            actorId: actorToAssign.id,
+            projectId: selectedProjectId,
+            projectName: project.name,
+            characterId: selectedCharacterId,
+            characterName: character.name,
+          },
+        })
+        assignedCount++
+      }
+
+      // If addToCanvas is checked and actor is already assigned, just add to canvas
+      if (addToCanvas) {
+        const canvasActors = project.canvasActors || []
+        const alreadyOnCanvas = canvasActors.some((ca) => ca.actorId === actorToAssign.id)
+
+        if (!alreadyOnCanvas) {
+          // Calculate stacked position
+          const baseX = 50
+          const baseY = 50
+          const stackOffset = canvasActors.length * 20
+
+          const newCanvasActor = {
+            id: `canvas_${Date.now()}_${actorToAssign.id}`,
+            actorId: actorToAssign.id,
+            x: baseX + stackOffset,
+            y: baseY + stackOffset,
+            characterName: character.name,
+            actor: actorToAssign,
+          }
+
+          dispatch({
+            type: "ADD_CANVAS_ACTOR",
+            payload: {
+              projectId: selectedProjectId,
+              canvasActor: newCanvasActor,
+            },
+          })
+        }
+      }
+    })
+
+    // Show success notification
+    const message = isBatchMode
+      ? `${assignedCount} actor(s) assigned to ${project.name} > ${character.name}${addToCanvas ? " and added to canvas" : ""}${skippedCount > 0 ? ` (${skippedCount} skipped - already assigned)` : ""}`
+      : `${actorsToAssign[0].name} assigned to ${project.name} > ${character.name}${addToCanvas ? " and added to canvas" : ""}`
+
+    dispatch({
+      type: "ADD_NOTIFICATION",
+      payload: {
+        id: `assign-${Date.now()}`,
         type: "system" as const,
-        title: "Actor Assigned",
-        message: `${actor.name} has been assigned to ${project.name} > ${character.name}. ${addToCanvas ? "Please open the Canvas to see the actor." : ""}`,
+        title: "Actor Assignment",
+        message,
         timestamp: Date.now(),
         read: false,
         priority: "medium" as const,
-        metadata: {
-          addToCanvas: true,
-          actorId: actor.id,
-          projectId: selectedProjectId,
-          characterId: selectedCharacterId,
-        },
-      }
-
-      dispatch({
-        type: "ADD_NOTIFICATION",
-        payload: notification,
-      })
-    }
+      },
+    })
 
     onClose()
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
-      {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-slate-200">
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-gradient-to-br from-emerald-600 to-emerald-700 rounded-lg">
-            <FolderOpen className="w-5 h-5 text-white" />
+    <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-2xl max-w-2xl w-full mx-4 overflow-hidden">
+      {/* Header - Mirroring splash screen style */}
+      <div className="relative bg-gradient-to-r from-emerald-500 to-emerald-600 p-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
+              {isBatchMode ? (
+                <Layers className="w-6 h-6 text-white" />
+              ) : (
+                <FolderOpen className="w-6 h-6 text-white" />
+              )}
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold text-white">Assign to Project</h2>
+              <p className="text-emerald-100 text-sm mt-1">
+                {isBatchMode
+                  ? `Assign ${actorsToAssign.length} actors to a project`
+                  : `Assign ${actorsToAssign[0]?.name} to a project`}
+              </p>
+            </div>
           </div>
-          <div>
-            <h2 className="text-lg font-semibold text-slate-900">Assign to Project</h2>
-            <p className="text-sm text-slate-500">Assign {actor.name} to a project</p>
-          </div>
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-white/20 rounded-lg transition-colors backdrop-blur-sm"
+          >
+            <X className="w-6 h-6 text-white" />
+          </button>
         </div>
-        <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-lg transition-colors">
-          <X className="w-5 h-5 text-slate-600" />
-        </button>
       </div>
 
       {/* Content */}
       <div className="p-6 space-y-6">
-        {/* Project Selection */}
+        {/* Batch Mode Indicator */}
+        {isBatchMode && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div className="flex items-start gap-3">
+              <Layers className="w-5 h-5 text-blue-600 mt-0.5" />
+              <div>
+                <h3 className="font-semibold text-blue-900">Batch Assignment Mode</h3>
+                <p className="text-sm text-blue-700 mt-1">
+                  You're assigning {actorsToAssign.length} actors at once. All actors will be assigned to the same
+                  project and character.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Project Selection - Card style like splash screen */}
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-2">Select Project</label>
-          <div className="space-y-2 max-h-48 overflow-y-auto border border-slate-200 rounded-lg p-2">
+          <label className="block text-sm font-semibold text-slate-700 mb-3">Select Project</label>
+          <div className="grid grid-cols-1 gap-3 max-h-64 overflow-y-auto pr-2">
             {state.projects.map((project) => (
               <button
                 key={project.id}
@@ -114,64 +183,122 @@ export default function AssignToProjectModal({ onClose, actor, sourceCharacterId
                   setSelectedProjectId(project.id)
                   setSelectedCharacterId("") // Reset character selection
                 }}
-                className={`w-full flex items-center justify-between p-3 rounded-lg transition-colors ${
+                className={`group relative overflow-hidden rounded-xl p-4 transition-all duration-300 transform hover:scale-[1.02] ${
                   selectedProjectId === project.id
-                    ? "bg-emerald-50 border-2 border-emerald-500"
-                    : "bg-slate-50 border-2 border-transparent hover:bg-slate-100"
+                    ? "bg-gradient-to-br from-emerald-500 to-emerald-600 shadow-lg"
+                    : "bg-white hover:shadow-md border-2 border-slate-200 hover:border-emerald-300"
                 }`}
               >
-                <div className="flex items-center gap-2">
-                  <FolderOpen
-                    className={`w-4 h-4 ${selectedProjectId === project.id ? "text-emerald-600" : "text-slate-400"}`}
-                  />
-                  <span className={`font-medium ${selectedProjectId === project.id ? "text-emerald-700" : "text-slate-700"}`}>
-                    {project.name}
-                  </span>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={`p-2 rounded-lg transition-colors ${
+                        selectedProjectId === project.id
+                          ? "bg-white/20 backdrop-blur-sm"
+                          : "bg-slate-100 group-hover:bg-emerald-100"
+                      }`}
+                    >
+                      <FolderOpen
+                        className={`w-5 h-5 ${selectedProjectId === project.id ? "text-white" : "text-slate-600 group-hover:text-emerald-600"}`}
+                      />
+                    </div>
+                    <div className="text-left">
+                      <span
+                        className={`font-semibold ${selectedProjectId === project.id ? "text-white" : "text-slate-900"}`}
+                      >
+                        {project.name}
+                      </span>
+                      <div
+                        className={`text-sm ${selectedProjectId === project.id ? "text-emerald-100" : "text-slate-500"}`}
+                      >
+                        {project.characters.length} character(s)
+                      </div>
+                    </div>
+                  </div>
+                  {selectedProjectId === project.id && (
+                    <div className="p-1 bg-white/20 rounded-full backdrop-blur-sm">
+                      <Check className="w-5 h-5 text-white" />
+                    </div>
+                  )}
                 </div>
-                {selectedProjectId === project.id && <Check className="w-5 h-5 text-emerald-600" />}
               </button>
             ))}
           </div>
         </div>
 
-        {/* Character Selection */}
+        {/* Character Selection - Card style */}
         {selectedProject && (
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">Select Character</label>
-            <div className="space-y-2 max-h-48 overflow-y-auto border border-slate-200 rounded-lg p-2">
+          <div className="animate-in slide-in-from-top duration-300">
+            <label className="block text-sm font-semibold text-slate-700 mb-3">Select Character</label>
+            <div className="grid grid-cols-1 gap-3 max-h-64 overflow-y-auto pr-2">
               {selectedProject.characters.map((character) => {
-                const isAssigned = actor.projectAssignments?.some(
-                  (a) => a.projectId === selectedProjectId && a.characterId === character.id,
+                const assignedActors = actorsToAssign.filter((a) =>
+                  a.projectAssignments?.some(
+                    (pa) => pa.projectId === selectedProjectId && pa.characterId === character.id,
+                  ),
                 )
+                const allAssigned = isBatchMode && assignedActors.length === actorsToAssign.length
+                const someAssigned = assignedActors.length > 0 && assignedActors.length < actorsToAssign.length
 
                 return (
                   <button
                     key={character.id}
                     onClick={() => setSelectedCharacterId(character.id)}
-                    className={`w-full flex items-center justify-between p-3 rounded-lg transition-colors ${
+                    className={`group relative overflow-hidden rounded-xl p-4 transition-all duration-300 transform hover:scale-[1.02] ${
                       selectedCharacterId === character.id
-                        ? "bg-emerald-50 border-2 border-emerald-500"
-                        : "bg-slate-50 border-2 border-transparent hover:bg-slate-100"
+                        ? "bg-gradient-to-br from-emerald-500 to-emerald-600 shadow-lg"
+                        : "bg-white hover:shadow-md border-2 border-slate-200 hover:border-emerald-300"
                     }`}
                   >
-                    <div className="flex items-center gap-2">
-                      <User
-                        className={`w-4 h-4 ${selectedCharacterId === character.id ? "text-emerald-600" : "text-slate-400"}`}
-                      />
-                      <div className="text-left">
-                        <span
-                          className={`font-medium ${selectedCharacterId === character.id ? "text-emerald-700" : "text-slate-700"}`}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={`p-2 rounded-lg transition-colors ${
+                            selectedCharacterId === character.id
+                              ? "bg-white/20 backdrop-blur-sm"
+                              : "bg-slate-100 group-hover:bg-emerald-100"
+                          }`}
                         >
-                          {character.name}
-                        </span>
-                        {isAssigned && (
-                          <span className="ml-2 text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
-                            Already Assigned
-                          </span>
-                        )}
+                          <User
+                            className={`w-5 h-5 ${selectedCharacterId === character.id ? "text-white" : "text-slate-600 group-hover:text-emerald-600"}`}
+                          />
+                        </div>
+                        <div className="text-left">
+                          <div className="flex items-center gap-2">
+                            <span
+                              className={`font-semibold ${selectedCharacterId === character.id ? "text-white" : "text-slate-900"}`}
+                            >
+                              {character.name}
+                            </span>
+                            {allAssigned && !isBatchMode && (
+                              <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
+                                Already Assigned
+                              </span>
+                            )}
+                            {allAssigned && isBatchMode && (
+                              <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
+                                All Assigned
+                              </span>
+                            )}
+                            {someAssigned && (
+                              <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full">
+                                {assignedActors.length}/{actorsToAssign.length} Assigned
+                              </span>
+                            )}
+                          </div>
+                          <div
+                            className={`text-sm ${selectedCharacterId === character.id ? "text-emerald-100" : "text-slate-500"}`}
+                          >
+                            {character.description || "No description"}
+                          </div>
+                        </div>
                       </div>
+                      {selectedCharacterId === character.id && (
+                        <div className="p-1 bg-white/20 rounded-full backdrop-blur-sm">
+                          <Check className="w-5 h-5 text-white" />
+                        </div>
+                      )}
                     </div>
-                    {selectedCharacterId === character.id && <Check className="w-5 h-5 text-emerald-600" />}
                   </button>
                 )
               })}
@@ -179,42 +306,48 @@ export default function AssignToProjectModal({ onClose, actor, sourceCharacterId
           </div>
         )}
 
-        {/* Add to Canvas Option */}
+        {/* Add to Canvas Option - Enhanced design */}
         {selectedProjectId && selectedCharacterId && (
-          <div className="border-t border-slate-200 pt-4">
-            <label className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg cursor-pointer hover:bg-slate-100 transition-colors">
-              <input
-                type="checkbox"
-                checked={addToCanvas}
-                onChange={(e) => setAddToCanvas(e.target.checked)}
-                className="w-5 h-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
-              />
-              <div>
-                <div className="font-medium text-slate-700">Add to Canvas</div>
-                <div className="text-sm text-slate-500">
-                  Also add this actor to the project's canvas for visual management
+          <div className="animate-in slide-in-from-bottom duration-300">
+            <label className="relative flex items-start gap-4 p-4 bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl cursor-pointer hover:shadow-md transition-all duration-300 border-2 border-transparent hover:border-emerald-300 group">
+              <div className="flex items-center h-6">
+                <input
+                  type="checkbox"
+                  checked={addToCanvas}
+                  onChange={(e) => setAddToCanvas(e.target.checked)}
+                  className="w-5 h-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 focus:ring-2 cursor-pointer"
+                />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <Layers className="w-4 h-4 text-emerald-600" />
+                  <span className="font-semibold text-slate-900">Add to Canvas</span>
                 </div>
+                <p className="text-sm text-slate-600 leading-relaxed">
+                  Also add {isBatchMode ? "these actors" : "this actor"} to the project's canvas for visual management.
+                  Actors will be positioned in a stacked layout.
+                </p>
               </div>
             </label>
           </div>
         )}
       </div>
 
-      {/* Footer */}
-      <div className="flex items-center justify-end gap-3 p-4 border-t border-slate-200 bg-slate-50">
+      {/* Footer - Matching splash screen button style */}
+      <div className="flex items-center justify-end gap-3 p-6 bg-gradient-to-br from-slate-50 to-slate-100 border-t border-slate-200">
         <button
           onClick={onClose}
-          className="px-4 py-2 text-sm font-medium text-slate-700 hover:text-slate-900 transition-colors"
+          className="px-6 py-3 text-sm font-semibold text-slate-700 hover:text-slate-900 hover:bg-white rounded-lg transition-all"
         >
           Cancel
         </button>
         <button
           onClick={handleAssign}
           disabled={!selectedProjectId || !selectedCharacterId}
-          className="px-4 py-2 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-lg hover:from-emerald-600 hover:to-emerald-700 transition-all shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+          className="px-6 py-3 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-xl hover:from-emerald-600 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none transform hover:scale-105 flex items-center gap-2 font-semibold"
         >
-          <Plus className="w-4 h-4" />
-          <span>Assign Actor</span>
+          <Plus className="w-5 h-5" />
+          <span>{isBatchMode ? `Assign ${actorsToAssign.length} Actors` : "Assign Actor"}</span>
         </button>
       </div>
     </div>

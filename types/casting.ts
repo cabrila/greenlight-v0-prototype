@@ -248,6 +248,7 @@ export type CastingAction =
         characterId: string
       }
     }
+  | { type: "ADD_CANVAS_ACTOR"; payload: { projectId: string; canvasActor: CanvasActor } }
 }
 
 export interface User {
@@ -268,6 +269,7 @@ export interface Project {
   createdDate: number
   modifiedDate: number
   terminology?: Terminology
+  canvasActors?: CanvasActor[]
 }
 
 export interface Character {
@@ -430,6 +432,15 @@ export interface SavedSearch {
   createdAt: number
   lastUsed: number
   isGlobal: boolean
+}
+
+export interface CanvasActor {
+  id: string
+  actorId: string
+  x: number
+  y: number
+  characterName: string
+  actor: Actor
 }
 
 import type { AvailabilityDate, ScheduleEntry, ProductionPhase, Scene } from "./schedule"

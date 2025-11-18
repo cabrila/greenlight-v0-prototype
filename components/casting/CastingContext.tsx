@@ -229,6 +229,7 @@ function getInitialState(): CastingState {
       location: [],
       showFilters: false,
     },
+    canvasActors: [], // Add canvasActors to initial state
   }
 }
 
@@ -299,6 +300,8 @@ function validateAndCompleteState(state: any): CastingState {
                 },
               }))
             : [],
+          // Ensure canvasActors is an array
+          canvasActors: Array.isArray(project.canvasActors) ? project.canvasActors : [],
         }))
       : initialState.projects,
     notifications: Array.isArray(state.notifications) ? state.notifications : initialState.notifications,
@@ -2918,6 +2921,30 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
         scheduleEntries: state.scheduleEntries.filter((entry) => entry.phaseId !== action.payload),
       }
       break
+
+    case "ADD_CANVAS_ACTOR": {
+      const { projectId, canvasActor } = action.payload
+
+      newState = {
+        ...state,
+        projects: state.projects.map((project) => {
+          if (project.id === projectId) {
+            const existingCanvasActors = project.canvasActors || []
+            // Check if actor already exists on canvas
+            const alreadyOnCanvas = existingCanvasActors.some((ca) => ca.actorId === canvasActor.actorId)
+
+            if (!alreadyOnCanvas) {
+              return {
+                ...project,
+                canvasActors: [...existingCanvasActors, canvasActor],
+              }
+            }
+          }
+          return project
+        }),
+      }
+      break
+    }
 
     default:
       return state

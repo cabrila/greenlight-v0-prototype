@@ -3,23 +3,7 @@
 import type React from "react"
 
 import { useState, useMemo } from "react"
-import {
-  X,
-  Search,
-  Grid3X3,
-  List,
-  LayoutGrid,
-  SortAsc,
-  Filter,
-  Database,
-  UserPlus,
-  Mail,
-  Phone,
-  MapPin,
-  Link2,
-  Unlink,
-  Check,
-} from "lucide-react"
+import { X, Search, Grid3X3, List, LayoutGrid, SortAsc, Filter, Database, UserPlus, Mail, Phone, MapPin, Link2, Unlink, Check } from 'lucide-react'
 import { useCasting } from "@/components/casting/CastingContext"
 import { openModal } from "@/components/modals/ModalManager"
 import type { Actor } from "@/types/casting"
@@ -292,6 +276,10 @@ export default function DatabaseModal({ onClose }: DatabaseModalProps) {
 
   const handleCloseContextMenu = () => {
     setContextMenu(null)
+  }
+
+  const handleAssignToProject = (actor: Actor) => {
+    openModal("assignToProject", { actor })
   }
 
   // Render project indicator
@@ -745,55 +733,6 @@ export default function DatabaseModal({ onClose }: DatabaseModalProps) {
           }}
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="px-3 py-2 border-b border-slate-200">
-            <h3 className="text-sm font-semibold text-slate-700">Assign to Project & Character</h3>
-          </div>
-
-          <div className="max-h-[400px] overflow-y-auto">
-            {state.projects.map((project) => (
-              <div key={project.id} className="border-b border-slate-100 last:border-0">
-                <div className="px-3 py-2 bg-slate-50">
-                  <h4 className="text-xs font-semibold text-slate-600 uppercase tracking-wide">{project.name}</h4>
-                </div>
-                {project.characters.map((character) => {
-                  const actor = aggregatedActors.find((a) => a.id === contextMenu.actorId)
-                  const isAssigned = actor?.projectAssignments?.some(
-                    (a) => a.projectId === project.id && a.characterId === character.id,
-                  )
-
-                  return (
-                    <button
-                      key={character.id}
-                      onClick={() => {
-                        if (isAssigned) {
-                          handleRemoveAssignment(contextMenu.actorId, project.id, character.id)
-                        } else {
-                          handleAssignToProjectCharacter(
-                            contextMenu.actorId,
-                            project.id,
-                            project.name,
-                            character.id,
-                            character.name,
-                          )
-                        }
-                      }}
-                      className="w-full px-4 py-2 text-left hover:bg-emerald-50 transition-colors flex items-center justify-between group"
-                    >
-                      <div className="flex items-center gap-2">
-                        {isAssigned ? <Check className="w-4 h-4 text-emerald-600" /> : <div className="w-4 h-4" />}
-                        <span className="text-sm text-slate-700 group-hover:text-emerald-700">{character.name}</span>
-                      </div>
-                      {isAssigned ? (
-                        <Unlink className="w-3 h-3 text-slate-400 group-hover:text-red-500" />
-                      ) : (
-                        <Link2 className="w-3 h-3 text-slate-400 group-hover:text-emerald-500" />
-                      )}
-                    </button>
-                  )
-                })}
-              </div>
-            ))}
-          </div>
         </div>
       )}
     </div>
