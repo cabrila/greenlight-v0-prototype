@@ -31,7 +31,6 @@ export default function DatabaseModal({ onClose }: DatabaseModalProps) {
   const [showFilters, setShowFilters] = useState(false)
 
   const [selectedActors, setSelectedActors] = useState<Set<string>>(new Set())
-  const [isSelectionMode, setIsSelectionMode] = useState(false)
 
   // Filter state
   const [genderFilter, setGenderFilter] = useState<string[]>([])
@@ -285,13 +284,6 @@ export default function DatabaseModal({ onClose }: DatabaseModalProps) {
     openModal("assignToProject", { actor })
   }
 
-  const handleToggleSelectionMode = () => {
-    setIsSelectionMode(!isSelectionMode)
-    if (isSelectionMode) {
-      setSelectedActors(new Set()) // Clear selection when exiting selection mode
-    }
-  }
-
   const handleToggleActorSelection = (actorId: string) => {
     const newSelection = new Set(selectedActors)
     if (newSelection.has(actorId)) {
@@ -313,6 +305,11 @@ export default function DatabaseModal({ onClose }: DatabaseModalProps) {
   const handleBatchAssignToProject = () => {
     const actorsToAssign = filteredAndSortedActors.filter((a) => selectedActors.has(a.id))
     openModal("assignToProject", { actors: actorsToAssign })
+  }
+
+  // Handler for clearing selection
+  const handleClearSelection = () => {
+    setSelectedActors(new Set())
   }
 
   // Render project indicator
@@ -379,27 +376,25 @@ export default function DatabaseModal({ onClose }: DatabaseModalProps) {
 
     return (
       <div
-        className={`bg-white rounded-lg border-2 transition-all duration-200 overflow-hidden group relative ${
+        className={`bg-white rounded-lg border-2 transition-all duration-200 overflow-hidden group relative cursor-pointer ${
           isSelected
-            ? "border-emerald-500 shadow-lg"
+            ? "border-emerald-500 shadow-lg ring-2 ring-emerald-500 ring-opacity-50"
             : "border-slate-200 hover:border-emerald-300 hover:shadow-md"
         }`}
         onContextMenu={(e) => handleContextMenu(e, actor.id)}
-        onClick={() => isSelectionMode && handleToggleActorSelection(actor.id)}
+        onClick={() => handleToggleActorSelection(actor.id)}
       >
-        {isSelectionMode && (
-          <div className="absolute top-2 left-2 z-10">
-            <div
-              className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all ${
-                isSelected
-                  ? "bg-emerald-500 border-emerald-500"
-                  : "bg-white border-slate-300 group-hover:border-emerald-400"
-              }`}
-            >
-              {isSelected && <Check className="w-4 h-4 text-white" />}
-            </div>
+        <div className={`absolute top-2 left-2 z-10 transition-opacity duration-200 ${isSelected ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}>
+          <div
+            className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all ${
+              isSelected
+                ? "bg-emerald-500 border-emerald-500 scale-110"
+                : "bg-white border-slate-300 group-hover:border-emerald-400"
+            }`}
+          >
+            {isSelected && <Check className="w-4 h-4 text-white" />}
           </div>
-        )}
+        </div>
 
         <div className="flex items-center gap-3 p-3">
           {/* Thumbnail */}
@@ -477,7 +472,7 @@ export default function DatabaseModal({ onClose }: DatabaseModalProps) {
                 <h1 className="text-2xl font-bold text-slate-900">Actor Database</h1>
                 <p className="text-sm text-slate-500">
                   {filteredAndSortedActors.length} of {aggregatedActors.length} actors
-                  {isSelectionMode && selectedActors.size > 0 && (
+                  {selectedActors.size > 0 && (
                     <span className="ml-2 text-emerald-600 font-semibold">
                       • {selectedActors.size} selected
                     </span>
@@ -494,7 +489,7 @@ export default function DatabaseModal({ onClose }: DatabaseModalProps) {
         </div>
       </div>
 
-      {isSelectionMode && selectedActors.size > 0 && (
+      {selectedActors.size > 0 && (
         <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 border-b border-emerald-700 shadow-lg">
           <div className="max-w-[1920px] mx-auto px-6 py-3">
             <div className="flex items-center justify-between">
@@ -508,6 +503,12 @@ export default function DatabaseModal({ onClose }: DatabaseModalProps) {
                   className="px-3 py-1.5 bg-white/20 hover:bg-white/30 text-white text-sm font-medium rounded-lg transition-colors"
                 >
                   {selectedActors.size === filteredAndSortedActors.length ? "Deselect All" : "Select All"}
+                </button>
+                <button
+                  onClick={handleClearSelection}
+                  className="px-3 py-1.5 bg-white/20 hover:bg-white/30 text-white text-sm font-medium rounded-lg transition-colors"
+                >
+                  Clear Selection
                 </button>
               </div>
               <button
@@ -534,18 +535,6 @@ export default function DatabaseModal({ onClose }: DatabaseModalProps) {
               >
                 <UserPlus className="w-4 h-4" />
                 <span className="font-medium">Add Actor</span>
-              </button>
-
-              <button
-                onClick={handleToggleSelectionMode}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all shadow-sm hover:shadow-md font-medium ${
-                  isSelectionMode
-                    ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white"
-                    : "bg-white text-slate-700 border-2 border-slate-300 hover:border-emerald-500"
-                }`}
-              >
-                <Check className="w-4 h-4" />
-                <span>{isSelectionMode ? "Exit Selection" : "Select Multiple"}</span>
               </button>
 
               <div className="w-px h-6 bg-slate-300"></div>
