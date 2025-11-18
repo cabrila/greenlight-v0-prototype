@@ -2,32 +2,9 @@
 
 import { useState } from "react"
 import { useCasting } from "@/components/casting/CastingContext"
-import {
-  X,
-  Users,
-  User,
-  Star,
-  Clock,
-  CheckCircle,
-  AlertCircle,
-  Download,
-  Search,
-  Eye,
-  FileText,
-  FileSpreadsheet,
-  Loader2,
-} from "lucide-react"
+import { X, Users, User, Star, Clock, CheckCircle, AlertCircle, Download, Search, Eye, FileText, FileSpreadsheet, Loader2 } from 'lucide-react'
 import type { Character } from "@/types/casting"
-import { jsPDF } from "jspdf"
 
-// Fix for jspdf-autotable
-import "jspdf-autotable"
-// Add the missing type declaration for jsPDF with autoTable
-declare module "jspdf" {
-  interface jsPDF {
-    autoTable: (options: any) => jsPDF
-  }
-}
 
 interface CastingBreakdownModalProps {
   onClose: () => void
@@ -199,6 +176,10 @@ export default function CastingBreakdownModal({ onClose }: CastingBreakdownModal
     try {
       setIsExporting("pdf")
 
+      // Dynamic import to avoid MIME type error
+      const { jsPDF } = await import("jspdf")
+      await import("jspdf-autotable")
+
       // Create a new PDF document
       const doc = new jsPDF({
         orientation: "portrait",
@@ -344,31 +325,26 @@ export default function CastingBreakdownModal({ onClose }: CastingBreakdownModal
             }
 
             try {
-              // Try using autoTable
-              doc.autoTable({
-                head: headers,
-                body: longListData,
-                startY: yPosition,
-                margin: { left: 17 },
-                theme: "grid",
-                headStyles: { fillColor: [39, 174, 96] },
-                styles: { fontSize: 8 },
-                columnStyles: {
-                  4: {
-                    cellCallback: (cell: any, data: any) => {
-                      if (cell.text[0] === "Greenlit") {
-                        cell.styles.fillColor = [46, 204, 113, 0.3]
-                      }
-                    },
-                  },
-                },
-              })
+              // Try using autoTable if available
+              if (typeof (doc as any).autoTable === "function") {
+                // @ts-ignore - jspdf-autotable types
+                doc.autoTable({
+                  head: headers,
+                  body: longListData,
+                  startY: yPosition,
+                  margin: { left: 17 },
+                  theme: "grid",
+                  headStyles: { fillColor: [39, 174, 96] },
+                  styles: { fontSize: 8 },
+                })
 
-              // @ts-ignore - jspdf-autotable types
-              yPosition = (doc as any).lastAutoTable.finalY + 10
+                // @ts-ignore - jspdf-autotable types
+                yPosition = doc.lastAutoTable.finalY + 10
+              } else {
+                yPosition = createSimpleTable(headers, longListData, yPosition) + 10
+              }
             } catch (e) {
               // Fallback to simple table if autoTable fails
-              console.warn("autoTable failed, using fallback table:", e)
               yPosition = createSimpleTable(headers, longListData, yPosition) + 10
             }
           }
