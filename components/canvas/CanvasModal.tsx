@@ -1501,7 +1501,7 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
                 transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
                 transformOrigin: "0 0",
                 willChange: isDragging || isZooming ? "transform" : "auto",
-                transition: isDragging || isZooming ? "none" : "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                transition: isDragging || isZooming ? "transform 0s linear" : "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
               }}
             >
               {/* Grid Pattern */}
@@ -1539,7 +1539,7 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
                     groupColor={group?.color}
                     viewMode={actorCardView}
                     onDrag={handleActorDrag}
-                    onCharacterNameChange={handleCharacterNameNameChange}
+                    onCharacterNameChange={handleCharacterNameChange}
                     onContextMenu={handleContextMenu}
                     onSelect={handleActorSelect}
                     characterId={currentCharacter?.id}
