@@ -3,19 +3,7 @@
 import type React from "react"
 import { useEffect } from "react"
 import { useCasting } from "@/components/casting/CastingContext"
-import {
-  Search,
-  Grid3X3,
-  List,
-  LayoutGrid,
-  SortAsc,
-  Filter,
-  Plus,
-  Upload,
-  Bookmark,
-  Play,
-  RectangleVertical,
-} from "lucide-react"
+import { Search, Grid3X3, List, LayoutGrid, SortAsc, Filter, Plus, Upload, Bookmark, Play, RectangleVertical, Save } from 'lucide-react'
 import { useState } from "react"
 import { openModal } from "@/components/modals/ModalManager"
 import TerminologyContextMenu from "@/components/ui/TerminologyContextMenu"
@@ -244,6 +232,42 @@ export default function ViewControls() {
     })
   }
 
+  const handleQuickSaveSearch = () => {
+    // Check if there's content to save
+    const hasContent = searchTags.length > 0 || searchTerm.trim().length > 0
+    if (!hasContent) return
+
+    // Generate a name based on content
+    let searchName = ""
+    if (searchTerm.trim()) {
+      searchName = `"${searchTerm.trim()}"`
+    }
+    if (searchTags.length > 0) {
+      const tagNames = searchTags.map((tag) => tag.text).join(", ")
+      searchName = searchName ? `${searchName} + ${tagNames}` : tagNames
+    }
+
+    // Add timestamp for uniqueness
+    const timestamp = new Date().toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+    })
+    searchName = `${searchName} (${timestamp})`
+
+    dispatch({
+      type: "SAVE_CURRENT_SEARCH",
+      payload: {
+        name: searchName,
+        isGlobal: false,
+      },
+    })
+
+    // Show brief success indication (optional - UI feedback)
+    console.log("[v0] Quick saved search:", searchName)
+  }
+
+  const hasSearchContent = searchTags.length > 0 || searchTerm.trim().length > 0
+
   return (
     <div className="space-y-3">
       {/* Main Controls Container - Responsive Layout */}
@@ -377,8 +401,21 @@ export default function ViewControls() {
           {/* Right Section - Search Field with Saved Searches */}
           <div className="flex items-center gap-2 flex-shrink-0 w-full lg:w-auto lg:min-w-[300px] lg:max-w-[400px]">
             <button
-              onClick={() => setShowSavedSearches(!showSavedSearches)}
+              onClick={handleQuickSaveSearch}
+              disabled={!hasSearchContent}
               className={`p-2 rounded-lg border transition-all duration-200 flex-shrink-0 ${
+                hasSearchContent
+                  ? "bg-emerald-50 border-emerald-300 text-emerald-700 hover:bg-emerald-100 hover:border-emerald-400"
+                  : "bg-slate-50 border-slate-200 text-slate-400 cursor-not-allowed"
+              }`}
+              title={hasSearchContent ? "Save current search" : "Enter search terms or tags to save"}
+            >
+              <Save className="w-4 h-4" />
+            </button>
+
+            <button
+              onClick={() => setShowSavedSearches(!showSavedSearches)}
+              className={`p-2 rounded-lg border transition-all duration-200 flex-shrink-0 relative ${
                 showSavedSearches || savedSearches.length > 0
                   ? "bg-blue-50 border-blue-300 text-blue-700"
                   : "bg-white border-slate-300 text-slate-600 hover:text-slate-800 hover:border-slate-400"
