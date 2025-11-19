@@ -23,7 +23,7 @@ export default function TopMenuBar() {
             <div className="p-2 bg-emerald-600 rounded-lg">
               <Clapperboard className="w-6 h-6 text-white" />
             </div>
-            <h1 className="text-2xl font-bold text-emerald-600 tracking-wide">GREENLIGHT</h1>
+            <h1 className="text-2xl font-bold text-emerald-600 tracking-wide">GOGREENLIGHT</h1>
           </div>
 
           {/* Center Menu */}

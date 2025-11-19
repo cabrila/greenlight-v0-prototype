@@ -1000,15 +1000,15 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
             let isGreenlit = false
             let isCast = false
 
-            // Special handling for Approval list - greenlight when ALL users vote Yes
+            // Special handling for Approval list - gogreenlight when ALL users vote Yes
             if (actor.currentListKey === "approval" && yesVotes === totalUsers && totalUsers > 0) {
               consensusAction = { type: "yes", isGreenlit: true }
               isGreenlit = true
               isCast = true
 
-              // Create greenlight notification and add it to the notifications array
-              const greenlightNotification = {
-                id: `greenlight-${Date.now()}-${Math.random()}`,
+              // Create gogreenlight notification and add it to the notifications array
+              const gogreenlightNotification = {
+                id: `gogreenlight-${Date.now()}-${Math.random()}`,
                 type: "system" as const,
                 title: "Actor Greenlit!",
                 message: `🎉 ${actorName} has been officially cast as ${characterName}! All team members voted Yes.`,
@@ -1019,7 +1019,7 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
                 characterId,
               }
 
-              newNotifications = [greenlightNotification, ...newNotifications]
+              newNotifications = [gogreenlightNotification, ...newNotifications]
             } else if (yesVotes === totalUsers && actor.currentListKey !== "approval" && totalUsers > 0) {
               const currentTabIndex = state.tabDefinitions.findIndex((t) => t.key === actor.currentListKey)
               const nextTab = state.tabDefinitions[currentTabIndex + 1]

@@ -1,25 +1,10 @@
 "use client"
 
 import type React from "react"
-import { Calendar } from "lucide-react"
+import { Calendar } from 'lucide-react'
 
 import { useCasting } from "@/components/casting/CastingContext"
-import {
-  Trash2,
-  ChevronLeft,
-  ChevronRight,
-  User,
-  Settings,
-  Eye,
-  Database,
-  HelpCircle,
-  Sparkles,
-  Clapperboard,
-  Folder,
-  FileText,
-  Users,
-  Bell,
-} from "lucide-react"
+import { Trash2, ChevronLeft, ChevronRight, User, Settings, Eye, Database, HelpCircle, Sparkles, Clapperboard, Folder, FileText, Users, Bell } from 'lucide-react'
 import { openModal } from "@/components/modals/ModalManager"
 import { useState, useEffect, useRef } from "react"
 import { mockData } from "@/lib/mockData"
@@ -138,7 +123,7 @@ export default function Sidebar() {
   const handleClearCache = () => {
     // Set flag to show splash screen after cache clear
     if (typeof window !== "undefined") {
-      localStorage.setItem("greenlight-cache-cleared", "true")
+      localStorage.setItem("gogreenlight-cache-cleared", "true")
     }
     openModal("clearCache")
   }
@@ -233,7 +218,7 @@ export default function Sidebar() {
             <div className="p-2 bg-emerald-600 rounded-lg">
               <Clapperboard className="w-6 h-6 text-white" />
             </div>
-            <h1 className="text-2xl font-bold text-emerald-600 tracking-wide">GREENLIGHT</h1>
+            <h1 className="text-2xl font-bold text-emerald-600 tracking-wide">GOGREENLIGHT</h1>
           </div>
         ) : (
           <div className="flex justify-center">

@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useCasting } from "@/components/casting/CastingContext"
-import { AlertTriangle, Trash2, X } from "lucide-react"
+import { AlertTriangle, Trash2, X } from 'lucide-react'
 import { getStorageSize } from "@/utils/localStorage"
 
 interface ClearCacheModalProps {
@@ -17,7 +17,7 @@ export default function ClearCacheModal({ onClose }: ClearCacheModalProps) {
   const handleClearCache = () => {
     // Flag so splash screen shows on next load
     if (typeof window !== "undefined") {
-      localStorage.setItem("greenlight-cache-cleared", "true")
+      localStorage.setItem("gogreenlight-cache-cleared", "true")
     }
 
     // Initial (blank) data – import or customise as needed
