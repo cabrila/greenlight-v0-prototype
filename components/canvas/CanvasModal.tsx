@@ -1055,12 +1055,9 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
   // Get current character and user details for voting functionality
   const currentCharacter = currentProject?.characters.find((c) => c.id === state.currentFocus.characterId)
 
-  const handleAddDatabaseActorToCanvas = (actorId: string) => {
-    const actor = uniqueActors.find((a) => a.id === actorId)
-    if (!actor) return
-
+  const handleAddActorToCanvas = (actor: any) => {
     // Check if actor is already on canvas
-    const alreadyOnCanvas = canvasActors.some((ca) => ca.actorId === actorId)
+    const alreadyOnCanvas = canvasActors.some((ca) => ca.actorId === actor.id)
     if (alreadyOnCanvas) {
       alert(`${actor.name} is already on the canvas`)
       return
@@ -1418,99 +1415,8 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
                 </button>
               </div>
 
-              {/* Character Multi-Select Dropdown */}
-              <div className="p-4 border-b border-slate-200 bg-slate-50">
-                <div className="relative">
-                  <button
-                    onClick={() => {
-                      // Toggle dropdown
-                      const dropdown = document.getElementById('character-dropdown')
-                      if (dropdown) {
-                        dropdown.classList.toggle('hidden')
-                      }
-                    }}
-                    className="w-full flex items-center justify-between px-3 py-2 bg-white border border-slate-300 rounded-lg hover:border-indigo-400 transition-colors"
-                  >
-                    <div className="flex items-center space-x-2 flex-1 min-w-0">
-                      <Users className="w-4 h-4 text-slate-500 flex-shrink-0" />
-                      <span className="text-sm text-slate-700 truncate">
-                        {selectedCharacterIds.length === 0
-                          ? 'All Characters'
-                          : selectedCharacterIds.length === currentProject?.characters.length
-                          ? 'All Characters'
-                          : `${selectedCharacterIds.length} Character${selectedCharacterIds.length !== 1 ? 's' : ''}`}
-                      </span>
-                    </div>
-                    <ChevronDown className="w-4 h-4 text-slate-400 flex-shrink-0" />
-                  </button>
-
-                  {/* Dropdown Menu */}
-                  <div
-                    id="character-dropdown"
-                    className="hidden absolute top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded-lg shadow-lg z-50 max-h-64 overflow-y-auto"
-                  >
-                    <div className="p-2 border-b border-slate-200 flex items-center justify-between">
-                      <button
-                        onClick={handleSelectAllCharacters}
-                        className="text-xs text-indigo-600 hover:text-indigo-700 font-medium"
-                      >
-                        Select All
-                      </button>
-                      {selectedCharacterIds.length > 0 && (
-                        <button
-                          onClick={handleClearCharacterSelection}
-                          className="text-xs text-slate-600 hover:text-slate-700 font-medium"
-                        >
-                          Clear
-                        </button>
-                      )}
-                    </div>
-                    {currentProject?.characters.map((char) => (
-                      <label
-                        key={char.id}
-                        className="flex items-center space-x-2 px-3 py-2 hover:bg-slate-50 cursor-pointer"
-                      >
-                        <input
-                          type="checkbox"
-                          checked={selectedCharacterIds.includes(char.id)}
-                          onChange={() => handleCharacterToggle(char.id)}
-                          className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 w-4 h-4"
-                        />
-                        <span className="text-sm text-slate-700 flex-1">{char.name}</span>
-                        <span className="text-xs text-slate-500">
-                          {/* Count actors for this character */}
-                          {allActors.filter(a => a.sourceCharacterId === char.id).length}
-                        </span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Filters Button and Search */}
-              <div className="p-4 border-b border-slate-200 space-y-3">
-                {/* Filters Toggle */}
-                <button
-                  onClick={() => setShowFilters(!showFilters)}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-lg border transition-all ${
-                    showFilters
-                      ? 'bg-indigo-50 border-indigo-300 text-indigo-700'
-                      : 'bg-white border-slate-300 text-slate-600 hover:border-slate-400'
-                  }`}
-                >
-                  <div className="flex items-center space-x-2">
-                    <Filter className="w-4 h-4" />
-                    <span className="text-sm font-medium">Filters</span>
-                    {activeFiltersCount > 0 && (
-                      <span className="bg-indigo-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                        {activeFiltersCount}
-                      </span>
-                    )}
-                  </div>
-                  <ChevronDown className={`w-4 h-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
-                </button>
-
-                {/* Search */}
+              {/* Search */}
+              <div className="p-4 border-b border-slate-200">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                   <input
@@ -1523,182 +1429,53 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
                 </div>
               </div>
 
-              {/* Expanded Filters Panel */}
-              {showFilters && (
-                <div className="p-4 border-b border-slate-200 bg-slate-50 space-y-4">
-                  {/* Clear All Filters */}
-                  {activeFiltersCount > 0 && (
-                    <div className="flex justify-end">
-                      <button
-                        onClick={handleClearAllFilters}
-                        className="text-xs text-indigo-600 hover:text-indigo-700 font-medium"
-                      >
-                        Clear All Filters ({activeFiltersCount})
-                      </button>
-                    </div>
-                  )}
-
-                  {/* Status Filter */}
-                  <div>
-                    <h4 className="text-xs font-semibold text-slate-700 mb-2 flex items-center">
-                      Status
-                      {canvasFilters.status.length > 0 && (
-                        <span className="ml-2 bg-indigo-100 text-indigo-700 text-xs px-2 py-0.5 rounded-full">
-                          {canvasFilters.status.length}
-                        </span>
-                      )}
-                    </h4>
-                    <div className="space-y-2 max-h-32 overflow-y-auto pr-2">
-                      {state.predefinedStatuses.map((status) => (
-                        <label key={status.id} className="flex items-center space-x-2 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={canvasFilters.status.includes(status.id)}
-                            onChange={() => handleStatusFilterChange(status.id)}
-                            className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 w-3 h-3"
-                          />
-                          <span
-                            className="text-xs px-2 py-0.5 rounded-md font-medium"
-                            style={{
-                              backgroundColor: status.bgColor.replace('bg-', ''),
-                              color: status.textColor.replace('text-', ''),
-                            }}
-                          >
-                            {status.label}
-                          </span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Age Range Filter */}
-                  <div>
-                    <h4 className="text-xs font-semibold text-slate-700 mb-2 flex items-center">
-                      Age Range
-                      {(canvasFilters.ageRange.min > 0 || canvasFilters.ageRange.max < 100) && (
-                        <span className="ml-2 bg-indigo-100 text-indigo-700 text-xs px-2 py-0.5 rounded-full">
-                          Active
-                        </span>
-                      )}
-                    </h4>
-                    <div className="space-y-3">
-                      <div>
-                        <label className="text-xs text-slate-600 mb-1 block">
-                          Min: <span className="font-semibold">{canvasFilters.ageRange.min}</span>
-                        </label>
-                        <input
-                          type="range"
-                          min="0"
-                          max="100"
-                          value={canvasFilters.ageRange.min}
-                          onChange={(e) => handleAgeRangeChange('min', Number(e.target.value))}
-                          className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-xs text-slate-600 mb-1 block">
-                          Max: <span className="font-semibold">{canvasFilters.ageRange.max}</span>
-                        </label>
-                        <input
-                          type="range"
-                          min="0"
-                          max="100"
-                          value={canvasFilters.ageRange.max}
-                          onChange={(e) => handleAgeRangeChange('max', Number(e.target.value))}
-                          className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Location Filter */}
-                  <div>
-                    <h4 className="text-xs font-semibold text-slate-700 mb-2 flex items-center">
-                      Location
-                      {canvasFilters.location.length > 0 && (
-                        <span className="ml-2 bg-indigo-100 text-indigo-700 text-xs px-2 py-0.5 rounded-full">
-                          {canvasFilters.location.length}
-                        </span>
-                      )}
-                    </h4>
-                    <div className="space-y-2 max-h-32 overflow-y-auto pr-2">
-                      {uniqueLocations.length > 0 ? (
-                        uniqueLocations.map((location) => (
-                          <label key={location} className="flex items-center space-x-2 cursor-pointer">
-                            <input
-                              type="checkbox"
-                              checked={canvasFilters.location.includes(location)}
-                              onChange={() => handleLocationFilterChange(location)}
-                              className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 w-3 h-3"
-                            />
-                            <span className="text-xs text-slate-600 truncate">{location}</span>
-                          </label>
-                        ))
-                      ) : (
-                        <div className="text-xs text-slate-500 italic">No locations available</div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Actor List */}
-              <div className="flex-1 overflow-y-auto p-2">
-                <div className="space-y-2">
+              {/* Actors Grid */}
+              <div className="flex-1 overflow-y-auto p-4">
+                <div className="grid grid-cols-2 gap-3">
                   {filteredActors.length > 0 ? (
                     filteredActors.map((actor) => {
                       const isOnCanvas = canvasActors.some((ca) => ca.actorId === actor.id)
-                      
                       return (
-                        <button
+                        <div
                           key={actor.id}
-                          onClick={() => !isOnCanvas && handleAddDatabaseActorToCanvas(actor.id)}
-                          disabled={isOnCanvas}
-                          className={`w-full bg-slate-50 rounded-lg p-3 transition-all border ${
+                          className={`relative bg-white rounded-lg border-2 transition-all ${
                             isOnCanvas
-                              ? "opacity-50 cursor-not-allowed border-slate-200"
-                              : "hover:bg-indigo-50 hover:border-indigo-300 border-slate-200 cursor-pointer"
+                              ? 'border-emerald-300 bg-emerald-50 opacity-50'
+                              : 'border-slate-200 hover:border-indigo-400 hover:shadow-md cursor-pointer'
                           }`}
+                          onClick={() => !isOnCanvas && handleAddActorToCanvas(actor)}
                         >
-                          <div className="flex items-center space-x-3">
+                          <div className="aspect-[3/4] relative rounded-t-lg overflow-hidden">
                             <img
-                              src={actor.headshots?.[0] || "/placeholder.svg?height=40&width=40"}
+                              src={actor.headshots?.[0] || '/placeholder.svg?height=200&width=150'}
                               alt={actor.name}
-                              className="w-10 h-10 rounded-full object-cover border border-gray-200"
+                              className="w-full h-full object-cover"
                             />
-                            <div className="flex-1 min-w-0 text-left">
-                              <div className="font-medium text-gray-800 truncate flex items-center gap-2">
-                                {actor.name}
-                                {isOnCanvas && (
-                                  <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">
-                                    On Canvas
-                                  </span>
-                                )}
+                            {isOnCanvas && (
+                              <div className="absolute inset-0 bg-emerald-500/20 flex items-center justify-center">
+                                <div className="bg-emerald-500 text-white px-2 py-1 rounded-full text-xs font-medium">
+                                  On Canvas
+                                </div>
                               </div>
-                              <div className="text-xs text-gray-500 truncate">From: {actor.sourceCharacter}</div>
-                              {actor.age && <div className="text-xs text-gray-400">Age: {actor.age}</div>}
-                            </div>
+                            )}
                           </div>
-                        </button>
+                          <div className="p-2">
+                            <div className="font-medium text-sm text-slate-900 truncate">{actor.name}</div>
+                            <div className="text-xs text-slate-500 truncate">{actor.sourceCharacter}</div>
+                            {actor.age && <div className="text-xs text-slate-400">Age: {actor.age}</div>}
+                          </div>
+                        </div>
                       )
                     })
                   ) : (
-                    <div className="text-center text-gray-500 py-8">
-                      <div className="text-sm">
-                        {activeFiltersCount > 0 || searchQuery || selectedCharacterIds.length > 0
-                          ? "No actors match your filters"
-                          : "No actors available"}
-                      </div>
-                      {(activeFiltersCount > 0 || selectedCharacterIds.length > 0) && (
+                    <div className="col-span-2 text-center text-slate-500 py-8">
+                      <div className="text-sm">No actors found</div>
+                      {searchQuery && (
                         <button
-                          onClick={() => {
-                            handleClearAllFilters()
-                            handleClearCharacterSelection()
-                            setSearchQuery('')
-                          }}
-                          className="text-indigo-600 hover:text-indigo-700 text-sm mt-2 font-medium"
+                          onClick={() => setSearchQuery('')}
+                          className="text-indigo-600 hover:text-indigo-700 text-sm mt-2"
                         >
-                          Clear all filters
+                          Clear search
                         </button>
                       )}
                     </div>
@@ -1762,7 +1539,7 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
                     groupColor={group?.color}
                     viewMode={actorCardView}
                     onDrag={handleActorDrag}
-                    onCharacterNameChange={handleCharacterNameChange}
+                    onCharacterNameChange={handleCharacterNameNameChange}
                     onContextMenu={handleContextMenu}
                     onSelect={handleActorSelect}
                     characterId={currentCharacter?.id}
@@ -1822,7 +1599,7 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
             <div className="p-4 border-b border-gray-200 flex items-center justify-between">
               {!sidebarCollapsed && (
                 <>
-                  <h3 className="font-semibold text-gray-800">Available Actors</h3>
+                  <h3 className="font-semibold text-gray-800">Canvas Actors</h3>
                   {canvasActors.length > 0 && (
                     <button
                       onClick={handleSelectAll}
@@ -1842,6 +1619,214 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
                 {sidebarCollapsed ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
               </button>
             </div>
+
+            {!sidebarCollapsed && (
+              <div className="p-4 border-b border-slate-200 bg-slate-50">
+                <div className="relative">
+                  <button
+                    onClick={() => {
+                      const dropdown = document.getElementById('character-dropdown')
+                      if (dropdown) {
+                        dropdown.classList.toggle('hidden')
+                      }
+                    }}
+                    className="w-full flex items-center justify-between px-3 py-2 bg-white border border-slate-300 rounded-lg hover:border-indigo-400 transition-colors"
+                  >
+                    <div className="flex items-center space-x-2 flex-1 min-w-0">
+                      <Users className="w-4 h-4 text-slate-500 flex-shrink-0" />
+                      <span className="text-sm text-slate-700 truncate">
+                        {selectedCharacterIds.length === 0
+                          ? 'All Characters'
+                          : selectedCharacterIds.length === currentProject?.characters.length
+                          ? 'All Characters'
+                          : `${selectedCharacterIds.length} Character${selectedCharacterIds.length !== 1 ? 's' : ''}`}
+                      </span>
+                    </div>
+                    <ChevronDown className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                  </button>
+
+                  <div
+                    id="character-dropdown"
+                    className="hidden absolute top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded-lg shadow-lg z-50 max-h-64 overflow-y-auto"
+                  >
+                    <div className="p-2 border-b border-slate-200 flex items-center justify-between">
+                      <button
+                        onClick={handleSelectAllCharacters}
+                        className="text-xs text-indigo-600 hover:text-indigo-700 font-medium"
+                      >
+                        Select All
+                      </button>
+                      {selectedCharacterIds.length > 0 && (
+                        <button
+                          onClick={handleClearCharacterSelection}
+                          className="text-xs text-slate-600 hover:text-slate-700 font-medium"
+                        >
+                          Clear
+                        </button>
+                      )}
+                    </div>
+                    {currentProject?.characters.map((char) => (
+                      <label
+                        key={char.id}
+                        className="flex items-center space-x-2 px-3 py-2 hover:bg-slate-50 cursor-pointer"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedCharacterIds.includes(char.id)}
+                          onChange={() => handleCharacterToggle(char.id)}
+                          className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 w-4 h-4"
+                        />
+                        <span className="text-sm text-slate-700 flex-1">{char.name}</span>
+                        <span className="text-xs text-slate-500">
+                          {allActors.filter(a => a.sourceCharacterId === char.id).length}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {!sidebarCollapsed && (
+              <div className="border-b border-slate-200">
+                {/* Filters Toggle Button */}
+                <div className="p-4">
+                  <button
+                    onClick={() => setShowFilters(!showFilters)}
+                    className={`w-full flex items-center justify-between px-3 py-2 rounded-lg border transition-all ${
+                      showFilters
+                        ? 'bg-indigo-50 border-indigo-300 text-indigo-700'
+                        : 'bg-white border-slate-300 text-slate-600 hover:border-slate-400'
+                    }`}
+                  >
+                    <div className="flex items-center space-x-2">
+                      <Filter className="w-4 h-4" />
+                      <span className="text-sm font-medium">Filters</span>
+                      {activeFiltersCount > 0 && (
+                        <span className="bg-indigo-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                          {activeFiltersCount}
+                        </span>
+                      )}
+                    </div>
+                    <ChevronDown className={`w-4 h-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
+                  </button>
+                </div>
+
+                {/* Expanded Filters Panel */}
+                {showFilters && (
+                  <div className="px-4 pb-4 space-y-4 bg-slate-50">
+                    {/* Clear All Filters */}
+                    {activeFiltersCount > 0 && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs text-slate-600 font-medium">Active Filters</span>
+                        <button
+                          onClick={() => {
+                            setCanvasFilters({
+                              status: [],
+                              ageRange: { min: 0, max: 100 },
+                              location: [],
+                            })
+                          }}
+                          className="text-xs text-indigo-600 hover:text-indigo-700 font-medium"
+                        >
+                          Clear All
+                        </button>
+                      </div>
+                    )}
+
+                    {/* Status Filter */}
+                    <div>
+                      <label className="block text-xs font-medium text-slate-700 mb-2">Status</label>
+                      <div className="space-y-2 max-h-32 overflow-y-auto">
+                        {state.statusDefinitions.map((status) => (
+                          <label key={status.id} className="flex items-center space-x-2 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={canvasFilters.status.includes(status.id)}
+                              onChange={() => {
+                                setCanvasFilters((prev) => ({
+                                  ...prev,
+                                  status: prev.status.includes(status.id)
+                                    ? prev.status.filter((s) => s !== status.id)
+                                    : [...prev.status, status.id],
+                                }))
+                              }}
+                              className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 w-4 h-4"
+                            />
+                            <span className="text-sm text-slate-700">{status.name}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Age Range Filter */}
+                    <div>
+                      <label className="block text-xs font-medium text-slate-700 mb-2">Age Range</label>
+                      <div className="space-y-2">
+                        <div className="flex items-center space-x-2">
+                          <input
+                            type="number"
+                            min="0"
+                            max="100"
+                            value={canvasFilters.ageRange.min}
+                            onChange={(e) => {
+                              const value = parseInt(e.target.value) || 0
+                              setCanvasFilters((prev) => ({
+                                ...prev,
+                                ageRange: { ...prev.ageRange, min: value },
+                              }))
+                            }}
+                            className="w-20 px-2 py-1 border border-slate-300 rounded text-sm"
+                          />
+                          <span className="text-slate-500 text-sm">to</span>
+                          <input
+                            type="number"
+                            min="0"
+                            max="100"
+                            value={canvasFilters.ageRange.max}
+                            onChange={(e) => {
+                              const value = parseInt(e.target.value) || 100
+                              setCanvasFilters((prev) => ({
+                                ...prev,
+                                ageRange: { ...prev.ageRange, max: value },
+                              }))
+                            }}
+                            className="w-20 px-2 py-1 border border-slate-300 rounded text-sm"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Location Filter */}
+                    {uniqueLocations.length > 0 && (
+                      <div>
+                        <label className="block text-xs font-medium text-slate-700 mb-2">Location</label>
+                        <div className="space-y-2 max-h-32 overflow-y-auto">
+                          {uniqueLocations.map((location) => (
+                            <label key={location} className="flex items-center space-x-2 cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={canvasFilters.location.includes(location)}
+                                onChange={() => {
+                                  setCanvasFilters((prev) => ({
+                                    ...prev,
+                                    location: prev.location.includes(location)
+                                      ? prev.location.filter((l) => l !== location)
+                                      : [...prev.location, location],
+                                  }))
+                                }}
+                                className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 w-4 h-4"
+                              />
+                              <span className="text-sm text-slate-700">{location}</span>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
 
             {!sidebarCollapsed && savedCanvases.length > 0 && (
               <div className="p-4 border-b border-gray-200">
