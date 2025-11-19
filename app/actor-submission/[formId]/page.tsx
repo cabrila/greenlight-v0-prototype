@@ -38,7 +38,7 @@ export default function ActorSubmissionForm() {
   const projectId = searchParams.get("project")
 
   const [formData, setFormData] = useState<FormData>({
-    name: "",
+    name: " ",
     age: "",
     gender: "",
     ethnicity: "",
