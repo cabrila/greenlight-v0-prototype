@@ -28,13 +28,6 @@ export default function SavedSearchesManager({ onClose, className }: SavedSearch
   const handleSaveCurrentSearch = () => {
     if (!hasSearchContent || !newSearchName.trim()) return
 
-    console.log("[v0] Saving search:", {
-      name: newSearchName.trim(),
-      isGlobal,
-      searchTags: searchTags.length,
-      searchTerm: searchTerm.length,
-    })
-
     dispatch({
       type: "SAVE_CURRENT_SEARCH",
       payload: {
@@ -42,8 +35,6 @@ export default function SavedSearchesManager({ onClose, className }: SavedSearch
         isGlobal,
       },
     })
-
-    console.log("[v0] Search save dispatched successfully")
 
     setNewSearchName("")
     setIsGlobal(false)

@@ -770,8 +770,6 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
         isGlobal,
       }
 
-      console.log("[v0] Creating saved search:", newSavedSearch)
-
       newState = {
         ...state,
         currentFocus: {
@@ -779,8 +777,6 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
           savedSearches: [...state.currentFocus.savedSearches, newSavedSearch],
         },
       }
-
-      console.log("[v0] Total saved searches after save:", newState.currentFocus.savedSearches.length)
       break
     }
 
