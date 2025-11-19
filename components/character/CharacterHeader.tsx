@@ -68,14 +68,14 @@ export default function CharacterHeader({ character }: CharacterHeaderProps) {
   return (
     <header className="bg-gradient-to-r from-white via-slate-50 to-white border-b border-slate-200/60 shadow-sm">
       <div className="px-4 py-2 md:px-6 md:py-3">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-0">
-          <div className="flex items-center space-x-3 md:space-x-4 overflow-hidden">
-            <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl md:rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0">
-              <User className="w-4 h-4 md:w-5 md:h-5 text-white" />
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 md:gap-0">
+          <div className="flex items-center space-x-2 md:space-x-3 overflow-hidden">
+            <div className="w-7 h-7 md:w-9 md:h-9 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg md:rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
+              <User className="w-3.5 h-3.5 md:w-4 md:h-4 text-white" />
             </div>
             <div className="min-w-0">
-              <h2 className="text-sm sm:text-lg md:text-xl font-bold text-slate-800 truncate flex items-center gap-1">
-                <span className="whitespace-nowrap text-slate-500 font-semibold text-xs sm:text-sm uppercase tracking-tight">Casting for:</span>
+              <h2 className="text-sm sm:text-base md:text-lg font-bold text-slate-800 truncate flex items-center gap-1">
+                <span className="whitespace-nowrap text-slate-500 font-semibold text-[10px] sm:text-xs uppercase tracking-tighter">Casting for:</span>
                 <span
                   className="text-emerald-600 cursor-pointer hover:text-emerald-700 hover:underline transition-all duration-200 decoration-2 underline-offset-2 truncate"
                   onClick={showCharacterDetails}
@@ -87,37 +87,37 @@ export default function CharacterHeader({ character }: CharacterHeaderProps) {
             </div>
           </div>
 
-          <div className="flex items-center gap-2 md:gap-4 overflow-x-auto pb-1 md:pb-0 no-scrollbar">
+          <div className="flex items-center gap-1.5 md:gap-3 overflow-x-auto pb-1 md:pb-0 no-scrollbar mask-linear-fade">
             {/* Total Actors */}
-            <div className="flex items-center gap-1.5 md:gap-2 rounded-xl bg-slate-50/50 border border-slate-100 px-2 py-1 md:px-3 md:py-1.5 flex-shrink-0">
-              <div className="w-5 h-5 md:w-6 md:h-6 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg md:rounded-xl flex items-center justify-center flex-shrink-0">
-                <TrendingUp className="w-2.5 h-2.5 md:w-3 md:h-3 text-white" />
+            <div className="flex items-center gap-1 md:gap-1.5 rounded-lg bg-slate-50/50 border border-slate-100 px-1.5 py-0.5 md:px-2 md:py-1 flex-shrink-0">
+              <div className="w-4 h-4 md:w-5 md:h-5 bg-gradient-to-br from-blue-500 to-blue-600 rounded md:rounded-lg flex items-center justify-center flex-shrink-0">
+                <TrendingUp className="w-2 h-2 md:w-2.5 md:h-2.5 text-white" />
               </div>
-              <div className="flex items-center gap-1.5">
-                <p className="text-[10px] md:text-xs font-semibold text-slate-500 uppercase tracking-tight whitespace-nowrap leading-none">Total Actors</p>
-                <p className="text-xs md:text-sm font-bold text-slate-800 leading-none">{stats.totalActors}</p>
+              <div className="flex items-center gap-1">
+                <p className="hidden sm:block text-[9px] md:text-[10px] font-semibold text-slate-500 uppercase tracking-tighter whitespace-nowrap leading-none">Total Actors</p>
+                <p className="text-[10px] md:text-xs font-bold text-slate-800 leading-none">{stats.totalActors}</p>
               </div>
             </div>
 
             {/* Pending Decisions */}
-            <div className="flex items-center gap-1.5 md:gap-2 rounded-xl bg-slate-50/50 border border-slate-100 px-2 py-1 md:px-3 md:py-1.5 flex-shrink-0">
-              <div className="w-5 h-5 md:w-6 md:h-6 bg-gradient-to-br from-amber-500 to-amber-600 rounded-lg md:rounded-xl flex items-center justify-center flex-shrink-0">
-                <Clock className="w-2.5 h-2.5 md:w-3 md:h-3 text-white" />
+            <div className="flex items-center gap-1 md:gap-1.5 rounded-lg bg-slate-50/50 border border-slate-100 px-1.5 py-0.5 md:px-2 md:py-1 flex-shrink-0">
+              <div className="w-4 h-4 md:w-5 md:h-5 bg-gradient-to-br from-amber-500 to-amber-600 rounded md:rounded-lg flex items-center justify-center flex-shrink-0">
+                <Clock className="w-2 h-2 md:w-2.5 md:h-2.5 text-white" />
               </div>
-              <div className="flex items-center gap-1.5">
-                <p className="text-[10px] md:text-xs font-semibold text-slate-500 uppercase tracking-tight whitespace-nowrap leading-none">Pending</p>
-                <p className="text-xs md:text-sm font-bold text-slate-800 leading-none">{stats.pendingDecisions}</p>
+              <div className="flex items-center gap-1">
+                <p className="hidden sm:block text-[9px] md:text-[10px] font-semibold text-slate-500 uppercase tracking-tighter whitespace-nowrap leading-none">Pending</p>
+                <p className="text-[10px] md:text-xs font-bold text-slate-800 leading-none">{stats.pendingDecisions}</p>
               </div>
             </div>
 
             {/* Greenlit */}
-            <div className="flex items-center gap-1.5 md:gap-2 rounded-xl bg-slate-50/50 border border-slate-100 px-2 py-1 md:px-3 md:py-1.5 flex-shrink-0">
-              <div className="w-5 h-5 md:w-6 md:h-6 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg md:rounded-xl flex items-center justify-center flex-shrink-0">
-                <CheckCircle className="w-2.5 h-2.5 md:w-3 md:h-3 text-white" />
+            <div className="flex items-center gap-1 md:gap-1.5 rounded-lg bg-slate-50/50 border border-slate-100 px-1.5 py-0.5 md:px-2 md:py-1 flex-shrink-0">
+              <div className="w-4 h-4 md:w-5 md:h-5 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded md:rounded-lg flex items-center justify-center flex-shrink-0">
+                <CheckCircle className="w-2 h-2 md:w-2.5 md:h-2.5 text-white" />
               </div>
-              <div className="flex items-center gap-1.5">
-                <p className="text-[10px] md:text-xs font-semibold text-slate-500 uppercase tracking-tight whitespace-nowrap leading-none">Greenlit</p>
-                <p className="text-xs md:text-sm font-bold text-slate-800 leading-none">{stats.greenlit}</p>
+              <div className="flex items-center gap-1">
+                <p className="hidden sm:block text-[9px] md:text-[10px] font-semibold text-slate-500 uppercase tracking-tighter whitespace-nowrap leading-none">Greenlit</p>
+                <p className="text-[10px] md:text-xs font-bold text-slate-800 leading-none">{stats.greenlit}</p>
               </div>
             </div>
           </div>
