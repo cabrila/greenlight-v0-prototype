@@ -204,10 +204,6 @@ export default function ViewControls() {
     dispatch({ type: "OPEN_PLAYER_VIEW" })
   }
 
-  const handleOpenPlayerView = () => {
-    dispatch({ type: "OPEN_PLAYER_VIEW" })
-  }
-
   const sortOptions = state.sortOptionDefinitions || [
     { key: "alphabetical", label: "Alphabetical" },
     { key: "dateAdded", label: "Date Added" },
