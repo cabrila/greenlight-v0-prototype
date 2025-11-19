@@ -649,7 +649,7 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
       if (character && character.actors.shortLists.length > 0) {
         destinationShortlistId = character.actors.shortLists[0].id
       }
-    } else if (tabKey === "longList" || tabKey === "audition" || tabKey === "approval") {
+    } else if (tabKey === "longList" || tabKey === "approval") {
       destinationType = "standard"
     } else {
       destinationType = "custom"
@@ -1019,7 +1019,7 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
   }
 
   // Enhanced global mouse event listeners for smooth canvas dragging
-  const useEffect_globalMouseEvents = () => {
+  useEffect(() => {
     const handleGlobalMouseMove = (e: MouseEvent) => {
       if (isDragging) {
         const newPan = {
@@ -1057,8 +1057,7 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
       document.removeEventListener("mouseup", handleGlobalMouseUp)
       document.removeEventListener("wheel", handleGlobalWheel)
     }
-  }
-  useEffect(useEffect_globalMouseEvents, [isDragging, dragStart, handleWheel])
+  }, [isDragging, dragStart, handleWheel])
 
   // Clean up zoom timeout on unmount
   useEffect(() => {
@@ -1070,7 +1069,7 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
   }, [])
 
   // Close group transfer menu on click outside
-  const useEffect_groupTransferMenuClickOutside = () => {
+  useEffect(() => {
     const handleClickOutside = () => {
       setGroupTransferMenu(null)
     }
@@ -1079,8 +1078,7 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
       document.addEventListener("click", handleClickOutside)
       return () => document.removeEventListener("click", handleClickOutside)
     }
-  }
-  useEffect(useEffect_groupTransferMenuClickOutside, [groupTransferMenu])
+  }, [groupTransferMenu])
 
   // Get current character and user details for voting functionality
   const currentCharacter = currentProject?.characters.find((c) => c.id === state.currentFocus.characterId)
@@ -1188,6 +1186,24 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
       location: []
     })
   }
+
+  // Sort groups before rendering
+  const sortedGroups = [...canvasGroups].sort((a, b) => {
+    if (groupSortOption === "name") {
+      return groupSortDirection === "asc" ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name)
+    } else if (groupSortOption === "date") {
+      // Assuming groups have a creation timestamp or similar if you want to sort by date
+      // For now, this is a placeholder. You might need to add a 'createdAt' field to CanvasGroupProps.
+      const dateA = new Date(a.x) // Placeholder, replace with actual creation date
+      const dateB = new Date(b.x) // Placeholder, replace with actual creation date
+      return groupSortDirection === "asc" ? dateA.getTime() - dateB.getTime() : dateB.getTime() - dateA.getTime()
+    } else if (groupSortOption === "actorCount") {
+      const countA = canvasActors.filter(actor => actor.groupId === a.id).length
+      const countB = canvasActors.filter(actor => actor.groupId === b.id).length
+      return groupSortDirection === "asc" ? countA - countB : countB - countA
+    }
+    return 0
+  })
 
 
   return (
@@ -2170,16 +2186,6 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
             selectedActorIds={selectedActorIds}
             onCreateGroup={handleCreateGroup}
             onClose={() => {
-              setShowCreateGroupModal(false)
-              setSelectedActorIds([])
-            }}
-          />
-        )}
-      </div>
-    </div>
-  )
-}
-onClose={() => {
               setShowCreateGroupModal(false)
               setSelectedActorIds([])
             }}
