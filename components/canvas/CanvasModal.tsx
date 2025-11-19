@@ -62,6 +62,7 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
   })
   const [showActorNames, setShowActorNames] = useState(true)
   const [searchQuery, setSearchQuery] = useState("")
+  const [databaseSearchQuery, setDatabaseSearchQuery] = useState("") // Separate search query for database overlay
   const [showCreateGroupModal, setShowCreateGroupModal] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [isZooming, setIsZooming] = useState(false)
@@ -86,14 +87,41 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
   
   const [showFilters, setShowFilters] = useState(false)
   const [selectedCharacterIds, setSelectedCharacterIds] = useState<string[]>([])
+  
   const [canvasFilters, setCanvasFilters] = useState({
     status: [] as string[],
     ageRange: { min: 0, max: 100 },
     location: [] as string[],
   })
+  
+  // Database overlay has its own independent filters
+  const [databaseFilters, setDatabaseFilters] = useState({
+    status: [] as string[],
+    ageRange: { min: 0, max: 100 },
+    location: [] as string[],
+  })
+  const [showDatabaseFilters, setShowDatabaseFilters] = useState(false)
 
   // Get all actors from current project
   const currentProject = state.projects.find((p) => p.id === state.currentFocus.currentProjectId)
+  
+  const allProjectActors = currentProject?.characters.flatMap((char) => {
+    const actors: any[] = []
+
+    // Get actors from all lists
+    state.tabDefinitions.forEach((tabDef) => {
+      if (tabDef.key === "shortLists") {
+        char.actors.shortLists.forEach((sl) => {
+          actors.push(...sl.actors.map((actor) => ({ ...actor, sourceCharacter: char.name, sourceCharacterId: char.id })))
+        })
+      } else {
+        const listActors = char.actors[tabDef.key] || []
+        actors.push(...listActors.map((actor: any) => ({ ...actor, sourceCharacter: char.name, sourceCharacterId: char.id })))
+      }
+    })
+
+    return actors
+  }) || []
   
   const filteredCharacters = currentProject?.characters.filter(char => 
     selectedCharacterIds.length === 0 || selectedCharacterIds.includes(char.id)
@@ -120,13 +148,15 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
 
   // Remove duplicates based on actor ID
   const uniqueActors = allActors.filter((actor, index, self) => index === self.findIndex((a) => a.id === actor.id))
+  
+  const uniqueDatabaseActors = allProjectActors.filter((actor, index, self) => index === self.findIndex((a) => a.id === actor.id))
 
-  const applyFilters = (actors: any[]) => {
+  const applyFilters = (actors: any[], filters: typeof canvasFilters) => {
     return actors.filter(actor => {
       // Status filter
-      if (canvasFilters.status.length > 0) {
+      if (filters.status.length > 0) {
         const hasMatchingStatus = actor.statuses?.some((status: any) => 
-          canvasFilters.status.includes(status.id)
+          filters.status.includes(status.id)
         )
         if (!hasMatchingStatus) return false
       }
@@ -135,21 +165,31 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
       if (actor.age) {
         const actorAge = parseInt(actor.age)
         if (!isNaN(actorAge)) {
-          if (actorAge < canvasFilters.ageRange.min || actorAge > canvasFilters.ageRange.max) {
+          if (actorAge < filters.ageRange.min || actorAge > filters.ageRange.max) {
             return false
           }
         }
       }
 
       // Location filter
-      if (canvasFilters.location.length > 0) {
-        if (!actor.location || !canvasFilters.location.includes(actor.location.trim())) {
+      if (filters.location.length > 0) {
+        if (!actor.location || !filters.location.includes(actor.location.trim())) {
           return false
         }
       }
 
       return true
     })
+  }
+
+  const getDatabaseLocations = (): string[] => {
+    const locations = new Set<string>()
+    uniqueDatabaseActors.forEach((actor) => {
+      if (actor.location && actor.location.trim()) {
+        locations.add(actor.location.trim())
+      }
+    })
+    return Array.from(locations).sort()
   }
 
   const getUniqueLocations = (): string[] => {
@@ -163,39 +203,29 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
   }
 
   const uniqueLocations = getUniqueLocations()
+  const databaseLocations = getDatabaseLocations()
 
   const activeFiltersCount = 
     (canvasFilters.status.length > 0 ? 1 : 0) +
     (canvasFilters.ageRange.min > 0 || canvasFilters.ageRange.max < 100 ? 1 : 0) +
     (canvasFilters.location.length > 0 ? 1 : 0)
+  
+  const activeDatabaseFiltersCount = 
+    (databaseFilters.status.length > 0 ? 1 : 0) +
+    (databaseFilters.ageRange.min > 0 || databaseFilters.ageRange.max < 100 ? 1 : 0) +
+    (databaseFilters.location.length > 0 ? 1 : 0)
 
-  // Filter actors based on search query and filters
   const filteredActors = applyFilters(uniqueActors.filter(
     (actor) =>
       actor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      actor.sourceCharacter.toLowerCase().includes(searchQuery.toLowerCase()),
-  ))
-
-  const sortedGroups = [...canvasGroups].sort((a, b) => {
-    let comparison = 0
-
-    switch (groupSortOption) {
-      case "name":
-        comparison = a.name.localeCompare(b.name)
-        break
-      case "date":
-        // Assuming groups have a creation timestamp in their ID
-        const aTime = Number.parseInt(a.id.split("-")[1]) || 0
-        const bTime = Number.parseInt(b.id.split("-")[1]) || 0
-        comparison = aTime - bTime
-        break
-      case "actorCount":
-        comparison = a.actorIds.length - b.actorIds.length
-        break
-    }
-
-    return groupSortDirection === "asc" ? comparison : -comparison
-  })
+      actor.sourceCharacter.toLowerCase().includes(searchQuery.toLowerCase())
+  ), canvasFilters)
+  
+  const filteredDatabaseActors = applyFilters(uniqueDatabaseActors.filter(
+    (actor) =>
+      actor.name.toLowerCase().includes(databaseSearchQuery.toLowerCase()) ||
+      actor.sourceCharacter.toLowerCase().includes(databaseSearchQuery.toLowerCase())
+  ), databaseFilters)
 
   // Enhanced wheel handler for cursor-centered zooming
   const handleWheel = useCallback(
@@ -1400,11 +1430,11 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
           {showDatabaseOverlay && (
             <div className="absolute left-0 top-0 bottom-0 w-96 bg-white border-r border-slate-200 shadow-xl z-40 flex flex-col database-overlay">
               {/* Overlay Header */}
-              <div className="p-4 border-b border-slate-200 flex items-center justify-between bg-gradient-to-r from-indigo-50 to-indigo-100">
+              <div className="p-4 border-b border-slate-200 flex items-center justify-between bg-gradient-to-r from-emerald-50 to-emerald-100">
                 <div>
                   <h3 className="font-semibold text-slate-900">Add from Database</h3>
                   <p className="text-xs text-slate-600 mt-1">
-                    {filteredActors.length} actor{filteredActors.length !== 1 ? 's' : ''} available
+                    {filteredDatabaseActors.length} actor{filteredDatabaseActors.length !== 1 ? 's' : ''} available
                   </p>
                 </div>
                 <button
@@ -1415,6 +1445,144 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
                 </button>
               </div>
 
+              <div className="border-b border-slate-200 bg-white">
+                <div className="p-3">
+                  <button
+                    onClick={() => setShowDatabaseFilters(!showDatabaseFilters)}
+                    className={`w-full flex items-center justify-between px-3 py-2 rounded-lg transition-colors ${
+                      showDatabaseFilters || activeDatabaseFiltersCount > 0
+                        ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                        : 'bg-slate-50 text-slate-700 hover:bg-slate-100 border border-slate-200'
+                    }`}
+                  >
+                    <div className="flex items-center space-x-2">
+                      <Filter className="w-4 h-4" />
+                      <span className="text-sm font-medium">Database Filters</span>
+                      {activeDatabaseFiltersCount > 0 && (
+                        <span className="bg-emerald-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                          {activeDatabaseFiltersCount}
+                        </span>
+                      )}
+                    </div>
+                    <ChevronDown className={`w-4 h-4 transition-transform ${showDatabaseFilters ? 'rotate-180' : ''}`} />
+                  </button>
+                </div>
+
+                {/* Expanded Database Filters Panel */}
+                {showDatabaseFilters && (
+                  <div className="px-4 pb-4 space-y-4 bg-emerald-50/30">
+                    {/* Clear All Filters */}
+                    {activeDatabaseFiltersCount > 0 && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs text-slate-600 font-medium">Active Filters</span>
+                        <button
+                          onClick={() => {
+                            setDatabaseFilters({
+                              status: [],
+                              ageRange: { min: 0, max: 100 },
+                              location: []
+                            })
+                          }}
+                          className="text-xs text-emerald-600 hover:text-emerald-700 font-medium"
+                        >
+                          Clear All
+                        </button>
+                      </div>
+                    )}
+
+                    {/* Status Filter */}
+                    <div>
+                      <label className="block text-xs font-medium text-slate-700 mb-2">Status</label>
+                      <div className="space-y-2 max-h-32 overflow-y-auto bg-white rounded-lg p-2 border border-slate-200">
+                        {state.predefinedStatuses?.map((status) => (
+                          <label key={status.id} className="flex items-center space-x-2 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={databaseFilters.status.includes(status.id)}
+                              onChange={() => {
+                                setDatabaseFilters((prev) => ({
+                                  ...prev,
+                                  status: prev.status.includes(status.id)
+                                    ? prev.status.filter((s) => s !== status.id)
+                                    : [...prev.status, status.id],
+                                }))
+                              }}
+                              className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 w-4 h-4"
+                            />
+                            <span className="text-sm text-slate-700">{status.label}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Age Range Filter */}
+                    <div>
+                      <label className="block text-xs font-medium text-slate-700 mb-2">Age Range</label>
+                      <div className="space-y-2 bg-white rounded-lg p-2 border border-slate-200">
+                        <div className="flex items-center space-x-2">
+                          <input
+                            type="number"
+                            min="0"
+                            max="100"
+                            value={databaseFilters.ageRange.min}
+                            onChange={(e) => {
+                              const value = parseInt(e.target.value) || 0
+                              setDatabaseFilters((prev) => ({
+                                ...prev,
+                                ageRange: { ...prev.ageRange, min: value },
+                              }))
+                            }}
+                            className="w-20 px-2 py-1 border border-slate-300 rounded text-sm"
+                          />
+                          <span className="text-slate-500 text-sm">to</span>
+                          <input
+                            type="number"
+                            min="0"
+                            max="100"
+                            value={databaseFilters.ageRange.max}
+                            onChange={(e) => {
+                              const value = parseInt(e.target.value) || 100
+                              setDatabaseFilters((prev) => ({
+                                ...prev,
+                                ageRange: { ...prev.ageRange, max: value },
+                              }))
+                            }}
+                            className="w-20 px-2 py-1 border border-slate-300 rounded text-sm"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Location Filter */}
+                    {databaseLocations.length > 0 && (
+                      <div>
+                        <label className="block text-xs font-medium text-slate-700 mb-2">Location</label>
+                        <div className="space-y-2 max-h-32 overflow-y-auto bg-white rounded-lg p-2 border border-slate-200">
+                          {databaseLocations.map((location) => (
+                            <label key={location} className="flex items-center space-x-2 cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={databaseFilters.location.includes(location)}
+                                onChange={() => {
+                                  setDatabaseFilters((prev) => ({
+                                    ...prev,
+                                    location: prev.location.includes(location)
+                                      ? prev.location.filter((l) => l !== location)
+                                      : [...prev.location, location],
+                                  }))
+                                }}
+                                className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 w-4 h-4"
+                              />
+                              <span className="text-sm text-slate-700">{location}</span>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
               {/* Search */}
               <div className="p-4 border-b border-slate-200">
                 <div className="relative">
@@ -1422,9 +1590,9 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
                   <input
                     type="text"
                     placeholder="Search actors..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                    value={databaseSearchQuery}
+                    onChange={(e) => setDatabaseSearchQuery(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm"
                   />
                 </div>
               </div>
@@ -1432,8 +1600,8 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
               {/* Actors Grid */}
               <div className="flex-1 overflow-y-auto p-4">
                 <div className="grid grid-cols-2 gap-3">
-                  {filteredActors.length > 0 ? (
-                    filteredActors.map((actor) => {
+                  {filteredDatabaseActors.length > 0 ? (
+                    filteredDatabaseActors.map((actor) => {
                       const isOnCanvas = canvasActors.some((ca) => ca.actorId === actor.id)
                       return (
                         <div
@@ -1441,7 +1609,7 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
                           className={`relative bg-white rounded-lg border-2 transition-all ${
                             isOnCanvas
                               ? 'border-emerald-300 bg-emerald-50 opacity-50'
-                              : 'border-slate-200 hover:border-indigo-400 hover:shadow-md cursor-pointer'
+                              : 'border-slate-200 hover:border-emerald-400 hover:shadow-md cursor-pointer'
                           }`}
                           onClick={() => !isOnCanvas && handleAddActorToCanvas(actor)}
                         >
@@ -1470,10 +1638,10 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
                   ) : (
                     <div className="col-span-2 text-center text-slate-500 py-8">
                       <div className="text-sm">No actors found</div>
-                      {searchQuery && (
+                      {databaseSearchQuery && (
                         <button
-                          onClick={() => setSearchQuery('')}
-                          className="text-indigo-600 hover:text-indigo-700 text-sm mt-2"
+                          onClick={() => setDatabaseSearchQuery('')}
+                          className="text-emerald-600 hover:text-emerald-700 text-sm mt-2"
                         >
                           Clear search
                         </button>
@@ -1539,7 +1707,7 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
                     groupColor={group?.color}
                     viewMode={actorCardView}
                     onDrag={handleActorDrag}
-                    onCharacterNameChange={handleCharacterNameChange}
+                    onCharacterNameChange={handleCharacterNameNameChange}
                     onContextMenu={handleContextMenu}
                     onSelect={handleActorSelect}
                     characterId={currentCharacter?.id}
@@ -2002,6 +2170,16 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
             selectedActorIds={selectedActorIds}
             onCreateGroup={handleCreateGroup}
             onClose={() => {
+              setShowCreateGroupModal(false)
+              setSelectedActorIds([])
+            }}
+          />
+        )}
+      </div>
+    </div>
+  )
+}
+onClose={() => {
               setShowCreateGroupModal(false)
               setSelectedActorIds([])
             }}
