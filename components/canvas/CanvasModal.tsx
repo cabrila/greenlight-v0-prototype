@@ -1724,7 +1724,7 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
                             setCanvasFilters({
                               status: [],
                               ageRange: { min: 0, max: 100 },
-                              location: [],
+                              location: []
                             })
                           }}
                           className="text-xs text-indigo-600 hover:text-indigo-700 font-medium"
@@ -1738,7 +1738,7 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
                     <div>
                       <label className="block text-xs font-medium text-slate-700 mb-2">Status</label>
                       <div className="space-y-2 max-h-32 overflow-y-auto">
-                        {state.statusDefinitions.map((status) => (
+                        {state.predefinedStatuses?.map((status) => (
                           <label key={status.id} className="flex items-center space-x-2 cursor-pointer">
                             <input
                               type="checkbox"
@@ -1753,7 +1753,7 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
                               }}
                               className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 w-4 h-4"
                             />
-                            <span className="text-sm text-slate-700">{status.name}</span>
+                            <span className="text-sm text-slate-700">{status.label}</span>
                           </label>
                         ))}
                       </div>
