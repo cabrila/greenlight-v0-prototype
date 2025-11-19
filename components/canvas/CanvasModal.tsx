@@ -1723,7 +1723,7 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
                     groupColor={group?.color}
                     viewMode={actorCardView}
                     onDrag={handleActorDrag}
-                    onCharacterNameChange={handleCharacterNameNameChange}
+                    onCharacterNameChange={handleCharacterNameChange}
                     onContextMenu={handleContextMenu}
                     onSelect={handleActorSelect}
                     characterId={currentCharacter?.id}
