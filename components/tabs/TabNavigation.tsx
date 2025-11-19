@@ -4,16 +4,10 @@ import type React from "react"
 
 import { useState, useEffect, useRef } from "react"
 import { useCasting, getTabDisplayName } from "@/components/casting/CastingContext"
-import { Plus, Edit2, Trash2, GripVertical, Crown, Check, X, RotateCcw, List, CheckCircle } from "lucide-react"
+import { Plus, Edit2, Trash2, GripVertical, Crown, Check, X, RotateCcw, List, CheckCircle } from 'lucide-react'
 import AddTabModal from "@/components/modals/AddTabModal"
 import RenameTabModal from "@/components/modals/RenameTabModal"
 import ConfirmDeleteModal from "@/components/modals/ConfirmDeleteModal"
-
-interface RenameTabModalProps {
-  onClose: () => void
-  tabKey: string
-  currentName: string
-}
 
 export default function TabNavigation() {
   const { state, dispatch } = useCasting()
@@ -786,6 +780,14 @@ export default function TabNavigation() {
             <Edit2 className="w-4 h-4 text-slate-500" />
             <span>Edit Name</span>
           </button>
+          <button
+            onClick={handleRename}
+            className="w-full px-4 py-3 text-left text-sm hover:bg-slate-50 flex items-center space-x-3 transition-colors"
+            role="menuitem"
+          >
+            <Edit2 className="w-4 h-4 text-slate-500" />
+            <span>Rename Tab (Change ID)</span>
+          </button>
           {hasCustomDisplayName(contextMenu.tabKey) && (
             <button
               onClick={() => handleResetDisplayName(contextMenu.tabKey)}
@@ -827,12 +829,19 @@ export default function TabNavigation() {
       {showAddTabModal && <AddTabModal onClose={() => setShowAddTabModal(false)} />}
       {showRenameModal && selectedTab && (
         <RenameTabModal
-          onClose={() => {
+          show={showRenameModal}
+          onHide={() => {
             setShowRenameModal(false)
             setSelectedTab(null)
           }}
           tabKey={selectedTab.key}
-          currentName={selectedTab.name}
+          tabName={selectedTab.name}
+          onRename={(oldKey, newKey, newName) => {
+            dispatch({
+              type: "RENAME_TAB",
+              payload: { oldKey, newKey, newName },
+            })
+          }}
         />
       )}
     </>
