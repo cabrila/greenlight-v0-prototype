@@ -1,13 +1,13 @@
 import type React from "react" // Good practice to import React
 import type { Metadata } from "next"
-import { Inter } from "next/font/google"
+import { Inter } from 'next/font/google'
 import "./globals.css" // Your global styles
 import { ThemeProvider } from "@/components/theme-provider" // CRITICAL: Ensure this path is correct
 
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Greenlight Casting", // Or your application's title
+  title: "GoGreenlight Casting", // Or your application's title
   description: "Casting application prototype", // Or your application's description
     generator: 'v0.app'
 }

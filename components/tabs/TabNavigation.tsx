@@ -9,12 +9,6 @@ import AddTabModal from "@/components/modals/AddTabModal"
 import RenameTabModal from "@/components/modals/RenameTabModal"
 import ConfirmDeleteModal from "@/components/modals/ConfirmDeleteModal"
 
-interface RenameTabModalProps {
-  onClose: () => void
-  tabKey: string
-  currentName: string
-}
-
 export default function TabNavigation() {
   const { state, dispatch } = useCasting()
   const [showAddTabModal, setShowAddTabModal] = useState(false)
@@ -575,6 +569,19 @@ export default function TabNavigation() {
     return state.tabDisplayNames && state.tabDisplayNames[tabKey]
   }
 
+  const getTabNotificationCount = (tabKey: string): number => {
+    const currentUserId = state.currentUser?.id
+    const currentCharacterId = state.currentFocus.characterId
+
+    if (!currentUserId || !currentCharacterId) return 0
+
+    // Get notifications from the per-user tabNotifications system
+    const userNotifications = state.tabNotifications?.[currentUserId] || []
+    const notification = userNotifications.find((n) => n.tabKey === tabKey && n.characterId === currentCharacterId)
+
+    return notification?.unreadCount || 0
+  }
+
   return (
     <>
       <nav
@@ -585,6 +592,7 @@ export default function TabNavigation() {
         <div className="flex items-center px-6 py-2 space-x-3 overflow-x-auto scrollbar-hide">
           {state.tabDefinitions.map((tab, index) => {
             const count = getTabCount(tab.key)
+            const notificationCount = getTabNotificationCount(tab.key)
             const isActive = state.currentFocus.activeTabKey === tab.key
             const isDragOver = dragOverTab === tab.key
             const isDragging = draggedTab === tab.key
@@ -711,6 +719,16 @@ export default function TabNavigation() {
                       >
                         {count}
                       </div>
+
+                      {notificationCount > 0 && (
+                        <div
+                          className="absolute -top-1 -right-1 flex items-center justify-center w-5 h-5 bg-gradient-to-br from-red-500 to-red-600 text-white text-xs font-bold rounded-full shadow-lg border-2 border-white animate-pulse"
+                          title={`${notificationCount} unread notification${notificationCount > 1 ? "s" : ""}`}
+                          aria-label={`${notificationCount} unread notification${notificationCount > 1 ? "s" : ""}`}
+                        >
+                          {notificationCount}
+                        </div>
+                      )}
                     </div>
 
                     {/* Enhanced drop indicators */}
@@ -786,6 +804,14 @@ export default function TabNavigation() {
             <Edit2 className="w-4 h-4 text-slate-500" />
             <span>Edit Name</span>
           </button>
+          <button
+            onClick={handleRename}
+            className="w-full px-4 py-3 text-left text-sm hover:bg-slate-50 flex items-center space-x-3 transition-colors"
+            role="menuitem"
+          >
+            <Edit2 className="w-4 h-4 text-slate-500" />
+            <span>Rename Tab (Change ID)</span>
+          </button>
           {hasCustomDisplayName(contextMenu.tabKey) && (
             <button
               onClick={() => handleResetDisplayName(contextMenu.tabKey)}
@@ -827,12 +853,19 @@ export default function TabNavigation() {
       {showAddTabModal && <AddTabModal onClose={() => setShowAddTabModal(false)} />}
       {showRenameModal && selectedTab && (
         <RenameTabModal
-          onClose={() => {
+          show={showRenameModal}
+          onHide={() => {
             setShowRenameModal(false)
             setSelectedTab(null)
           }}
           tabKey={selectedTab.key}
-          currentName={selectedTab.name}
+          tabName={selectedTab.name}
+          onRename={(oldKey, newKey, newName) => {
+            dispatch({
+              type: "RENAME_TAB",
+              payload: { oldKey, newKey, newName },
+            })
+          }}
         />
       )}
     </>

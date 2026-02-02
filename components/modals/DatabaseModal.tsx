@@ -17,8 +17,9 @@ import {
   Phone,
   MapPin,
   Link2,
-  Unlink,
   Check,
+  FolderOpen,
+  Home,
 } from "lucide-react"
 import { useCasting } from "@/components/casting/CastingContext"
 import { openModal } from "@/components/modals/ModalManager"
@@ -45,6 +46,8 @@ export default function DatabaseModal({ onClose }: DatabaseModalProps) {
   const [searchTerm, setSearchTerm] = useState("")
   const [sortOption, setSortOption] = useState("alphabetical")
   const [showFilters, setShowFilters] = useState(false)
+
+  const [selectedActors, setSelectedActors] = useState<Set<string>>(new Set())
 
   // Filter state
   const [genderFilter, setGenderFilter] = useState<string[]>([])
@@ -294,6 +297,38 @@ export default function DatabaseModal({ onClose }: DatabaseModalProps) {
     setContextMenu(null)
   }
 
+  const handleAssignToProject = (actor: Actor) => {
+    openModal("assignToProject", { actor })
+  }
+
+  const handleToggleActorSelection = (actorId: string) => {
+    const newSelection = new Set(selectedActors)
+    if (newSelection.has(actorId)) {
+      newSelection.delete(actorId)
+    } else {
+      newSelection.add(actorId)
+    }
+    setSelectedActors(newSelection)
+  }
+
+  const handleSelectAll = () => {
+    if (selectedActors.size === filteredAndSortedActors.length) {
+      setSelectedActors(new Set())
+    } else {
+      setSelectedActors(new Set(filteredAndSortedActors.map((a) => a.id)))
+    }
+  }
+
+  const handleBatchAssignToProject = () => {
+    const actorsToAssign = filteredAndSortedActors.filter((a) => selectedActors.has(a.id))
+    openModal("assignToProject", { actors: actorsToAssign })
+  }
+
+  // Handler for clearing selection
+  const handleClearSelection = () => {
+    setSelectedActors(new Set())
+  }
+
   // Render project indicator
   const ProjectIndicator = ({ actor }: { actor: AggregatedActor }) => {
     const assignments = actor.projectAssignments || []
@@ -354,12 +389,32 @@ export default function DatabaseModal({ onClose }: DatabaseModalProps) {
 
     const [imageError, setImageError] = useState(false)
     const actorImage = actor.headshots && actor.headshots.length > 0 ? actor.headshots[0] : null
+    const isSelected = selectedActors.has(actor.id)
 
     return (
       <div
-        className="bg-white rounded-lg border border-slate-200 hover:border-emerald-300 hover:shadow-md transition-all duration-200 overflow-hidden group"
+        className={`bg-white rounded-lg border-2 transition-all duration-200 overflow-hidden group relative cursor-pointer ${
+          isSelected
+            ? "border-emerald-500 shadow-lg ring-2 ring-emerald-500 ring-opacity-50"
+            : "border-slate-200 hover:border-emerald-300 hover:shadow-md"
+        }`}
         onContextMenu={(e) => handleContextMenu(e, actor.id)}
+        onClick={() => handleToggleActorSelection(actor.id)}
       >
+        <div
+          className={`absolute top-2 left-2 z-10 transition-opacity duration-200 ${isSelected ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}
+        >
+          <div
+            className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all ${
+              isSelected
+                ? "bg-emerald-500 border-emerald-500 scale-110"
+                : "bg-white border-slate-300 group-hover:border-emerald-400"
+            }`}
+          >
+            {isSelected && <Check className="w-4 h-4 text-white" />}
+          </div>
+        </div>
+
         <div className="flex items-center gap-3 p-3">
           {/* Thumbnail */}
           <div className="flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden bg-slate-100 border border-slate-200">
@@ -436,17 +491,67 @@ export default function DatabaseModal({ onClose }: DatabaseModalProps) {
                 <h1 className="text-2xl font-bold text-slate-900">Actor Database</h1>
                 <p className="text-sm text-slate-500">
                   {filteredAndSortedActors.length} of {aggregatedActors.length} actors
+                  {selectedActors.size > 0 && (
+                    <span className="ml-2 text-emerald-600 font-semibold">• {selectedActors.size} selected</span>
+                  )}
                 </p>
               </div>
             </div>
 
             {/* Close Button */}
-            <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-lg transition-colors">
-              <X className="w-6 h-6 text-slate-600" />
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => {
+                  onClose()
+                  setTimeout(() => openModal("splashScreen"), 100)
+                }}
+                className="flex items-center gap-2 px-3 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
+                title="Main Menu"
+              >
+                <Home className="w-5 h-5" />
+                <span className="text-sm font-medium hidden sm:inline">Main Menu</span>
+              </button>
+              <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-lg transition-colors">
+                <X className="w-6 h-6 text-slate-600" />
+              </button>
+            </div>
           </div>
         </div>
       </div>
+
+      {selectedActors.size > 0 && (
+        <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 border-b border-emerald-700 shadow-lg">
+          <div className="max-w-[1920px] mx-auto px-6 py-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 text-white">
+                  <Check className="w-5 h-5" />
+                  <span className="font-semibold">{selectedActors.size} actor(s) selected</span>
+                </div>
+                <button
+                  onClick={handleSelectAll}
+                  className="px-3 py-1.5 bg-white/20 hover:bg-white/30 text-white text-sm font-medium rounded-lg transition-colors"
+                >
+                  {selectedActors.size === filteredAndSortedActors.length ? "Deselect All" : "Select All"}
+                </button>
+                <button
+                  onClick={handleClearSelection}
+                  className="px-3 py-1.5 bg-white/20 hover:bg-white/30 text-white text-sm font-medium rounded-lg transition-colors"
+                >
+                  Clear Selection
+                </button>
+              </div>
+              <button
+                onClick={handleBatchAssignToProject}
+                className="flex items-center gap-2 px-4 py-2 bg-white text-emerald-600 rounded-lg hover:bg-slate-50 transition-all shadow-md hover:shadow-lg font-semibold"
+              >
+                <FolderOpen className="w-4 h-4" />
+                <span>Assign to Project</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Controls */}
       <div className="bg-white border-b border-slate-200 shadow-sm">
@@ -744,57 +849,7 @@ export default function DatabaseModal({ onClose }: DatabaseModalProps) {
             top: `${contextMenu.y}px`,
           }}
           onClick={(e) => e.stopPropagation()}
-        >
-          <div className="px-3 py-2 border-b border-slate-200">
-            <h3 className="text-sm font-semibold text-slate-700">Assign to Project & Character</h3>
-          </div>
-
-          <div className="max-h-[400px] overflow-y-auto">
-            {state.projects.map((project) => (
-              <div key={project.id} className="border-b border-slate-100 last:border-0">
-                <div className="px-3 py-2 bg-slate-50">
-                  <h4 className="text-xs font-semibold text-slate-600 uppercase tracking-wide">{project.name}</h4>
-                </div>
-                {project.characters.map((character) => {
-                  const actor = aggregatedActors.find((a) => a.id === contextMenu.actorId)
-                  const isAssigned = actor?.projectAssignments?.some(
-                    (a) => a.projectId === project.id && a.characterId === character.id,
-                  )
-
-                  return (
-                    <button
-                      key={character.id}
-                      onClick={() => {
-                        if (isAssigned) {
-                          handleRemoveAssignment(contextMenu.actorId, project.id, character.id)
-                        } else {
-                          handleAssignToProjectCharacter(
-                            contextMenu.actorId,
-                            project.id,
-                            project.name,
-                            character.id,
-                            character.name,
-                          )
-                        }
-                      }}
-                      className="w-full px-4 py-2 text-left hover:bg-emerald-50 transition-colors flex items-center justify-between group"
-                    >
-                      <div className="flex items-center gap-2">
-                        {isAssigned ? <Check className="w-4 h-4 text-emerald-600" /> : <div className="w-4 h-4" />}
-                        <span className="text-sm text-slate-700 group-hover:text-emerald-700">{character.name}</span>
-                      </div>
-                      {isAssigned ? (
-                        <Unlink className="w-3 h-3 text-slate-400 group-hover:text-red-500" />
-                      ) : (
-                        <Link2 className="w-3 h-3 text-slate-400 group-hover:text-emerald-500" />
-                      )}
-                    </button>
-                  )
-                })}
-              </div>
-            ))}
-          </div>
-        </div>
+        ></div>
       )}
     </div>
   )

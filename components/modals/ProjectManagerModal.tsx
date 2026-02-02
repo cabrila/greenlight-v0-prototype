@@ -7,17 +7,19 @@ import { useCasting } from "@/components/casting/CastingContext"
 import {
   X,
   Plus,
-  Edit,
   Trash2,
-  Users,
-  Calendar,
+  Edit3,
+  FolderOpen,
   Building,
   User,
-  FileText,
-  Upload,
-  Download,
-  AlertCircle,
+  Settings,
+  Users,
+  Theater,
+  Home,
   CheckCircle,
+  AlertCircle,
+  Download,
+  Upload,
 } from "lucide-react"
 import { openModal } from "./ModalManager"
 import type { Project } from "@/types/casting"
@@ -92,27 +94,40 @@ export default function ProjectManagerModal({ onClose }: ProjectManagerModalProp
     <div className="space-y-6">
       {/* Current Project Summary */}
       {currentProject && (
-        <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
+        <div className="bg-success-50 border border-success-200 rounded-lg p-4">
           <div className="flex justify-between items-start mb-3">
             <div>
-              <h3 className="text-lg font-semibold text-emerald-800">{currentProject.name}</h3>
-              <p className="text-sm text-emerald-600">{currentProject.details.type}</p>
+              <h3 className="text-lg font-semibold text-success-800">{currentProject.name}</h3>
+              <p className="text-sm text-success-600">{currentProject.details.type}</p>
             </div>
-            <span className="bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full text-xs font-medium">
-              Current Project
-            </span>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => {
+                  dispatch({ type: "SELECT_PROJECT", payload: currentProject.id })
+                  onClose()
+                  setTimeout(() => openModal("characters"), 100)
+                }}
+                className="p-2 text-success-600 hover:text-success-800 hover:bg-success-100 rounded-lg transition-colors"
+                title="View Characters"
+              >
+                <Theater className="w-5 h-5" />
+              </button>
+              <span className="bg-success-100 text-success-700 px-2 py-1 rounded-full text-xs font-medium">
+                Current Project
+              </span>
+            </div>
           </div>
           <div className="grid grid-cols-3 gap-4 text-sm">
             <div>
-              <span className="text-emerald-600 font-medium">Characters:</span>
+              <span className="text-success-600 font-medium">Characters:</span>
               <span className="ml-1">{getProjectStats(currentProject).totalCharacters}</span>
             </div>
             <div>
-              <span className="text-emerald-600 font-medium">Total Actors:</span>
+              <span className="text-success-600 font-medium">Total Actors:</span>
               <span className="ml-1">{getProjectStats(currentProject).totalActors}</span>
             </div>
             <div>
-              <span className="text-emerald-600 font-medium">Greenlit:</span>
+              <span className="text-success-600 font-medium">Greenlit:</span>
               <span className="ml-1">{getProjectStats(currentProject).greenlitActors}</span>
             </div>
           </div>
@@ -125,14 +140,14 @@ export default function ProjectManagerModal({ onClose }: ProjectManagerModalProp
           <h3 className="text-lg font-semibold">All Projects</h3>
           <button
             onClick={() => setShowCreateForm(true)}
-            className="flex items-center px-3 py-2 bg-emerald-500 text-white rounded-md hover:bg-emerald-600 text-sm"
+            className="flex items-center px-3 py-2 bg-success-500 text-white rounded-md hover:bg-success-600 text-sm"
           >
             <Plus className="w-4 h-4 mr-1" />
             New Project
           </button>
         </div>
 
-        <div className="space-y-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {state.projects.map((project) => {
             const stats = getProjectStats(project)
             const isActive = project.id === state.currentFocus.currentProjectId
@@ -140,29 +155,39 @@ export default function ProjectManagerModal({ onClose }: ProjectManagerModalProp
             return (
               <div
                 key={project.id}
-                className={`border rounded-lg p-4 hover:shadow-md transition-shadow ${
-                  isActive ? "border-emerald-300 bg-emerald-50" : "border-gray-200 bg-white"
+                className={`border rounded-lg p-4 hover:shadow-md transition-all ${
+                  isActive ? "border-success-300 bg-success-50" : "border-gray-200 bg-white"
                 }`}
               >
                 <div className="flex justify-between items-start mb-2">
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-gray-800">{project.name}</h4>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-semibold text-gray-800 truncate">{project.name}</h4>
                     <p className="text-sm text-gray-600">{project.details.type}</p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      Created: {formatDate(project.createdDate)} • Modified: {formatDate(project.modifiedDate)}
-                    </p>
+                    <p className="text-xs text-gray-500 mt-1">Created: {formatDate(project.createdDate)}</p>
                   </div>
-                  <div className="flex space-x-2">
+                  <div className="flex items-center gap-1 ml-2">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        dispatch({ type: "SELECT_PROJECT", payload: project.id })
+                        onClose()
+                        setTimeout(() => openModal("characters"), 100)
+                      }}
+                      className="p-1.5 text-gray-400 hover:text-success-600 hover:bg-success-50 rounded-md transition-colors"
+                      title="View Characters"
+                    >
+                      <Theater className="w-4 h-4" />
+                    </button>
                     <button
                       onClick={() => setEditingProject(project)}
-                      className="p-1 text-gray-400 hover:text-blue-600"
+                      className="p-1.5 text-gray-400 hover:text-info-600 hover:bg-info-50 rounded-md transition-colors"
                       title="Edit Project"
                     >
-                      <Edit className="w-4 h-4" />
+                      <Edit3 className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => handleDeleteProject(project)}
-                      className="p-1 text-gray-400 hover:text-red-600"
+                      className="p-1.5 text-gray-400 hover:text-error-600 hover:bg-error-50 rounded-md transition-colors"
                       title="Delete Project"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -170,23 +195,23 @@ export default function ProjectManagerModal({ onClose }: ProjectManagerModalProp
                   </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-4 text-sm mb-3">
+                <div className="grid grid-cols-3 gap-2 text-sm mb-3">
                   <div className="flex items-center">
                     <Users className="w-4 h-4 mr-1 text-gray-400" />
-                    <span>{stats.totalCharacters} characters</span>
+                    <span className="text-xs">{stats.totalCharacters}</span>
                   </div>
                   <div className="flex items-center">
                     <User className="w-4 h-4 mr-1 text-gray-400" />
-                    <span>{stats.totalActors} actors</span>
+                    <span className="text-xs">{stats.totalActors}</span>
                   </div>
                   <div className="flex items-center">
-                    <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-                    <span>{stats.greenlitActors} greenlit</span>
+                    <span className="w-2 h-2 bg-success-500 rounded-full mr-1"></span>
+                    <span className="text-xs">{stats.greenlitActors}</span>
                   </div>
                 </div>
 
-                <div className="flex justify-between items-center">
-                  <div className="text-xs text-gray-500">
+                <div className="flex justify-between items-center pt-2 border-t border-gray-100">
+                  <div className="text-xs text-gray-500 truncate max-w-[120px]">
                     <Building className="w-3 h-3 inline mr-1" />
                     {project.details.productionCompany}
                   </div>
@@ -196,10 +221,13 @@ export default function ProjectManagerModal({ onClose }: ProjectManagerModalProp
                         dispatch({ type: "SELECT_PROJECT", payload: project.id })
                         onClose()
                       }}
-                      className="px-3 py-1 bg-gray-100 text-gray-700 rounded text-sm hover:bg-gray-200"
+                      className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs hover:bg-gray-200 transition-colors"
                     >
-                      Switch to Project
+                      Switch
                     </button>
+                  )}
+                  {isActive && (
+                    <span className="px-2 py-1 bg-success-100 text-success-700 rounded text-xs">Active</span>
                   )}
                 </div>
               </div>
@@ -552,8 +580,8 @@ export default function ProjectManagerModal({ onClose }: ProjectManagerModalProp
           console.log("Data analysis:", dataInfo)
 
           throw new Error(
-            `Invalid project file format. The file does not contain recognizable project data. 
-          
+            `Invalid project file format. The file does not contain recognizable project data.
+
 File analysis:
 - Type: ${dataInfo.type}
 - Is Array: ${dataInfo.isArray}
@@ -1507,47 +1535,80 @@ Please ensure you're importing a file exported from this application, or check t
     )
   }
 
-  if (showCreateForm) {
-    return (
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[95vh] overflow-y-auto">
-        <div className="p-6">{renderCreateProjectForm()}</div>
-      </div>
-    )
-  }
+  // REMOVE THIS BLOCK
+  // if (showCreateForm) {
+  //   return (
+  //     <div className="fixed inset-0 bg-background flex flex-col z-50">
+  //       <div className="flex-1 overflow-y-auto p-6">
+  //         <div className="max-w-4xl mx-auto">{renderCreateProjectForm()}</div>
+  //       </div>
+  //     </div>
+  //   )
+  // }
 
-  if (editingProject) {
-    return (
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[95vh] overflow-y-auto">
-        <div className="p-6">{renderEditProjectForm()}</div>
-      </div>
-    )
-  }
+  // if (editingProject) {
+  //   return (
+  //     <div className="fixed inset-0 bg-background flex flex-col z-50">
+  //       <div className="flex-1 overflow-y-auto p-6">
+  //         <div className="max-w-4xl mx-auto">{renderEditProjectForm()}</div>
+  //       </div>
+  //     </div>
+  //   )
+  // }
 
+  // MERGE POINT: The header and tab navigation need to be adjusted to accommodate the new sticky header
   return (
-    <div className="bg-white rounded-lg shadow-xl w-full max-w-6xl max-h-[95vh] overflow-y-auto">
-      <div className="flex justify-between items-center p-6 border-b">
-        <h2 className="text-2xl font-bold">Project Manager</h2>
-        <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
-          <X className="w-6 h-6" />
-        </button>
+    <div className="fixed inset-0 bg-background flex flex-col z-50">
+      {/* Header - sticky at top */}
+      <div className="sticky top-0 z-10 bg-white border-b border-gray-200 px-6 py-4">
+        <div className="flex justify-between items-center">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-gradient-to-br from-success-600 to-success-700 rounded-lg">
+              <FolderOpen className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">Project Manager</h2>
+              <p className="text-sm text-gray-500">{state.projects.length} projects</p>
+            </div>
+          </div>
+          {/* Header actions */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                onClose()
+                setTimeout(() => openModal("splashScreen"), 100)
+              }}
+              className="flex items-center gap-2 px-3 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
+              title="Main Menu"
+            >
+              <Home className="w-5 h-5" />
+              <span className="text-sm font-medium hidden sm:inline">Main Menu</span>
+            </button>
+            <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-lg transition-colors">
+              <X className="w-6 h-6 text-slate-600" />
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Tab Navigation */}
-      <div className="border-b">
+      <div className="border-b bg-card sticky top-20 z-10 bg-white">
+        {" "}
+        {/* Added sticky here */}
         <nav className="flex space-x-8 px-6">
           {[
-            { key: "overview", label: "Overview", icon: FileText },
+            { key: "overview", label: "Overview", icon: FolderOpen },
             { key: "details", label: "Details", icon: Building },
             { key: "team", label: "Team", icon: Users },
-            { key: "settings", label: "Settings", icon: Calendar },
+            { key: "settings", label: "Settings", icon: Settings },
           ].map((tab) => (
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key as any)}
-              className={`py-4 px-2 border-b-2 font-medium text-sm flex items-center space-x-2 ${
+              className={`py-4 px-2 border-b-2 font-medium text-sm flex items-center space-x-2 transition-colors ${
                 activeTab === tab.key
-                  ? "border-emerald-500 text-emerald-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                  ? "border-success-500 text-success-600"
+                  : "border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300"
               }`}
             >
               <tab.icon className="w-4 h-4" />
@@ -1557,12 +1618,23 @@ Please ensure you're importing a file exported from this application, or check t
         </nav>
       </div>
 
-      {/* Tab Content */}
-      <div className="p-6">
-        {activeTab === "overview" && renderOverviewTab()}
-        {activeTab === "details" && renderDetailsTab()}
-        {activeTab === "team" && renderTeamTab()}
-        {activeTab === "settings" && renderSettingsTab()}
+      {/* Tab Content - Scrollable */}
+      <div className="flex-1 overflow-y-auto p-6">
+        <div className="max-w-7xl mx-auto">
+          {/* Render create/edit forms if active */}
+          {showCreateForm && renderCreateProjectForm()}
+          {editingProject && renderEditProjectForm()}
+
+          {/* Render tab content only if not showing forms */}
+          {!showCreateForm && !editingProject && (
+            <>
+              {activeTab === "overview" && renderOverviewTab()}
+              {activeTab === "details" && renderDetailsTab()}
+              {activeTab === "team" && renderTeamTab()}
+              {activeTab === "settings" && renderSettingsTab()}
+            </>
+          )}
+        </div>
       </div>
     </div>
   )

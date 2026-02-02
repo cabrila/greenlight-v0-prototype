@@ -1,7 +1,7 @@
 "use client"
 
 import { useCasting } from "@/components/casting/CastingContext"
-import { Bell, Folder, FileText, Users, Settings, Clapperboard } from 'lucide-react'
+import { Bell, Folder, FileText, Users, Settings, Clapperboard } from "lucide-react"
 import { openModal } from "@/components/modals/ModalManager"
 import UserMenu from "./UserMenu"
 import { useState, useRef } from "react"
@@ -20,27 +20,27 @@ export default function TopMenuBar() {
         <div className="flex items-center justify-between">
           {/* Logo - Updated to match splash screen */}
           <div className="flex items-center space-x-3">
-            <div className="p-2 bg-emerald-600 rounded-lg">
+            <div className="p-2 bg-success-600 rounded-lg shadow-sm">
               <Clapperboard className="w-6 h-6 text-white" />
             </div>
-            <h1 className="text-2xl font-bold text-emerald-600 tracking-wide">GREENLIGHT</h1>
+            <h1 className="text-2xl font-bold text-success-600 tracking-wide">GOGREENLIGHT</h1>
           </div>
 
           {/* Center Menu */}
           <div className="flex items-center space-x-2">
             <button
               onClick={() => openModal("projectManager")}
-              className="flex items-center space-x-2 px-4 py-2.5 text-sm font-medium text-slate-700 hover:text-emerald-600 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50 backdrop-blur-sm group"
+              className="flex items-center space-x-2 px-4 py-2.5 text-sm font-medium text-slate-700 hover:text-success-600 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50 backdrop-blur-sm group"
             >
-              <Folder className="w-4 h-4 group-hover:text-emerald-500 transition-colors" />
+              <Folder className="w-4 h-4 group-hover:text-success-500 transition-colors" />
               <span>Project: {currentProject?.name || "N/A"}</span>
             </button>
 
             <button
               onClick={() => openModal("castingBreakdown")}
-              className="flex items-center space-x-2 px-4 py-2.5 text-sm font-medium text-slate-700 hover:text-blue-600 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50 backdrop-blur-sm group"
+              className="flex items-center space-x-2 px-4 py-2.5 text-sm font-medium text-slate-700 hover:text-info-600 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50 backdrop-blur-sm group"
             >
-              <FileText className="w-4 h-4 group-hover:text-blue-500 transition-colors" />
+              <FileText className="w-4 h-4 group-hover:text-info-500 transition-colors" />
               <span>Casting Breakdown</span>
             </button>
 
@@ -65,11 +65,11 @@ export default function TopMenuBar() {
           <div className="flex items-center space-x-3">
             <button
               onClick={() => openModal("notifications")}
-              className="relative p-3 text-slate-600 hover:text-emerald-600 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50 backdrop-blur-sm group"
+              className="relative p-3 text-slate-600 hover:text-success-600 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50 backdrop-blur-sm group"
             >
               <Bell className="w-5 h-5 group-hover:scale-110 transition-transform" />
               {unreadNotifications > 0 && (
-                <div className="absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shadow-lg pulse-glow">
+                <div className="absolute -top-1 -right-1 bg-error-500 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shadow-lg notification-badge-pulse">
                   {unreadNotifications}
                 </div>
               )}

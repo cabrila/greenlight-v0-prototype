@@ -1,5 +1,5 @@
 "use client"
-import { X, Plus, FolderOpen, Database, Bell, Settings, HelpCircle, Clapperboard } from "lucide-react"
+import { X, Plus, FolderOpen, Database, Bell, Settings, HelpCircle, Clapperboard } from 'lucide-react'
 import { openModal } from "./ModalManager"
 import { useState, useEffect, useRef } from "react"
 import UserMenu from "../layout/UserMenu"
@@ -227,12 +227,12 @@ export default function SplashScreenModal({ onClose }: SplashScreenModalProps) {
 
       {/* Top Bar */}
       <div className="flex justify-between items-center p-6">
-        {/* Left side - Greenlight Header */}
+        {/* Left side - GoGreenlight Header */}
         <div className="flex items-center space-x-3">
           <div className="p-2 bg-emerald-600 rounded-lg">
             <Clapperboard className="w-6 h-6 text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-emerald-600 tracking-wide">GREENLIGHT</h1>
+          <h1 className="text-2xl font-bold text-emerald-600 tracking-wide">GOGREENLIGHT</h1>
         </div>
 
         {/* Right side - User controls */}
