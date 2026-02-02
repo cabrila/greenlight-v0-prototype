@@ -4,7 +4,7 @@ import type React from "react"
 
 import { useCasting } from "@/components/casting/CastingContext"
 import { useState, useEffect, useCallback } from "react"
-import { X, Plus, Trash2, Camera, ChevronLeft, ChevronRight, Check } from 'lucide-react'
+import { X, Plus, Trash2, Camera, ChevronLeft, ChevronRight, Check } from "lucide-react"
 import { extractVideoId, getVideoPlatform } from "@/utils/videoUtils"
 import VideoEmbed from "@/components/video/VideoEmbed"
 import type { VideoEmbed as VideoEmbedType } from "@/types"
@@ -35,7 +35,7 @@ export default function AddActorModal({ onClose, characterId }: AddActorModalPro
     mediaMaterials: [] as Array<{ name: string; url: string; taggedActorNames: string[] }>,
     showreels: [] as Array<{ name: string; url: string; taggedActorNames: string[] }>,
     auditionTapes: [] as Array<{ name: string; url: string; taggedActorNames: string[] }>,
-    vimeoVideos: [] as Array<VideoEmbedType & { videoPassword?: string }>, // Added videoPassword
+    vimeoVideos: [] as Array<VideoEmbedType>,
     // New optional fields
     language: "",
     height: "",
@@ -45,7 +45,6 @@ export default function AddActorModal({ onClose, characterId }: AddActorModalPro
     eyeColor: "",
     nakednessLevel: "",
     pastProductions: [] as string[],
-    salaryEstimate: "", // Added salaryEstimate
   })
 
   const [newSkill, setNewSkill] = useState("")
@@ -298,7 +297,7 @@ export default function AddActorModal({ onClose, characterId }: AddActorModalPro
       return
     }
 
-    const newVideo: VideoEmbedType & { videoPassword?: string } = {
+    const newVideo: VideoEmbedType = {
       id: `video-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       url: newVimeoUrl,
       videoId: videoId,
@@ -479,7 +478,6 @@ export default function AddActorModal({ onClose, characterId }: AddActorModalPro
       eyeColor: formData.eyeColor,
       nakednessLevel: formData.nakednessLevel,
       pastProductions: formData.pastProductions,
-      salaryEstimate: formData.salaryEstimate, // Added salaryEstimate
     }
 
     console.log("✅ AddActorModal: Created actor data:", {
@@ -1148,29 +1146,6 @@ export default function AddActorModal({ onClose, characterId }: AddActorModalPro
                         }}
                         className="mb-3"
                       />
-
-                      <div className="mb-3">
-                        <label className="block text-xs font-medium text-gray-700 mb-1">
-                          Password (optional)
-                        </label>
-                        <input
-                          type="text"
-                          value={video.videoPassword || ""}
-                          onChange={(e) => {
-                            setFormData((prev) => ({
-                              ...prev,
-                              vimeoVideos: prev.vimeoVideos.map((v) =>
-                                v.id === video.id ? { ...v, videoPassword: e.target.value } : v,
-                              ),
-                            }))
-                          }}
-                          className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-emerald-500"
-                          placeholder="Enter password for password-protected video"
-                        />
-                        <p className="text-xs text-gray-500 mt-1">
-                          If this video is password-protected, add the password here so viewers can access it easily
-                        </p>
-                      </div>
 
                       {/* Actor Tags Display */}
                       {video.taggedActorNames && video.taggedActorNames.length > 0 && (

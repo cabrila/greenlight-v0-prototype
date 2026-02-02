@@ -11,16 +11,6 @@ interface SearchTag {
   color?: string
 }
 
-interface SavedSearch {
-  id: string
-  name: string
-  tags: SearchTag[]
-  searchTerm: string
-  createdAt: number
-  lastUsed: number
-  isGlobal: boolean
-}
-
 interface SearchTagsProps {
   tags: SearchTag[]
   onTagsChange: (tags: SearchTag[]) => void
@@ -28,8 +18,6 @@ interface SearchTagsProps {
   className?: string
   maxTags?: number
   allowDuplicates?: boolean
-  savedSearches?: SavedSearch[]
-  onLoadSavedSearch?: (searchId: string) => void
 }
 
 export default function SearchTags({
@@ -39,12 +27,9 @@ export default function SearchTags({
   className,
   maxTags = 10,
   allowDuplicates = false,
-  savedSearches = [],
-  onLoadSavedSearch,
 }: SearchTagsProps) {
   const [inputValue, setInputValue] = useState("")
   const [isFocused, setIsFocused] = useState(false)
-  const [showSavedSearches, setShowSavedSearches] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
   // Generate a random color for new tags
@@ -113,45 +98,6 @@ export default function SearchTags({
     inputRef.current?.focus()
   }
 
-  // Load a saved search
-  const handleLoadSavedSearch = (search: SavedSearch) => {
-    if (onLoadSavedSearch) {
-      onLoadSavedSearch(search.id)
-      setShowSavedSearches(false)
-      setIsFocused(false)
-    }
-  }
-
-  // Focus handler to show saved searches dropdown
-  const handleFocus = () => {
-    setIsFocused(true)
-    if (savedSearches.length > 0 && tags.length === 0 && !inputValue) {
-      setShowSavedSearches(true)
-    }
-  }
-
-  // Blur handler to hide dropdown with delay
-  const handleBlur = () => {
-    setTimeout(() => {
-      setIsFocused(false)
-      setShowSavedSearches(false)
-    }, 200)
-  }
-
-  const formatDate = (timestamp: number) => {
-    const now = Date.now()
-    const diff = now - timestamp
-    const minutes = Math.floor(diff / 60000)
-    const hours = Math.floor(diff / 3600000)
-    const days = Math.floor(diff / 86400000)
-
-    if (minutes < 1) return "Just now"
-    if (minutes < 60) return `${minutes}m ago`
-    if (hours < 24) return `${hours}h ago`
-    if (days < 7) return `${days}d ago`
-    return new Date(timestamp).toLocaleDateString()
-  }
-
   return (
     <div className={cn("relative", className)}>
       <div
@@ -194,8 +140,8 @@ export default function SearchTags({
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={handleKeyPress}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
           placeholder={tags.length === 0 ? placeholder : ""}
           className="flex-1 min-w-[120px] outline-none bg-transparent text-sm placeholder-slate-400"
           disabled={tags.length >= maxTags}
@@ -216,46 +162,8 @@ export default function SearchTags({
         )}
       </div>
 
-      {/* Saved Searches Dropdown */}
-      {showSavedSearches && savedSearches.length > 0 && (
-        <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded-lg shadow-lg z-20 max-h-80 overflow-y-auto">
-          <div className="p-2 border-b border-slate-200 bg-slate-50">
-            <div className="text-xs font-semibold text-slate-700 flex items-center gap-1">
-              <Search className="w-3 h-3" />
-              Saved Searches ({savedSearches.length})
-            </div>
-          </div>
-          <div className="divide-y divide-slate-100">
-            {savedSearches.map((search) => (
-              <button
-                key={search.id}
-                onClick={() => handleLoadSavedSearch(search)}
-                className="w-full p-3 text-left hover:bg-slate-50 transition-colors"
-              >
-                <div className="flex items-center justify-between mb-1">
-                  <div className="font-medium text-sm text-slate-800 truncate">{search.name}</div>
-                  <div className="text-xs text-slate-500 flex-shrink-0 ml-2">{formatDate(search.lastUsed)}</div>
-                </div>
-                <div className="text-xs text-slate-600 space-y-0.5">
-                  {search.searchTerm && (
-                    <div>
-                      <span className="font-medium">Text:</span> "{search.searchTerm}"
-                    </div>
-                  )}
-                  {search.tags.length > 0 && (
-                    <div>
-                      <span className="font-medium">Tags:</span> {search.tags.map((tag) => tag.text).join(", ")}
-                    </div>
-                  )}
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
       {/* Helper Text */}
-      {isFocused && !showSavedSearches && (
+      {isFocused && (
         <div className="absolute top-full left-0 right-0 mt-1 p-2 bg-white border border-slate-200 rounded-md shadow-sm text-xs text-slate-600 z-10">
           <div className="space-y-1">
             <div>

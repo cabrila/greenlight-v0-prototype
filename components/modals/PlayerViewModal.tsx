@@ -24,7 +24,6 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
     taggedActorNames: string[]
     markIn?: number
     markOut?: number
-    videoPassword?: string // Added field
   } | null>(null)
   const [imageErrors, setImageErrors] = useState<Set<number>>(new Set())
   const [showActionsModal, setShowActionsModal] = useState(false)
@@ -523,7 +522,6 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
       taggedActorNames: string[]
       markIn?: number
       markOut?: number
-      videoPassword?: string // Added videoPassword field
     }> = []
 
     if (currentActor.mediaMaterials) {
@@ -572,7 +570,6 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
           taggedActorNames: video.taggedActorNames || [],
           markIn: video.markIn,
           markOut: video.markOut,
-          videoPassword: video.videoPassword, // Include password if available
         })
       })
     }
@@ -587,7 +584,6 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
           taggedActorNames: video.taggedActorNames || [],
           markIn: video.markIn,
           markOut: video.markOut,
-          videoPassword: video.videoPassword, // Include password if available
         })
       })
     }
@@ -896,35 +892,6 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
                   <div className="w-full h-full bg-black rounded-xl overflow-hidden relative shadow-2xl">
                     {activeMedia ? (
                       <div className="w-full h-full">
-                        {activeMedia.videoPassword && (
-                          <div className="absolute top-0 left-0 right-0 bg-gradient-to-b from-black/80 to-transparent z-10 p-3">
-                            <div className="flex items-center justify-center space-x-2">
-                              <div className="bg-white/10 backdrop-blur-sm rounded-lg px-3 py-2 flex items-center space-x-2">
-                                <svg className="w-4 h-4 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                                </svg>
-                                <span className="text-white text-sm font-medium">Password:</span>
-                                <span className="text-white text-sm font-mono bg-white/20 px-2 py-1 rounded">
-                                  {activeMedia.videoPassword}
-                                </span>
-                                <button
-                                  onClick={() => {
-                                    navigator.clipboard.writeText(activeMedia.videoPassword!)
-                                    // Optional: Add toast notification here
-                                  }}
-                                  className="bg-emerald-500 hover:bg-emerald-600 text-white px-2 py-1 rounded text-xs font-medium transition-colors flex items-center space-x-1"
-                                  title="Copy password"
-                                >
-                                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                                  </svg>
-                                  <span>Copy</span>
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                        
                         {activeMedia.platform &&
                         (activeMedia.platform === "vimeo" || activeMedia.platform === "youtube") ? (
                           <VideoEmbed

@@ -4,13 +4,11 @@ import type React from "react"
 
 import { useCasting } from "@/components/casting/CastingContext"
 import { useState, useEffect } from "react"
-import { X, Upload, Plus, Trash2, Camera, Check } from 'lucide-react'
+import { X, Upload, Plus, Trash2, Camera, Check } from "lucide-react"
 import VideoMarkerTimeline from "@/components/video/VideoMarkerTimeline"
 import VideoEmbed from "@/components/video/VideoEmbed"
 import { parseVideoUrl, type VideoEmbed as VideoEmbedType } from "@/utils/videoUtils"
 import type { Actor } from "@/types"
-import AvailabilityCalendarPicker from "@/components/ui/AvailabilityCalendarPicker"
-import type { AvailabilityDate } from "@/types/schedule"
 
 interface EditActorModalProps {
   onClose: () => void
@@ -37,7 +35,6 @@ export default function EditActorModal({ onClose, actor, characterId }: EditActo
     contactEmail: "",
     skills: [] as string[],
     availability: [] as string[],
-    availabilityDates: [] as AvailabilityDate[],
     mediaMaterials: [] as Array<{ name: string; url: string; taggedActorNames: string[] }>,
     showreels: [] as Array<{ name: string; url: string; taggedActorNames: string[] }>,
     auditionTapes: [] as Array<{ name: string; url: string; taggedActorNames: string[] }>,
@@ -138,7 +135,6 @@ export default function EditActorModal({ onClose, actor, characterId }: EditActo
         contactEmail: actor.contactEmail || "",
         skills: actor.skills || [],
         availability: actor.availability || [],
-        availabilityDates: actor.availabilityDates || [],
         mediaMaterials: actor.mediaMaterials || [],
         showreels: actor.showreels || [],
         auditionTapes: actor.auditionTapes || [],
@@ -193,13 +189,8 @@ export default function EditActorModal({ onClose, actor, characterId }: EditActo
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [showContextMenu])
 
-  useEffect(() => {
-    if (!actor || !currentCharacter) {
-      onClose()
-    }
-  }, [actor, currentCharacter, onClose])
-
   if (!actor || !currentCharacter) {
+    onClose()
     return null
   }
 
@@ -408,7 +399,6 @@ export default function EditActorModal({ onClose, actor, characterId }: EditActo
       contactEmail: formData.contactEmail,
       skills: formData.skills,
       availability: formData.availability,
-      availabilityDates: formData.availabilityDates,
       headshots: headshotPreviews,
       statuses: selectedStatusObjects,
       mediaMaterials: formData.mediaMaterials,
@@ -1007,30 +997,6 @@ export default function EditActorModal({ onClose, actor, characterId }: EditActo
                         className="mb-3"
                       />
 
-                      {/* CHANGE: Added optional video password field */}
-                      <div className="mb-3">
-                        <label className="block text-xs font-medium text-gray-700 mb-1">
-                          Password (optional)
-                        </label>
-                        <input
-                          type="text"
-                          value={video.videoPassword || ""}
-                          onChange={(e) => {
-                            setFormData((prev) => ({
-                              ...prev,
-                              vimeoVideos: prev.vimeoVideos.map((v) =>
-                                v.id === video.id ? { ...v, videoPassword: e.target.value } : v,
-                              ),
-                            }))
-                          }}
-                          className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-emerald-500"
-                          placeholder="Enter password for password-protected video"
-                        />
-                        <p className="text-xs text-gray-500 mt-1">
-                          If this video is password-protected, add the password here so viewers can access it easily
-                        </p>
-                      </div>
-
                       {/* Actor Tags Display */}
                       {video.taggedActorNames && video.taggedActorNames.length > 0 && (
                         <div className="mb-3">
@@ -1162,13 +1128,43 @@ export default function EditActorModal({ onClose, actor, characterId }: EditActo
           )}
         </div>
 
-        {/* Availability - Replaced text input with calendar picker */}
+        {/* Availability */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Availability</label>
-          <AvailabilityCalendarPicker
-            availabilityDates={formData.availabilityDates}
-            onChange={(dates) => setFormData((prev) => ({ ...prev, availabilityDates: dates }))}
-          />
+          <div className="flex gap-2 mb-2">
+            <input
+              type="text"
+              value={newAvailability}
+              onChange={(e) => setNewAvailability(e.target.value)}
+              onKeyPress={(e) => e.key === "Enter" && handleAddAvailability()}
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              placeholder="Add availability (e.g., 'March 2024', 'Weekends only')"
+            />
+            <button
+              onClick={handleAddAvailability}
+              className="px-4 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700"
+            >
+              <Plus className="w-4 h-4" />
+            </button>
+          </div>
+          {formData.availability.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {formData.availability.map((avail) => (
+                <span
+                  key={avail}
+                  className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800"
+                >
+                  {avail}
+                  <button
+                    onClick={() => handleRemoveAvailability(avail)}
+                    className="ml-2 text-blue-600 hover:text-blue-800"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Status */}

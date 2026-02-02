@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { createContext, type ReactNode, useReducer, useEffect, useContext } from "react"
-import type { CastingState, CastingAction, Actor } from "@/types/casting"
+import type { CastingState, CastingAction } from "@/types/casting"
 import { saveToLocalStorage, clearLocalStorage, loadFromLocalStorage } from "@/utils/localStorage"
 
 // --- helper ---------------------------------------------
@@ -142,12 +142,6 @@ function getInitialState(): CastingState {
       searchTerm: "",
       searchTags: [],
       savedSearches: [],
-      filters: {
-        showFilters: false, // Add showFilters property to filters initial state
-        status: [],
-        ageRange: { min: 0, max: 100 },
-        location: [],
-      },
       playerView: {
         isOpen: false,
         currentIndex: 0,
@@ -191,44 +185,6 @@ function getInitialState(): CastingState {
     },
     // New: Front-end only tab display names
     tabDisplayNames: {},
-    scheduleEntries: [],
-    scenes: [],
-    productionPhases: [
-      {
-        id: "principal",
-        name: "Principal Photography",
-        startDate: "2024-03-01",
-        color: "text-blue-700",
-        bgColor: "bg-blue-500",
-      },
-      {
-        id: "pickups",
-        name: "Pickups",
-        startDate: "2024-03-12",
-        color: "text-orange-700",
-        bgColor: "bg-orange-500",
-      },
-      {
-        id: "second-unit",
-        name: "Second Unit",
-        startDate: "2024-03-20",
-        color: "text-lime-700",
-        bgColor: "bg-lime-500",
-      },
-      {
-        id: "rehearsals",
-        name: "Rehearsals",
-        startDate: "2024-03-02",
-        color: "text-yellow-700",
-        bgColor: "bg-yellow-500",
-      },
-    ],
-    filters: {
-      status: [],
-      ageRange: { min: 0, max: 100 },
-      location: [],
-      showFilters: false,
-    },
   }
 }
 
@@ -336,13 +292,6 @@ function validateAndCompleteState(state: any): CastingState {
       },
       searchTags: state.currentFocus?.searchTags || [],
       savedSearches: state.currentFocus?.savedSearches || [],
-      // Ensure filters object exists and has default values
-      filters: {
-        showFilters: state.currentFocus?.filters?.showFilters || false, // Ensure showFilters property is loaded
-        status: state.currentFocus?.filters?.status || [],
-        ageRange: state.currentFocus?.filters?.ageRange || { min: 0, max: 100 },
-        location: state.currentFocus?.filters?.location || [],
-      },
     },
 
     // Ensure modals object exists
@@ -365,21 +314,11 @@ function validateAndCompleteState(state: any): CastingState {
 
     // Ensure tabDisplayNames exists
     tabDisplayNames: state.tabDisplayNames || {},
-
-    // Ensure scheduleEntries exists
-    scheduleEntries: Array.isArray(state.scheduleEntries) ? state.scheduleEntries : [],
-    // Ensure scenes exists
-    scenes: Array.isArray(state.scenes) ? state.scenes : [],
-    // Ensure productionPhases exists
-    productionPhases: Array.isArray(state.productionPhases) ? state.productionPhases : initialState.productionPhases,
-
-    // Ensure filters exists
-    filters: state.filters || initialState.filters,
   }
 }
 
 function castingReducer(state: CastingState, action: CastingAction): CastingState {
-  let newState = state
+  let newState: CastingState
 
   switch (action.type) {
     case "UPDATE_TAB_DEFINITIONS": {
@@ -770,8 +709,6 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
         isGlobal,
       }
 
-      console.log("[v0] Creating saved search:", newSavedSearch)
-
       newState = {
         ...state,
         currentFocus: {
@@ -779,8 +716,6 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
           savedSearches: [...state.currentFocus.savedSearches, newSavedSearch],
         },
       }
-
-      console.log("[v0] Total saved searches after save:", newState.currentFocus.savedSearches.length)
       break
     }
 
@@ -1001,7 +936,7 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
             if (actor.currentListKey === "approval" && yesVotes === totalUsers && totalUsers > 0) {
               consensusAction = { type: "yes", isGreenlit: true }
               isGreenlit = true
-              isCast = true
+              isCast = true // Mark as officially cast in the role
 
               // Create greenlight notification and add it to the notifications array
               const greenlightNotification = {
@@ -1016,8 +951,10 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
                 characterId,
               }
 
+              // Add greenlight notification to the notifications array
               newNotifications = [greenlightNotification, ...newNotifications]
             } else if (yesVotes === totalUsers && actor.currentListKey !== "approval" && totalUsers > 0) {
+              // For other lists, unanimous Yes moves to next stage
               const currentTabIndex = state.tabDefinitions.findIndex((t) => t.key === actor.currentListKey)
               const nextTab = state.tabDefinitions[currentTabIndex + 1]
               if (nextTab && nextTab.key !== "shortLists") {
@@ -1026,6 +963,7 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
                 consensusAction = { type: "yes", targetKey: "approval", targetName: "Approval" }
               }
             } else if (noVotes === totalUsers && totalUsers > 0) {
+              // Only apply soft rejection if not on approval list
               if (actor.currentListKey !== "approval") {
                 consensusAction = { type: "no", targetKey: "longList", targetName: "Long List" }
                 isSoftRejected = true
@@ -1040,7 +978,7 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
               consensusAction,
               isSoftRejected,
               isGreenlit,
-              isCast,
+              isCast, // New field to track if actor is officially cast
             }
           }
 
@@ -1055,6 +993,7 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
                 ...sl,
                 actors: sl.actors.map(updateActorVote),
               })),
+              // Handle custom tabs
               ...Object.fromEntries(
                 Object.entries(character.actors)
                   .filter(([key]) => !["longList", "audition", "approval", "shortLists"].includes(key))
@@ -1065,6 +1004,7 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
         }),
       }))
 
+      // Return the updated state with new notifications and projects
       newState = {
         ...state,
         notifications: newNotifications,
@@ -1304,17 +1244,15 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
           return updatedProject
         }),
         // If deleting current character, switch to first available character
-        currentFocus:
-          state.currentFocus.characterId === action.payload
-            ? {
-                ...state.currentFocus,
-                characterId:
-                  state.projects
-                    .find((p) => p.id === state.currentFocus.currentProjectId)
-                    ?.characters.filter((char) => char.id !== action.payload)[0]?.id || null,
-                activeTabKey: "longList",
-              }
-            : state.currentFocus,
+        currentFocus: {
+          ...state.currentFocus,
+          characterId:
+            state.currentFocus.characterId === action.payload
+              ? state.projects
+                  .find((p) => p.id === state.currentFocus.currentProjectId)
+                  ?.characters.filter((char) => char.id !== action.payload)[0]?.id || null
+              : state.currentFocus.characterId,
+        },
       }
       break
 
@@ -1416,9 +1354,7 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
 
       // First, find the actor and determine source list name
       if (sourceLocation?.type === "standard") {
-        const sourceList = safeArray(
-          moveCharacter.actors[sourceLocation.key as keyof typeof moveCharacter.actors] as any[],
-        )
+        const sourceList = moveCharacter.actors[sourceLocation.key as keyof typeof moveCharacter.actors] as any[]
         actorToMove = sourceList.find((a: any) => a.id === actorId)
         const sourceTab = state.tabDefinitions.find((tab) => tab.key === sourceLocation.key)
         sourceListName = sourceTab?.name || sourceLocation.key
@@ -1431,9 +1367,7 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
           console.log("📋 CastingContext: Found in shortlist:", sourceListName, "Actor:", actorToMove?.name)
         }
       } else if (sourceLocation?.type === "custom") {
-        const sourceList = safeArray(
-          moveCharacter.actors[sourceLocation.key as keyof typeof moveCharacter.actors] as any[],
-        )
+        const sourceList = moveCharacter.actors[sourceLocation.key as keyof typeof moveCharacter.actors] as any[]
         actorToMove = sourceList.find((a: any) => a.id === actorId)
         sourceListName = sourceLocation.key
         console.log("📋 CastingContext: Found in custom list:", sourceListName, "Actor:", actorToMove?.name)
@@ -1501,7 +1435,7 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
 
           // Remove actor from source location
           if (sourceLocation?.type === "standard") {
-            const sourceList = safeArray(updatedActors[sourceLocation.key as keyof typeof updatedActors] as any[])
+            const sourceList = updatedActors[sourceLocation.key as keyof typeof updatedActors] as any[]
             actorToMove = sourceList.find((a: any) => a.id === actorId)
             updatedActors[sourceLocation.key as keyof typeof updatedActors] = sourceList.filter(
               (a: any) => a.id !== actorId,
@@ -1517,7 +1451,7 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
               return sl
             })
           } else if (sourceLocation?.type === "custom") {
-            const sourceList = safeArray(updatedActors[sourceLocation.key as keyof typeof updatedActors] as any[])
+            const sourceList = updatedActors[sourceLocation.key as keyof typeof updatedActors] as any[]
             actorToMove = sourceList.find((a: any) => a.id === actorId)
             updatedActors[sourceLocation.key as keyof typeof updatedActors] = sourceList.filter(
               (a: any) => a.id !== actorId,
@@ -1667,7 +1601,7 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
 
           // Remove actors from source location
           if (sourceLocation?.type === "standard") {
-            const sourceList = safeArray(updatedActors[sourceLocation.key as keyof typeof updatedActors] as any[])
+            const sourceList = updatedActors[sourceLocation.key as keyof typeof updatedActors] as any[]
             const foundActors = sourceList.filter((a: any) => actorIds.includes(a.id))
             actorsToMove.push(...foundActors)
             updatedActors[sourceLocation.key as keyof typeof updatedActors] = sourceList.filter(
@@ -1683,7 +1617,7 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
               return sl
             })
           } else if (sourceLocation?.type === "custom") {
-            const sourceList = safeArray(updatedActors[sourceLocation.key as keyof typeof updatedActors] as any[])
+            const sourceList = updatedActors[sourceLocation.key as keyof typeof updatedActors] as any[]
             const foundActors = sourceList.filter((a: any) => actorIds.includes(a.id))
             actorsToMove.push(...foundActors)
             updatedActors[sourceLocation.key as keyof typeof updatedActors] = sourceList.filter(
@@ -1783,7 +1717,7 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
               if (shortlistIndex === -1) return character
               targetList = [...updatedActors.shortLists[shortlistIndex].actors]
             } else if (listType === "standard" || listType === "custom") {
-              targetList = [...safeArray(updatedActors[listKey as keyof typeof updatedActors] as any[])]
+              targetList = [...(updatedActors[listKey as keyof typeof updatedActors] as any[])]
             } else {
               return character
             }
@@ -1816,7 +1750,7 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
                 ...updatedActors.shortLists[shortlistIndex],
                 actors: remainingActors,
               }
-            } else if (listType === "standard" || listType === "custom") {
+            } else {
               updatedActors[listKey as keyof typeof updatedActors] = remainingActors as any
             }
 
@@ -1956,7 +1890,7 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
             // Check all possible locations for the actor
             // Standard lists
             for (const listKey of ["longList", "audition", "approval"]) {
-              const list = safeArray(updatedActors[listKey as keyof typeof updatedActors] as any[])
+              const list = updatedActors[listKey as keyof typeof updatedActors] as any[]
               const actorIndex = list.findIndex((a) => a.id === actorId)
               if (actorIndex !== -1) {
                 actorToMove = list[actorIndex]
@@ -1986,7 +1920,7 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
                   !["longList", "audition", "approval", "shortLists"].includes(key) &&
                   Array.isArray(updatedActors[key])
                 ) {
-                  const list = safeArray(updatedActors[key] as any[])
+                  const list = updatedActors[key] as any[]
                   const actorIndex = list.findIndex((a) => a.id === actorId)
                   if (actorIndex !== -1) {
                     actorToMove = list[actorIndex]
@@ -2303,7 +2237,7 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
               if (shortlistIndex === -1) return character
               targetList = [...updatedActors.shortLists[shortlistIndex].actors]
             } else if (listType === "standard" || listType === "custom") {
-              targetList = [...safeArray(updatedActors[listKey as keyof typeof updatedActors] as any[])]
+              targetList = [...(updatedActors[listKey as keyof typeof updatedActors] as any[])]
             } else {
               return character
             }
@@ -2338,7 +2272,7 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
                 ...updatedActors.shortLists[shortlistIndex],
                 actors: targetList,
               }
-            } else if (listType === "standard" || listType === "custom") {
+            } else {
               updatedActors[listKey as keyof typeof updatedActors] = targetList
             }
 
@@ -2645,279 +2579,6 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
       }
       break
     }
-
-    case "ADD_SCHEDULE_ENTRY": {
-      newState = {
-        ...state,
-        scheduleEntries: [...state.scheduleEntries, action.payload],
-      }
-      break
-    }
-
-    case "UPDATE_SCHEDULE_ENTRY": {
-      newState = {
-        ...state,
-        scheduleEntries: state.scheduleEntries.map((entry) =>
-          entry.id === action.payload.id ? { ...entry, ...action.payload.updates } : entry,
-        ),
-      }
-      break
-    }
-
-    case "DELETE_SCHEDULE_ENTRY": {
-      newState = {
-        ...state,
-        scheduleEntries: state.scheduleEntries.filter((entry) => entry.id !== action.payload),
-      }
-      break
-    }
-
-    case "ADD_SCENE": {
-      newState = {
-        ...state,
-        scenes: [...state.scenes, action.payload],
-      }
-      break
-    }
-
-    case "UPDATE_SCENE": {
-      newState = {
-        ...state,
-        scenes: state.scenes.map((scene) =>
-          scene.id === action.payload.id ? { ...scene, ...action.payload.updates } : scene,
-        ),
-      }
-      break
-    }
-
-    case "DELETE_SCENE": {
-      newState = {
-        ...state,
-        scenes: state.scenes.filter((scene) => scene.id !== action.payload),
-      }
-      break
-    }
-
-    case "REORDER_SCENES": {
-      newState = {
-        ...state,
-        scenes: action.payload,
-      }
-      break
-    }
-
-    // </CHANGE> Add reducer cases for actor project-character assignments
-    case "ASSIGN_ACTOR_TO_PROJECT_CHARACTER": {
-      const { actorId, projectId, projectName, characterId, characterName } = action.payload
-
-      // Update all instances of this actor across all projects
-      const updatedProjects = state.projects.map((project) => ({
-        ...project,
-        characters: project.characters.map((character) => {
-          // Update actor in all lists
-          const updateActorInList = (actors: Actor[]) =>
-            actors.map((actor) => {
-              if (actor.id === actorId) {
-                const existingAssignments = actor.projectAssignments || []
-                // Check if assignment already exists
-                const assignmentExists = existingAssignments.some(
-                  (a) => a.projectId === projectId && a.characterId === characterId,
-                )
-
-                if (!assignmentExists) {
-                  return {
-                    ...actor,
-                    projectAssignments: [
-                      ...existingAssignments,
-                      {
-                        projectId,
-                        projectName,
-                        characterId,
-                        characterName,
-                        assignedDate: Date.now(),
-                      },
-                    ],
-                  }
-                }
-              }
-              return actor
-            })
-
-          return {
-            ...character,
-            actors: {
-              ...character.actors,
-              longList: Array.isArray(character.actors.longList)
-                ? updateActorInList(character.actors.longList)
-                : character.actors.longList,
-              audition: Array.isArray(character.actors.audition)
-                ? updateActorInList(character.actors.audition)
-                : character.actors.audition,
-              approval: Array.isArray(character.actors.approval)
-                ? updateActorInList(character.actors.approval)
-                : character.actors.approval,
-              shortLists: Array.isArray(character.actors.shortLists)
-                ? character.actors.shortLists.map((shortlist) => ({
-                    ...shortlist,
-                    actors: Array.isArray(shortlist.actors) ? updateActorInList(shortlist.actors) : shortlist.actors,
-                  }))
-                : character.actors.shortLists,
-            },
-          }
-        }),
-      }))
-
-      newState = {
-        ...state,
-        projects: updatedProjects,
-      }
-      break
-    }
-
-    case "REMOVE_ACTOR_ASSIGNMENT": {
-      const { actorId, projectId, characterId } = action.payload
-
-      // Update all instances of this actor across all projects
-      const updatedProjects = state.projects.map((project) => ({
-        ...project,
-        characters: project.characters.map((character) => {
-          // Update actor in all lists
-          const updateActorInList = (actors: Actor[]) =>
-            actors.map((actor) => {
-              if (actor.id === actorId && actor.projectAssignments) {
-                return {
-                  ...actor,
-                  projectAssignments: actor.projectAssignments.filter(
-                    (a) => !(a.projectId === projectId && a.characterId === characterId),
-                  ),
-                }
-              }
-              return actor
-            })
-
-          return {
-            ...character,
-            actors: {
-              ...character.actors,
-              longList: Array.isArray(character.actors.longList)
-                ? updateActorInList(character.actors.longList)
-                : character.actors.longList,
-              audition: Array.isArray(character.actors.audition)
-                ? updateActorInList(character.actors.audition)
-                : character.actors.audition,
-              approval: Array.isArray(character.actors.approval)
-                ? updateActorInList(character.actors.approval)
-                : character.actors.approval,
-              shortLists: Array.isArray(character.actors.shortLists)
-                ? character.actors.shortLists.map((shortlist) => ({
-                    ...shortlist,
-                    actors: Array.isArray(shortlist.actors) ? updateActorInList(shortlist.actors) : shortlist.actors,
-                  }))
-                : character.actors.shortLists,
-            },
-          }
-        }),
-      }))
-
-      newState = {
-        ...state,
-        projects: updatedProjects,
-      }
-      break
-    }
-
-    case "SET_STATUS_FILTER":
-      newState = {
-        ...state,
-        currentFocus: {
-          ...state.currentFocus,
-          filters: {
-            ...state.currentFocus.filters,
-            status: action.payload,
-          },
-        },
-      }
-      break
-
-    case "SET_AGE_RANGE_FILTER":
-      newState = {
-        ...state,
-        currentFocus: {
-          ...state.currentFocus,
-          filters: {
-            ...state.currentFocus.filters,
-            ageRange: action.payload,
-          },
-        },
-      }
-      break
-
-    case "SET_LOCATION_FILTER":
-      newState = {
-        ...state,
-        currentFocus: {
-          ...state.currentFocus,
-          filters: {
-            ...state.currentFocus.filters,
-            location: action.payload,
-          },
-        },
-      }
-      break
-
-    case "CLEAR_ALL_FILTERS":
-      newState = {
-        ...state,
-        currentFocus: {
-          ...state.currentFocus,
-          filters: {
-            ...state.currentFocus.filters, // Keep existing properties like showFilters
-            status: [],
-            ageRange: { min: 0, max: 100 },
-            location: [],
-          },
-        },
-      }
-      break
-
-    // </CHANGE> Add TOGGLE_FILTERS action to toggle filter panel visibility
-    case "TOGGLE_FILTERS":
-      newState = {
-        ...state,
-        currentFocus: {
-          ...state.currentFocus,
-          filters: {
-            ...state.currentFocus.filters,
-            showFilters: !state.currentFocus.filters.showFilters,
-          },
-        },
-      }
-      break
-
-    case "ADD_PRODUCTION_PHASE":
-      newState = {
-        ...state,
-        productionPhases: [...state.productionPhases, action.payload],
-      }
-      break
-
-    case "UPDATE_PRODUCTION_PHASE":
-      newState = {
-        ...state,
-        productionPhases: state.productionPhases.map((phase) =>
-          phase.id === action.payload.id ? { ...phase, ...action.payload.updates } : phase,
-        ),
-      }
-      break
-
-    case "DELETE_PRODUCTION_PHASE":
-      newState = {
-        ...state,
-        productionPhases: state.productionPhases.filter((phase) => phase.id !== action.payload),
-        // Also remove any schedule entries associated with this phase
-        scheduleEntries: state.scheduleEntries.filter((entry) => entry.phaseId !== action.payload),
-      }
-      break
 
     default:
       return state
