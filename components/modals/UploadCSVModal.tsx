@@ -3,7 +3,21 @@
 import type React from "react"
 import { useState, useRef } from "react"
 import { useCasting } from "@/components/casting/CastingContext"
-import { X, Upload, FileText, AlertCircle, CheckCircle, Download } from "lucide-react"
+import {
+  X,
+  Upload,
+  FileText,
+  AlertCircle,
+  CheckCircle,
+  Download,
+  Pencil,
+  Check,
+  XCircle,
+  ImagePlus,
+  Trash2,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react"
 
 interface UploadCSVModalProps {
   onClose: () => void
@@ -22,6 +36,11 @@ interface CSVRow {
 interface ParsedActor extends CSVRow {
   rowNumber: number
   errors: string[]
+}
+
+interface EditingActor extends ParsedActor {
+  isEditing: boolean
+  editedData: CSVRow
 }
 
 // Excel parsing utility functions
@@ -146,6 +165,10 @@ export default function UploadCSVModal({ onClose, characterId }: UploadCSVModalP
     [key: string]: "processing" | "success" | "failed"
   }>({})
   const [processedImages, setProcessedImages] = useState<{ [key: string]: string | null }>({})
+
+  const [editingActors, setEditingActors] = useState<{ [key: number]: EditingActor }>({})
+  const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set())
+  const imageUploadRefs = useRef<{ [key: number]: HTMLInputElement | null }>({})
 
   const currentProject = state.projects.find((p) => p.id === state.currentFocus.currentProjectId)
   const currentCharacter = currentProject?.characters.find((c) => c.id === characterId)
@@ -677,6 +700,160 @@ export default function UploadCSVModal({ onClose, characterId }: UploadCSVModalP
     }
   }
 
+  const startEditing = (actor: ParsedActor, isValid: boolean) => {
+    setEditingActors((prev) => ({
+      ...prev,
+      [actor.rowNumber]: {
+        ...actor,
+        isEditing: true,
+        editedData: {
+          name: actor.name,
+          age: actor.age,
+          playingAge: actor.playingAge,
+          contactNumber: actor.contactNumber,
+          contactMail: actor.contactMail,
+          headshot: actor.headshot,
+        },
+      },
+    }))
+    setExpandedRows((prev) => new Set(prev).add(actor.rowNumber))
+  }
+
+  const cancelEditing = (rowNumber: number) => {
+    setEditingActors((prev) => {
+      const newState = { ...prev }
+      delete newState[rowNumber]
+      return newState
+    })
+  }
+
+  const updateEditingField = (rowNumber: number, field: keyof CSVRow, value: string) => {
+    setEditingActors((prev) => ({
+      ...prev,
+      [rowNumber]: {
+        ...prev[rowNumber],
+        editedData: {
+          ...prev[rowNumber].editedData,
+          [field]: value,
+        },
+      },
+    }))
+  }
+
+  const saveEditing = (rowNumber: number, isValid: boolean) => {
+    const editingActor = editingActors[rowNumber]
+    if (!editingActor) return
+
+    const updatedData = editingActor.editedData
+    const errors: string[] = []
+
+    // Validate
+    if (!updatedData.name.trim()) {
+      errors.push("Name is required")
+    }
+    if (updatedData.contactMail && !validateEmail(updatedData.contactMail)) {
+      errors.push("Invalid email format")
+    }
+    if (updatedData.contactNumber && !validatePhone(updatedData.contactNumber)) {
+      errors.push("Invalid phone number format")
+    }
+    if (updatedData.age && isNaN(Number(updatedData.age))) {
+      errors.push("Age must be a number")
+    }
+
+    const updatedActor: ParsedActor = {
+      ...updatedData,
+      rowNumber,
+      errors,
+    }
+
+    // Update the appropriate list
+    if (isValid) {
+      if (errors.length === 0) {
+        // Still valid, update in validActors
+        setValidActors((prev) => prev.map((a) => (a.rowNumber === rowNumber ? updatedActor : a)))
+      } else {
+        // Now invalid, move to invalidActors
+        setValidActors((prev) => prev.filter((a) => a.rowNumber !== rowNumber))
+        setInvalidActors((prev) => [...prev, updatedActor].sort((a, b) => a.rowNumber - b.rowNumber))
+      }
+    } else {
+      if (errors.length === 0) {
+        // Now valid, move to validActors
+        setInvalidActors((prev) => prev.filter((a) => a.rowNumber !== rowNumber))
+        setValidActors((prev) => [...prev, updatedActor].sort((a, b) => a.rowNumber - b.rowNumber))
+      } else {
+        // Still invalid, update in invalidActors
+        setInvalidActors((prev) => prev.map((a) => (a.rowNumber === rowNumber ? updatedActor : a)))
+      }
+    }
+
+    // Update parsedActors
+    setParsedActors((prev) => prev.map((a) => (a.rowNumber === rowNumber ? updatedActor : a)))
+
+    // Clear editing state
+    cancelEditing(rowNumber)
+  }
+
+  const handleInlineImageUpload = (rowNumber: number, event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      alert("Please select an image file")
+      return
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert("Image must be less than 5MB")
+      return
+    }
+
+    // Create data URL for preview
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      const dataUrl = e.target?.result as string
+
+      // If currently editing, update the editedData
+      if (editingActors[rowNumber]) {
+        updateEditingField(rowNumber, "headshot", dataUrl)
+      } else {
+        // Directly update the actor
+        const updateList = (list: ParsedActor[]) =>
+          list.map((a) => (a.rowNumber === rowNumber ? { ...a, headshot: dataUrl } : a))
+
+        setValidActors(updateList)
+        setInvalidActors(updateList)
+        setParsedActors(updateList)
+      }
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const deleteActor = (rowNumber: number, isValid: boolean) => {
+    if (isValid) {
+      setValidActors((prev) => prev.filter((a) => a.rowNumber !== rowNumber))
+    } else {
+      setInvalidActors((prev) => prev.filter((a) => a.rowNumber !== rowNumber))
+    }
+    setParsedActors((prev) => prev.filter((a) => a.rowNumber !== rowNumber))
+    cancelEditing(rowNumber)
+  }
+
+  const toggleRowExpand = (rowNumber: number) => {
+    setExpandedRows((prev) => {
+      const newSet = new Set(prev)
+      if (newSet.has(rowNumber)) {
+        newSet.delete(rowNumber)
+      } else {
+        newSet.add(rowNumber)
+      }
+      return newSet
+    })
+  }
+
   const renderFileUpload = () => (
     <div className="space-y-6">
       <div>
@@ -778,148 +955,382 @@ export default function UploadCSVModal({ onClose, characterId }: UploadCSVModalP
     </div>
   )
 
-  const renderPreview = () => (
-    <div className="space-y-6">
-      <div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          Preview & Validation
-          <span className="text-sm font-normal text-gray-600 ml-2">({fileType.toUpperCase()} file)</span>
-        </h3>
+  const renderPreview = () => {
+    const renderActorRow = (actor: ParsedActor, isValid: boolean) => {
+      const isEditing = editingActors[actor.rowNumber]?.isEditing
+      const editData = editingActors[actor.rowNumber]?.editedData
+      const isExpanded = expandedRows.has(actor.rowNumber)
 
-        {/* Summary Stats */}
-        <div className="grid grid-cols-3 gap-4 mb-6">
-          <div className="bg-gray-50 p-4 rounded-lg text-center">
-            <div className="text-2xl font-bold text-gray-900">{parsedActors.length}</div>
-            <div className="text-sm text-gray-600">Total Entries</div>
-          </div>
-          <div className="bg-green-50 p-4 rounded-lg text-center">
-            <div className="text-2xl font-bold text-green-600">{validActors.length}</div>
-            <div className="text-sm text-green-600">Valid Entries</div>
-          </div>
-          <div className="bg-red-50 p-4 rounded-lg text-center">
-            <div className="text-2xl font-bold text-red-600">{invalidActors.length}</div>
-            <div className="text-sm text-red-600">Invalid Entries</div>
-          </div>
-        </div>
+      return (
+        <div
+          key={actor.rowNumber}
+          className={`border-b ${isValid ? "border-green-300" : "border-red-300"} last:border-b-0`}
+        >
+          {/* Main row */}
+          <div
+            className={`flex items-center gap-2 p-3 ${isValid ? "hover:bg-green-50" : "hover:bg-red-50"} transition-colors`}
+          >
+            {/* Expand/Collapse button */}
+            <button onClick={() => toggleRowExpand(actor.rowNumber)} className="p-1 hover:bg-gray-200 rounded">
+              {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            </button>
 
-        {/* Valid Actors Preview */}
-        {validActors.length > 0 && (
-          <div className="mb-6">
-            <h4 className="text-md font-medium text-green-700 mb-3 flex items-center">
-              <CheckCircle className="w-5 h-5 mr-2" />
-              Valid Entries ({validActors.length})
-            </h4>
-            <div className="max-h-40 overflow-y-auto border border-green-200 rounded-md">
-              <table className="min-w-full text-sm">
-                <thead className="bg-green-50">
-                  <tr>
-                    <th className="px-3 py-2 text-left">Row</th>
-                    <th className="px-3 py-2 text-left">Name</th>
-                    <th className="px-3 py-2 text-left">Age</th>
-                    <th className="px-3 py-2 text-left">Playing Age</th>
-                    <th className="px-3 py-2 text-left">Contact</th>
-                    <th className="px-3 py-2 text-left">Headshot</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {validActors.slice(0, 10).map((actor, index) => (
-                    <tr key={index} className="border-t border-green-200">
-                      <td className="px-3 py-2">{actor.rowNumber}</td>
-                      <td className="px-3 py-2 font-medium">{actor.name}</td>
-                      <td className="px-3 py-2">{actor.age || "-"}</td>
-                      <td className="px-3 py-2">{actor.playingAge || "-"}</td>
-                      <td className="px-3 py-2">{actor.contactMail || actor.contactNumber || "-"}</td>
-                      <td className="px-3 py-2">
-                        {actor.headshot ? (
-                          <span className="text-green-600 text-xs">✓ Image</span>
-                        ) : (
-                          <span className="text-gray-400 text-xs">No image</span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              {validActors.length > 10 && (
-                <div className="px-3 py-2 text-xs text-gray-500 bg-green-50">
-                  ... and {validActors.length - 10} more entries
+            {/* Thumbnail */}
+            <div className="w-10 h-10 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+              {(isEditing ? editData?.headshot : actor.headshot) ? (
+                <img
+                  src={isEditing ? editData?.headshot : actor.headshot}
+                  alt={actor.name}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    ;(e.target as HTMLImageElement).src = "/placeholder.svg?height=40&width=40"
+                  }}
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-gray-400">
+                  <ImagePlus className="w-4 h-4" />
                 </div>
               )}
             </div>
-          </div>
-        )}
 
-        {/* Invalid Actors */}
-        {invalidActors.length > 0 && (
-          <div className="mb-6">
-            <h4 className="text-md font-medium text-red-700 mb-3 flex items-center">
-              <AlertCircle className="w-5 h-5 mr-2" />
-              Invalid Entries ({invalidActors.length})
-            </h4>
-            <div className="max-h-40 overflow-y-auto border border-red-200 rounded-md">
-              <table className="min-w-full text-sm">
-                <thead className="bg-red-50">
-                  <tr>
-                    <th className="px-3 py-2 text-left">Row</th>
-                    <th className="px-3 py-2 text-left">Name</th>
-                    <th className="px-3 py-2 text-left">Errors</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {invalidActors.map((actor, index) => (
-                    <tr key={index} className="border-t border-red-200">
-                      <td className="px-3 py-2">{actor.rowNumber}</td>
-                      <td className="px-3 py-2">{actor.name || "(empty)"}</td>
-                      <td className="px-3 py-2 text-red-600">{actor.errors.join(", ")}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            {/* Row number */}
+            <span className="text-xs text-gray-500 w-8">#{actor.rowNumber}</span>
+
+            {/* Name - editable or display */}
+            <div className="flex-1 min-w-0">
+              {isEditing ? (
+                <input
+                  type="text"
+                  value={editData?.name || ""}
+                  onChange={(e) => updateEditingField(actor.rowNumber, "name", e.target.value)}
+                  className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  placeholder="Name"
+                />
+              ) : (
+                <span className="font-medium text-gray-900 truncate block">{actor.name || "(empty)"}</span>
+              )}
             </div>
-          </div>
-        )}
 
-        {/* Image Processing Progress */}
-        {Object.keys(imageProcessingProgress).length > 0 && (
-          <div className="mb-6">
-            <h4 className="text-md font-medium text-blue-700 mb-3">Image Processing Progress</h4>
-            <div className="space-y-2">
-              {Object.entries(imageProcessingProgress).map(([actorKey, status]) => (
-                <div key={actorKey} className="flex items-center justify-between text-sm">
-                  <span>{actorKey.split("-")[0]}</span>
-                  <span
-                    className={`px-2 py-1 rounded text-xs ${
-                      status === "processing"
-                        ? "bg-blue-100 text-blue-800"
-                        : status === "success"
-                          ? "bg-green-100 text-green-800"
-                          : "bg-red-100 text-red-800"
-                    }`}
+            {/* Age */}
+            <div className="w-16 flex-shrink-0">
+              {isEditing ? (
+                <input
+                  type="text"
+                  value={editData?.age || ""}
+                  onChange={(e) => updateEditingField(actor.rowNumber, "age", e.target.value)}
+                  className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-green-500"
+                  placeholder="Age"
+                />
+              ) : (
+                <span className="text-sm text-gray-600">{actor.age || "-"}</span>
+              )}
+            </div>
+
+            {/* Status indicator */}
+            {!isValid && !isEditing && (
+              <span className="px-2 py-0.5 text-xs rounded-full bg-red-100 text-red-700 flex-shrink-0">
+                {actor.errors.length} error{actor.errors.length > 1 ? "s" : ""}
+              </span>
+            )}
+
+            {/* Action buttons */}
+            <div className="flex items-center gap-1 flex-shrink-0">
+              {isEditing ? (
+                <>
+                  <button
+                    onClick={() => saveEditing(actor.rowNumber, isValid)}
+                    className="p-1.5 bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
+                    title="Save changes"
                   >
-                    {status === "processing" ? "Processing..." : status === "success" ? "Success" : "Failed"}
-                  </span>
-                </div>
-              ))}
+                    <Check className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => cancelEditing(actor.rowNumber)}
+                    className="p-1.5 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors"
+                    title="Cancel"
+                  >
+                    <XCircle className="w-4 h-4" />
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={() => startEditing(actor, isValid)}
+                    className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                    title="Edit actor"
+                  >
+                    <Pencil className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => deleteActor(actor.rowNumber, isValid)}
+                    className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                    title="Remove actor"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </>
+              )}
             </div>
           </div>
-        )}
 
-        {validActors.length > 0 && (
-          <div className="flex justify-end">
-            <button
-              onClick={handleCreateActors}
-              disabled={isProcessing}
-              className="px-4 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          {/* Expanded details */}
+          {isExpanded && (
+            <div
+              className={`px-4 py-3 ${isValid ? "bg-green-50/50" : "bg-red-50/50"} border-t ${isValid ? "border-green-300" : "border-red-300"}`}
             >
-              {isProcessing
-                ? `Creating... (${processingStats.successful}/${processingStats.total})`
-                : `Create ${validActors.length} Actor Cards`}
-            </button>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {/* Headshot upload */}
+                <div className="col-span-1">
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Headshot</label>
+                  <div className="flex items-center gap-2">
+                    <div className="w-20 h-24 rounded-lg overflow-hidden bg-gray-100 border border-gray-200">
+                      {(isEditing ? editData?.headshot : actor.headshot) ? (
+                        <img
+                          src={isEditing ? editData?.headshot : actor.headshot}
+                          alt={actor.name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            ;(e.target as HTMLImageElement).src = "/placeholder.svg?height=96&width=80"
+                          }}
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-gray-400">
+                          <ImagePlus className="w-6 h-6" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <input
+                        type="file"
+                        ref={(el) => {
+                          imageUploadRefs.current[actor.rowNumber] = el
+                        }}
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => handleInlineImageUpload(actor.rowNumber, e)}
+                      />
+                      <button
+                        onClick={() => imageUploadRefs.current[actor.rowNumber]?.click()}
+                        className="px-3 py-1.5 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors flex items-center gap-1"
+                      >
+                        <Upload className="w-3 h-3" />
+                        Upload
+                      </button>
+                      {(isEditing ? editData?.headshot : actor.headshot) && (
+                        <button
+                          onClick={() => {
+                            if (isEditing) {
+                              updateEditingField(actor.rowNumber, "headshot", "")
+                            } else {
+                              const updateList = (list: ParsedActor[]) =>
+                                list.map((a) => (a.rowNumber === actor.rowNumber ? { ...a, headshot: "" } : a))
+                              setValidActors(updateList)
+                              setInvalidActors(updateList)
+                              setParsedActors(updateList)
+                            }
+                          }}
+                          className="px-3 py-1.5 text-xs bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
+                        >
+                          Remove
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Playing Age */}
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Playing Age</label>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={editData?.playingAge || ""}
+                      onChange={(e) => updateEditingField(actor.rowNumber, "playingAge", e.target.value)}
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      placeholder="e.g., 25-30"
+                    />
+                  ) : (
+                    <p className="text-sm text-gray-900 py-2">{actor.playingAge || "-"}</p>
+                  )}
+                </div>
+
+                {/* Contact Number */}
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Contact Number</label>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={editData?.contactNumber || ""}
+                      onChange={(e) => updateEditingField(actor.rowNumber, "contactNumber", e.target.value)}
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      placeholder="Phone number"
+                    />
+                  ) : (
+                    <p className="text-sm text-gray-900 py-2">{actor.contactNumber || "-"}</p>
+                  )}
+                </div>
+
+                {/* Contact Email */}
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Contact Email</label>
+                  {isEditing ? (
+                    <input
+                      type="email"
+                      value={editData?.contactMail || ""}
+                      onChange={(e) => updateEditingField(actor.rowNumber, "contactMail", e.target.value)}
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      placeholder="Email address"
+                    />
+                  ) : (
+                    <p className="text-sm text-gray-900 py-2">{actor.contactMail || "-"}</p>
+                  )}
+                </div>
+
+                {/* Headshot URL (if editing) */}
+                {isEditing && (
+                  <div className="md:col-span-2">
+                    <label className="block text-xs font-medium text-gray-700 mb-1">Headshot URL</label>
+                    <input
+                      type="text"
+                      value={editData?.headshot || ""}
+                      onChange={(e) => updateEditingField(actor.rowNumber, "headshot", e.target.value)}
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      placeholder="https://example.com/headshot.jpg"
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Error display */}
+              {!isValid && actor.errors.length > 0 && (
+                <div className="mt-3 p-2 bg-red-100 rounded-lg">
+                  <p className="text-xs font-medium text-red-800 mb-1">Validation Errors:</p>
+                  <ul className="text-xs text-red-700 list-disc list-inside">
+                    {actor.errors.map((error, idx) => (
+                      <li key={idx}>{error}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )
+    }
+
+    return (
+      <div className="space-y-6">
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+            Preview & Edit
+            <span className="text-sm font-normal text-gray-600 ml-2">({fileType.toUpperCase()} file)</span>
+          </h3>
+
+          {/* Summary Stats */}
+          <div className="grid grid-cols-3 gap-4 mb-6">
+            <div className="bg-gray-50 p-4 rounded-lg text-center">
+              <div className="text-2xl font-bold text-gray-900">{parsedActors.length}</div>
+              <div className="text-sm text-gray-600">Total Entries</div>
+            </div>
+            <div className="bg-green-50 p-4 rounded-lg text-center">
+              <div className="text-2xl font-bold text-green-600">{validActors.length}</div>
+              <div className="text-sm text-green-600">Valid Entries</div>
+            </div>
+            <div className="bg-red-50 p-4 rounded-lg text-center">
+              <div className="text-2xl font-bold text-red-600">{invalidActors.length}</div>
+              <div className="text-sm text-red-600">Invalid Entries</div>
+            </div>
           </div>
-        )}
+
+          {/* Instructions */}
+          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-sm text-blue-800">
+              <strong>Tip:</strong> Click the arrow to expand a row for full editing. Use the{" "}
+              <Pencil className="w-3 h-3 inline" /> button for quick edits, or upload images directly for each actor.
+            </p>
+          </div>
+
+          {/* Valid Actors List */}
+          {validActors.length > 0 && (
+            <div className="mb-6">
+              <h4 className="text-md font-medium text-green-700 mb-3 flex items-center">
+                <CheckCircle className="w-5 h-5 mr-2" />
+                Valid Entries ({validActors.length})
+              </h4>
+              <div className="max-h-[300px] overflow-y-auto border border-green-200 rounded-lg bg-white">
+                {validActors.map((actor) => renderActorRow(actor, true))}
+              </div>
+            </div>
+          )}
+
+          {/* Invalid Actors List */}
+          {invalidActors.length > 0 && (
+            <div className="mb-6">
+              <h4 className="text-md font-medium text-red-700 mb-3 flex items-center">
+                <AlertCircle className="w-5 h-5 mr-2" />
+                Invalid Entries ({invalidActors.length}) - Edit to fix errors
+              </h4>
+              <div className="max-h-[300px] overflow-y-auto border border-red-200 rounded-lg bg-white">
+                {invalidActors.map((actor) => renderActorRow(actor, false))}
+              </div>
+            </div>
+          )}
+
+          {/* Image Processing Progress */}
+          {Object.keys(imageProcessingProgress).length > 0 && (
+            <div className="mb-6">
+              <h4 className="text-md font-medium text-blue-700 mb-3">Image Processing Progress</h4>
+              <div className="space-y-2">
+                {Object.entries(imageProcessingProgress).map(([actorKey, status]) => (
+                  <div key={actorKey} className="flex items-center justify-between text-sm">
+                    <span>{actorKey.split("-")[0]}</span>
+                    <span
+                      className={`px-2 py-1 rounded text-xs ${
+                        status === "processing"
+                          ? "bg-blue-100 text-blue-800"
+                          : status === "success"
+                            ? "bg-green-100 text-green-800"
+                            : "bg-red-100 text-red-800"
+                      }`}
+                    >
+                      {status === "processing" ? "Processing..." : status === "success" ? "Success" : "Failed"}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {validActors.length > 0 && (
+            <div className="flex justify-between items-center">
+              <button
+                onClick={() => {
+                  setFile(null)
+                  setParsedActors([])
+                  setValidActors([])
+                  setInvalidActors([])
+                  setEditingActors({})
+                  setExpandedRows(new Set())
+                }}
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                Start Over
+              </button>
+              <button
+                onClick={handleCreateActors}
+                disabled={isProcessing}
+                className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                {isProcessing
+                  ? `Creating... (${processingStats.successful}/${processingStats.total})`
+                  : `Create ${validActors.length} Actor Cards`}
+              </button>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
-  )
+    )
+  }
 
   const renderComplete = () => (
     <div className="text-center space-y-6">

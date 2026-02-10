@@ -1,5 +1,5 @@
 "use client"
-import { X, Plus, FolderOpen, Database, Bell, Settings, HelpCircle, Clapperboard } from "lucide-react"
+import { X, Plus, FolderOpen, Database, Bell, Settings, HelpCircle, Clapperboard, Users, Film, BarChart3, ArrowRight, Sparkles, Calendar, Search } from 'lucide-react'
 import { openModal } from "./ModalManager"
 import { useState, useEffect, useRef } from "react"
 import UserMenu from "../layout/UserMenu"
@@ -28,21 +28,18 @@ export default function SplashScreenModal({ onClose }: SplashScreenModalProps) {
       label: "Available",
       color: "bg-green-500",
       description: "Ready to collaborate",
-      icon: "🟢",
     },
     {
       value: "busy",
       label: "Busy",
       color: "bg-red-500",
       description: "In a meeting or focused work",
-      icon: "🔴",
     },
     {
       value: "away",
       label: "Away",
       color: "bg-yellow-500",
       description: "Temporarily unavailable",
-      icon: "🟡",
     },
   ] as const
 
@@ -143,18 +140,18 @@ export default function SplashScreenModal({ onClose }: SplashScreenModalProps) {
     }
 
     // Listen for initials change requests from UserMenu
-    const handleInitialsChange = () => {
+    const handleInitialsChangeEvt = () => {
       if (!state.currentUser) return
       setTempInitials(state.currentUser.initials)
       setShowInitialsEditor(true)
     }
 
     window.addEventListener("userStatusChange", handleStatusChange as EventListener)
-    window.addEventListener("changeInitials", handleInitialsChange)
+    window.addEventListener("changeInitials", handleInitialsChangeEvt)
 
     return () => {
       window.removeEventListener("userStatusChange", handleStatusChange as EventListener)
-      window.removeEventListener("changeInitials", handleInitialsChange)
+      window.removeEventListener("changeInitials", handleInitialsChangeEvt)
     }
   }, [state.currentUser])
 
@@ -214,40 +211,51 @@ export default function SplashScreenModal({ onClose }: SplashScreenModalProps) {
     }
   }, [])
 
+  // Compute stats
   const unreadNotifications = state.notifications.filter((n) => !n.read).length
+  const projectCount = state.projects.length
+  const totalActors = state.projects.reduce((sum, p) => {
+    return sum + p.characters.reduce((cSum, c) => {
+      return cSum + (c.longList?.length || 0) + (c.auditionList?.length || 0) + (c.approvalList?.length || 0)
+    }, 0)
+  }, 0)
+  const totalCharacters = state.projects.reduce((sum, p) => sum + p.characters.length, 0)
 
   return (
-    <div className="fixed inset-0 bg-gray-50 flex flex-col z-50">
-      {/* Timer indicator (optional visual feedback) */}
+    <div className="fixed inset-0 bg-gray-950 flex flex-col z-50 overflow-y-auto">
+      {/* Timer indicator */}
       {isTimerActive && (
-        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-10">
-          <div className="bg-emerald-600 text-white px-4 py-2 rounded-full text-sm font-medium">Loading...</div>
+        <div className="absolute top-20 left-1/2 transform -translate-x-1/2 z-10">
+          <div className="bg-emerald-500 text-white px-5 py-2.5 rounded-full text-sm font-medium flex items-center gap-2 shadow-lg shadow-emerald-500/25">
+            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            Loading project...
+          </div>
         </div>
       )}
 
-      {/* Top Bar */}
-      <div className="flex justify-between items-center p-6">
-        {/* Left side - Greenlight Header */}
-        <div className="flex items-center space-x-3">
+      {/* Top Navigation Bar */}
+      <header className="flex justify-between items-center px-6 py-4 border-b border-gray-800/50 bg-gray-950/80 backdrop-blur-sm sticky top-0 z-20">
+        {/* Left side - Logo */}
+        <div className="flex items-center gap-3">
           <div className="p-2 bg-emerald-600 rounded-lg">
-            <Clapperboard className="w-6 h-6 text-white" />
+            <Clapperboard className="w-5 h-5 text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-emerald-600 tracking-wide">GREENLIGHT</h1>
+          <span className="text-lg font-bold text-white tracking-wider hidden sm:block">GOGREENLIGHT</span>
         </div>
 
-        {/* Right side - User controls */}
-        <div className="flex items-center space-x-4">
+        {/* Right side - Controls */}
+        <div className="flex items-center gap-2">
           {/* Notification Icon */}
           <div className="relative">
             <button
               onClick={handleNotifications}
-              className="p-3 bg-white rounded-full shadow-sm hover:shadow-md transition-shadow"
+              className="p-2.5 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition-colors"
             >
-              <Bell className="w-5 h-5 text-gray-600" />
+              <Bell className="w-5 h-5" />
             </button>
             {unreadNotifications > 0 && (
-              <div className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
-                <span className="text-xs text-white font-medium">{unreadNotifications}</span>
+              <div className="absolute -top-0.5 -right-0.5 w-4.5 h-4.5 min-w-[18px] bg-red-500 rounded-full flex items-center justify-center">
+                <span className="text-[10px] text-white font-bold">{unreadNotifications}</span>
               </div>
             )}
           </div>
@@ -255,21 +263,31 @@ export default function SplashScreenModal({ onClose }: SplashScreenModalProps) {
           {/* Settings Icon */}
           <button
             onClick={handleSettings}
-            className="p-3 bg-white rounded-full shadow-sm hover:shadow-md transition-shadow"
+            className="p-2.5 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition-colors"
           >
-            <Settings className="w-5 h-5 text-gray-600" />
+            <Settings className="w-5 h-5" />
           </button>
 
-          {/* User Icon - Enhanced Interactive */}
+          {/* Help */}
+          <button
+            onClick={() => openModal("helpWizard")}
+            className="p-2.5 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition-colors"
+          >
+            <HelpCircle className="w-5 h-5" />
+          </button>
+
+          {/* Divider */}
+          <div className="w-px h-8 bg-gray-700 mx-1" />
+
+          {/* User Avatar */}
           <div className="relative" ref={userButtonRef}>
             <button
               onClick={handleUserMenu}
-              className="relative p-2 bg-white rounded-full shadow-sm hover:shadow-md transition-all duration-200 group"
+              className="relative p-1 rounded-lg hover:bg-gray-800 transition-all duration-200 group"
               title={`${state.currentUser?.name} - ${userStatus.charAt(0).toUpperCase() + userStatus.slice(1)}`}
             >
-              {/* User Avatar with Initials */}
               <div
-                className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-200 group-hover:scale-105"
+                className="w-9 h-9 rounded-lg flex items-center justify-center text-xs font-bold transition-all duration-200"
                 style={{
                   backgroundColor: state.currentUser?.bgColor || "#6B7280",
                   color: state.currentUser?.color || "#FFFFFF",
@@ -277,91 +295,179 @@ export default function SplashScreenModal({ onClose }: SplashScreenModalProps) {
               >
                 {state.currentUser?.initials || "??"}
               </div>
-
               {/* Status Indicator */}
               <div className="absolute -bottom-0.5 -right-0.5 flex items-center justify-center">
                 <div
-                  className={`w-4 h-4 rounded-full border-2 border-white transition-all duration-200 ${getStatusColor(userStatus)}`}
+                  className={`w-3.5 h-3.5 rounded-full border-2 border-gray-950 transition-all duration-200 ${getStatusColor(userStatus)}`}
                   title={getStatusLabel(userStatus)}
                 />
-                {/* Pulse animation for online status */}
                 {userStatus === "available" && (
-                  <div className="absolute w-4 h-4 bg-green-400 rounded-full animate-ping opacity-75" />
+                  <div className="absolute w-3.5 h-3.5 bg-green-400 rounded-full animate-ping opacity-75" />
                 )}
               </div>
-
-              {/* Hover effect overlay */}
-              <div className="absolute inset-0 rounded-full bg-black opacity-0 group-hover:opacity-10 transition-opacity duration-200" />
             </button>
           </div>
 
           {/* Close Button */}
-          <button onClick={onClose} className="p-3 bg-white rounded-full shadow-sm hover:shadow-md transition-shadow">
-            <X className="w-5 h-5 text-gray-600" />
+          <button
+            onClick={onClose}
+            className="p-2.5 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition-colors ml-1"
+          >
+            <X className="w-5 h-5" />
           </button>
         </div>
-      </div>
+      </header>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col items-center justify-center px-6">
-        {/* Action Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl w-full">
-          {/* New Project Card */}
+      <main className="flex-1 flex flex-col items-center px-6 py-8 md:py-12">
+        {/* Hero Section */}
+        <div className="text-center mb-10 md:mb-14 max-w-2xl">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium mb-5">
+            <Sparkles className="w-3.5 h-3.5" />
+            Casting Management Platform
+          </div>
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 text-balance leading-tight">
+            Welcome to GoGreenlight
+          </h1>
+          <p className="text-gray-400 text-base md:text-lg leading-relaxed text-pretty">
+            Your complete casting workflow -- from script breakdowns to final selections. Manage projects, discover talent, and streamline your entire casting process.
+          </p>
+        </div>
+
+        {/* Quick Stats Bar */}
+        {(projectCount > 0 || totalActors > 0) && (
+          <div className="flex items-center gap-6 mb-10 md:mb-14">
+            <div className="flex items-center gap-2 text-sm">
+              <Film className="w-4 h-4 text-emerald-500" />
+              <span className="text-gray-300 font-medium">{projectCount}</span>
+              <span className="text-gray-500">{projectCount === 1 ? 'Project' : 'Projects'}</span>
+            </div>
+            <div className="w-1 h-1 rounded-full bg-gray-600" />
+            <div className="flex items-center gap-2 text-sm">
+              <Users className="w-4 h-4 text-emerald-500" />
+              <span className="text-gray-300 font-medium">{totalCharacters}</span>
+              <span className="text-gray-500">{totalCharacters === 1 ? 'Character' : 'Characters'}</span>
+            </div>
+            <div className="w-1 h-1 rounded-full bg-gray-600" />
+            <div className="flex items-center gap-2 text-sm">
+              <BarChart3 className="w-4 h-4 text-emerald-500" />
+              <span className="text-gray-300 font-medium">{totalActors}</span>
+              <span className="text-gray-500">{totalActors === 1 ? 'Actor' : 'Actors'}</span>
+            </div>
+          </div>
+        )}
+
+        {/* Action Cards - Primary */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5 max-w-4xl w-full mb-12 md:mb-16">
+          {/* New Project */}
           <button
             onClick={handleNewProject}
             disabled={isTimerActive}
-            className="group relative overflow-hidden rounded-3xl aspect-square bg-gradient-to-br from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl disabled:opacity-75 disabled:cursor-not-allowed disabled:transform-none"
+            className="group relative overflow-hidden rounded-xl bg-emerald-600 hover:bg-emerald-500 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed text-left"
           >
-            <div className="relative h-full flex flex-col items-center justify-center p-8">
-              <div className="mb-4 p-4 bg-white/20 rounded-2xl backdrop-blur-sm">
-                <Plus className="w-8 h-8 text-white" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(255,255,255,0.12)_0%,_transparent_60%)]" />
+            <div className="relative p-6 md:p-7 flex flex-col gap-5">
+              <div className="flex items-start justify-between">
+                <div className="p-3 bg-white/15 rounded-xl backdrop-blur-sm">
+                  <Plus className="w-6 h-6 text-white" />
+                </div>
+                <ArrowRight className="w-5 h-5 text-white/50 group-hover:text-white group-hover:translate-x-1 transition-all duration-300" />
               </div>
-              <h3 className="text-2xl font-bold text-white mb-2">New Project</h3>
-              <div className="text-3xl">🎬</div>
+              <div>
+                <h3 className="text-xl font-semibold text-white mb-1.5">New Project</h3>
+                <p className="text-emerald-100/70 text-sm leading-relaxed">Start a new casting project for your production</p>
+              </div>
             </div>
           </button>
 
-          {/* Open Project Card */}
+          {/* Open Project */}
           <button
             onClick={handleOpenProject}
             disabled={isTimerActive}
-            className="group relative overflow-hidden rounded-3xl aspect-square bg-gradient-to-br from-gray-800 to-gray-900 hover:from-gray-700 hover:to-gray-800 transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl disabled:opacity-75 disabled:cursor-not-allowed disabled:transform-none"
+            className="group relative overflow-hidden rounded-xl bg-gray-800 hover:bg-gray-700 border border-gray-700/50 hover:border-gray-600 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed text-left"
           >
-            <div className="relative h-full flex flex-col items-center justify-center p-8">
-              <div className="mb-4 p-4 bg-white/20 rounded-2xl backdrop-blur-sm">
-                <FolderOpen className="w-8 h-8 text-white" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(255,255,255,0.05)_0%,_transparent_60%)]" />
+            <div className="relative p-6 md:p-7 flex flex-col gap-5">
+              <div className="flex items-start justify-between">
+                <div className="p-3 bg-white/10 rounded-xl">
+                  <FolderOpen className="w-6 h-6 text-white" />
+                </div>
+                <ArrowRight className="w-5 h-5 text-white/30 group-hover:text-white group-hover:translate-x-1 transition-all duration-300" />
               </div>
-              <h3 className="text-2xl font-bold text-white mb-2">Open Project</h3>
-              <div className="text-3xl">📁</div>
+              <div>
+                <h3 className="text-xl font-semibold text-white mb-1.5">Open Project</h3>
+                <p className="text-gray-400 text-sm leading-relaxed">Browse and manage your existing productions</p>
+              </div>
             </div>
           </button>
 
-          {/* Database Card */}
+          {/* Actor Database */}
           <button
             onClick={handleDatabase}
             disabled={isTimerActive}
-            className="group relative overflow-hidden rounded-3xl aspect-square bg-gradient-to-br from-gray-600 to-gray-700 hover:from-gray-500 hover:to-gray-600 transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl disabled:opacity-75 disabled:cursor-not-allowed disabled:transform-none"
+            className="group relative overflow-hidden rounded-xl bg-gray-800 hover:bg-gray-700 border border-gray-700/50 hover:border-gray-600 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed text-left"
           >
-            <div className="relative h-full flex flex-col items-center justify-center p-8">
-              <div className="mb-4 p-4 bg-white/20 rounded-2xl backdrop-blur-sm">
-                <Database className="w-8 h-8 text-white" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(255,255,255,0.05)_0%,_transparent_60%)]" />
+            <div className="relative p-6 md:p-7 flex flex-col gap-5">
+              <div className="flex items-start justify-between">
+                <div className="p-3 bg-white/10 rounded-xl">
+                  <Database className="w-6 h-6 text-white" />
+                </div>
+                <ArrowRight className="w-5 h-5 text-white/30 group-hover:text-white group-hover:translate-x-1 transition-all duration-300" />
               </div>
-              <h3 className="text-2xl font-bold text-white mb-2">Database</h3>
-              <div className="text-3xl">💾</div>
+              <div>
+                <h3 className="text-xl font-semibold text-white mb-1.5">Actor Database</h3>
+                <p className="text-gray-400 text-sm leading-relaxed">Search and discover actors across all projects</p>
+              </div>
             </div>
           </button>
         </div>
-      </div>
 
-      {/* Help Button */}
-      <div className="absolute bottom-6 left-6">
-        <button
-          onClick={() => openModal("helpWizard")}
-          className="p-3 bg-white rounded-full shadow-sm hover:shadow-md transition-shadow"
-        >
-          <HelpCircle className="w-5 h-5 text-gray-600" />
-        </button>
-      </div>
+        {/* Feature Highlights */}
+        <div className="max-w-4xl w-full">
+          <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-5">What you can do</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[
+              {
+                icon: Film,
+                title: "Script Analysis",
+                desc: "Upload scripts and auto-extract character breakdowns"
+              },
+              {
+                icon: Users,
+                title: "Casting Lists",
+                desc: "Manage Long Lists, Auditions, and Approvals per character"
+              },
+              {
+                icon: Search,
+                title: "Actor Search",
+                desc: "Filter by gender, age, location, and availability"
+              },
+              {
+                icon: Calendar,
+                title: "Scheduling",
+                desc: "Coordinate audition sessions and casting calendars"
+              },
+            ].map((feature) => (
+              <div
+                key={feature.title}
+                className="flex items-start gap-3.5 p-4 rounded-xl bg-gray-900/50 border border-gray-800/50"
+              >
+                <div className="p-2 bg-emerald-500/10 rounded-lg shrink-0 mt-0.5">
+                  <feature.icon className="w-4 h-4 text-emerald-500" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-medium text-gray-200 mb-1">{feature.title}</h3>
+                  <p className="text-xs text-gray-500 leading-relaxed">{feature.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Bottom spacer for scrolling */}
+        <div className="h-8" />
+      </main>
 
       {/* User Menu */}
       <UserMenu
@@ -374,32 +480,32 @@ export default function SplashScreenModal({ onClose }: SplashScreenModalProps) {
 
       {/* Initials Editor Modal */}
       {showInitialsEditor && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60]">
-          <div className="bg-white rounded-lg p-6 w-80 shadow-xl">
-            <h3 className="text-lg font-semibold mb-4">Change Initials</h3>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">New Initials (max 2 characters)</label>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[60]">
+          <div className="bg-gray-900 border border-gray-700 rounded-xl p-6 w-80 shadow-2xl">
+            <h3 className="text-lg font-semibold text-white mb-4">Change Initials</h3>
+            <div className="mb-5">
+              <label className="block text-sm font-medium text-gray-400 mb-2">New Initials (max 2 characters)</label>
               <input
                 type="text"
                 value={tempInitials}
                 onChange={(e) => setTempInitials(e.target.value)}
                 maxLength={2}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-center text-lg font-bold uppercase"
+                className="w-full px-3 py-2.5 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-center text-lg font-bold uppercase placeholder-gray-500"
                 placeholder="AB"
                 autoFocus
               />
             </div>
-            <div className="flex space-x-3">
+            <div className="flex gap-3">
               <button
                 onClick={handleSaveInitials}
                 disabled={!tempInitials.trim()}
-                className="flex-1 bg-emerald-600 text-white py-2 px-4 rounded-md hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="flex-1 bg-emerald-600 text-white py-2.5 px-4 rounded-lg hover:bg-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium text-sm"
               >
                 Save
               </button>
               <button
                 onClick={handleCancelInitials}
-                className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400 transition-colors"
+                className="flex-1 bg-gray-800 text-gray-300 py-2.5 px-4 rounded-lg hover:bg-gray-700 transition-colors font-medium text-sm border border-gray-600"
               >
                 Cancel
               </button>

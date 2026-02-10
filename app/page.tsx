@@ -46,8 +46,8 @@ function CastingAppContent() {
 
   // Show splash screen on first visit only
   useEffect(() => {
-    const FIRST_VISIT_KEY = "greenlight-first-visit-complete"
-    const CACHE_CLEARED_KEY = "greenlight-cache-cleared"
+    const FIRST_VISIT_KEY = "gogreenlight-first-visit-complete"
+    const CACHE_CLEARED_KEY = "gogreenlight-cache-cleared"
 
     if (typeof window !== "undefined") {
       const isFirstVisit = !window.localStorage.getItem(FIRST_VISIT_KEY)

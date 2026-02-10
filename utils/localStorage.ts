@@ -1,4 +1,4 @@
-const STORAGE_KEY = "greenlight-casting-state"
+const STORAGE_KEY = "gogreenlight-casting-state"
 
 export function saveToLocalStorage(state: any): void {
   try {

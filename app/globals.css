@@ -29,6 +29,41 @@
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
+
+    /* Added new color system tokens from design system */
+    /* Green Brand Colors - For "Yes" votes, success states, primary brand */
+    --green-brand-100: 152 76% 85%;
+    --green-brand-200: 152 68% 70%;
+    --green-brand-300: 152 60% 55%;
+    --green-brand-400: 152 52% 48%;
+    --green-brand-500: 152 60% 40%;
+    --green-brand-600: 152 65% 32%;
+    --green-brand-700: 152 70% 24%;
+    --green-brand-800: 152 72% 18%;
+    --green-brand-900: 152 75% 12%;
+
+    /* Blue Colors - For "Maybe" votes and informational states */
+    --blue-100: 214 95% 85%;
+    --blue-200: 213 92% 75%;
+    --blue-300: 212 89% 65%;
+    --blue-400: 211 86% 55%;
+    --blue-500: 211 85% 48%;
+    --blue-600: 211 90% 42%;
+    --blue-700: 211 92% 36%;
+    --blue-800: 211 94% 28%;
+    --blue-900: 211 96% 20%;
+
+    /* Red/Error Colors - For "No" votes and destructive actions */
+    --red-100: 0 93% 88%;
+    --red-200: 0 90% 78%;
+    --red-300: 0 87% 68%;
+    --red-400: 0 84% 60%;
+    --red-500: 0 84% 52%;
+    --red-600: 0 90% 45%;
+    --red-700: 0 92% 38%;
+
+    /* Notification Badge Color */
+    --notification-badge: 0 84% 60%;
   }
 
   .dark {
@@ -56,6 +91,37 @@
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+
+    /* Dark mode color adjustments */
+    --green-brand-100: 152 60% 25%;
+    --green-brand-200: 152 62% 30%;
+    --green-brand-300: 152 64% 38%;
+    --green-brand-400: 152 60% 45%;
+    --green-brand-500: 152 58% 52%;
+    --green-brand-600: 152 65% 58%;
+    --green-brand-700: 152 70% 65%;
+    --green-brand-800: 152 72% 72%;
+    --green-brand-900: 152 75% 80%;
+
+    --blue-100: 214 80% 25%;
+    --blue-200: 213 82% 32%;
+    --blue-300: 212 84% 40%;
+    --blue-400: 211 86% 48%;
+    --blue-500: 211 88% 55%;
+    --blue-600: 211 90% 62%;
+    --blue-700: 211 92% 70%;
+    --blue-800: 211 94% 78%;
+    --blue-900: 211 96% 85%;
+
+    --red-100: 0 75% 25%;
+    --red-200: 0 78% 32%;
+    --red-300: 0 82% 40%;
+    --red-400: 0 84% 48%;
+    --red-500: 0 86% 55%;
+    --red-600: 0 88% 62%;
+    --red-700: 0 90% 70%;
+
+    --notification-badge: 0 84% 60%;
   }
 }
 
@@ -130,6 +196,37 @@
   transition: transform 0.2s ease-in-out;
 }
 
+/* Added notification badge pulse animation */
+@keyframes badge-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.9;
+  }
+}
+
+.notification-badge-pulse {
+  animation: badge-pulse 2s ease-in-out infinite;
+}
+
+/* Button hover state animations */
+@keyframes button-scale {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(0.98);
+  }
+}
+
+.button-active-scale {
+  animation: button-scale 0.15s ease-out;
+}
+
 /* High contrast mode support */
 @media (prefers-contrast: high) {
   .tab-button {
@@ -144,9 +241,12 @@
 /* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
   .tab-reorder-animation,
-  .drag-preview {
+  .drag-preview,
+  .notification-badge-pulse,
+  .button-active-scale {
     transition: none;
     transform: none;
+    animation: none;
   }
 }
 

@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { X, Trash2, ArrowRightLeft, UserX, Flag, Users, Heart, Star } from "lucide-react"
+import { X, Trash2, ArrowRightLeft, UserX, Flag, Users, Heart, Star, FolderPlus } from "lucide-react"
 import { openModal } from "./ModalManager"
 import type { Actor } from "@/types/casting"
 import { useCasting } from "@/components/casting/CastingContext"
@@ -26,9 +26,25 @@ export default function MoreActionsModal({ onClose, actor, characterId }: MoreAc
   }
 
   const handleRemoveFromList = () => {
-    // TODO: Implement remove from list functionality
-    alert("Remove from list functionality to be implemented")
+    // Find the current character name for the confirmation message
+    const currentProject = state.projects.find((p) => p.id === state.currentFocus.currentProjectId)
+    const currentCharacter = currentProject?.characters.find((c) => c.id === characterId)
+    const characterName = currentCharacter?.name || "this character"
+
     onClose()
+    openModal("confirmDelete", {
+      title: "Remove Actor from List",
+      message: `Are you sure you want to remove ${actor.name} from ${characterName}'s casting lists? This will remove them from all lists (Long List, Audition, Approval, etc.) for this character only.`,
+      onConfirm: () => {
+        dispatch({
+          type: "DELETE_ACTOR",
+          payload: {
+            actorId: actor.id,
+            characterId: characterId,
+          },
+        })
+      },
+    })
   }
 
   const handleDeleteActor = () => {
@@ -74,6 +90,11 @@ export default function MoreActionsModal({ onClose, actor, characterId }: MoreAc
     onClose()
   }
 
+  const handleAssignToProject = () => {
+    onClose()
+    openModal("assignToProject", { actor, sourceCharacterId: characterId })
+  }
+
   return (
     <div className="bg-white rounded-lg shadow-xl max-w-sm w-full mx-4">
       <div className="flex items-center justify-between p-4 border-b">
@@ -85,6 +106,20 @@ export default function MoreActionsModal({ onClose, actor, characterId }: MoreAc
 
       <div className="p-2">
         <div className="space-y-1">
+          <Button
+            variant="ghost"
+            className="w-full justify-start gap-3 h-auto p-3 text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50"
+            onClick={handleAssignToProject}
+          >
+            <FolderPlus className="h-4 w-4" />
+            <div className="text-left">
+              <div className="font-medium">Assign to Project</div>
+              <div className="text-sm text-gray-500">
+                Add this actor to another project and optionally to its canvas
+              </div>
+            </div>
+          </Button>
+
           {/* Voting Actions Section */}
           <div className="border-b pb-2 mb-2">
             <div className="text-xs font-medium text-gray-500 mb-2 px-3">Set All Votes</div>

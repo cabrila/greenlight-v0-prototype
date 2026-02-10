@@ -1,3 +1,5 @@
+import type { AvailabilityDate, ScheduleEntry, ProductionPhase, Scene } from "./schedule"
+
 export interface Actor {
   id: string
   name: string
@@ -77,6 +79,13 @@ export interface Actor {
   }>
 }
 
+export interface TabNotification {
+  tabKey: string
+  characterId: string
+  unreadCount: number
+  lastUpdate: number
+}
+
 export interface CastingState {
   users: User[]
   currentUser: User | null
@@ -94,6 +103,7 @@ export interface CastingState {
   scheduleEntries: ScheduleEntry[]
   productionPhases: ProductionPhase[]
   scenes: Scene[]
+  tabNotifications: Record<string, TabNotification[]>
 }
 
 export type CastingAction =
@@ -232,23 +242,14 @@ export type CastingAction =
   | { type: "REORDER_SCENES"; payload: { sceneId: string; newShootDayId: string; newOrder: number } }
   | {
       type: "ASSIGN_ACTOR_TO_PROJECT_CHARACTER"
-      payload: {
-        actorId: string
-        projectId: string
-        projectName: string
-        characterId: string
-        characterName: string
-      }
+      payload: { actorId: string; projectId: string; projectName: string; characterId: string; characterName: string }
     }
-  | {
-      type: "REMOVE_ACTOR_ASSIGNMENT"
-      payload: {
-        actorId: string
-        projectId: string
-        characterId: string
-      }
-    }
-}
+  | { type: "REMOVE_ACTOR_ASSIGNMENT"; payload: { actorId: string; projectId: string; characterId: string } }
+  | { type: "ADD_CANVAS_ACTOR"; payload: { projectId: string; canvasActor: CanvasActor } }
+  | { type: "INCREMENT_TAB_NOTIFICATION"; payload: { tabKey: string; characterId: string; count?: number } }
+  | { type: "CLEAR_TAB_NOTIFICATION"; payload: { tabKey: string; characterId: string } }
+  | { type: "CLEAR_ALL_TAB_NOTIFICATIONS"; payload: { characterId: string } }
+  | { type: "UPDATE_CHARACTER_CONCEPT_ART"; payload: { characterId: string; conceptArt: string } }
 
 export interface User {
   id: string
@@ -268,12 +269,14 @@ export interface Project {
   createdDate: number
   modifiedDate: number
   terminology?: Terminology
+  canvasActors?: CanvasActor[]
 }
 
 export interface Character {
   id: string
   name: string
   description?: string
+  conceptArt?: string
   actors: {
     longList: Actor[]
     audition: Actor[]
@@ -432,4 +435,11 @@ export interface SavedSearch {
   isGlobal: boolean
 }
 
-import type { AvailabilityDate, ScheduleEntry, ProductionPhase, Scene } from "./schedule"
+export interface CanvasActor {
+  id: string
+  actorId: string
+  x: number
+  y: number
+  characterName: string
+  actor: Actor
+}
