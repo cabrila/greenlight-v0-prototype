@@ -1,5 +1,5 @@
 "use client"
-import { X, Plus, FolderOpen, Database, Bell, Settings, HelpCircle, Clapperboard, Users, Film, BarChart3, ArrowRight, Sparkles, Calendar, Search } from 'lucide-react'
+import { X, Plus, FolderOpen, Database, Bell, Settings, HelpCircle, Users, Film, BarChart3, ArrowRight, Calendar, Search } from 'lucide-react'
 import { openModal } from "./ModalManager"
 import { useState, useEffect, useRef } from "react"
 import UserMenu from "../layout/UserMenu"
@@ -222,11 +222,11 @@ export default function SplashScreenModal({ onClose }: SplashScreenModalProps) {
   const totalCharacters = state.projects.reduce((sum, p) => sum + p.characters.length, 0)
 
   return (
-    <div className="fixed inset-0 bg-gray-950 flex flex-col z-50 overflow-y-auto">
+    <div className="fixed inset-0 bg-gray-50 flex flex-col z-50 overflow-y-auto">
       {/* Timer indicator */}
       {isTimerActive && (
         <div className="absolute top-20 left-1/2 transform -translate-x-1/2 z-10">
-          <div className="bg-emerald-500 text-white px-5 py-2.5 rounded-full text-sm font-medium flex items-center gap-2 shadow-lg shadow-emerald-500/25">
+          <div className="bg-emerald-600 text-white px-5 py-2.5 rounded-full text-sm font-medium flex items-center gap-2 shadow-lg shadow-emerald-600/20">
             <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
             Loading project...
           </div>
@@ -234,27 +234,28 @@ export default function SplashScreenModal({ onClose }: SplashScreenModalProps) {
       )}
 
       {/* Top Navigation Bar */}
-      <header className="flex justify-between items-center px-6 py-4 border-b border-gray-800/50 bg-gray-950/80 backdrop-blur-sm sticky top-0 z-20">
+      <header className="flex justify-between items-center px-6 py-3 bg-white border-b border-gray-200 sticky top-0 z-20">
         {/* Left side - Logo */}
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-emerald-600 rounded-lg">
-            <Clapperboard className="w-5 h-5 text-white" />
-          </div>
-          <span className="text-lg font-bold text-white tracking-wider hidden sm:block">GOGREENLIGHT</span>
+        <div className="flex items-center">
+          <img
+            src="/images/gogreenlight-logo.png"
+            alt="GoGreenlight"
+            className="h-9 w-auto"
+          />
         </div>
 
         {/* Right side - Controls */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           {/* Notification Icon */}
           <div className="relative">
             <button
               onClick={handleNotifications}
-              className="p-2.5 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition-colors"
+              className="p-2.5 rounded-lg text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors"
             >
               <Bell className="w-5 h-5" />
             </button>
             {unreadNotifications > 0 && (
-              <div className="absolute -top-0.5 -right-0.5 w-4.5 h-4.5 min-w-[18px] bg-red-500 rounded-full flex items-center justify-center">
+              <div className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] bg-red-500 rounded-full flex items-center justify-center">
                 <span className="text-[10px] text-white font-bold">{unreadNotifications}</span>
               </div>
             )}
@@ -263,7 +264,7 @@ export default function SplashScreenModal({ onClose }: SplashScreenModalProps) {
           {/* Settings Icon */}
           <button
             onClick={handleSettings}
-            className="p-2.5 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition-colors"
+            className="p-2.5 rounded-lg text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors"
           >
             <Settings className="w-5 h-5" />
           </button>
@@ -271,23 +272,23 @@ export default function SplashScreenModal({ onClose }: SplashScreenModalProps) {
           {/* Help */}
           <button
             onClick={() => openModal("helpWizard")}
-            className="p-2.5 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition-colors"
+            className="p-2.5 rounded-lg text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors"
           >
             <HelpCircle className="w-5 h-5" />
           </button>
 
           {/* Divider */}
-          <div className="w-px h-8 bg-gray-700 mx-1" />
+          <div className="w-px h-8 bg-gray-200 mx-1.5" />
 
           {/* User Avatar */}
           <div className="relative" ref={userButtonRef}>
             <button
               onClick={handleUserMenu}
-              className="relative p-1 rounded-lg hover:bg-gray-800 transition-all duration-200 group"
+              className="relative p-1 rounded-lg hover:bg-gray-100 transition-all duration-200 group"
               title={`${state.currentUser?.name} - ${userStatus.charAt(0).toUpperCase() + userStatus.slice(1)}`}
             >
               <div
-                className="w-9 h-9 rounded-lg flex items-center justify-center text-xs font-bold transition-all duration-200"
+                className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-200"
                 style={{
                   backgroundColor: state.currentUser?.bgColor || "#6B7280",
                   color: state.currentUser?.color || "#FFFFFF",
@@ -298,7 +299,7 @@ export default function SplashScreenModal({ onClose }: SplashScreenModalProps) {
               {/* Status Indicator */}
               <div className="absolute -bottom-0.5 -right-0.5 flex items-center justify-center">
                 <div
-                  className={`w-3.5 h-3.5 rounded-full border-2 border-gray-950 transition-all duration-200 ${getStatusColor(userStatus)}`}
+                  className={`w-3.5 h-3.5 rounded-full border-2 border-white transition-all duration-200 ${getStatusColor(userStatus)}`}
                   title={getStatusLabel(userStatus)}
                 />
                 {userStatus === "available" && (
@@ -311,7 +312,7 @@ export default function SplashScreenModal({ onClose }: SplashScreenModalProps) {
           {/* Close Button */}
           <button
             onClick={onClose}
-            className="p-2.5 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition-colors ml-1"
+            className="p-2.5 rounded-lg text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors ml-0.5"
           >
             <X className="w-5 h-5" />
           </button>
@@ -321,61 +322,57 @@ export default function SplashScreenModal({ onClose }: SplashScreenModalProps) {
       {/* Main Content */}
       <main className="flex-1 flex flex-col items-center px-6 py-8 md:py-12">
         {/* Hero Section */}
-        <div className="text-center mb-10 md:mb-14 max-w-2xl">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium mb-5">
-            <Sparkles className="w-3.5 h-3.5" />
-            Casting Management Platform
-          </div>
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 text-balance leading-tight">
+        <div className="text-center mb-10 md:mb-12 max-w-2xl">
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 text-balance leading-tight">
             Welcome to GoGreenlight
           </h1>
-          <p className="text-gray-400 text-base md:text-lg leading-relaxed text-pretty">
+          <p className="text-gray-500 text-base md:text-lg leading-relaxed text-pretty">
             Your complete casting workflow -- from script breakdowns to final selections. Manage projects, discover talent, and streamline your entire casting process.
           </p>
         </div>
 
         {/* Quick Stats Bar */}
         {(projectCount > 0 || totalActors > 0) && (
-          <div className="flex items-center gap-6 mb-10 md:mb-14">
+          <div className="flex flex-wrap items-center justify-center gap-5 md:gap-6 mb-10 md:mb-12">
             <div className="flex items-center gap-2 text-sm">
-              <Film className="w-4 h-4 text-emerald-500" />
-              <span className="text-gray-300 font-medium">{projectCount}</span>
+              <Film className="w-4 h-4 text-emerald-600" />
+              <span className="text-gray-800 font-semibold">{projectCount}</span>
               <span className="text-gray-500">{projectCount === 1 ? 'Project' : 'Projects'}</span>
             </div>
-            <div className="w-1 h-1 rounded-full bg-gray-600" />
+            <div className="w-1 h-1 rounded-full bg-gray-300" />
             <div className="flex items-center gap-2 text-sm">
-              <Users className="w-4 h-4 text-emerald-500" />
-              <span className="text-gray-300 font-medium">{totalCharacters}</span>
+              <Users className="w-4 h-4 text-emerald-600" />
+              <span className="text-gray-800 font-semibold">{totalCharacters}</span>
               <span className="text-gray-500">{totalCharacters === 1 ? 'Character' : 'Characters'}</span>
             </div>
-            <div className="w-1 h-1 rounded-full bg-gray-600" />
+            <div className="w-1 h-1 rounded-full bg-gray-300" />
             <div className="flex items-center gap-2 text-sm">
-              <BarChart3 className="w-4 h-4 text-emerald-500" />
-              <span className="text-gray-300 font-medium">{totalActors}</span>
+              <BarChart3 className="w-4 h-4 text-emerald-600" />
+              <span className="text-gray-800 font-semibold">{totalActors}</span>
               <span className="text-gray-500">{totalActors === 1 ? 'Actor' : 'Actors'}</span>
             </div>
           </div>
         )}
 
-        {/* Action Cards - Primary */}
+        {/* Action Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5 max-w-4xl w-full mb-12 md:mb-16">
           {/* New Project */}
           <button
             onClick={handleNewProject}
             disabled={isTimerActive}
-            className="group relative overflow-hidden rounded-xl bg-emerald-600 hover:bg-emerald-500 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed text-left"
+            className="group relative overflow-hidden rounded-2xl bg-emerald-600 hover:bg-emerald-700 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed text-left shadow-md shadow-emerald-600/10 hover:shadow-lg hover:shadow-emerald-600/15"
           >
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(255,255,255,0.12)_0%,_transparent_60%)]" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(255,255,255,0.15)_0%,_transparent_60%)]" />
             <div className="relative p-6 md:p-7 flex flex-col gap-5">
               <div className="flex items-start justify-between">
-                <div className="p-3 bg-white/15 rounded-xl backdrop-blur-sm">
+                <div className="p-3 bg-white/20 rounded-xl">
                   <Plus className="w-6 h-6 text-white" />
                 </div>
-                <ArrowRight className="w-5 h-5 text-white/50 group-hover:text-white group-hover:translate-x-1 transition-all duration-300" />
+                <ArrowRight className="w-5 h-5 text-white/40 group-hover:text-white group-hover:translate-x-1 transition-all duration-300" />
               </div>
               <div>
                 <h3 className="text-xl font-semibold text-white mb-1.5">New Project</h3>
-                <p className="text-emerald-100/70 text-sm leading-relaxed">Start a new casting project for your production</p>
+                <p className="text-emerald-100/80 text-sm leading-relaxed">Start a new casting project for your production</p>
               </div>
             </div>
           </button>
@@ -384,19 +381,18 @@ export default function SplashScreenModal({ onClose }: SplashScreenModalProps) {
           <button
             onClick={handleOpenProject}
             disabled={isTimerActive}
-            className="group relative overflow-hidden rounded-xl bg-gray-800 hover:bg-gray-700 border border-gray-700/50 hover:border-gray-600 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed text-left"
+            className="group relative overflow-hidden rounded-2xl bg-white hover:bg-gray-50 border border-gray-200 hover:border-gray-300 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed text-left shadow-sm hover:shadow-md"
           >
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(255,255,255,0.05)_0%,_transparent_60%)]" />
             <div className="relative p-6 md:p-7 flex flex-col gap-5">
               <div className="flex items-start justify-between">
-                <div className="p-3 bg-white/10 rounded-xl">
-                  <FolderOpen className="w-6 h-6 text-white" />
+                <div className="p-3 bg-gray-100 rounded-xl">
+                  <FolderOpen className="w-6 h-6 text-gray-700" />
                 </div>
-                <ArrowRight className="w-5 h-5 text-white/30 group-hover:text-white group-hover:translate-x-1 transition-all duration-300" />
+                <ArrowRight className="w-5 h-5 text-gray-300 group-hover:text-gray-600 group-hover:translate-x-1 transition-all duration-300" />
               </div>
               <div>
-                <h3 className="text-xl font-semibold text-white mb-1.5">Open Project</h3>
-                <p className="text-gray-400 text-sm leading-relaxed">Browse and manage your existing productions</p>
+                <h3 className="text-xl font-semibold text-gray-900 mb-1.5">Open Project</h3>
+                <p className="text-gray-500 text-sm leading-relaxed">Browse and manage your existing productions</p>
               </div>
             </div>
           </button>
@@ -405,19 +401,18 @@ export default function SplashScreenModal({ onClose }: SplashScreenModalProps) {
           <button
             onClick={handleDatabase}
             disabled={isTimerActive}
-            className="group relative overflow-hidden rounded-xl bg-gray-800 hover:bg-gray-700 border border-gray-700/50 hover:border-gray-600 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed text-left"
+            className="group relative overflow-hidden rounded-2xl bg-white hover:bg-gray-50 border border-gray-200 hover:border-gray-300 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed text-left shadow-sm hover:shadow-md"
           >
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(255,255,255,0.05)_0%,_transparent_60%)]" />
             <div className="relative p-6 md:p-7 flex flex-col gap-5">
               <div className="flex items-start justify-between">
-                <div className="p-3 bg-white/10 rounded-xl">
-                  <Database className="w-6 h-6 text-white" />
+                <div className="p-3 bg-gray-100 rounded-xl">
+                  <Database className="w-6 h-6 text-gray-700" />
                 </div>
-                <ArrowRight className="w-5 h-5 text-white/30 group-hover:text-white group-hover:translate-x-1 transition-all duration-300" />
+                <ArrowRight className="w-5 h-5 text-gray-300 group-hover:text-gray-600 group-hover:translate-x-1 transition-all duration-300" />
               </div>
               <div>
-                <h3 className="text-xl font-semibold text-white mb-1.5">Actor Database</h3>
-                <p className="text-gray-400 text-sm leading-relaxed">Search and discover actors across all projects</p>
+                <h3 className="text-xl font-semibold text-gray-900 mb-1.5">Actor Database</h3>
+                <p className="text-gray-500 text-sm leading-relaxed">Search and discover actors across all projects</p>
               </div>
             </div>
           </button>
@@ -425,8 +420,8 @@ export default function SplashScreenModal({ onClose }: SplashScreenModalProps) {
 
         {/* Feature Highlights */}
         <div className="max-w-4xl w-full">
-          <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-5">What you can do</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">What you can do</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             {[
               {
                 icon: Film,
@@ -451,14 +446,14 @@ export default function SplashScreenModal({ onClose }: SplashScreenModalProps) {
             ].map((feature) => (
               <div
                 key={feature.title}
-                className="flex items-start gap-3.5 p-4 rounded-xl bg-gray-900/50 border border-gray-800/50"
+                className="flex items-start gap-3 p-4 rounded-xl bg-white border border-gray-200/80"
               >
-                <div className="p-2 bg-emerald-500/10 rounded-lg shrink-0 mt-0.5">
-                  <feature.icon className="w-4 h-4 text-emerald-500" />
+                <div className="p-2 bg-emerald-50 rounded-lg shrink-0 mt-0.5">
+                  <feature.icon className="w-4 h-4 text-emerald-600" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-medium text-gray-200 mb-1">{feature.title}</h3>
-                  <p className="text-xs text-gray-500 leading-relaxed">{feature.desc}</p>
+                  <h3 className="text-sm font-medium text-gray-800 mb-0.5">{feature.title}</h3>
+                  <p className="text-xs text-gray-400 leading-relaxed">{feature.desc}</p>
                 </div>
               </div>
             ))}
@@ -480,17 +475,17 @@ export default function SplashScreenModal({ onClose }: SplashScreenModalProps) {
 
       {/* Initials Editor Modal */}
       {showInitialsEditor && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[60]">
-          <div className="bg-gray-900 border border-gray-700 rounded-xl p-6 w-80 shadow-2xl">
-            <h3 className="text-lg font-semibold text-white mb-4">Change Initials</h3>
+        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-[60]">
+          <div className="bg-white border border-gray-200 rounded-xl p-6 w-80 shadow-2xl">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Change Initials</h3>
             <div className="mb-5">
-              <label className="block text-sm font-medium text-gray-400 mb-2">New Initials (max 2 characters)</label>
+              <label className="block text-sm font-medium text-gray-600 mb-2">New Initials (max 2 characters)</label>
               <input
                 type="text"
                 value={tempInitials}
                 onChange={(e) => setTempInitials(e.target.value)}
                 maxLength={2}
-                className="w-full px-3 py-2.5 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-center text-lg font-bold uppercase placeholder-gray-500"
+                className="w-full px-3 py-2.5 bg-gray-50 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-center text-lg font-bold uppercase placeholder-gray-400"
                 placeholder="AB"
                 autoFocus
               />
@@ -499,13 +494,13 @@ export default function SplashScreenModal({ onClose }: SplashScreenModalProps) {
               <button
                 onClick={handleSaveInitials}
                 disabled={!tempInitials.trim()}
-                className="flex-1 bg-emerald-600 text-white py-2.5 px-4 rounded-lg hover:bg-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium text-sm"
+                className="flex-1 bg-emerald-600 text-white py-2.5 px-4 rounded-lg hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium text-sm"
               >
                 Save
               </button>
               <button
                 onClick={handleCancelInitials}
-                className="flex-1 bg-gray-800 text-gray-300 py-2.5 px-4 rounded-lg hover:bg-gray-700 transition-colors font-medium text-sm border border-gray-600"
+                className="flex-1 bg-gray-100 text-gray-700 py-2.5 px-4 rounded-lg hover:bg-gray-200 transition-colors font-medium text-sm border border-gray-200"
               >
                 Cancel
               </button>
