@@ -14,6 +14,7 @@ import {
   Database,
   HelpCircle,
   Sparkles,
+  Home,
   Folder,
   FileText,
   Users,
@@ -609,6 +610,7 @@ export default function Sidebar() {
             onClick={handleOpenSplashScreen}
             className="w-full flex items-center space-x-3 px-4 py-2.5 text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200"
           >
+            <Home className="w-4 h-4" />
             <span>Back to Menu</span>
           </button>
         ) : (
