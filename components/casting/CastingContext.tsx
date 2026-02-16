@@ -1937,6 +1937,17 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
       }
       break
 
+    case "SET_PROJECT_COSTUMES":
+      newState = {
+        ...state,
+        projects: state.projects.map((project) =>
+          project.id === action.payload.projectId
+            ? { ...project, costumes: action.payload.costumes }
+            : project
+        ),
+      }
+      break
+
     case "DELETE_PROJECT":
       newState = {
         ...state,

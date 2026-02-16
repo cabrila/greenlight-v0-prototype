@@ -39,6 +39,7 @@ import ScriptAnalysisModal from "./ScriptAnalysisModal"
 import AddFromDatabaseModal from "./AddFromDatabaseModal"
 import PropsModal from "./PropsModal"
 import LocationsModal from "./LocationsModal"
+import CostumesModal from "./CostumesModal"
 
 export interface ModalState {
   type: string | null
@@ -266,6 +267,8 @@ export default function ModalManager() {
           return <PropsModal onClose={handleClose} />
         case "locations":
           return <LocationsModal onClose={handleClose} />
+        case "costumes":
+          return <CostumesModal onClose={handleClose} />
         default:
           return null
       }

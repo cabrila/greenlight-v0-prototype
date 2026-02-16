@@ -252,6 +252,7 @@ export type CastingAction =
   | { type: "UPDATE_CHARACTER_CONCEPT_ART"; payload: { characterId: string; conceptArt: string } }
   | { type: "SET_PROJECT_PROPS"; payload: { projectId: string; props: ProjectProp[] } }
   | { type: "SET_PROJECT_LOCATIONS"; payload: { projectId: string; locations: ProjectLocation[] } }
+  | { type: "SET_PROJECT_COSTUMES"; payload: { projectId: string; costumes: ProjectCostumes } }
 
 export interface User {
   id: string
@@ -397,6 +398,82 @@ export interface ProjectLocation {
   bookedTo: string | null
 }
 
+/* ------------------------------------------------------------------ */
+/*  Costumes & Makeup                                                  */
+/* ------------------------------------------------------------------ */
+
+export type CostumeItemType = "costume-piece" | "hmu-consumable" | "durable"
+export type CostumeItemStatus = "in-stock" | "rented" | "purchased" | "on-set" | "at-cleaners" | "damaged"
+
+/** Layer A: Human / Actor measurements & HMU specs */
+export interface ActorMeasurements {
+  chest?: string
+  waist?: string
+  inseam?: string
+  hat?: string
+  ring?: string
+  glove?: string
+  shoe?: string
+}
+
+export interface ActorHMUSpecs {
+  skinToneCode?: string
+  hairType?: string
+  hairColor?: string
+  allergies?: string[]          // "Latex", "Wool", "Spirit gum", etc.
+  tattoos?: Array<{ location: string; coverUpNeeded: boolean }>
+}
+
+/** Layer B: Inventory item (physical asset) */
+export interface CostumeInventoryItem {
+  id: string
+  name: string
+  type: CostumeItemType
+  status: CostumeItemStatus
+  brand?: string
+  size?: string
+  purchasePrice?: string
+  vendor?: string
+  imageUrl: string
+  vibeTags: string[]            // "Bloody", "Formal", "Distressed", etc.
+  rentReturnDate?: string       // ISO date – only if status === "rented"
+  notes?: string
+}
+
+/** Layer C: The "Look" – composite unit joining Character + Inventory */
+export interface CostumeLook {
+  id: string
+  name: string                  // "Day 1 – Hero Outfit"
+  characterId: string
+  changeNumber: string          // "Change 1", "Change 2A"
+  scriptDays: string[]          // ["Day 1", "Day 3"]
+  sceneNumbers: string[]        // ["Sc 4", "Sc 12"]
+  itemIds: string[]             // refs into CostumeInventoryItem[]
+  continuityNotes: string       // "Top button undone, mud on left boot"
+  referencePhotos: string[]     // URLs (fitting photos)
+  matchPhotos: string[]         // URLs (on-set photos)
+}
+
+/** Shopping list request item */
+export interface CostumeShoppingItem {
+  id: string
+  description: string
+  vendor: string
+  estimatedPrice: string
+  status: "requested" | "approved" | "ordered" | "received"
+  requestedBy: string
+  characterId?: string
+  lookId?: string
+}
+
+/** Root data stored per project */
+export interface ProjectCostumes {
+  actorSpecs: Record<string, { measurements: ActorMeasurements; hmuSpecs: ActorHMUSpecs }>  // keyed by actorId
+  inventory: CostumeInventoryItem[]
+  looks: CostumeLook[]
+  shoppingList: CostumeShoppingItem[]
+}
+
 export interface Project {
   id: string
   name: string
@@ -408,6 +485,7 @@ export interface Project {
   canvasActors?: CanvasActor[]
   props?: ProjectProp[]
   locations?: ProjectLocation[]
+  costumes?: ProjectCostumes
 }
 
 export interface Character {
