@@ -40,6 +40,8 @@ import {
   Image as ImageIcon,
   Thermometer,
   Droplets,
+  Film,
+  Layers,
 } from "lucide-react"
 import { useCasting } from "@/components/casting/CastingContext"
 import { compressImage } from "@/utils/imageCompression"
@@ -970,15 +972,18 @@ function LocationCard({ loc, isSelected, isInProject, onSelect, onToggleAdd, onE
           <span className="text-[10px] text-gray-400 ml-auto">{dist.toFixed(1)} mi</span>
         </div>
 
-        {/* Vibe tags */}
-        {loc.vibeTags.length > 0 && (
-          <div className="flex flex-wrap gap-1 mt-2">
-            {loc.vibeTags.slice(0, 3).map((t) => (
-              <span key={t} className="px-1.5 py-0.5 bg-gray-100 text-gray-600 text-[9px] rounded-md font-medium">{t}</span>
-            ))}
-            {loc.vibeTags.length > 3 && <span className="text-[9px] text-gray-400">+{loc.vibeTags.length - 3}</span>}
-          </div>
-        )}
+        {/* Vibe tags + scene tags */}
+        <div className="flex flex-wrap items-center gap-1 mt-2">
+          {loc.vibeTags.slice(0, 3).map((t) => (
+            <span key={t} className="px-1.5 py-0.5 bg-gray-100 text-gray-600 text-[9px] rounded-md font-medium">{t}</span>
+          ))}
+          {loc.vibeTags.length > 3 && <span className="text-[9px] text-gray-400">+{loc.vibeTags.length - 3}</span>}
+          {loc.sceneTags.length > 0 && (
+            <span className="ml-auto inline-flex items-center gap-0.5 text-[9px] font-medium text-purple-600 bg-purple-50 px-1.5 py-0.5 rounded-md">
+              <Film className="w-2.5 h-2.5" /> {loc.sceneTags.length} scene{loc.sceneTags.length !== 1 ? "s" : ""}
+            </span>
+          )}
+        </div>
 
         {/* Footer */}
         <div className="flex items-center justify-between mt-2.5 pt-2 border-t border-gray-100">
@@ -1013,6 +1018,118 @@ function LocationCard({ loc, isSelected, isInProject, onSelect, onToggleAdd, onE
           </div>
         </div>
       )}
+    </div>
+  )
+}
+
+/* ------------------------------------------------------------------ */
+/*  Location List Row (list view)                                      */
+/* ------------------------------------------------------------------ */
+
+function LocationListRow({ loc, isSelected, isInProject, onSelect, onToggleAdd, onEdit, onDelete, hasProject }: {
+  loc: ProjectLocation; isSelected: boolean; isInProject: boolean;
+  onSelect: (id: string) => void; onToggleAdd: (id: string) => void;
+  onEdit: (loc: ProjectLocation) => void; onDelete: (id: string) => void;
+  hasProject: boolean
+}) {
+  const dist = haversineDistance(OFFICE_LAT, OFFICE_LNG, loc.lat, loc.lng)
+  const weather = getWeather(loc.id)
+
+  return (
+    <div
+      onClick={() => onSelect(loc.id)}
+      className={`flex items-center gap-4 bg-white rounded-xl border-2 px-4 py-3 cursor-pointer transition-all ${
+        isSelected
+          ? "border-teal-500 ring-2 ring-teal-200 shadow-md"
+          : isInProject
+          ? "border-teal-300/60 hover:shadow-md"
+          : "border-gray-200 hover:border-gray-300 hover:shadow-md"
+      }`}
+    >
+      {/* Thumbnail */}
+      <div className="w-16 h-16 rounded-lg bg-gray-100 overflow-hidden shrink-0">
+        {loc.media.length > 0 ? (
+          <img src={loc.media[0].url} alt={loc.name} className="w-full h-full object-cover" />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-gray-300">
+            <MapPin className="w-5 h-5" />
+          </div>
+        )}
+      </div>
+
+      {/* Main info */}
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2 mb-0.5">
+          <span className="text-[9px] font-mono font-semibold text-gray-400">{loc.code}</span>
+          <LocationStatusBadge status={loc.status} />
+          <span className={`inline-flex items-center gap-0.5 text-[9px] font-semibold px-1.5 py-0.5 rounded-full ${loc.locationType === "studio" ? "bg-purple-100 text-purple-700" : "bg-sky-100 text-sky-700"}`}>
+            {loc.locationType === "studio" ? <Building2 className="w-2.5 h-2.5" /> : <TreePine className="w-2.5 h-2.5" />}
+            {loc.locationType === "studio" ? "Studio" : "Location"}
+          </span>
+          {isInProject && (
+            <span className="inline-flex items-center gap-0.5 text-[9px] font-semibold text-teal-700 bg-teal-100 px-1.5 py-0.5 rounded-full">
+              <Check className="w-2.5 h-2.5" /> In Project
+            </span>
+          )}
+        </div>
+        <h3 className="text-sm font-semibold text-gray-900 truncate">{loc.name}</h3>
+        <p className="text-[11px] text-gray-500 truncate flex items-center gap-1 mt-0.5">
+          <MapPin className="w-3 h-3 shrink-0 text-gray-400" />{loc.address}
+        </p>
+        {/* Tags row */}
+        {loc.vibeTags.length > 0 && (
+          <div className="flex flex-wrap gap-1 mt-1.5">
+            {loc.vibeTags.slice(0, 4).map((t) => (
+              <span key={t} className="px-1.5 py-0.5 bg-gray-100 text-gray-600 text-[9px] rounded-md font-medium">{t}</span>
+            ))}
+            {loc.vibeTags.length > 4 && <span className="text-[9px] text-gray-400">+{loc.vibeTags.length - 4}</span>}
+          </div>
+        )}
+      </div>
+
+      {/* Scene tags */}
+      <div className="hidden lg:flex flex-col items-end gap-1 shrink-0 max-w-[120px]">
+        {loc.sceneTags.length > 0 ? (
+          loc.sceneTags.slice(0, 2).map((s) => (
+            <span key={s.sceneNumber} className="text-[9px] font-medium text-purple-700 bg-purple-50 px-2 py-0.5 rounded-full whitespace-nowrap flex items-center gap-1">
+              <Film className="w-2.5 h-2.5" /> Sc. {s.sceneNumber}{s.sceneTitle ? `: ${s.sceneTitle}` : ""}
+            </span>
+          ))
+        ) : (
+          <span className="text-[9px] text-gray-400 italic">No scenes</span>
+        )}
+        {loc.sceneTags.length > 2 && <span className="text-[9px] text-purple-500">+{loc.sceneTags.length - 2} more</span>}
+      </div>
+
+      {/* Stats column */}
+      <div className="hidden md:flex flex-col items-end gap-1 shrink-0 text-right min-w-[80px]">
+        <div className="flex items-center gap-1.5">
+          <WeatherIcon condition={weather.condition} />
+          <span className="text-[11px] font-medium text-gray-700">{weather.temp}</span>
+        </div>
+        <span className="text-[10px] text-gray-400">{dist.toFixed(1)} mi</span>
+        <span className="text-[10px] text-gray-700 font-semibold">{loc.dailyRate}<span className="text-gray-400 font-normal">/day</span></span>
+      </div>
+
+      {/* Actions */}
+      <div className="flex flex-col items-center gap-1.5 shrink-0">
+        {!isInProject && hasProject && (
+          <button onClick={(e) => { e.stopPropagation(); onToggleAdd(loc.id) }} className="p-1.5 text-teal-600 hover:text-teal-700 hover:bg-teal-50 rounded-lg transition-colors" title="Add to project">
+            <Plus className="w-4 h-4" />
+          </button>
+        )}
+        {isInProject && (
+          <button onClick={(e) => { e.stopPropagation(); onToggleAdd(loc.id) }} className="p-1.5 text-amber-600 hover:text-amber-700 hover:bg-amber-50 rounded-lg transition-colors" title="Remove from project">
+            <X className="w-4 h-4" />
+          </button>
+        )}
+        <button onClick={(e) => { e.stopPropagation(); onEdit(loc) }} className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors" title="Edit">
+          <Pencil className="w-3.5 h-3.5" />
+        </button>
+        <button onClick={(e) => { e.stopPropagation(); onDelete(loc.id) }} className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Delete">
+          <Trash2 className="w-3.5 h-3.5" />
+        </button>
+      </div>
     </div>
   )
 }
@@ -1370,6 +1487,8 @@ export default function LocationsModal({ onClose }: LocationsModalProps) {
   /* UI State */
   const [searchTerm, setSearchTerm] = useState("")
   const [activeTab, setActiveTab] = useState<"all" | "project">("all")
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
+  const [groupByScene, setGroupByScene] = useState(false)
   const [showFilters, setShowFilters] = useState(false)
   const [typeFilter, setTypeFilter] = useState<"" | "on-location" | "studio">("")
   const [statusFilter, setStatusFilter] = useState<string>("")
@@ -1421,6 +1540,45 @@ export default function LocationsModal({ onClose }: LocationsModalProps) {
   const filteredInventory = useMemo(() => applyFilters(inventory), [inventory, applyFilters])
   const filteredProjectLocs = useMemo(() => applyFilters(projectLocations), [projectLocations, applyFilters])
   const displayLocations = activeTab === "project" ? filteredProjectLocs : filteredInventory
+
+  /* Scene-based grouping for the Project tab */
+  const sceneGroupedLocations = useMemo(() => {
+    if (!groupByScene || activeTab !== "project") return null
+    const groups: { scene: string; title: string; locations: ProjectLocation[] }[] = []
+    const seenScenes = new Map<string, { scene: string; title: string; locations: ProjectLocation[] }>()
+    const unassigned: ProjectLocation[] = []
+
+    for (const loc of filteredProjectLocs) {
+      if (!loc.sceneTags || loc.sceneTags.length === 0) {
+        unassigned.push(loc)
+        continue
+      }
+      for (const tag of loc.sceneTags) {
+        const key = tag.sceneNumber
+        if (!seenScenes.has(key)) {
+          const group = { scene: tag.sceneNumber, title: tag.sceneTitle || "", locations: [] as ProjectLocation[] }
+          seenScenes.set(key, group)
+          groups.push(group)
+        }
+        const existing = seenScenes.get(key)!
+        if (!existing.locations.find((l) => l.id === loc.id)) {
+          existing.locations.push(loc)
+        }
+        if (tag.sceneTitle && !existing.title) existing.title = tag.sceneTitle
+      }
+    }
+    // Sort by scene number numerically
+    groups.sort((a, b) => {
+      const nA = parseInt(a.scene, 10)
+      const nB = parseInt(b.scene, 10)
+      if (!isNaN(nA) && !isNaN(nB)) return nA - nB
+      return a.scene.localeCompare(b.scene)
+    })
+    if (unassigned.length > 0) {
+      groups.push({ scene: "", title: "Unassigned", locations: unassigned })
+    }
+    return groups
+  }, [groupByScene, activeTab, filteredProjectLocs])
 
   /* Handlers */
   const handleToggleAdd = (id: string) => {
@@ -1500,6 +1658,40 @@ export default function LocationsModal({ onClose }: LocationsModalProps) {
 
         <div className="w-px h-6 bg-gray-200 hidden sm:block" />
 
+        {/* View mode toggle */}
+        <div className="flex items-center gap-0.5 border border-gray-200 rounded-lg p-0.5">
+          <button
+            onClick={() => setViewMode("grid")}
+            className={`p-1.5 rounded-md transition-colors ${viewMode === "grid" ? "bg-gray-200 text-gray-800" : "text-gray-400 hover:text-gray-600"}`}
+            title="Grid view"
+          >
+            <Grid3X3 className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => setViewMode("list")}
+            className={`p-1.5 rounded-md transition-colors ${viewMode === "list" ? "bg-gray-200 text-gray-800" : "text-gray-400 hover:text-gray-600"}`}
+            title="List view"
+          >
+            <List className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Scene grouping toggle -- only on project tab */}
+        {activeTab === "project" && (
+          <button
+            onClick={() => setGroupByScene((p) => !p)}
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-medium transition-colors ${
+              groupByScene
+                ? "border-teal-300 bg-teal-50 text-teal-700"
+                : "border-gray-200 text-gray-500 hover:text-gray-700 hover:bg-gray-50"
+            }`}
+            title="Group locations by scene"
+          >
+            <Layers className="w-3.5 h-3.5" />
+            By Scene
+          </button>
+        )}
+
         <button onClick={() => setShowFilters(!showFilters)} className={`p-1.5 rounded-lg border transition-colors ${showFilters ? "border-teal-300 bg-teal-50 text-teal-700" : "border-gray-200 text-gray-400 hover:text-gray-600 hover:bg-gray-50"}`} title="Filters">
           <SlidersHorizontal className="w-4 h-4" />
         </button>
@@ -1563,7 +1755,66 @@ export default function LocationsModal({ onClose }: LocationsModalProps) {
                 <button onClick={() => setActiveTab("all")} className="mt-4 px-4 py-2 bg-teal-600 text-white text-sm font-medium rounded-lg hover:bg-teal-700 transition-colors">Browse All Locations</button>
               )}
             </div>
-          ) : (
+          ) : sceneGroupedLocations && isProjectTab && groupByScene ? (
+            /* Scene-grouped view */
+            <div className="space-y-6">
+              {sceneGroupedLocations.map((group) => (
+                <div key={group.scene || "__unassigned"}>
+                  {/* Scene group header */}
+                  <div className="flex items-center gap-2.5 mb-3 sticky top-0 bg-gray-50/95 backdrop-blur-sm py-2 -mx-4 px-4 z-10 border-b border-gray-200/60">
+                    <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${group.scene ? "bg-purple-100 text-purple-600" : "bg-gray-200 text-gray-500"}`}>
+                      {group.scene ? <Film className="w-3.5 h-3.5" /> : <MapPin className="w-3.5 h-3.5" />}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-xs font-bold text-gray-900">
+                        {group.scene ? `Scene ${group.scene}` : "Unassigned"}
+                        {group.title && group.scene ? <span className="font-normal text-gray-500 ml-1.5">- {group.title}</span> : null}
+                      </h3>
+                      <p className="text-[10px] text-gray-400">{group.locations.length} location{group.locations.length !== 1 ? "s" : ""}</p>
+                    </div>
+                  </div>
+                  {/* Cards within the scene group */}
+                  {viewMode === "grid" ? (
+                    <div className="grid grid-cols-2 gap-3">
+                      {group.locations.map((loc) => (
+                        <div key={loc.id} ref={(el) => { cardRefs.current[loc.id] = el }}>
+                          <LocationCard
+                            loc={loc}
+                            isSelected={selectedId === loc.id}
+                            isInProject={projectLocIds.has(loc.id)}
+                            onSelect={handleSelectFromCard}
+                            onToggleAdd={handleToggleAdd}
+                            onEdit={(l) => setEditingLocation(l)}
+                            onDelete={(id) => handleRequestDelete(id, "project")}
+                            hasProject={!!projectId}
+                            onAddMedia={handleAddMedia}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      {group.locations.map((loc) => (
+                        <div key={loc.id} ref={(el) => { cardRefs.current[loc.id] = el }}>
+                          <LocationListRow
+                            loc={loc}
+                            isSelected={selectedId === loc.id}
+                            isInProject={projectLocIds.has(loc.id)}
+                            onSelect={handleSelectFromCard}
+                            onToggleAdd={handleToggleAdd}
+                            onEdit={(l) => setEditingLocation(l)}
+                            onDelete={(id) => handleRequestDelete(id, "project")}
+                            hasProject={!!projectId}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : viewMode === "grid" ? (
+            /* Standard grid view */
             <div className="grid grid-cols-2 gap-3">
               {displayLocations.map((loc) => (
                 <div key={loc.id} ref={(el) => { cardRefs.current[loc.id] = el }}>
@@ -1577,6 +1828,24 @@ export default function LocationsModal({ onClose }: LocationsModalProps) {
                     onDelete={(id) => handleRequestDelete(id, isProjectTab ? "project" : "inventory")}
                     hasProject={!!projectId}
                     onAddMedia={handleAddMedia}
+                  />
+                </div>
+              ))}
+            </div>
+          ) : (
+            /* List view */
+            <div className="space-y-2">
+              {displayLocations.map((loc) => (
+                <div key={loc.id} ref={(el) => { cardRefs.current[loc.id] = el }}>
+                  <LocationListRow
+                    loc={loc}
+                    isSelected={selectedId === loc.id}
+                    isInProject={projectLocIds.has(loc.id)}
+                    onSelect={handleSelectFromCard}
+                    onToggleAdd={handleToggleAdd}
+                    onEdit={(l) => setEditingLocation(l)}
+                    onDelete={(id) => handleRequestDelete(id, isProjectTab ? "project" : "inventory")}
+                    hasProject={!!projectId}
                   />
                 </div>
               ))}
