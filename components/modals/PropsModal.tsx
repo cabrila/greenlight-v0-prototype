@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo, useRef, useCallback, type DragEvent } from "react"
+import { useState, useMemo, useRef, useCallback, useEffect, type DragEvent } from "react"
 import {
   X,
   Plus,
@@ -26,7 +26,8 @@ import {
 } from "lucide-react"
 import { useCasting } from "@/components/casting/CastingContext"
 import { openModal } from "./ModalManager"
-import type { ProjectProp, PropVote, PropComment, PropAvailability } from "@/types/casting"
+import type { ProjectProp, PropVote, PropComment, PropAvailability, PropInventoryItem } from "@/types/casting"
+import { compressImage } from "@/utils/imageCompression"
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -34,26 +35,8 @@ import type { ProjectProp, PropVote, PropComment, PropAvailability } from "@/typ
 
 type VoteValue = "yes" | "no" | "maybe"
 
-/* The global inventory is separate from the per-project prop list.    */
-/* It lives in local component state (a real app would use a DB).      */
-
-interface InventoryItem {
-  id: string
-  name: string
-  model: string
-  category: string
-  brand: string
-  serialNumber: string
-  skuBarcode: string
-  notes: string
-  imageUrl: string
-  purchaseType: string
-  unitPrice: string
-  quantity: number
-  bookedTo: string | null
-  availability: { id: string; day: string; startTime: string; endTime: string }[]
-  status: "available" | "in-use" | "maintenance" | "retired"
-}
+/* The global inventory is persisted to the project data store.        */
+type InventoryItem = PropInventoryItem
 
 /* ------------------------------------------------------------------ */
 /*  Constants                                                          */
@@ -799,8 +782,29 @@ export default function PropsModal({ onClose }: PropsModalProps) {
     ? state.projects.find((p) => p.id === projectId) ?? null
     : null
 
-  /* ---- Global inventory (component state) ---- */
-  const [inventory, setInventory] = useState<InventoryItem[]>(generateMockInventory)
+  /* ---- Global inventory (persisted to project data store) ---- */
+  const inventory: InventoryItem[] = currentProject?.propInventory || []
+  const inventoryRef = useRef(inventory)
+  inventoryRef.current = inventory
+
+  const syncInventory = useCallback(
+    (updater: (prev: InventoryItem[]) => InventoryItem[]) => {
+      if (!projectId) return
+      const next = updater(inventoryRef.current)
+      dispatch({ type: "SET_PROJECT_PROP_INVENTORY", payload: { projectId, inventory: next } })
+    },
+    [projectId, dispatch],
+  )
+
+  /* Auto-seed mock data if project has no prop inventory yet */
+  const hasSeeded = useRef(false)
+  useEffect(() => {
+    if (!hasSeeded.current && projectId && inventory.length === 0) {
+      hasSeeded.current = true
+      const mockData = generateMockInventory()
+      dispatch({ type: "SET_PROJECT_PROP_INVENTORY", payload: { projectId, inventory: mockData } })
+    }
+  }, [projectId, inventory.length, dispatch])
 
   /* ---- Project props (from context, persisted) ---- */
   const projectProps: ProjectProp[] = currentProject?.props || []
@@ -920,11 +924,11 @@ export default function PropsModal({ onClose }: PropsModalProps) {
   }
 
   const handleAddInventoryItem = (item: InventoryItem) => {
-    setInventory((prev) => [item, ...prev])
+    syncInventory((prev) => [item, ...prev])
   }
 
   const handleSaveInventoryEdit = (updated: InventoryItem | ProjectProp) => {
-    setInventory((prev) => prev.map((p) => (p.id === updated.id ? { ...p, ...updated } as InventoryItem : p)))
+    syncInventory((prev) => prev.map((p) => (p.id === updated.id ? { ...p, ...updated } as InventoryItem : p)))
     // Also update in project props if it exists there
     if (projectPropIds.has(updated.id)) {
       syncProjectProps((prev) => prev.map((p) => (p.id === updated.id ? { ...p, name: updated.name, model: updated.model, category: updated.category, brand: updated.brand, serialNumber: updated.serialNumber, skuBarcode: updated.skuBarcode, notes: updated.notes, imageUrl: updated.imageUrl, purchaseType: updated.purchaseType, unitPrice: updated.unitPrice, quantity: updated.quantity, status: updated.status, availability: updated.availability } : p)))
@@ -935,12 +939,13 @@ export default function PropsModal({ onClose }: PropsModalProps) {
   const handleSaveProjectPropEdit = (updated: InventoryItem | ProjectProp) => {
     syncProjectProps((prev) => prev.map((p) => (p.id === updated.id ? { ...p, ...updated } as ProjectProp : p)))
     // Also update in inventory
-    setInventory((prev) => prev.map((p) => (p.id === updated.id ? { ...p, name: updated.name, model: updated.model, category: updated.category, brand: updated.brand, serialNumber: updated.serialNumber, skuBarcode: updated.skuBarcode, notes: updated.notes, imageUrl: updated.imageUrl, purchaseType: updated.purchaseType, unitPrice: updated.unitPrice, quantity: updated.quantity, status: updated.status, availability: updated.availability } as InventoryItem : p)))
+    syncInventory((prev) => prev.map((p) => (p.id === updated.id ? { ...p, name: updated.name, model: updated.model, category: updated.category, brand: updated.brand, serialNumber: updated.serialNumber, skuBarcode: updated.skuBarcode, notes: updated.notes, imageUrl: updated.imageUrl, purchaseType: updated.purchaseType, unitPrice: updated.unitPrice, quantity: updated.quantity, status: updated.status, availability: updated.availability } as InventoryItem : p)))
     setEditingProjectProp(null)
   }
 
-  const handleImageReplace = (id: string, url: string) => {
-    setInventory((prev) => prev.map((p) => (p.id === id ? { ...p, imageUrl: url } : p)))
+  const handleImageReplace = async (id: string, rawUrl: string) => {
+    const url = await compressImage(rawUrl)
+    syncInventory((prev) => prev.map((p) => (p.id === id ? { ...p, imageUrl: url } : p)))
     if (projectPropIds.has(id)) {
       syncProjectProps((prev) => prev.map((p) => (p.id === id ? { ...p, imageUrl: url } : p)))
     }
@@ -959,7 +964,7 @@ export default function PropsModal({ onClose }: PropsModalProps) {
   const handleConfirmDelete = () => {
     if (!confirmDeleteId) return
     if (confirmDeleteSource === "inventory") {
-      setInventory((prev) => prev.filter((p) => p.id !== confirmDeleteId))
+      syncInventory((prev) => prev.filter((p) => p.id !== confirmDeleteId))
       // Also remove from project if present
       if (projectPropIds.has(confirmDeleteId)) {
         syncProjectProps((prev) => prev.filter((p) => p.id !== confirmDeleteId))

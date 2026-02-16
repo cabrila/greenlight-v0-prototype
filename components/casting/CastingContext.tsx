@@ -303,6 +303,18 @@ function validateAndCompleteState(state: any): CastingState {
             : [],
           // Ensure canvasActors is an array
           canvasActors: Array.isArray(project.canvasActors) ? project.canvasActors : [],
+          // Ensure prop/location inventories survive reload
+          props: Array.isArray(project.props) ? project.props : [],
+          locations: Array.isArray(project.locations) ? project.locations : [],
+          propInventory: Array.isArray(project.propInventory) ? project.propInventory : [],
+          locationInventory: Array.isArray(project.locationInventory) ? project.locationInventory : [],
+          // Ensure costumes data is structurally valid
+          costumes: project.costumes && typeof project.costumes === "object" ? {
+            actorSpecs: project.costumes.actorSpecs && typeof project.costumes.actorSpecs === "object" ? project.costumes.actorSpecs : {},
+            inventory: Array.isArray(project.costumes.inventory) ? project.costumes.inventory : [],
+            looks: Array.isArray(project.costumes.looks) ? project.costumes.looks : [],
+            shoppingList: Array.isArray(project.costumes.shoppingList) ? project.costumes.shoppingList : [],
+          } : undefined,
         }))
       : initialState.projects,
     notifications: Array.isArray(state.notifications) ? state.notifications : initialState.notifications,
@@ -1943,6 +1955,28 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
         projects: state.projects.map((project) =>
           project.id === action.payload.projectId
             ? { ...project, costumes: action.payload.costumes }
+            : project
+        ),
+      }
+      break
+
+    case "SET_PROJECT_PROP_INVENTORY":
+      newState = {
+        ...state,
+        projects: state.projects.map((project) =>
+          project.id === action.payload.projectId
+            ? { ...project, propInventory: action.payload.inventory }
+            : project
+        ),
+      }
+      break
+
+    case "SET_PROJECT_LOCATION_INVENTORY":
+      newState = {
+        ...state,
+        projects: state.projects.map((project) =>
+          project.id === action.payload.projectId
+            ? { ...project, locationInventory: action.payload.inventory }
             : project
         ),
       }

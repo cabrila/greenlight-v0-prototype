@@ -253,6 +253,8 @@ export type CastingAction =
   | { type: "SET_PROJECT_PROPS"; payload: { projectId: string; props: ProjectProp[] } }
   | { type: "SET_PROJECT_LOCATIONS"; payload: { projectId: string; locations: ProjectLocation[] } }
   | { type: "SET_PROJECT_COSTUMES"; payload: { projectId: string; costumes: ProjectCostumes } }
+  | { type: "SET_PROJECT_PROP_INVENTORY"; payload: { projectId: string; inventory: PropInventoryItem[] } }
+  | { type: "SET_PROJECT_LOCATION_INVENTORY"; payload: { projectId: string; inventory: ProjectLocation[] } }
 
 export interface User {
   id: string
@@ -474,6 +476,25 @@ export interface ProjectCostumes {
   shoppingList: CostumeShoppingItem[]
 }
 
+/** An item in the global prop inventory (the "All" tab). */
+export interface PropInventoryItem {
+  id: string
+  name: string
+  model: string
+  category: string
+  brand: string
+  serialNumber: string
+  skuBarcode: string
+  notes: string
+  imageUrl: string
+  purchaseType: string
+  unitPrice: string
+  quantity: number
+  bookedTo: string | null
+  availability: { id: string; day: string; startTime: string; endTime: string }[]
+  status: "available" | "in-use" | "maintenance" | "retired"
+}
+
 export interface Project {
   id: string
   name: string
@@ -486,6 +507,10 @@ export interface Project {
   props?: ProjectProp[]
   locations?: ProjectLocation[]
   costumes?: ProjectCostumes
+  /** Global prop inventory ("All" tab in Props modal) */
+  propInventory?: PropInventoryItem[]
+  /** Global location inventory ("All Locations" tab in Locations modal) */
+  locationInventory?: ProjectLocation[]
 }
 
 export interface Character {
