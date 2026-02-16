@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useRef, useMemo, useEffect } from "react"
 import { useCasting } from "@/components/casting/CastingContext"
+import { openModal } from "./ModalManager"
 import { compressImage } from "@/utils/imageCompression"
 import type {
   Actor,
@@ -24,6 +25,7 @@ import {
   Shirt,
   Scissors,
   ShoppingBag,
+  Layout,
   LayoutGrid,
   ChevronDown,
   ChevronRight,
@@ -1031,10 +1033,12 @@ function InventoryCard({
   item,
   onEdit,
   onDelete,
+  onAddToCanvas,
 }: {
   item: CostumeInventoryItem
   onEdit: (item: CostumeInventoryItem) => void
   onDelete: (id: string) => void
+  onAddToCanvas: (item: CostumeInventoryItem) => void
 }) {
   const [menuOpen, setMenuOpen] = useState(false)
   const st = STATUS_COLORS[item.status]
@@ -1075,6 +1079,9 @@ function InventoryCard({
             <button onClick={() => { onEdit(item); setMenuOpen(false) }} className="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2">
               <Pencil className="w-3.5 h-3.5" /> Edit
             </button>
+            <button onClick={() => { onAddToCanvas(item); setMenuOpen(false) }} className="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2">
+              <Layout className="w-3.5 h-3.5" /> Add to Canvas
+            </button>
             <div className="my-1 border-t border-gray-100" />
             <button onClick={() => { onDelete(item.id); setMenuOpen(false) }} className="w-full text-left px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2">
               <Trash2 className="w-3.5 h-3.5" /> Delete
@@ -1095,7 +1102,7 @@ function InventoryCard({
 /*  Inventory List Row                                                 */
 /* ================================================================== */
 
-function InventoryListRow({ item, onEdit, onDelete }: { item: CostumeInventoryItem; onEdit: (i: CostumeInventoryItem) => void; onDelete: (id: string) => void }) {
+function InventoryListRow({ item, onEdit, onDelete, onAddToCanvas }: { item: CostumeInventoryItem; onEdit: (i: CostumeInventoryItem) => void; onDelete: (id: string) => void; onAddToCanvas: (i: CostumeInventoryItem) => void }) {
   const st = STATUS_COLORS[item.status]
   return (
     <div className="grid grid-cols-[auto_1fr_auto_auto_auto_auto] gap-x-4 items-center px-4 py-3 hover:bg-gray-50 transition-colors">
@@ -1116,6 +1123,7 @@ function InventoryListRow({ item, onEdit, onDelete }: { item: CostumeInventoryIt
       <span className="text-xs text-gray-600 font-medium whitespace-nowrap">{item.purchasePrice || "--"}</span>
       <div className="flex items-center gap-1">
         <button onClick={() => onEdit(item)} className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-colors" title="Edit"><Pencil className="w-3.5 h-3.5" /></button>
+        <button onClick={() => onAddToCanvas(item)} className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-colors" title="Add to Canvas"><Layout className="w-3.5 h-3.5" /></button>
         <button onClick={() => onDelete(item.id)} className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors" title="Delete"><Trash2 className="w-3.5 h-3.5" /></button>
       </div>
     </div>

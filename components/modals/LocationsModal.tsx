@@ -42,8 +42,10 @@ import {
   Droplets,
   Film,
   Layers,
+  Layout,
 } from "lucide-react"
 import { useCasting } from "@/components/casting/CastingContext"
+import { openModal } from "./ModalManager"
 import { compressImage } from "@/utils/imageCompression"
 import type {
   ProjectLocation,
@@ -822,10 +824,11 @@ function InteractiveMap({
 /*  Location Card (Instagram-style with hover preview + drag-drop)     */
 /* ------------------------------------------------------------------ */
 
-function LocationCard({ loc, isSelected, isInProject, onSelect, onToggleAdd, onEdit, onDelete, hasProject, onAddMedia }: {
+function LocationCard({ loc, isSelected, isInProject, onSelect, onToggleAdd, onEdit, onDelete, onAddToCanvas, hasProject, onAddMedia }: {
   loc: ProjectLocation; isSelected: boolean; isInProject: boolean;
   onSelect: (id: string) => void; onToggleAdd: (id: string) => void;
   onEdit: (loc: ProjectLocation) => void; onDelete: (id: string) => void;
+  onAddToCanvas: (loc: ProjectLocation) => void;
   hasProject: boolean; onAddMedia: (id: string, items: LocationMediaItem[]) => void
 }) {
   const [menuOpen, setMenuOpen] = useState(false)
@@ -947,6 +950,9 @@ function LocationCard({ loc, isSelected, isInProject, onSelect, onToggleAdd, onE
                 <button onClick={(e) => { e.stopPropagation(); onEdit(loc); setMenuOpen(false) }} className="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2">
                   <Pencil className="w-3.5 h-3.5" /> Edit details
                 </button>
+                <button onClick={(e) => { e.stopPropagation(); onAddToCanvas(loc); setMenuOpen(false) }} className="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2">
+                  <Layout className="w-3.5 h-3.5" /> Add to Canvas
+                </button>
                 <button onClick={(e) => { e.stopPropagation(); onToggleAdd(loc.id); setMenuOpen(false) }} className="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50">
                   {isInProject ? "Remove from project" : "Add to project"}
                 </button>
@@ -1026,10 +1032,11 @@ function LocationCard({ loc, isSelected, isInProject, onSelect, onToggleAdd, onE
 /*  Location List Row (list view)                                      */
 /* ------------------------------------------------------------------ */
 
-function LocationListRow({ loc, isSelected, isInProject, onSelect, onToggleAdd, onEdit, onDelete, hasProject }: {
+function LocationListRow({ loc, isSelected, isInProject, onSelect, onToggleAdd, onEdit, onDelete, onAddToCanvas, hasProject }: {
   loc: ProjectLocation; isSelected: boolean; isInProject: boolean;
   onSelect: (id: string) => void; onToggleAdd: (id: string) => void;
   onEdit: (loc: ProjectLocation) => void; onDelete: (id: string) => void;
+  onAddToCanvas: (loc: ProjectLocation) => void;
   hasProject: boolean
 }) {
   const dist = haversineDistance(OFFICE_LAT, OFFICE_LNG, loc.lat, loc.lng)
@@ -1123,6 +1130,9 @@ function LocationListRow({ loc, isSelected, isInProject, onSelect, onToggleAdd, 
             <X className="w-4 h-4" />
           </button>
         )}
+        <button onClick={(e) => { e.stopPropagation(); onAddToCanvas(loc) }} className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors" title="Add to Canvas">
+          <Layout className="w-3.5 h-3.5" />
+        </button>
         <button onClick={(e) => { e.stopPropagation(); onEdit(loc) }} className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors" title="Edit">
           <Pencil className="w-3.5 h-3.5" />
         </button>
@@ -1598,6 +1608,11 @@ export default function LocationsModal({ onClose }: LocationsModalProps) {
     setAddAtCoords(null)
   }
 
+  const handleAddToCanvas = (loc: ProjectLocation) => {
+    onClose()
+    setTimeout(() => openModal("canvas"), 150)
+  }
+
   const handleAddAtCoords = useCallback((lat: number, lng: number) => {
     setAddAtCoords({ lat, lng })
     setShowAddModal(true)
@@ -1786,6 +1801,7 @@ export default function LocationsModal({ onClose }: LocationsModalProps) {
                             onToggleAdd={handleToggleAdd}
                             onEdit={(l) => setEditingLocation(l)}
                             onDelete={(id) => handleRequestDelete(id, "project")}
+                            onAddToCanvas={handleAddToCanvas}
                             hasProject={!!projectId}
                             onAddMedia={handleAddMedia}
                           />
@@ -1804,6 +1820,7 @@ export default function LocationsModal({ onClose }: LocationsModalProps) {
                             onToggleAdd={handleToggleAdd}
                             onEdit={(l) => setEditingLocation(l)}
                             onDelete={(id) => handleRequestDelete(id, "project")}
+                            onAddToCanvas={handleAddToCanvas}
                             hasProject={!!projectId}
                           />
                         </div>
@@ -1826,6 +1843,7 @@ export default function LocationsModal({ onClose }: LocationsModalProps) {
                     onToggleAdd={handleToggleAdd}
                     onEdit={(l) => setEditingLocation(l)}
                     onDelete={(id) => handleRequestDelete(id, isProjectTab ? "project" : "inventory")}
+                    onAddToCanvas={handleAddToCanvas}
                     hasProject={!!projectId}
                     onAddMedia={handleAddMedia}
                   />
@@ -1845,6 +1863,7 @@ export default function LocationsModal({ onClose }: LocationsModalProps) {
                     onToggleAdd={handleToggleAdd}
                     onEdit={(l) => setEditingLocation(l)}
                     onDelete={(id) => handleRequestDelete(id, isProjectTab ? "project" : "inventory")}
+                    onAddToCanvas={handleAddToCanvas}
                     hasProject={!!projectId}
                   />
                 </div>

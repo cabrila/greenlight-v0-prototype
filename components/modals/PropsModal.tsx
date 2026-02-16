@@ -518,7 +518,7 @@ function StatusBadge({ status }: { status: string }) {
 /*  Inventory Card (All Items) -- with drag-and-drop image replacement */
 /* ------------------------------------------------------------------ */
 
-function InventoryCard({ item, isInProject, onToggleAdd, onEdit, onImageReplace, onDelete, hasProject }: { item: InventoryItem; isInProject: boolean; onToggleAdd: (id: string) => void; onEdit: (item: InventoryItem) => void; onImageReplace: (id: string, url: string) => void; onDelete: (id: string) => void; hasProject: boolean }) {
+function InventoryCard({ item, isInProject, onToggleAdd, onEdit, onImageReplace, onDelete, onAddToCanvas, hasProject }: { item: InventoryItem; isInProject: boolean; onToggleAdd: (id: string) => void; onEdit: (item: InventoryItem) => void; onImageReplace: (id: string, url: string) => void; onDelete: (id: string) => void; onAddToCanvas: (item: InventoryItem) => void; hasProject: boolean }) {
   const [menuOpen, setMenuOpen] = useState(false)
   const [isDragOver, setIsDragOver] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -566,6 +566,9 @@ function InventoryCard({ item, isInProject, onToggleAdd, onEdit, onImageReplace,
                 <div className="absolute right-0 top-6 bg-white border border-gray-200 rounded-lg shadow-lg py-1 min-w-[140px] z-10">
                   <button onClick={() => { onEdit(item); setMenuOpen(false) }} className="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2">
                     <Pencil className="w-3.5 h-3.5" /> Edit details
+                  </button>
+                  <button onClick={() => { onAddToCanvas(item); setMenuOpen(false) }} className="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2">
+                    <Layout className="w-3.5 h-3.5" /> Add to Canvas
                   </button>
                   <button onClick={() => { onToggleAdd(item.id); setMenuOpen(false) }} className="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50">
                     {isInProject ? "Remove from project" : "Add to project"}
@@ -1084,7 +1087,7 @@ export default function PropsModal({ onClose }: PropsModalProps) {
           ) : viewMode === "grid" ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredInventory.map((item) => (
-                <InventoryCard key={item.id} item={item} isInProject={projectPropIds.has(item.id)} onToggleAdd={handleToggleAdd} onEdit={(i) => setEditingInventoryItem(i)} onImageReplace={handleImageReplace} onDelete={handleRequestDeleteInventory} hasProject={!!projectId} />
+                <InventoryCard key={item.id} item={item} isInProject={projectPropIds.has(item.id)} onToggleAdd={handleToggleAdd} onEdit={(i) => setEditingInventoryItem(i)} onImageReplace={handleImageReplace} onDelete={handleRequestDeleteInventory} onAddToCanvas={handleAddToCanvas} hasProject={!!projectId} />
               ))}
             </div>
           ) : (
