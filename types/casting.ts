@@ -255,6 +255,7 @@ export type CastingAction =
   | { type: "SET_PROJECT_COSTUMES"; payload: { projectId: string; costumes: ProjectCostumes } }
   | { type: "SET_PROJECT_PROP_INVENTORY"; payload: { projectId: string; inventory: PropInventoryItem[] } }
   | { type: "SET_PROJECT_LOCATION_INVENTORY"; payload: { projectId: string; inventory: ProjectLocation[] } }
+  | { type: "SET_PROJECT_SCRIPT"; payload: { projectId: string; script: ScriptData } }
 
 export interface User {
   id: string
@@ -495,6 +496,60 @@ export interface PropInventoryItem {
   status: "available" | "in-use" | "maintenance" | "retired"
 }
 
+/* ------------------------------------------------------------------ */
+/*  Script / Fountain types                                            */
+/* ------------------------------------------------------------------ */
+export type ScriptBlockType =
+  | "scene-heading"
+  | "action"
+  | "character"
+  | "dialogue"
+  | "parenthetical"
+  | "transition"
+
+export type RevisionColor = "white" | "blue" | "pink" | "yellow" | "green" | "goldenrod" | "salmon" | "cherry"
+
+export interface BreakdownTag {
+  id: string
+  /** Character range within the block text */
+  startOffset: number
+  endOffset: number
+  text: string
+  category: string  // "prop" | "vehicle" | "wardrobe" | "sfx" | "vfx" | "animal" | "extra" | "stunt"
+}
+
+export interface ScriptBlock {
+  id: string
+  type: ScriptBlockType
+  text: string
+  /** Scene number (set on scene-heading blocks) */
+  sceneNumber?: string
+  /** One-liner synopsis for scene-heading blocks */
+  synopsis?: string
+  /** Linked character id when type === "character" */
+  linkedCharacterId?: string
+  /** Linked location id when type === "scene-heading" */
+  linkedLocationId?: string
+  /** Whether this line was changed since the last lock */
+  changed?: boolean
+  /** Breakdown tags on this block */
+  breakdownTags?: BreakdownTag[]
+  /** Revision color when locked */
+  revisionColor?: RevisionColor
+}
+
+export interface ScriptData {
+  blocks: ScriptBlock[]
+  /** Whether the script is locked (scene numbers frozen) */
+  locked: boolean
+  /** The next available suffix counter for locked-mode new scenes, e.g. { "3": 1 } means next is 3A */
+  lockedSceneSuffixes?: Record<string, number>
+  /** Current revision color for edits */
+  currentRevision: RevisionColor
+  /** Timestamp of last modification */
+  lastModified: number
+}
+
 export interface Project {
   id: string
   name: string
@@ -511,6 +566,8 @@ export interface Project {
   propInventory?: PropInventoryItem[]
   /** Global location inventory ("All Locations" tab in Locations modal) */
   locationInventory?: ProjectLocation[]
+  /** Script data */
+  script?: ScriptData
 }
 
 export interface Character {

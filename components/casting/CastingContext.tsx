@@ -315,6 +315,14 @@ function validateAndCompleteState(state: any): CastingState {
             looks: Array.isArray(project.costumes.looks) ? project.costumes.looks : [],
             shoppingList: Array.isArray(project.costumes.shoppingList) ? project.costumes.shoppingList : [],
           } : undefined,
+          // Ensure script data is structurally valid
+          script: project.script && typeof project.script === "object" ? {
+            blocks: Array.isArray(project.script.blocks) ? project.script.blocks : [],
+            locked: !!project.script.locked,
+            lockedSceneSuffixes: project.script.lockedSceneSuffixes || {},
+            currentRevision: project.script.currentRevision || "white",
+            lastModified: project.script.lastModified || Date.now(),
+          } : undefined,
         }))
       : initialState.projects,
     notifications: Array.isArray(state.notifications) ? state.notifications : initialState.notifications,
@@ -1977,6 +1985,17 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
         projects: state.projects.map((project) =>
           project.id === action.payload.projectId
             ? { ...project, locationInventory: action.payload.inventory }
+            : project
+        ),
+      }
+      break
+
+    case "SET_PROJECT_SCRIPT":
+      newState = {
+        ...state,
+        projects: state.projects.map((project) =>
+          project.id === action.payload.projectId
+            ? { ...project, script: action.payload.script }
             : project
         ),
       }

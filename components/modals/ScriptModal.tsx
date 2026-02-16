@@ -1,0 +1,1040 @@
+"use client"
+
+import { useState, useRef, useCallback, useEffect, useMemo } from "react"
+import {
+  X,
+  Save,
+  Undo2,
+  Redo2,
+  Lock,
+  Unlock,
+  ChevronDown,
+  FileText,
+  Film,
+  MessageSquare,
+  Type,
+  AlignRight,
+  Parentheses,
+  Search,
+  Plus,
+  Trash2,
+  Tag,
+  ChevronRight,
+  Eye,
+  EyeOff,
+  Asterisk,
+  Palette,
+  Hash,
+  List,
+  Settings2,
+  ZoomIn,
+  ZoomOut,
+  BookOpen,
+} from "lucide-react"
+import { useCasting } from "@/components/casting/CastingContext"
+import type {
+  ScriptBlock,
+  ScriptBlockType,
+  ScriptData,
+  RevisionColor,
+  BreakdownTag,
+} from "@/types/casting"
+
+/* ------------------------------------------------------------------ */
+/*  Helpers                                                            */
+/* ------------------------------------------------------------------ */
+const uid = () => Math.random().toString(36).slice(2, 10)
+
+const BLOCK_TYPE_LABELS: Record<ScriptBlockType, string> = {
+  "scene-heading": "Scene Heading",
+  action: "Action",
+  character: "Character",
+  dialogue: "Dialogue",
+  parenthetical: "Parenthetical",
+  transition: "Transition",
+}
+
+const BLOCK_TYPE_ICONS: Record<ScriptBlockType, typeof Film> = {
+  "scene-heading": Film,
+  action: Type,
+  character: MessageSquare,
+  dialogue: BookOpen,
+  parenthetical: Parentheses,
+  transition: AlignRight,
+}
+
+const REVISION_COLORS: { key: RevisionColor; label: string; color: string; bg: string }[] = [
+  { key: "white", label: "White (Original)", color: "text-gray-700", bg: "bg-white" },
+  { key: "blue", label: "Blue", color: "text-blue-700", bg: "bg-blue-100" },
+  { key: "pink", label: "Pink", color: "text-pink-700", bg: "bg-pink-100" },
+  { key: "yellow", label: "Yellow", color: "text-yellow-700", bg: "bg-yellow-100" },
+  { key: "green", label: "Green", color: "text-green-700", bg: "bg-green-100" },
+  { key: "goldenrod", label: "Goldenrod", color: "text-amber-700", bg: "bg-amber-100" },
+  { key: "salmon", label: "Salmon", color: "text-orange-700", bg: "bg-orange-100" },
+  { key: "cherry", label: "Cherry", color: "text-red-700", bg: "bg-red-100" },
+]
+
+const BREAKDOWN_CATEGORIES = [
+  { key: "prop", label: "Prop", color: "bg-violet-200 text-violet-800" },
+  { key: "vehicle", label: "Vehicle", color: "bg-blue-200 text-blue-800" },
+  { key: "wardrobe", label: "Wardrobe", color: "bg-pink-200 text-pink-800" },
+  { key: "sfx", label: "SFX", color: "bg-orange-200 text-orange-800" },
+  { key: "vfx", label: "VFX", color: "bg-cyan-200 text-cyan-800" },
+  { key: "animal", label: "Animal", color: "bg-green-200 text-green-800" },
+  { key: "extra", label: "Extra", color: "bg-yellow-200 text-yellow-800" },
+  { key: "stunt", label: "Stunt", color: "bg-red-200 text-red-800" },
+]
+
+function getNextType(current: ScriptBlockType, isTab: boolean): ScriptBlockType {
+  if (isTab) {
+    if (current === "action") return "character"
+    if (current === "dialogue") return "parenthetical"
+    return current
+  }
+  // Enter logic
+  switch (current) {
+    case "scene-heading": return "action"
+    case "character": return "dialogue"
+    case "parenthetical": return "dialogue"
+    case "dialogue": return "action"
+    case "transition": return "scene-heading"
+    default: return "action"
+  }
+}
+
+function detectBlockType(text: string): ScriptBlockType | null {
+  const trimmed = text.trim()
+  if (/^(INT\.|EXT\.|I\/E\.|INT\/EXT\.)/i.test(trimmed)) return "scene-heading"
+  if (/^(CUT TO:|FADE OUT\.|FADE IN:|DISSOLVE TO:|SMASH CUT TO:|MATCH CUT TO:)/i.test(trimmed)) return "transition"
+  if (/^\(.*\)$/.test(trimmed)) return "parenthetical"
+  if (trimmed === trimmed.toUpperCase() && trimmed.length > 1 && /^[A-Z\s.'"-]+$/.test(trimmed)) return "character"
+  return null
+}
+
+function getEmptyScript(): ScriptData {
+  return {
+    blocks: [
+      { id: uid(), type: "scene-heading", text: "" },
+    ],
+    locked: false,
+    lockedSceneSuffixes: {},
+    currentRevision: "white",
+    lastModified: Date.now(),
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/*  ScriptBlock Row (contentEditable line)                              */
+/* ------------------------------------------------------------------ */
+function ScriptBlockRow({
+  block,
+  index,
+  isActive,
+  onActivate,
+  onTextChange,
+  onKeyDown,
+  onTypeChange,
+  sceneNumber,
+  characters,
+  showBreakdownTags,
+  onAddBreakdownTag,
+  onRemoveBreakdownTag,
+  isLocked,
+  zoom,
+}: {
+  block: ScriptBlock
+  index: number
+  isActive: boolean
+  onActivate: () => void
+  onTextChange: (text: string) => void
+  onKeyDown: (e: React.KeyboardEvent) => void
+  onTypeChange: (type: ScriptBlockType) => void
+  sceneNumber?: string
+  characters: { id: string; name: string }[]
+  showBreakdownTags: boolean
+  onAddBreakdownTag: (tag: BreakdownTag) => void
+  onRemoveBreakdownTag: (tagId: string) => void
+  isLocked: boolean
+  zoom: number
+}) {
+  const editRef = useRef<HTMLDivElement>(null)
+  const [showAutocomplete, setShowAutocomplete] = useState(false)
+  const [autocompleteItems, setAutocompleteItems] = useState<{ id: string; name: string }[]>([])
+  const [showTypeMenu, setShowTypeMenu] = useState(false)
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; text: string } | null>(null)
+
+  useEffect(() => {
+    if (editRef.current && editRef.current.textContent !== block.text) {
+      editRef.current.textContent = block.text
+    }
+  }, [block.id]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleInput = () => {
+    const text = editRef.current?.textContent || ""
+    onTextChange(text)
+
+    // Character autocomplete
+    if (block.type === "character" && text.length > 0) {
+      const matches = characters.filter((c) =>
+        c.name.toUpperCase().startsWith(text.toUpperCase())
+      )
+      if (matches.length > 0 && text.toUpperCase() !== matches[0]?.name.toUpperCase()) {
+        setAutocompleteItems(matches.slice(0, 5))
+        setShowAutocomplete(true)
+      } else {
+        setShowAutocomplete(false)
+      }
+    } else {
+      setShowAutocomplete(false)
+    }
+  }
+
+  const handleSelectAutocomplete = (name: string) => {
+    if (editRef.current) {
+      editRef.current.textContent = name.toUpperCase()
+      onTextChange(name.toUpperCase())
+    }
+    setShowAutocomplete(false)
+  }
+
+  const handleContextMenu = (e: React.MouseEvent) => {
+    if (!showBreakdownTags) return
+    const sel = window.getSelection()
+    const text = sel?.toString().trim()
+    if (text && text.length > 0) {
+      e.preventDefault()
+      setContextMenu({ x: e.clientX, y: e.clientY, text })
+    }
+  }
+
+  const handleTagAs = (category: string) => {
+    if (!contextMenu) return
+    const tag: BreakdownTag = {
+      id: uid(),
+      startOffset: 0,
+      endOffset: contextMenu.text.length,
+      text: contextMenu.text,
+      category,
+    }
+    onAddBreakdownTag(tag)
+    setContextMenu(null)
+  }
+
+  // Indentation and styling per block type
+  const blockStyles: Record<ScriptBlockType, string> = {
+    "scene-heading": "uppercase font-bold tracking-wide",
+    action: "",
+    character: "text-center uppercase tracking-wider",
+    dialogue: "mx-auto max-w-[65%] text-center",
+    parenthetical: "mx-auto max-w-[50%] text-center italic",
+    transition: "text-right uppercase",
+  }
+
+  const revColor = REVISION_COLORS.find((r) => r.key === block.revisionColor)
+  const baseFontSize = 12 * zoom
+
+  return (
+    <div
+      className={`group relative transition-colors ${isActive ? "bg-amber-50/40" : ""}`}
+      onClick={onActivate}
+    >
+      {/* Scene number gutter */}
+      {block.type === "scene-heading" && sceneNumber && (
+        <div className="absolute left-2 top-1/2 -translate-y-1/2 font-mono text-[10px] font-bold text-gray-400 select-none" style={{ fontSize: 10 * zoom }}>
+          {sceneNumber}
+        </div>
+      )}
+
+      {/* Changed asterisk */}
+      {isLocked && block.changed && (
+        <div className="absolute right-3 top-1/2 -translate-y-1/2 text-red-500 select-none">
+          <Asterisk className="w-3 h-3" />
+        </div>
+      )}
+
+      {/* Revision color bar */}
+      {block.revisionColor && block.revisionColor !== "white" && (
+        <div className={`absolute left-0 top-0 bottom-0 w-1 ${revColor?.bg || "bg-gray-200"} rounded-r`} />
+      )}
+
+      {/* Block type indicator (on hover) */}
+      <div className="absolute -left-1 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
+        <button
+          onClick={(e) => { e.stopPropagation(); setShowTypeMenu(!showTypeMenu) }}
+          className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors"
+          title="Change block type"
+        >
+          {(() => {
+            const Icon = BLOCK_TYPE_ICONS[block.type]
+            return <Icon className="w-3 h-3" />
+          })()}
+        </button>
+
+        {/* Type picker dropdown */}
+        {showTypeMenu && (
+          <div className="absolute left-0 top-full mt-1 bg-white rounded-lg shadow-xl border border-gray-200 py-1 z-30 min-w-[160px]">
+            {(Object.keys(BLOCK_TYPE_LABELS) as ScriptBlockType[]).map((t) => {
+              const Icon = BLOCK_TYPE_ICONS[t]
+              return (
+                <button
+                  key={t}
+                  onClick={(e) => { e.stopPropagation(); onTypeChange(t); setShowTypeMenu(false) }}
+                  className={`w-full flex items-center gap-2 px-3 py-1.5 text-xs hover:bg-gray-50 transition-colors ${block.type === t ? "text-amber-700 font-semibold bg-amber-50" : "text-gray-700"}`}
+                >
+                  <Icon className="w-3.5 h-3.5" />
+                  {BLOCK_TYPE_LABELS[t]}
+                </button>
+              )
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* The editable content */}
+      <div className="pl-10 pr-8 py-1">
+        <div
+          ref={editRef}
+          contentEditable
+          suppressContentEditableWarning
+          onInput={handleInput}
+          onKeyDown={onKeyDown}
+          onFocus={onActivate}
+          onContextMenu={handleContextMenu}
+          className={`outline-none whitespace-pre-wrap ${blockStyles[block.type]} text-gray-900`}
+          style={{
+            fontFamily: "'Courier Prime', 'Courier New', monospace",
+            fontSize: `${baseFontSize}pt`,
+            lineHeight: 1.5,
+            minHeight: `${baseFontSize * 1.5}pt`,
+          }}
+          data-placeholder={block.type === "scene-heading" ? "INT./EXT. LOCATION - TIME" : block.type === "character" ? "CHARACTER NAME" : block.type === "dialogue" ? "Dialogue..." : block.type === "parenthetical" ? "(parenthetical)" : block.type === "transition" ? "CUT TO:" : "Action description..."}
+          spellCheck
+        />
+      </div>
+
+      {/* Breakdown tags display */}
+      {showBreakdownTags && block.breakdownTags && block.breakdownTags.length > 0 && (
+        <div className="pl-10 pr-8 pb-1 flex flex-wrap gap-1">
+          {block.breakdownTags.map((tag) => {
+            const cat = BREAKDOWN_CATEGORIES.find((c) => c.key === tag.category)
+            return (
+              <span key={tag.id} className={`inline-flex items-center gap-1 text-[9px] font-medium px-1.5 py-0.5 rounded-full ${cat?.color || "bg-gray-200 text-gray-700"}`}>
+                <Tag className="w-2.5 h-2.5" />
+                {tag.text}
+                <button onClick={(e) => { e.stopPropagation(); onRemoveBreakdownTag(tag.id) }} className="hover:text-red-600 ml-0.5">
+                  <X className="w-2.5 h-2.5" />
+                </button>
+              </span>
+            )
+          })}
+        </div>
+      )}
+
+      {/* Character autocomplete dropdown */}
+      {showAutocomplete && (
+        <div className="absolute left-1/2 -translate-x-1/2 top-full bg-white rounded-lg shadow-xl border border-gray-200 py-1 z-30 min-w-[180px]">
+          {autocompleteItems.map((c) => (
+            <button
+              key={c.id}
+              onClick={() => handleSelectAutocomplete(c.name)}
+              className="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-amber-50 hover:text-amber-700 transition-colors font-mono uppercase"
+            >
+              {c.name}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Breakdown tagger context menu */}
+      {contextMenu && (
+        <div
+          className="fixed bg-white rounded-xl shadow-2xl border border-gray-200 py-2 z-[80] min-w-[180px]"
+          style={{ left: contextMenu.x, top: contextMenu.y }}
+        >
+          <p className="px-3 py-1 text-[10px] text-gray-400 font-semibold uppercase tracking-wider">Tag as...</p>
+          {BREAKDOWN_CATEGORIES.map((cat) => (
+            <button
+              key={cat.key}
+              onClick={() => handleTagAs(cat.key)}
+              className="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2 transition-colors"
+            >
+              <span className={`w-2 h-2 rounded-full ${cat.color.split(" ")[0]}`} />
+              {cat.label}: "{contextMenu.text.substring(0, 30)}"
+            </button>
+          ))}
+          <div className="my-1 border-t border-gray-100" />
+          <button
+            onClick={() => setContextMenu(null)}
+            className="w-full text-left px-3 py-1.5 text-xs text-gray-500 hover:bg-gray-50"
+          >
+            Cancel
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
+/* ------------------------------------------------------------------ */
+/*  Scene Navigator sidebar                                            */
+/* ------------------------------------------------------------------ */
+function SceneNavigator({ blocks, onJumpToScene }: {
+  blocks: ScriptBlock[]
+  onJumpToScene: (blockId: string) => void
+}) {
+  const scenes = blocks.filter((b) => b.type === "scene-heading")
+
+  return (
+    <div className="space-y-0.5">
+      {scenes.length === 0 ? (
+        <p className="text-xs text-gray-400 italic px-2 py-4">No scenes yet. Start typing a scene heading (INT./EXT.)</p>
+      ) : (
+        scenes.map((s) => (
+          <button
+            key={s.id}
+            onClick={() => onJumpToScene(s.id)}
+            className="w-full text-left px-3 py-2 text-xs rounded-lg hover:bg-amber-50 transition-colors group"
+          >
+            <div className="flex items-center gap-2">
+              {s.sceneNumber && (
+                <span className="text-[10px] font-mono font-bold text-gray-400 shrink-0 w-6">{s.sceneNumber}</span>
+              )}
+              <span className="font-semibold text-gray-800 truncate uppercase text-[11px]">
+                {s.text || "Untitled Scene"}
+              </span>
+            </div>
+            {s.synopsis && (
+              <p className="text-[10px] text-gray-500 mt-0.5 truncate ml-8">{s.synopsis}</p>
+            )}
+          </button>
+        ))
+      )}
+    </div>
+  )
+}
+
+/* ------------------------------------------------------------------ */
+/*  Synopsis Editor (inline for scene headings)                        */
+/* ------------------------------------------------------------------ */
+function SynopsisEditor({ synopsis, onChange }: { synopsis: string; onChange: (v: string) => void }) {
+  const [isEditing, setIsEditing] = useState(false)
+  const [draft, setDraft] = useState(synopsis)
+
+  return isEditing ? (
+    <div className="pl-10 pr-8 pb-2">
+      <input
+        autoFocus
+        value={draft}
+        onChange={(e) => setDraft(e.target.value)}
+        onBlur={() => { onChange(draft); setIsEditing(false) }}
+        onKeyDown={(e) => { if (e.key === "Enter") { onChange(draft); setIsEditing(false) } if (e.key === "Escape") setIsEditing(false) }}
+        placeholder="One-line scene summary..."
+        className="w-full text-[11px] text-gray-500 italic bg-transparent border-b border-dashed border-gray-300 outline-none focus:border-amber-400 pb-0.5 font-sans"
+      />
+    </div>
+  ) : (
+    <div
+      className="pl-10 pr-8 pb-2 cursor-pointer group/syn"
+      onClick={() => { setDraft(synopsis); setIsEditing(true) }}
+    >
+      <p className="text-[11px] text-gray-400 italic group-hover/syn:text-gray-600 transition-colors">
+        {synopsis || "Click to add scene summary..."}
+      </p>
+    </div>
+  )
+}
+
+/* ------------------------------------------------------------------ */
+/*  Main ScriptModal                                                   */
+/* ------------------------------------------------------------------ */
+export default function ScriptModal({ onClose }: { onClose: () => void }) {
+  const { state, dispatch } = useCasting()
+  const projectId = state.currentFocus.currentProjectId
+  const currentProject = state.projects.find((p) => p.id === projectId)
+
+  // Initialize script data from project or empty
+  const savedScript = currentProject?.script
+  const [blocks, setBlocks] = useState<ScriptBlock[]>(savedScript?.blocks || getEmptyScript().blocks)
+  const [locked, setLocked] = useState(savedScript?.locked || false)
+  const [lockedSceneSuffixes, setLockedSceneSuffixes] = useState<Record<string, number>>(savedScript?.lockedSceneSuffixes || {})
+  const [currentRevision, setCurrentRevision] = useState<RevisionColor>(savedScript?.currentRevision || "white")
+
+  const [activeBlockIdx, setActiveBlockIdx] = useState(0)
+  const [showSceneNav, setShowSceneNav] = useState(true)
+  const [showBreakdownTags, setShowBreakdownTags] = useState(false)
+  const [showRevisionMenu, setShowRevisionMenu] = useState(false)
+  const [zoom, setZoom] = useState(1)
+  const [searchTerm, setSearchTerm] = useState("")
+  const [showSearch, setShowSearch] = useState(false)
+  const [typewriterMode, setTypewriterMode] = useState(true)
+
+  const pageRef = useRef<HTMLDivElement>(null)
+  const blockRefs = useRef<Record<string, HTMLDivElement | null>>({})
+
+  // Keep a ref to avoid stale closures
+  const blocksRef = useRef(blocks)
+  blocksRef.current = blocks
+
+  // Characters from project for autocomplete
+  const characters = useMemo(() =>
+    (currentProject?.characters || []).map((c) => ({ id: c.id, name: c.name })),
+    [currentProject?.characters]
+  )
+
+  // Locations from project for auto-linking
+  const locations = useMemo(() =>
+    (currentProject?.locations || []).map((l) => ({ id: l.id, name: l.name })),
+    [currentProject?.locations]
+  )
+
+  // Auto-number scenes
+  const sceneNumbers = useMemo(() => {
+    const map: Record<string, string> = {}
+    let num = 1
+    for (const b of blocks) {
+      if (b.type === "scene-heading") {
+        if (locked && b.sceneNumber) {
+          map[b.id] = b.sceneNumber
+        } else {
+          map[b.id] = String(num++)
+        }
+      }
+    }
+    return map
+  }, [blocks, locked])
+
+  // Persist to project
+  const syncToProject = useCallback(() => {
+    if (!projectId) return
+    const scriptData: ScriptData = {
+      blocks: blocksRef.current,
+      locked,
+      lockedSceneSuffixes,
+      currentRevision,
+      lastModified: Date.now(),
+    }
+    dispatch({ type: "SET_PROJECT_SCRIPT", payload: { projectId, script: scriptData } })
+  }, [projectId, locked, lockedSceneSuffixes, currentRevision, dispatch])
+
+  // Auto-save debounced
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const debouncedSave = useCallback(() => {
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
+    saveTimerRef.current = setTimeout(() => syncToProject(), 800)
+  }, [syncToProject])
+
+  // Scroll active line to center (typewriter mode)
+  useEffect(() => {
+    if (!typewriterMode) return
+    const activeBlock = blocks[activeBlockIdx]
+    if (activeBlock && blockRefs.current[activeBlock.id]) {
+      blockRefs.current[activeBlock.id]?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      })
+    }
+  }, [activeBlockIdx, typewriterMode, blocks])
+
+  // Undo/redo
+  const historyRef = useRef<ScriptBlock[][]>([])
+  const historyIdxRef = useRef(-1)
+  const pushHistory = useCallback(() => {
+    const snapshot = JSON.parse(JSON.stringify(blocksRef.current))
+    historyRef.current = historyRef.current.slice(0, historyIdxRef.current + 1)
+    historyRef.current.push(snapshot)
+    if (historyRef.current.length > 100) historyRef.current.shift()
+    historyIdxRef.current = historyRef.current.length - 1
+  }, [])
+
+  const undo = useCallback(() => {
+    if (historyIdxRef.current > 0) {
+      historyIdxRef.current--
+      setBlocks(JSON.parse(JSON.stringify(historyRef.current[historyIdxRef.current])))
+    }
+  }, [])
+
+  const redo = useCallback(() => {
+    if (historyIdxRef.current < historyRef.current.length - 1) {
+      historyIdxRef.current++
+      setBlocks(JSON.parse(JSON.stringify(historyRef.current[historyIdxRef.current])))
+    }
+  }, [])
+
+  // Push initial history
+  useEffect(() => { pushHistory() }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Handle text change for a block
+  const handleTextChange = useCallback((idx: number, text: string) => {
+    setBlocks((prev) => {
+      const next = [...prev]
+      const block = { ...next[idx], text }
+
+      // Auto-detect block type
+      const detected = detectBlockType(text)
+      if (detected && detected !== block.type) {
+        block.type = detected
+      }
+
+      // Auto-link characters
+      if (block.type === "character") {
+        const match = characters.find((c) => c.name.toUpperCase() === text.trim().toUpperCase())
+        block.linkedCharacterId = match?.id || undefined
+      }
+
+      // Auto-link locations
+      if (block.type === "scene-heading") {
+        const locName = text.replace(/^(INT\.|EXT\.|I\/E\.|INT\/EXT\.)\s*/i, "").replace(/\s*-\s*(DAY|NIGHT|DAWN|DUSK|CONTINUOUS|LATER|MORNING|EVENING|SUNSET|SUNRISE)$/i, "").trim()
+        const match = locations.find((l) => l.name.toUpperCase() === locName.toUpperCase())
+        block.linkedLocationId = match?.id || undefined
+      }
+
+      // Mark as changed if locked
+      if (locked) {
+        block.changed = true
+        block.revisionColor = currentRevision
+      }
+
+      next[idx] = block
+      return next
+    })
+    debouncedSave()
+  }, [characters, locations, locked, currentRevision, debouncedSave])
+
+  // Handle key events
+  const handleKeyDown = useCallback((idx: number, e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault()
+      pushHistory()
+      const currentBlock = blocksRef.current[idx]
+      const nextType = getNextType(currentBlock.type, false)
+
+      // If locked and inserting after a scene heading, create A/B scene numbers
+      let newSceneNumber: string | undefined
+      if (locked && nextType === "scene-heading") {
+        const prevScene = blocksRef.current.slice(0, idx + 1).reverse().find((b) => b.type === "scene-heading")
+        if (prevScene?.sceneNumber) {
+          const base = prevScene.sceneNumber.replace(/[A-Z]$/, "")
+          const suffix = (lockedSceneSuffixes[base] || 0) + 1
+          newSceneNumber = base + String.fromCharCode(64 + suffix)
+          setLockedSceneSuffixes((prev) => ({ ...prev, [base]: suffix }))
+        }
+      }
+
+      const newBlock: ScriptBlock = {
+        id: uid(),
+        type: nextType,
+        text: "",
+        sceneNumber: newSceneNumber,
+      }
+      setBlocks((prev) => {
+        const next = [...prev]
+        next.splice(idx + 1, 0, newBlock)
+        return next
+      })
+      setActiveBlockIdx(idx + 1)
+      debouncedSave()
+      // Focus the new block
+      setTimeout(() => {
+        const el = blockRefs.current[newBlock.id]
+        const editable = el?.querySelector("[contenteditable]") as HTMLElement
+        editable?.focus()
+      }, 20)
+    }
+
+    if (e.key === "Tab") {
+      e.preventDefault()
+      pushHistory()
+      const currentBlock = blocksRef.current[idx]
+      if (currentBlock.text.trim() === "") {
+        const nextType = getNextType(currentBlock.type, true)
+        setBlocks((prev) => {
+          const next = [...prev]
+          next[idx] = { ...next[idx], type: nextType }
+          return next
+        })
+      }
+    }
+
+    if (e.key === "Backspace" && blocksRef.current[idx].text === "" && idx > 0) {
+      e.preventDefault()
+      pushHistory()
+      setBlocks((prev) => {
+        const next = [...prev]
+        next.splice(idx, 1)
+        return next
+      })
+      setActiveBlockIdx(idx - 1)
+      debouncedSave()
+      setTimeout(() => {
+        const prevBlock = blocksRef.current[idx - 1]
+        if (prevBlock) {
+          const el = blockRefs.current[prevBlock.id]
+          const editable = el?.querySelector("[contenteditable]") as HTMLElement
+          editable?.focus()
+        }
+      }, 20)
+    }
+
+    // Ctrl+Z / Ctrl+Shift+Z
+    if ((e.ctrlKey || e.metaKey) && e.key === "z") {
+      e.preventDefault()
+      if (e.shiftKey) redo()
+      else undo()
+    }
+
+    // Arrow keys
+    if (e.key === "ArrowUp" && idx > 0) {
+      const sel = window.getSelection()
+      const atStart = sel && sel.anchorOffset === 0
+      if (atStart) {
+        e.preventDefault()
+        setActiveBlockIdx(idx - 1)
+        setTimeout(() => {
+          const prev = blocksRef.current[idx - 1]
+          if (prev) {
+            const el = blockRefs.current[prev.id]
+            const editable = el?.querySelector("[contenteditable]") as HTMLElement
+            editable?.focus()
+          }
+        }, 10)
+      }
+    }
+
+    if (e.key === "ArrowDown" && idx < blocksRef.current.length - 1) {
+      const sel = window.getSelection()
+      const el = blockRefs.current[blocksRef.current[idx].id]?.querySelector("[contenteditable]")
+      const atEnd = sel && el && sel.anchorOffset === (el.textContent?.length || 0)
+      if (atEnd) {
+        e.preventDefault()
+        setActiveBlockIdx(idx + 1)
+        setTimeout(() => {
+          const next = blocksRef.current[idx + 1]
+          if (next) {
+            const nel = blockRefs.current[next.id]
+            const editable = nel?.querySelector("[contenteditable]") as HTMLElement
+            editable?.focus()
+          }
+        }, 10)
+      }
+    }
+  }, [pushHistory, locked, lockedSceneSuffixes, debouncedSave, undo, redo])
+
+  const handleTypeChange = useCallback((idx: number, type: ScriptBlockType) => {
+    pushHistory()
+    setBlocks((prev) => {
+      const next = [...prev]
+      next[idx] = { ...next[idx], type }
+      return next
+    })
+    debouncedSave()
+  }, [pushHistory, debouncedSave])
+
+  const handleSynopsisChange = useCallback((idx: number, synopsis: string) => {
+    setBlocks((prev) => {
+      const next = [...prev]
+      next[idx] = { ...next[idx], synopsis }
+      return next
+    })
+    debouncedSave()
+  }, [debouncedSave])
+
+  const handleAddBreakdownTag = useCallback((idx: number, tag: BreakdownTag) => {
+    setBlocks((prev) => {
+      const next = [...prev]
+      next[idx] = { ...next[idx], breakdownTags: [...(next[idx].breakdownTags || []), tag] }
+      return next
+    })
+    debouncedSave()
+  }, [debouncedSave])
+
+  const handleRemoveBreakdownTag = useCallback((idx: number, tagId: string) => {
+    setBlocks((prev) => {
+      const next = [...prev]
+      next[idx] = { ...next[idx], breakdownTags: (next[idx].breakdownTags || []).filter((t) => t.id !== tagId) }
+      return next
+    })
+    debouncedSave()
+  }, [debouncedSave])
+
+  const handleJumpToScene = (blockId: string) => {
+    const idx = blocks.findIndex((b) => b.id === blockId)
+    if (idx >= 0) {
+      setActiveBlockIdx(idx)
+      blockRefs.current[blockId]?.scrollIntoView({ behavior: "smooth", block: "center" })
+    }
+  }
+
+  const handleLockToggle = () => {
+    pushHistory()
+    if (!locked) {
+      // Lock: freeze scene numbers
+      setBlocks((prev) => prev.map((b) => b.type === "scene-heading" ? { ...b, sceneNumber: sceneNumbers[b.id] } : b))
+    } else {
+      // Unlock: clear scene numbers and change markers
+      setBlocks((prev) => prev.map((b) => ({ ...b, sceneNumber: undefined, changed: false, revisionColor: undefined })))
+    }
+    setLocked(!locked)
+    debouncedSave()
+  }
+
+  const handleManualSave = () => {
+    syncToProject()
+  }
+
+  // Scene and page counts
+  const sceneCount = blocks.filter((b) => b.type === "scene-heading").length
+  const estimatedPages = Math.max(1, Math.round(blocks.length / 56))
+
+  // Search filter highlights
+  const searchMatchIds = useMemo(() => {
+    if (!searchTerm.trim()) return new Set<string>()
+    const term = searchTerm.toLowerCase()
+    return new Set(blocks.filter((b) => b.text.toLowerCase().includes(term)).map((b) => b.id))
+  }, [blocks, searchTerm])
+
+  return (
+    <div className="fixed inset-0 bg-gradient-to-br from-stone-100 via-stone-50 to-amber-50/30 z-50 flex flex-col">
+      {/* Header toolbar */}
+      <div className="h-12 bg-white/90 backdrop-blur-sm border-b border-stone-200 flex items-center gap-2 px-4 shrink-0">
+        <button onClick={onClose} className="p-1.5 text-stone-500 hover:text-stone-700 hover:bg-stone-100 rounded-lg transition-colors">
+          <X className="w-5 h-5" />
+        </button>
+
+        <div className="w-px h-6 bg-stone-200" />
+
+        <div className="flex items-center gap-1 mr-2">
+          <FileText className="w-4 h-4 text-amber-600" />
+          <h1 className="text-sm font-bold text-stone-800">Script Editor</h1>
+        </div>
+
+        <div className="text-[10px] text-stone-400 font-medium bg-stone-100 px-2 py-0.5 rounded-full">
+          {sceneCount} scene{sceneCount !== 1 ? "s" : ""} / ~{estimatedPages} pg{estimatedPages !== 1 ? "s" : ""}
+        </div>
+
+        <div className="flex-1" />
+
+        {/* Undo / Redo */}
+        <button onClick={undo} className="p-1.5 text-stone-400 hover:text-stone-700 hover:bg-stone-100 rounded-lg transition-colors" title="Undo (Ctrl+Z)">
+          <Undo2 className="w-4 h-4" />
+        </button>
+        <button onClick={redo} className="p-1.5 text-stone-400 hover:text-stone-700 hover:bg-stone-100 rounded-lg transition-colors" title="Redo (Ctrl+Shift+Z)">
+          <Redo2 className="w-4 h-4" />
+        </button>
+
+        <div className="w-px h-6 bg-stone-200" />
+
+        {/* Zoom */}
+        <button onClick={() => setZoom((z) => Math.max(0.7, z - 0.1))} className="p-1.5 text-stone-400 hover:text-stone-700 hover:bg-stone-100 rounded-lg transition-colors" title="Zoom out">
+          <ZoomOut className="w-4 h-4" />
+        </button>
+        <span className="text-[10px] text-stone-500 font-mono min-w-[35px] text-center">{Math.round(zoom * 100)}%</span>
+        <button onClick={() => setZoom((z) => Math.min(1.5, z + 0.1))} className="p-1.5 text-stone-400 hover:text-stone-700 hover:bg-stone-100 rounded-lg transition-colors" title="Zoom in">
+          <ZoomIn className="w-4 h-4" />
+        </button>
+
+        <div className="w-px h-6 bg-stone-200" />
+
+        {/* Typewriter mode */}
+        <button
+          onClick={() => setTypewriterMode(!typewriterMode)}
+          className={`p-1.5 rounded-lg transition-colors ${typewriterMode ? "text-amber-600 bg-amber-50" : "text-stone-400 hover:text-stone-700 hover:bg-stone-100"}`}
+          title="Typewriter mode"
+        >
+          <AlignRight className="w-4 h-4" />
+        </button>
+
+        {/* Scene Navigator toggle */}
+        <button
+          onClick={() => setShowSceneNav(!showSceneNav)}
+          className={`p-1.5 rounded-lg transition-colors ${showSceneNav ? "text-amber-600 bg-amber-50" : "text-stone-400 hover:text-stone-700 hover:bg-stone-100"}`}
+          title="Scene navigator"
+        >
+          <List className="w-4 h-4" />
+        </button>
+
+        {/* Breakdown tagger toggle */}
+        <button
+          onClick={() => setShowBreakdownTags(!showBreakdownTags)}
+          className={`flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium transition-colors ${showBreakdownTags ? "text-violet-700 bg-violet-50 border border-violet-200" : "text-stone-400 hover:text-stone-700 hover:bg-stone-100 border border-transparent"}`}
+          title="Breakdown tagger"
+        >
+          <Tag className="w-3.5 h-3.5" />
+          <span className="hidden lg:inline">Breakdown</span>
+        </button>
+
+        {/* Search */}
+        <button
+          onClick={() => setShowSearch(!showSearch)}
+          className={`p-1.5 rounded-lg transition-colors ${showSearch ? "text-amber-600 bg-amber-50" : "text-stone-400 hover:text-stone-700 hover:bg-stone-100"}`}
+          title="Search"
+        >
+          <Search className="w-4 h-4" />
+        </button>
+
+        <div className="w-px h-6 bg-stone-200" />
+
+        {/* Revision color picker */}
+        <div className="relative">
+          <button
+            onClick={() => setShowRevisionMenu(!showRevisionMenu)}
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium text-stone-500 hover:text-stone-700 hover:bg-stone-100 border border-stone-200 transition-colors"
+          >
+            <Palette className="w-3.5 h-3.5" />
+            <span className="hidden lg:inline">{REVISION_COLORS.find((r) => r.key === currentRevision)?.label.split(" ")[0]}</span>
+            <ChevronDown className="w-3 h-3" />
+          </button>
+          {showRevisionMenu && (
+            <div className="absolute right-0 top-full mt-1 bg-white rounded-xl shadow-xl border border-stone-200 py-1 z-30 min-w-[200px]">
+              <p className="px-3 py-1.5 text-[10px] text-stone-400 font-semibold uppercase tracking-wider">Revision Draft</p>
+              {REVISION_COLORS.map((r) => (
+                <button
+                  key={r.key}
+                  onClick={() => { setCurrentRevision(r.key); setShowRevisionMenu(false); debouncedSave() }}
+                  className={`w-full flex items-center gap-2 px-3 py-2 text-xs hover:bg-stone-50 transition-colors ${currentRevision === r.key ? "font-semibold" : ""}`}
+                >
+                  <span className={`w-4 h-4 rounded-md border border-stone-200 ${r.bg}`} />
+                  <span className={r.color}>{r.label}</span>
+                  {currentRevision === r.key && <span className="ml-auto text-amber-600">Active</span>}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Lock toggle */}
+        <button
+          onClick={handleLockToggle}
+          className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium transition-colors border ${locked ? "text-red-700 bg-red-50 border-red-200" : "text-stone-500 hover:text-stone-700 hover:bg-stone-100 border-stone-200"}`}
+          title={locked ? "Unlock script (unfreeze scene numbers)" : "Lock script (freeze scene numbers)"}
+        >
+          {locked ? <Lock className="w-3.5 h-3.5" /> : <Unlock className="w-3.5 h-3.5" />}
+          <span className="hidden lg:inline">{locked ? "Locked" : "Lock"}</span>
+        </button>
+
+        {/* Save */}
+        <button
+          onClick={handleManualSave}
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-600 text-white text-xs font-semibold rounded-lg hover:bg-amber-700 transition-colors shadow-sm"
+        >
+          <Save className="w-3.5 h-3.5" />
+          Save
+        </button>
+      </div>
+
+      {/* Search bar */}
+      {showSearch && (
+        <div className="h-10 bg-white/80 border-b border-stone-200 flex items-center gap-2 px-4 shrink-0">
+          <Search className="w-4 h-4 text-stone-400" />
+          <input
+            autoFocus
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Search script..."
+            className="flex-1 text-sm bg-transparent outline-none text-stone-800 placeholder-stone-400"
+          />
+          {searchTerm && <span className="text-[10px] text-stone-400">{searchMatchIds.size} match{searchMatchIds.size !== 1 ? "es" : ""}</span>}
+          <button onClick={() => { setShowSearch(false); setSearchTerm("") }} className="p-1 text-stone-400 hover:text-stone-600">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
+      {/* Main content */}
+      <div className="flex-1 flex overflow-hidden">
+        {/* Scene navigator sidebar */}
+        {showSceneNav && (
+          <div className="w-60 bg-white/70 border-r border-stone-200 shrink-0 overflow-y-auto">
+            <div className="p-3 border-b border-stone-200">
+              <h2 className="text-xs font-bold text-stone-700 uppercase tracking-wider flex items-center gap-1.5">
+                <Hash className="w-3.5 h-3.5 text-amber-600" />
+                Scenes
+              </h2>
+            </div>
+            <div className="p-2">
+              <SceneNavigator blocks={blocks} onJumpToScene={handleJumpToScene} />
+            </div>
+          </div>
+        )}
+
+        {/* Script page */}
+        <div className="flex-1 overflow-y-auto" ref={pageRef}>
+          <div className="max-w-[8.5in] mx-auto my-8">
+            {/* Page representation */}
+            <div className="bg-white rounded-sm shadow-lg border border-stone-200/80 min-h-[11in]" style={{ padding: `${1 * zoom}in ${1.5 * zoom}in` }}>
+              {blocks.map((block, idx) => (
+                <div key={block.id} ref={(el) => { blockRefs.current[block.id] = el }}>
+                  {/* Highlight search matches */}
+                  <div className={searchTerm && searchMatchIds.has(block.id) ? "bg-amber-100/50 -mx-4 px-4 rounded" : ""}>
+                    <ScriptBlockRow
+                      block={block}
+                      index={idx}
+                      isActive={activeBlockIdx === idx}
+                      onActivate={() => setActiveBlockIdx(idx)}
+                      onTextChange={(text) => handleTextChange(idx, text)}
+                      onKeyDown={(e) => handleKeyDown(idx, e)}
+                      onTypeChange={(type) => handleTypeChange(idx, type)}
+                      sceneNumber={sceneNumbers[block.id]}
+                      characters={characters}
+                      showBreakdownTags={showBreakdownTags}
+                      onAddBreakdownTag={(tag) => handleAddBreakdownTag(idx, tag)}
+                      onRemoveBreakdownTag={(tagId) => handleRemoveBreakdownTag(idx, tagId)}
+                      isLocked={locked}
+                      zoom={zoom}
+                    />
+                    {/* Synopsis slot for scene headings */}
+                    {block.type === "scene-heading" && (
+                      <SynopsisEditor
+                        synopsis={block.synopsis || ""}
+                        onChange={(v) => handleSynopsisChange(idx, v)}
+                      />
+                    )}
+                  </div>
+                </div>
+              ))}
+
+              {/* Empty-state bottom click area to add new blocks */}
+              <div
+                className="min-h-[200px] cursor-text"
+                onClick={() => {
+                  const lastBlock = blocks[blocks.length - 1]
+                  if (lastBlock && lastBlock.text.trim() === "") {
+                    setActiveBlockIdx(blocks.length - 1)
+                    const el = blockRefs.current[lastBlock.id]
+                    const editable = el?.querySelector("[contenteditable]") as HTMLElement
+                    editable?.focus()
+                  } else {
+                    pushHistory()
+                    const newBlock: ScriptBlock = { id: uid(), type: "action", text: "" }
+                    setBlocks((prev) => [...prev, newBlock])
+                    setActiveBlockIdx(blocks.length)
+                    setTimeout(() => {
+                      const el = blockRefs.current[newBlock.id]
+                      const editable = el?.querySelector("[contenteditable]") as HTMLElement
+                      editable?.focus()
+                    }, 20)
+                  }
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Status bar */}
+      <div className="h-7 bg-white/90 border-t border-stone-200 flex items-center justify-between px-4 shrink-0 text-[10px] text-stone-400 font-medium">
+        <div className="flex items-center gap-4">
+          <span>{blocks.length} block{blocks.length !== 1 ? "s" : ""}</span>
+          <span>{sceneCount} scene{sceneCount !== 1 ? "s" : ""}</span>
+          <span>~{estimatedPages} page{estimatedPages !== 1 ? "s" : ""}</span>
+          {locked && <span className="text-red-500 flex items-center gap-0.5"><Lock className="w-2.5 h-2.5" /> Locked</span>}
+        </div>
+        <div className="flex items-center gap-4">
+          <span>Block {activeBlockIdx + 1} of {blocks.length}</span>
+          <span className="uppercase">{BLOCK_TYPE_LABELS[blocks[activeBlockIdx]?.type || "action"]}</span>
+          <span>{currentRevision !== "white" ? `Rev: ${currentRevision}` : ""}</span>
+          <span>Auto-saving</span>
+        </div>
+      </div>
+    </div>
+  )
+}

@@ -1,6 +1,16 @@
+@import url('https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Script editor contenteditable placeholder */
+[contenteditable]:empty::before {
+  content: attr(data-placeholder);
+  color: #c4b5a4;
+  pointer-events: none;
+  font-style: italic;
+}
 
 @layer base {
   :root {

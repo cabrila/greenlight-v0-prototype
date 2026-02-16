@@ -40,6 +40,7 @@ import AddFromDatabaseModal from "./AddFromDatabaseModal"
 import PropsModal from "./PropsModal"
 import LocationsModal from "./LocationsModal"
 import CostumesModal from "./CostumesModal"
+import ScriptModal from "./ScriptModal"
 
 export interface ModalState {
   type: string | null
@@ -269,6 +270,8 @@ export default function ModalManager() {
           return <LocationsModal onClose={handleClose} />
         case "costumes":
           return <CostumesModal onClose={handleClose} />
+        case "script":
+          return <ScriptModal onClose={handleClose} />
         default:
           return null
       }
@@ -284,7 +287,8 @@ export default function ModalManager() {
       modal.type === "addFromDatabase" ||
       modal.type === "props" ||
       modal.type === "locations" ||
-      modal.type === "costumes"
+      modal.type === "costumes" ||
+      modal.type === "script"
     ) {
       return <div key={`modal-${index}`}>{modalContent}</div>
     }
