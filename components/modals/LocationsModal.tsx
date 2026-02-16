@@ -437,109 +437,278 @@ function HoverPreviewOverlay({ media }: { media: LocationMediaItem[] }) {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Interactive Map                                                    */
+/*  Interactive Leaflet Map                                            */
 /* ------------------------------------------------------------------ */
 
-function InteractiveMap({ locations, selectedId, onSelect }: { locations: ProjectLocation[]; selectedId: string | null; onSelect: (id: string) => void }) {
-  const bounds = useMemo(() => {
-    if (locations.length === 0) return { minLat: 33.8, maxLat: 34.3, minLng: -118.6, maxLng: -118.0 }
-    const lats = locations.map((l) => l.lat)
-    const lngs = locations.map((l) => l.lng)
-    const pad = 0.08
-    return { minLat: Math.min(...lats) - pad, maxLat: Math.max(...lats) + pad, minLng: Math.min(...lngs) - pad, maxLng: Math.max(...lngs) + pad }
-  }, [locations])
+const LEAFLET_CSS = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+const LEAFLET_JS = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+const TILE_URL = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+const TILE_ATTR = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 
-  const toPercent = (lat: number, lng: number) => ({
-    x: ((lng - bounds.minLng) / (bounds.maxLng - bounds.minLng)) * 100,
-    y: ((bounds.maxLat - lat) / (bounds.maxLat - bounds.minLat)) * 100,
-  })
+function useLeaflet() {
+  const [ready, setReady] = useState(false)
+  useEffect(() => {
+    if ((window as any).L) { setReady(true); return }
+    // Load CSS
+    if (!document.querySelector(`link[href="${LEAFLET_CSS}"]`)) {
+      const link = document.createElement("link")
+      link.rel = "stylesheet"
+      link.href = LEAFLET_CSS
+      document.head.appendChild(link)
+    }
+    // Load JS
+    if (!document.querySelector(`script[src="${LEAFLET_JS}"]`)) {
+      const script = document.createElement("script")
+      script.src = LEAFLET_JS
+      script.onload = () => setReady(true)
+      document.head.appendChild(script)
+    } else {
+      const check = setInterval(() => { if ((window as any).L) { setReady(true); clearInterval(check) } }, 100)
+      return () => clearInterval(check)
+    }
+  }, [])
+  return ready
+}
 
-  const selectedLoc = selectedId ? locations.find((l) => l.id === selectedId) : null
+function getStatusColor(status: LocationStatus) {
+  switch (status) {
+    case "secured": return "#10b981"
+    case "scouted": return "#3b82f6"
+    case "pending-approval": return "#f59e0b"
+    case "burned": return "#ef4444"
+    default: return "#6b7280"
+  }
+}
+
+function InteractiveMap({
+  locations, selectedId, onSelect, onEditLocation, onDeleteLocation, onAddAtCoords, isAddingMode, onToggleAddMode,
+}: {
+  locations: ProjectLocation[]; selectedId: string | null; onSelect: (id: string) => void
+  onEditLocation: (loc: ProjectLocation) => void; onDeleteLocation: (id: string) => void
+  onAddAtCoords: (lat: number, lng: number) => void; isAddingMode: boolean; onToggleAddMode: () => void
+}) {
+  const leafletReady = useLeaflet()
+  const containerRef = useRef<HTMLDivElement>(null)
+  const mapRef = useRef<any>(null)
+  const markersRef = useRef<Record<string, any>>({})
+  const popupsRef = useRef<Record<string, any>>({})
+  const pendingMarkerRef = useRef<any>(null)
+
+  // Initialize map
+  useEffect(() => {
+    if (!leafletReady || !containerRef.current || mapRef.current) return
+    const L = (window as any).L
+    const map = L.map(containerRef.current, {
+      center: [OFFICE_LAT, OFFICE_LNG],
+      zoom: 10,
+      zoomControl: false,
+      attributionControl: true,
+    })
+    L.tileLayer(TILE_URL, { attribution: TILE_ATTR, maxZoom: 19 }).addTo(map)
+    L.control.zoom({ position: "bottomright" }).addTo(map)
+    mapRef.current = map
+    return () => { map.remove(); mapRef.current = null }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [leafletReady])
+
+  // Click-to-add handler
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map) return
+    const handler = (e: any) => {
+      if (!isAddingMode) return
+      const { lat, lng } = e.latlng
+      // Show temporary marker
+      const L = (window as any).L
+      if (pendingMarkerRef.current) map.removeLayer(pendingMarkerRef.current)
+      const tmpIcon = L.divIcon({
+        className: "leaflet-tmp-marker",
+        html: `<div style="width:28px;height:28px;border-radius:50%;background:#14b8a6;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;animation:pulse 1s infinite alternate"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></div>`,
+        iconSize: [28, 28],
+        iconAnchor: [14, 14],
+      })
+      pendingMarkerRef.current = L.marker([lat, lng], { icon: tmpIcon }).addTo(map)
+      onAddAtCoords(lat, lng)
+    }
+    map.on("click", handler)
+    return () => { map.off("click", handler) }
+  }, [isAddingMode, onAddAtCoords])
+
+  // Update markers when locations change
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map) return
+    const L = (window as any).L
+
+    // Remove old markers not in current locations
+    const locIds = new Set(locations.map((l) => l.id))
+    Object.entries(markersRef.current).forEach(([id, marker]) => {
+      if (!locIds.has(id)) { map.removeLayer(marker); delete markersRef.current[id]; delete popupsRef.current[id] }
+    })
+
+    // Add/update markers
+    locations.forEach((loc) => {
+      const color = getStatusColor(loc.status)
+      const isStudio = loc.locationType === "studio"
+      const iconSvg = isStudio
+        ? `<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 22V6h6V2h6v8h6v12z"/></svg>`
+        : `<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>`
+
+      const icon = L.divIcon({
+        className: "leaflet-loc-marker",
+        html: `<div style="width:30px;height:30px;border-radius:50%;background:${color};border:2.5px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform 0.2s">${iconSvg}</div>`,
+        iconSize: [30, 30],
+        iconAnchor: [15, 15],
+      })
+
+      if (markersRef.current[loc.id]) {
+        markersRef.current[loc.id].setLatLng([loc.lat, loc.lng]).setIcon(icon)
+      } else {
+        const marker = L.marker([loc.lat, loc.lng], { icon }).addTo(map)
+        marker.on("click", () => onSelect(loc.id))
+        markersRef.current[loc.id] = marker
+      }
+
+      // Build popup content
+      const statusLabel = LOCATION_STATUSES.find((s) => s.value === loc.status)?.label || loc.status
+      const dist = haversineDistance(OFFICE_LAT, OFFICE_LNG, loc.lat, loc.lng).toFixed(1)
+      const popupHtml = `
+        <div style="font-family:system-ui,-apple-system,sans-serif;min-width:220px;max-width:280px;padding:0">
+          <div style="display:flex;align-items:start;gap:10px;padding:10px 12px 6px">
+            <div style="flex:1;min-width:0">
+              <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px">
+                <span style="font-size:10px;font-family:monospace;color:#9ca3af">${loc.code}</span>
+                <span style="font-size:9px;font-weight:600;background:${color}20;color:${color};padding:1px 6px;border-radius:99px">${statusLabel}</span>
+              </div>
+              <p style="font-size:13px;font-weight:600;color:#111827;margin:2px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${loc.name}</p>
+              <p style="font-size:10px;color:#6b7280;margin:2px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${loc.address}</p>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 12px;background:#f9fafb;border-top:1px solid #f3f4f6;border-bottom:1px solid #f3f4f6;font-size:10px;color:#6b7280">
+            <span style="font-weight:600;color:#111827">${loc.dailyRate}</span><span>/day</span>
+            <span style="margin-left:auto">${dist} mi away</span>
+          </div>
+          <div style="display:flex;padding:0;border-top:0">
+            <button onclick="document.dispatchEvent(new CustomEvent('loc-edit',{detail:'${loc.id}'}))" style="flex:1;padding:8px;border:none;background:none;font-size:11px;font-weight:500;color:#0d9488;cursor:pointer;border-right:1px solid #f3f4f6">Edit</button>
+            <button onclick="document.dispatchEvent(new CustomEvent('loc-delete',{detail:'${loc.id}'}))" style="flex:1;padding:8px;border:none;background:none;font-size:11px;font-weight:500;color:#ef4444;cursor:pointer">Remove</button>
+          </div>
+        </div>
+      `
+      if (popupsRef.current[loc.id]) {
+        popupsRef.current[loc.id].setContent(popupHtml)
+      } else {
+        const popup = L.popup({ closeButton: true, className: "leaflet-loc-popup", offset: [0, -10], maxWidth: 300, minWidth: 220 }).setContent(popupHtml)
+        markersRef.current[loc.id].bindPopup(popup)
+        popupsRef.current[loc.id] = popup
+      }
+    })
+  }, [locations, onSelect])
+
+  // Listen for popup button events
+  useEffect(() => {
+    const handleEdit = (e: any) => {
+      const loc = locations.find((l) => l.id === e.detail)
+      if (loc) onEditLocation(loc)
+    }
+    const handleDelete = (e: any) => { if (e.detail) onDeleteLocation(e.detail) }
+    document.addEventListener("loc-edit", handleEdit)
+    document.addEventListener("loc-delete", handleDelete)
+    return () => {
+      document.removeEventListener("loc-edit", handleEdit)
+      document.removeEventListener("loc-delete", handleDelete)
+    }
+  }, [locations, onEditLocation, onDeleteLocation])
+
+  // Fly to selected location
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map || !selectedId) return
+    const loc = locations.find((l) => l.id === selectedId)
+    if (!loc) return
+    map.flyTo([loc.lat, loc.lng], Math.max(map.getZoom(), 13), { duration: 0.8 })
+
+    // Highlight selected marker
+    Object.entries(markersRef.current).forEach(([id, marker]) => {
+      const el = marker.getElement()
+      if (!el) return
+      const inner = el.querySelector("div")
+      if (!inner) return
+      if (id === selectedId) {
+        inner.style.transform = "scale(1.3)"
+        inner.style.boxShadow = "0 0 0 4px rgba(20,184,166,0.3), 0 2px 8px rgba(0,0,0,0.3)"
+      } else {
+        inner.style.transform = "scale(1)"
+        inner.style.boxShadow = "0 2px 8px rgba(0,0,0,0.3)"
+      }
+    })
+
+    // Open popup
+    const marker = markersRef.current[selectedId]
+    if (marker) marker.openPopup()
+  }, [selectedId, locations])
+
+  // Fit bounds when locations change
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map || locations.length === 0) return
+    const L = (window as any).L
+    const bounds = L.latLngBounds(locations.map((l: any) => [l.lat, l.lng]))
+    map.fitBounds(bounds.pad(0.15), { maxZoom: 14 })
+  }, [locations.length])
+
+  // Clean up pending marker when add mode turns off
+  useEffect(() => {
+    if (!isAddingMode && pendingMarkerRef.current && mapRef.current) {
+      mapRef.current.removeLayer(pendingMarkerRef.current)
+      pendingMarkerRef.current = null
+    }
+  }, [isAddingMode])
 
   return (
-    <div className="w-full h-full bg-gradient-to-br from-teal-50 via-sky-50 to-blue-50 rounded-2xl border border-gray-200 relative overflow-hidden">
-      {/* Grid pattern */}
-      <svg className="absolute inset-0 w-full h-full opacity-[0.06]" xmlns="http://www.w3.org/2000/svg">
-        <defs><pattern id="locgrid" width="32" height="32" patternUnits="userSpaceOnUse"><path d="M 32 0 L 0 0 0 32" fill="none" stroke="currentColor" strokeWidth="0.5" /></pattern></defs>
-        <rect width="100%" height="100%" fill="url(#locgrid)" />
-      </svg>
-      {/* Subtle road lines */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-[25%] left-[10%] right-[10%] h-px bg-gray-300/30" />
-        <div className="absolute top-[55%] left-[5%] right-[15%] h-px bg-gray-300/30" />
-        <div className="absolute top-[75%] left-[20%] right-[5%] h-px bg-gray-300/20" />
-        <div className="absolute left-[30%] top-[5%] bottom-[10%] w-px bg-gray-300/30" />
-        <div className="absolute left-[60%] top-[10%] bottom-[5%] w-px bg-gray-300/30" />
-        <div className="absolute left-[80%] top-[15%] bottom-[20%] w-px bg-gray-300/20" />
-      </div>
+    <div className="w-full h-full rounded-2xl border border-gray-200 overflow-hidden relative bg-gray-100">
+      {/* Map container */}
+      <div ref={containerRef} className="w-full h-full" style={{ zIndex: 1 }} />
 
-      {/* Markers */}
-      {locations.map((loc) => {
-        const pos = toPercent(loc.lat, loc.lng)
-        const isSelected = loc.id === selectedId
-        const statusColor = loc.status === "secured" ? "bg-emerald-500" : loc.status === "scouted" ? "bg-blue-500" : loc.status === "pending-approval" ? "bg-amber-500" : "bg-red-500"
-        const ringColor = loc.status === "secured" ? "ring-emerald-300" : loc.status === "scouted" ? "ring-blue-300" : loc.status === "pending-approval" ? "ring-amber-300" : "ring-red-300"
-        return (
-          <button
-            key={loc.id}
-            onClick={() => onSelect(loc.id)}
-            className={`absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-300 group/marker ${isSelected ? "z-30 scale-110" : "z-10 hover:z-20 hover:scale-105"}`}
-            style={{ left: `${Math.min(Math.max(pos.x, 6), 94)}%`, top: `${Math.min(Math.max(pos.y, 6), 94)}%` }}
-          >
-            {/* Pulse ring for selected */}
-            {isSelected && (
-              <div className={`absolute inset-0 w-9 h-9 -m-1 rounded-full ${ringColor} opacity-40 animate-ping`} />
-            )}
-            <div className={`relative w-7 h-7 rounded-full ${statusColor} shadow-lg flex items-center justify-center transition-all ${isSelected ? "ring-2 ring-white shadow-xl" : ""}`}>
-              {loc.locationType === "studio" ? <Building2 className="w-3 h-3 text-white" /> : <MapPin className="w-3 h-3 text-white" />}
-            </div>
-            {/* Tooltip */}
-            <div className={`absolute -bottom-7 left-1/2 -translate-x-1/2 whitespace-nowrap bg-gray-900/90 text-white text-[9px] px-2 py-0.5 rounded-md backdrop-blur-sm transition-opacity pointer-events-none ${isSelected ? "opacity-100" : "opacity-0 group-hover/marker:opacity-100"}`}>
-              {loc.name}
-            </div>
-          </button>
-        )
-      })}
-
-      {/* Selected location info card */}
-      {selectedLoc && (
-        <div className="absolute bottom-3 left-3 right-3 bg-white/95 backdrop-blur-md rounded-xl border border-gray-200 shadow-lg p-3 z-40 transition-all">
-          <div className="flex items-start gap-3">
-            <div className="w-14 h-14 rounded-lg overflow-hidden bg-gray-100 shrink-0">
-              {selectedLoc.media.length > 0 ? (
-                <img src={selectedLoc.media[0].url} alt="" className="w-full h-full object-cover" />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-gray-300"><MapPin className="w-5 h-5" /></div>
-              )}
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] font-mono text-gray-400">{selectedLoc.code}</span>
-                <LocationStatusBadge status={selectedLoc.status} />
-              </div>
-              <h4 className="text-sm font-semibold text-gray-900 truncate">{selectedLoc.name}</h4>
-              <p className="text-[11px] text-gray-500 truncate">{selectedLoc.address}</p>
-            </div>
-            <div className="text-right shrink-0">
-              <p className="text-xs font-semibold text-gray-900">{selectedLoc.dailyRate}</p>
-              <p className="text-[10px] text-gray-400">per day</p>
-            </div>
+      {/* Loading state */}
+      {!leafletReady && (
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-100 z-10">
+          <div className="text-center">
+            <div className="w-8 h-8 border-2 border-teal-600 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+            <p className="text-xs text-gray-500">Loading map...</p>
           </div>
         </div>
       )}
 
+      {/* Add mode toggle */}
+      <button
+        onClick={onToggleAddMode}
+        className={`absolute top-3 left-3 z-[1000] flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium shadow-lg transition-all ${
+          isAddingMode
+            ? "bg-teal-600 text-white ring-2 ring-teal-300"
+            : "bg-white text-gray-700 border border-gray-200 hover:bg-gray-50"
+        }`}
+      >
+        <MapPin className="w-3.5 h-3.5" />
+        {isAddingMode ? "Click map to place pin..." : "Add Pin on Map"}
+      </button>
+
       {/* Legend */}
-      <div className="absolute top-3 right-3 bg-white/90 rounded-xl px-3 py-2 text-[9px] flex flex-col gap-1.5 backdrop-blur-sm border border-gray-200/60 shadow-sm">
+      <div className="absolute top-3 right-3 z-[1000] bg-white/95 rounded-xl px-3 py-2.5 text-[9px] flex flex-col gap-1.5 backdrop-blur-sm border border-gray-200/60 shadow-lg">
         <div className="flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-full bg-emerald-500" /><span className="text-gray-600">Secured</span></div>
         <div className="flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-full bg-blue-500" /><span className="text-gray-600">Scouted</span></div>
         <div className="flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-full bg-amber-500" /><span className="text-gray-600">Pending</span></div>
         <div className="flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-full bg-red-500" /><span className="text-gray-600">Burned</span></div>
       </div>
 
-      {/* Map label */}
-      <div className="absolute top-3 left-3 bg-white/80 rounded-lg px-2.5 py-1 text-[10px] text-gray-400 font-medium flex items-center gap-1.5 backdrop-blur-sm border border-gray-200/50 shadow-sm">
-        <Map className="w-3.5 h-3.5" /> Location Map
-      </div>
+      {/* Leaflet popup styles override */}
+      <style>{`
+        .leaflet-loc-popup .leaflet-popup-content-wrapper { padding: 0; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
+        .leaflet-loc-popup .leaflet-popup-content { margin: 0; line-height: 1.4; }
+        .leaflet-loc-popup .leaflet-popup-tip { box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .leaflet-loc-marker { background: none !important; border: none !important; }
+        .leaflet-tmp-marker { background: none !important; border: none !important; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(20,184,166,0.4); } 100% { box-shadow: 0 0 0 12px rgba(20,184,166,0); } }
+      `}</style>
     </div>
   )
 }
@@ -748,12 +917,12 @@ function LocationCard({ loc, isSelected, isInProject, onSelect, onToggleAdd, onE
 /*  Add Location Modal                                                 */
 /* ------------------------------------------------------------------ */
 
-function AddLocationModal({ onClose, onAdd, existingLocations }: { onClose: () => void; onAdd: (loc: ProjectLocation) => void; existingLocations: ProjectLocation[] }) {
+function AddLocationModal({ onClose, onAdd, existingLocations, prefillCoords }: { onClose: () => void; onAdd: (loc: ProjectLocation) => void; existingLocations: ProjectLocation[]; prefillCoords?: { lat: number; lng: number } | null }) {
   const [locType, setLocType] = useState<LocationType>("on-location")
   const [mapsLink, setMapsLink] = useState("")
   const [mapsAutoFilled, setMapsAutoFilled] = useState(false)
   const [form, setForm] = useState({
-    name: "", address: "", lat: "", lng: "",
+    name: "", address: "", lat: prefillCoords ? String(prefillCoords.lat) : "", lng: prefillCoords ? String(prefillCoords.lng) : "",
     notes: "", dailyRate: "", overtimeRate: "", securityDeposit: "",
     basecampParking: "", crewParkingCapacity: "", cateringArea: "",
     sunPathNotes: "", noiseProfile: "", loadInDifficulty: "",
@@ -1065,6 +1234,8 @@ export default function LocationsModal({ onClose }: LocationsModalProps) {
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
   const [confirmDeleteSource, setConfirmDeleteSource] = useState<"inventory" | "project">("inventory")
   const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [isMapAddMode, setIsMapAddMode] = useState(false)
+  const [addAtCoords, setAddAtCoords] = useState<{ lat: number; lng: number } | null>(null)
 
   const cardRefs = useRef<Record<string, HTMLDivElement | null>>({})
 
@@ -1116,7 +1287,16 @@ export default function LocationsModal({ onClose }: LocationsModalProps) {
     }
   }
 
-  const handleAddLocation = (loc: ProjectLocation) => setInventory((prev) => [loc, ...prev])
+  const handleAddLocation = (loc: ProjectLocation) => {
+    setInventory((prev) => [loc, ...prev])
+    setIsMapAddMode(false)
+    setAddAtCoords(null)
+  }
+
+  const handleAddAtCoords = useCallback((lat: number, lng: number) => {
+    setAddAtCoords({ lat, lng })
+    setShowAddModal(true)
+  }, [])
 
   const handleSaveEdit = (updated: ProjectLocation) => {
     setInventory((prev) => prev.map((l) => (l.id === updated.id ? updated : l)))
@@ -1259,12 +1439,21 @@ export default function LocationsModal({ onClose }: LocationsModalProps) {
 
         {/* Map Panel (50%) */}
         <div className="w-1/2 p-4">
-          <InteractiveMap locations={displayLocations} selectedId={selectedId} onSelect={handleSelectFromMap} />
+          <InteractiveMap
+            locations={displayLocations}
+            selectedId={selectedId}
+            onSelect={handleSelectFromMap}
+            onEditLocation={(l) => setEditingLocation(l)}
+            onDeleteLocation={(id) => handleRequestDelete(id, isProjectTab ? "project" : "inventory")}
+            onAddAtCoords={handleAddAtCoords}
+            isAddingMode={isMapAddMode}
+            onToggleAddMode={() => setIsMapAddMode((p) => !p)}
+          />
         </div>
       </div>
 
       {/* Sub-modals */}
-      {showAddModal && <AddLocationModal onClose={() => setShowAddModal(false)} onAdd={handleAddLocation} existingLocations={inventory} />}
+      {showAddModal && <AddLocationModal onClose={() => { setShowAddModal(false); setAddAtCoords(null) }} onAdd={handleAddLocation} existingLocations={inventory} prefillCoords={addAtCoords} />}
       {editingLocation && <EditLocationModal location={editingLocation} onClose={() => setEditingLocation(null)} onSave={handleSaveEdit} />}
 
       {/* Delete Confirmation */}
