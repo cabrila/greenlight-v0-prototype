@@ -312,9 +312,15 @@ function LocationStatusBadge({ status }: { status: LocationStatus }) {
 /*  Photo Drop Zone                                                    */
 /* ------------------------------------------------------------------ */
 
-function PhotoDropZone({ media, onAdd }: { media: LocationMediaItem[]; onAdd: (items: LocationMediaItem[]) => void }) {
+function PhotoDropZone({ media, onAdd, onDelete, onUpdateCaption, showCaptions = false }: {
+  media: LocationMediaItem[]; onAdd: (items: LocationMediaItem[]) => void
+  onDelete?: (id: string) => void; onUpdateCaption?: (id: string, caption: string) => void; showCaptions?: boolean
+}) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [isDragOver, setIsDragOver] = useState(false)
+  const [previewId, setPreviewId] = useState<string | null>(null)
+  const [editCaptionId, setEditCaptionId] = useState<string | null>(null)
+  const [captionDraft, setCaptionDraft] = useState("")
 
   const processFiles = async (files: FileList | File[]) => {
     const items: LocationMediaItem[] = []
@@ -327,15 +333,56 @@ function PhotoDropZone({ media, onAdd }: { media: LocationMediaItem[]; onAdd: (i
     if (items.length > 0) onAdd(items)
   }
 
+  const previewItem = previewId ? media.find((m) => m.id === previewId) : null
+  const previewIdx = previewItem ? media.indexOf(previewItem) : -1
+
   return (
     <div>
-      <div className="flex flex-wrap gap-2 mb-2">
-        {media.map((m) => (
-          <div key={m.id} className="w-20 h-14 rounded-lg overflow-hidden bg-gray-100 border border-gray-200">
-            <img src={m.url} alt={m.caption || ""} className="w-full h-full object-cover" />
-          </div>
-        ))}
-      </div>
+      {/* Gallery grid */}
+      {media.length > 0 && (
+        <div className="grid grid-cols-4 gap-2 mb-3">
+          {media.map((m) => (
+            <div key={m.id} className="relative group/thumb rounded-lg overflow-hidden bg-gray-100 border border-gray-200 aspect-[4/3]">
+              <img
+                src={m.url}
+                alt={m.caption || ""}
+                className="w-full h-full object-cover cursor-pointer transition-transform group-hover/thumb:scale-105"
+                onClick={() => setPreviewId(m.id)}
+              />
+              {/* Hover overlay */}
+              <div className="absolute inset-0 bg-black/0 group-hover/thumb:bg-black/30 transition-all pointer-events-none" />
+              <div className="absolute top-1 right-1 flex items-center gap-1 opacity-0 group-hover/thumb:opacity-100 transition-opacity">
+                {showCaptions && onUpdateCaption && (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setEditCaptionId(m.id); setCaptionDraft(m.caption || "") }}
+                    className="p-1 bg-white/90 rounded-md text-gray-600 hover:text-teal-600 hover:bg-white transition-colors shadow-sm"
+                    title="Edit caption"
+                  >
+                    <Pencil className="w-3 h-3" />
+                  </button>
+                )}
+                {onDelete && (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); onDelete(m.id) }}
+                    className="p-1 bg-white/90 rounded-md text-gray-600 hover:text-red-600 hover:bg-white transition-colors shadow-sm"
+                    title="Delete image"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                  </button>
+                )}
+              </div>
+              {/* Caption */}
+              {showCaptions && m.caption && (
+                <div className="absolute bottom-0 left-0 right-0 bg-black/50 backdrop-blur-sm px-2 py-1">
+                  <p className="text-[9px] text-white truncate">{m.caption}</p>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Upload zone */}
       <div
         onDragOver={(e) => { e.preventDefault(); setIsDragOver(true) }}
         onDragLeave={(e) => { e.preventDefault(); setIsDragOver(false) }}
@@ -345,8 +392,62 @@ function PhotoDropZone({ media, onAdd }: { media: LocationMediaItem[]; onAdd: (i
       >
         <Upload className="w-5 h-5 mx-auto mb-1 text-gray-400" />
         <p className="text-xs text-gray-500">Drop scouting photos here or click to upload</p>
+        {media.length > 0 && <p className="text-[10px] text-gray-400 mt-0.5">{media.length} image{media.length !== 1 ? "s" : ""} uploaded</p>}
         <input ref={inputRef} type="file" accept="image/*" multiple className="hidden" onChange={(e) => { if (e.target.files) processFiles(e.target.files); e.target.value = "" }} />
       </div>
+
+      {/* Lightbox preview */}
+      {previewItem && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[90] p-6" onClick={() => setPreviewId(null)}>
+          <div className="relative max-w-3xl w-full max-h-[80vh] flex flex-col items-center" onClick={(e) => e.stopPropagation()}>
+            <img src={previewItem.url} alt={previewItem.caption || ""} className="max-w-full max-h-[70vh] rounded-xl object-contain shadow-2xl" />
+            {previewItem.caption && (
+              <p className="text-white text-sm mt-3 bg-black/40 px-3 py-1 rounded-full">{previewItem.caption}</p>
+            )}
+            <div className="text-white/60 text-xs mt-2">{previewIdx + 1} of {media.length}</div>
+            {/* Nav arrows */}
+            {media.length > 1 && (
+              <>
+                <button
+                  onClick={() => setPreviewId(media[(previewIdx - 1 + media.length) % media.length].id)}
+                  className="absolute left-0 top-1/2 -translate-y-1/2 p-2 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={() => setPreviewId(media[(previewIdx + 1) % media.length].id)}
+                  className="absolute right-0 top-1/2 -translate-y-1/2 p-2 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              </>
+            )}
+            <button onClick={() => setPreviewId(null)} className="absolute -top-2 -right-2 p-1.5 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Caption edit inline modal */}
+      {editCaptionId && onUpdateCaption && (
+        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-[95] p-4" onClick={() => setEditCaptionId(null)}>
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-sm p-4" onClick={(e) => e.stopPropagation()}>
+            <h4 className="text-sm font-semibold text-gray-900 mb-2">Edit Caption</h4>
+            <input
+              type="text" value={captionDraft} onChange={(e) => setCaptionDraft(e.target.value)}
+              className="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-900 placeholder-gray-400"
+              placeholder="Enter caption..."
+              autoFocus
+              onKeyDown={(e) => { if (e.key === "Enter") { onUpdateCaption(editCaptionId, captionDraft); setEditCaptionId(null) } }}
+            />
+            <div className="flex justify-end gap-2 mt-3">
+              <button onClick={() => setEditCaptionId(null)} className="px-3 py-1.5 text-xs font-medium text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">Cancel</button>
+              <button onClick={() => { onUpdateCaption(editCaptionId, captionDraft); setEditCaptionId(null) }} className="px-3 py-1.5 text-xs font-medium bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors">Save</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -1023,7 +1124,13 @@ function AddLocationModal({ onClose, onAdd, existingLocations, prefillCoords }: 
           </div>
           <div>
             <p className="text-xs text-gray-500 mb-2 flex items-center gap-1"><Camera className="w-3 h-3" /> Scouting Photos</p>
-            <PhotoDropZone media={media} onAdd={(items) => setMedia((prev) => [...prev, ...items])} />
+            <PhotoDropZone
+              media={media}
+              onAdd={(items) => setMedia((prev) => [...prev, ...items])}
+              onDelete={(id) => setMedia((prev) => prev.filter((m) => m.id !== id))}
+              onUpdateCaption={(id, caption) => setMedia((prev) => prev.map((m) => m.id === id ? { ...m, caption } : m))}
+              showCaptions
+            />
           </div>
           <FloatingTextarea label="Notes" value={form.notes} onChange={(v) => update("notes", v)} />
           <div>
@@ -1096,6 +1203,7 @@ function EditLocationModal({ location, onClose, onSave }: { location: ProjectLoc
     status: location.status as string,
   })
   const [vibeTags, setVibeTags] = useState(location.vibeTags)
+  const [media, setMedia] = useState<LocationMediaItem[]>(location.media || [])
   const [sceneTags, setSceneTags] = useState(location.sceneTags)
   const [newSceneNumber, setNewSceneNumber] = useState("")
   const [scheduleBlocks, setScheduleBlocks] = useState(location.scheduleBlocks)
@@ -1104,7 +1212,7 @@ function EditLocationModal({ location, onClose, onSave }: { location: ProjectLoc
   const update = (field: string, value: string) => setForm((f) => ({ ...f, [field]: value }))
 
   const handleSave = () => {
-    onSave({ ...location, ...form, status: form.status as LocationStatus, vibeTags, sceneTags, scheduleBlocks, blackoutDates })
+    onSave({ ...location, ...form, status: form.status as LocationStatus, vibeTags, media, sceneTags, scheduleBlocks, blackoutDates })
     onClose()
   }
 
@@ -1130,6 +1238,19 @@ function EditLocationModal({ location, onClose, onSave }: { location: ProjectLoc
           <div>
             <h3 className="text-base font-bold text-gray-900">Vibe Tags</h3>
             <TagPicker selected={vibeTags} onChange={setVibeTags} options={VIBE_TAG_OPTIONS} />
+          </div>
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-base font-bold text-gray-900">Image Gallery</h3>
+              <span className="text-xs text-gray-400">{media.length} image{media.length !== 1 ? "s" : ""}</span>
+            </div>
+            <PhotoDropZone
+              media={media}
+              onAdd={(items) => setMedia((prev) => [...prev, ...items])}
+              onDelete={(id) => setMedia((prev) => prev.filter((m) => m.id !== id))}
+              onUpdateCaption={(id, caption) => setMedia((prev) => prev.map((m) => m.id === id ? { ...m, caption } : m))}
+              showCaptions
+            />
           </div>
           <div>
             <h3 className="text-base font-bold text-gray-900">Costing</h3>
