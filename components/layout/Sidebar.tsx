@@ -21,6 +21,7 @@ import {
   Bell,
   UserCircle,
   Package,
+  MapPin,
 } from "lucide-react"
 import { openModal } from "@/components/modals/ModalManager"
 import { useState, useEffect, useRef } from "react"
@@ -329,6 +330,14 @@ export default function Sidebar() {
                 <Package className="w-4 h-4" />
                 <span>Props</span>
               </button>
+
+              <button
+                onClick={() => openModal("locations")}
+                className="w-full flex items-center space-x-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:text-teal-600 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50"
+              >
+                <MapPin className="w-4 h-4" />
+                <span>Locations</span>
+              </button>
             </>
           ) : (
             <>
@@ -386,6 +395,14 @@ export default function Sidebar() {
                 title="Props"
               >
                 <Package className="w-5 h-5" />
+              </button>
+
+              <button
+                onClick={() => openModal("locations")}
+                className="w-full flex justify-center p-3 text-slate-700 hover:text-teal-600 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50"
+                title="Locations"
+              >
+                <MapPin className="w-5 h-5" />
               </button>
             </>
           )}

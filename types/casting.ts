@@ -251,6 +251,7 @@ export type CastingAction =
   | { type: "CLEAR_ALL_TAB_NOTIFICATIONS"; payload: { characterId: string } }
   | { type: "UPDATE_CHARACTER_CONCEPT_ART"; payload: { characterId: string; conceptArt: string } }
   | { type: "SET_PROJECT_PROPS"; payload: { projectId: string; props: ProjectProp[] } }
+  | { type: "SET_PROJECT_LOCATIONS"; payload: { projectId: string; locations: ProjectLocation[] } }
 
 export interface User {
   id: string
@@ -303,6 +304,99 @@ export interface ProjectProp {
   status: "available" | "in-use" | "maintenance" | "retired"
 }
 
+/* ------------------------------------------------------------------ */
+/*  Locations                                                          */
+/* ------------------------------------------------------------------ */
+
+export type LocationStatus = "scouted" | "pending-approval" | "secured" | "burned"
+export type LocationType = "on-location" | "studio"
+
+export interface LocationMediaItem {
+  id: string
+  url: string
+  type: "photo" | "360" | "video"
+  caption?: string
+}
+
+export interface LocationContact {
+  id: string
+  role: string          // Owner, Site Rep, Neighbor
+  name: string
+  phone: string
+  email: string
+}
+
+export interface LocationScheduleBlock {
+  id: string
+  type: "prep" | "shoot" | "strike"
+  startDate: string     // ISO date
+  endDate: string
+  notes?: string
+}
+
+export interface LocationBlackoutDate {
+  id: string
+  date: string          // ISO date
+  reason?: string
+}
+
+export interface LocationSceneTag {
+  sceneNumber: string
+  sceneTitle?: string
+}
+
+export interface ProjectLocation {
+  id: string
+  code: string                           // e.g. "LOC-001"
+  name: string
+  locationType: LocationType
+  status: LocationStatus
+  lat: number
+  lng: number
+  address: string
+  vibeTags: string[]
+  media: LocationMediaItem[]
+  notes: string
+
+  /* Costing */
+  dailyRate: string
+  overtimeRate: string
+  securityDeposit: string
+
+  /* On-Location specific */
+  basecampParking?: string
+  crewParkingCapacity?: number
+  cateringArea?: string
+  sunPathNotes?: string
+  noiseProfile?: string
+  loadInDifficulty?: string              // "Ground floor" | "Stairs only" | "Freight elevator"
+  bathroomCount?: number
+  greenRoomCapability?: string
+  makeupAreaSuitability?: string
+  contacts?: LocationContact[]
+
+  /* Studio specific */
+  dimensionsL?: number
+  dimensionsW?: number
+  dimensionsH?: number
+  gridHeight?: number
+  floorType?: string
+  amperage?: string
+  camlockAvailable?: boolean
+  soundRating?: string                   // "Soundproof" | "Warehouse shell"
+  workshopAccess?: boolean
+  millSpace?: boolean
+  paintShopProximity?: string
+
+  /* Scene & schedule integration */
+  sceneTags: LocationSceneTag[]
+  scheduleBlocks: LocationScheduleBlock[]
+  blackoutDates: LocationBlackoutDate[]
+
+  /* Booking */
+  bookedTo: string | null
+}
+
 export interface Project {
   id: string
   name: string
@@ -313,6 +407,7 @@ export interface Project {
   terminology?: Terminology
   canvasActors?: CanvasActor[]
   props?: ProjectProp[]
+  locations?: ProjectLocation[]
 }
 
 export interface Character {

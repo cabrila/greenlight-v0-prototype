@@ -38,6 +38,7 @@ import CharactersModal from "./CharactersModal"
 import ScriptAnalysisModal from "./ScriptAnalysisModal"
 import AddFromDatabaseModal from "./AddFromDatabaseModal"
 import PropsModal from "./PropsModal"
+import LocationsModal from "./LocationsModal"
 
 export interface ModalState {
   type: string | null
@@ -263,6 +264,8 @@ export default function ModalManager() {
           return <AddFromDatabaseModal onClose={handleClose} characterId={modal.data?.characterId} />
         case "props":
           return <PropsModal onClose={handleClose} />
+        case "locations":
+          return <LocationsModal onClose={handleClose} />
         default:
           return null
       }
@@ -276,7 +279,8 @@ export default function ModalManager() {
       modal.type === "canvas" ||
       modal.type === "characters" ||
       modal.type === "addFromDatabase" ||
-      modal.type === "props"
+      modal.type === "props" ||
+      modal.type === "locations"
     ) {
       return <div key={`modal-${index}`}>{modalContent}</div>
     }
