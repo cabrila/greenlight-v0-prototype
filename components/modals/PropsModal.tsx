@@ -534,7 +534,7 @@ function StatusBadge({ status }: { status: string }) {
 /*  Inventory Card (All Items) -- with drag-and-drop image replacement */
 /* ------------------------------------------------------------------ */
 
-function InventoryCard({ item, isInProject, onToggleAdd, onEdit, onImageReplace, onDelete }: { item: InventoryItem; isInProject: boolean; onToggleAdd: (id: string) => void; onEdit: (item: InventoryItem) => void; onImageReplace: (id: string, url: string) => void; onDelete: (id: string) => void }) {
+function InventoryCard({ item, isInProject, onToggleAdd, onEdit, onImageReplace, onDelete, hasProject }: { item: InventoryItem; isInProject: boolean; onToggleAdd: (id: string) => void; onEdit: (item: InventoryItem) => void; onImageReplace: (id: string, url: string) => void; onDelete: (id: string) => void; hasProject: boolean }) {
   const [menuOpen, setMenuOpen] = useState(false)
   const [isDragOver, setIsDragOver] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -612,7 +612,12 @@ function InventoryCard({ item, isInProject, onToggleAdd, onEdit, onImageReplace,
             <Check className="w-3 h-3" /> In Project
           </span>
         ) : (
-          <button onClick={() => onToggleAdd(item.id)} className="inline-flex items-center gap-1 text-[10px] font-medium text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 transition-colors">
+          <button
+            onClick={() => onToggleAdd(item.id)}
+            disabled={!hasProject}
+            title={!hasProject ? "Create or open a project first" : "Add to project"}
+            className="inline-flex items-center gap-1 text-[10px] font-medium text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          >
             <Plus className="w-3 h-3" /> Add to project
           </button>
         )}
@@ -703,7 +708,7 @@ function ProjectPropCard({ item, onVote, onAddComment, onRemove, onAddToCanvas, 
 /*  List rows (compact views)                                          */
 /* ------------------------------------------------------------------ */
 
-function InventoryListRow({ item, isInProject, onToggleAdd, onEdit, onDelete }: { item: InventoryItem; isInProject: boolean; onToggleAdd: (id: string) => void; onEdit: (item: InventoryItem) => void; onDelete: (id: string) => void }) {
+function InventoryListRow({ item, isInProject, onToggleAdd, onEdit, onDelete, hasProject }: { item: InventoryItem; isInProject: boolean; onToggleAdd: (id: string) => void; onEdit: (item: InventoryItem) => void; onDelete: (id: string) => void; hasProject: boolean }) {
   const isBooked = !!item.bookedTo
   return (
     <div className={`flex items-center gap-4 px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors ${isInProject ? "bg-emerald-50/40" : ""}`}>
@@ -725,7 +730,12 @@ function InventoryListRow({ item, isInProject, onToggleAdd, onEdit, onDelete }: 
       <button onClick={() => onDelete(item.id)} className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors" title="Delete">
         <Trash2 className="w-3.5 h-3.5" />
       </button>
-      <button onClick={() => onToggleAdd(item.id)} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${isInProject ? "bg-emerald-100 text-emerald-700" : "border border-gray-300 text-gray-700 hover:bg-gray-100"}`}>
+      <button
+        onClick={() => onToggleAdd(item.id)}
+        disabled={!hasProject && !isInProject}
+        title={!hasProject && !isInProject ? "Create or open a project first" : undefined}
+        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${isInProject ? "bg-emerald-100 text-emerald-700" : "border border-gray-300 text-gray-700 hover:bg-gray-100"}`}
+      >
         {isInProject ? "Added" : "Add"}
       </button>
     </div>
@@ -783,8 +793,12 @@ interface PropsModalProps {
 
 export default function PropsModal({ onClose }: PropsModalProps) {
   const { state, dispatch } = useCasting()
-  const currentProject = state.projects.find((p) => p.id === state.currentFocus.currentProjectId)
-  const projectId = currentProject?.id
+  /* Resolve current project: use focused project, otherwise fall back to first */
+  const currentProject =
+    state.projects.find((p) => p.id === state.currentFocus.currentProjectId) ||
+    state.projects[0] ||
+    null
+  const projectId = currentProject?.id ?? null
 
   /* ---- Global inventory (component state) ---- */
   const [inventory, setInventory] = useState<InventoryItem[]>(generateMockInventory)
@@ -850,11 +864,10 @@ export default function PropsModal({ onClose }: PropsModalProps) {
 
   /* ---- Handlers ---- */
   const handleToggleAdd = (id: string) => {
+    if (!projectId) return
     if (projectPropIds.has(id)) {
-      // remove
       syncProjectProps((prev) => prev.filter((p) => p.id !== id))
     } else {
-      // add
       const inv = inventory.find((p) => p.id === id)
       if (!inv) return
       const newProp: ProjectProp = {
@@ -967,6 +980,11 @@ export default function PropsModal({ onClose }: PropsModalProps) {
         <div className="flex items-center gap-4">
           <img src="/images/gogreenlight-logo.png" alt="GoGreenlight" className="h-8 w-auto" />
           <div className="inline-flex items-center bg-emerald-600 text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded">Props</div>
+          {currentProject ? (
+            <span className="hidden sm:inline text-sm text-gray-500">{currentProject.name}</span>
+          ) : (
+            <span className="hidden sm:inline text-sm text-amber-600 font-medium">No project selected</span>
+          )}
         </div>
         <button onClick={onClose} className="p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors">
           <X className="w-5 h-5" />
@@ -1021,11 +1039,20 @@ export default function PropsModal({ onClose }: PropsModalProps) {
       <div className="flex-1 overflow-y-auto p-5">
         {isProjectTab ? (
           /* ----- My Project Tab ----- */
-          filteredProjectProps.length === 0 ? (
+          !projectId ? (
+            <div className="flex flex-col items-center justify-center h-full text-center">
+              <Package className="w-12 h-12 text-gray-300 mb-3" />
+              <p className="text-gray-500 text-sm font-medium">No project selected</p>
+              <p className="text-gray-400 text-xs mt-1">Create or open a project first to manage props</p>
+            </div>
+          ) : filteredProjectProps.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center">
               <Package className="w-12 h-12 text-gray-300 mb-3" />
               <p className="text-gray-500 text-sm font-medium">No props added to this project yet</p>
               <p className="text-gray-400 text-xs mt-1">Browse the All Items tab and add props to your project</p>
+              <button onClick={() => setActiveTab("all")} className="mt-4 px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 transition-colors">
+                Browse All Items
+              </button>
             </div>
           ) : viewMode === "grid" ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -1051,13 +1078,13 @@ export default function PropsModal({ onClose }: PropsModalProps) {
           ) : viewMode === "grid" ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredInventory.map((item) => (
-                <InventoryCard key={item.id} item={item} isInProject={projectPropIds.has(item.id)} onToggleAdd={handleToggleAdd} onEdit={(i) => setEditingInventoryItem(i)} onImageReplace={handleImageReplace} onDelete={handleRequestDeleteInventory} />
+                <InventoryCard key={item.id} item={item} isInProject={projectPropIds.has(item.id)} onToggleAdd={handleToggleAdd} onEdit={(i) => setEditingInventoryItem(i)} onImageReplace={handleImageReplace} onDelete={handleRequestDeleteInventory} hasProject={!!projectId} />
               ))}
             </div>
           ) : (
             <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
               {filteredInventory.map((item) => (
-                <InventoryListRow key={item.id} item={item} isInProject={projectPropIds.has(item.id)} onToggleAdd={handleToggleAdd} onEdit={(i) => setEditingInventoryItem(i)} onDelete={handleRequestDeleteInventory} />
+                <InventoryListRow key={item.id} item={item} isInProject={projectPropIds.has(item.id)} onToggleAdd={handleToggleAdd} onEdit={(i) => setEditingInventoryItem(i)} onDelete={handleRequestDeleteInventory} hasProject={!!projectId} />
               ))}
             </div>
           )
