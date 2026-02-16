@@ -283,7 +283,8 @@ export default function ModalManager() {
       modal.type === "characters" ||
       modal.type === "addFromDatabase" ||
       modal.type === "props" ||
-      modal.type === "locations"
+      modal.type === "locations" ||
+      modal.type === "costumes"
     ) {
       return <div key={`modal-${index}`}>{modalContent}</div>
     }

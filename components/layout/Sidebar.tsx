@@ -22,6 +22,7 @@ import {
   UserCircle,
   Package,
   MapPin,
+  Scissors,
 } from "lucide-react"
 import { openModal } from "@/components/modals/ModalManager"
 import { useState, useEffect, useRef } from "react"
@@ -338,6 +339,14 @@ export default function Sidebar() {
                 <MapPin className="w-4 h-4" />
                 <span>Locations</span>
               </button>
+
+              <button
+                onClick={() => openModal("costumes")}
+                className="w-full flex items-center space-x-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:text-pink-600 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50"
+              >
+                <Scissors className="w-4 h-4" />
+                <span>Costumes & Makeup</span>
+              </button>
             </>
           ) : (
             <>
@@ -403,6 +412,14 @@ export default function Sidebar() {
                 title="Locations"
               >
                 <MapPin className="w-5 h-5" />
+              </button>
+
+              <button
+                onClick={() => openModal("costumes")}
+                className="w-full flex justify-center p-3 text-slate-700 hover:text-pink-600 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50"
+                title="Costumes & Makeup"
+              >
+                <Scissors className="w-5 h-5" />
               </button>
             </>
           )}
