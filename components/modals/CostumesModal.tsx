@@ -40,6 +40,7 @@ import {
   ArrowRight,
   Check,
   ImageIcon,
+  SlidersHorizontal,
 } from "lucide-react"
 
 /* ================================================================== */
@@ -273,7 +274,7 @@ function generateMockCostumesData(characters: Character[]): ProjectCostumes {
 /*  Main Component                                                     */
 /* ================================================================== */
 
-type MainTab = "wardrobe" | "looks" | "crossplot" | "shopping"
+type MainTab = "wardrobe" | "looks" | "crossplot" | "purchase"
 
 export default function CostumesModal({ onClose }: { onClose: () => void }) {
   const { state, dispatch } = useCasting()
@@ -321,11 +322,14 @@ export default function CostumesModal({ onClose }: { onClose: () => void }) {
   const [showLookBuilder, setShowLookBuilder] = useState(false)
   const [editingLook, setEditingLook] = useState<CostumeLook | null>(null)
   const [selectedCharacterId, setSelectedCharacterId] = useState<string | null>(null)
-  const [selectedCastActorId, setSelectedCastActorId] = useState<string | null>(null) // "all" or actorId for wardrobe filtering
+  const [wardrobeCharFilter, setWardrobeCharFilter] = useState<string | null>(null) // null = All, characterId = filter by that character
   const [showActorSpecs, setShowActorSpecs] = useState<string | null>(null) // actorId
   const [showShoppingForm, setShowShoppingForm] = useState(false)
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
   const [filterTag, setFilterTag] = useState<string | null>(null)
+  const [filterStatus, setFilterStatus] = useState<CostumeItemStatus | "all">("all")
+  const [filterType, setFilterType] = useState<CostumeItemType | "all">("all")
+  const [sortBy, setSortBy] = useState<"name" | "status" | "type" | "brand">("name")
 
   /* ---- Character/Actor mapping ---- */
   const characterActorMap = useMemo(() => {
@@ -336,20 +340,17 @@ export default function CostumesModal({ onClose }: { onClose: () => void }) {
     return map
   }, [characters])
 
-  /* ---- Build set of item IDs assigned to the selected cast member's character ---- */
+  /* ---- Build set of item IDs assigned to the selected character ---- */
   const castFilterItemIds = useMemo(() => {
-    if (!selectedCastActorId) return null // "All" -- show everything
-    // Find which character this actor is cast to
-    const pair = characterActorMap.find(({ castActor }) => castActor?.id === selectedCastActorId)
-    if (!pair) return null
-    const charLooks = costumes.looks.filter((l) => l.characterId === pair.character.id)
+    if (!wardrobeCharFilter) return null // "All" -- show everything
+    const charLooks = costumes.looks.filter((l) => l.characterId === wardrobeCharFilter)
     return new Set(charLooks.flatMap((l) => l.itemIds))
-  }, [selectedCastActorId, characterActorMap, costumes.looks])
+  }, [wardrobeCharFilter, costumes.looks])
 
-  /* ---- Filtered inventory ---- */
+  /* ---- Filtered + sorted inventory ---- */
   const filteredInventory = useMemo(() => {
     let items = costumes.inventory
-    // Filter by cast member
+    // Filter by character
     if (castFilterItemIds) {
       items = items.filter((i) => castFilterItemIds.has(i.id))
     }
@@ -362,11 +363,20 @@ export default function CostumesModal({ onClose }: { onClose: () => void }) {
           i.vibeTags.some((t) => t.toLowerCase().includes(s)),
       )
     }
-    if (filterTag) {
-      items = items.filter((i) => i.vibeTags.includes(filterTag))
-    }
-    return items
-  }, [costumes.inventory, searchTerm, filterTag, castFilterItemIds])
+    if (filterTag) items = items.filter((i) => i.vibeTags.includes(filterTag))
+    if (filterStatus !== "all") items = items.filter((i) => i.status === filterStatus)
+    if (filterType !== "all") items = items.filter((i) => i.type === filterType)
+    // Sort
+    const sorted = [...items]
+    sorted.sort((a, b) => {
+      if (sortBy === "name") return a.name.localeCompare(b.name)
+      if (sortBy === "status") return a.status.localeCompare(b.status)
+      if (sortBy === "type") return a.type.localeCompare(b.type)
+      if (sortBy === "brand") return (a.brand ?? "").localeCompare(b.brand ?? "")
+      return 0
+    })
+    return sorted
+  }, [costumes.inventory, searchTerm, filterTag, filterStatus, filterType, sortBy, castFilterItemIds])
 
   /* ================================================================ */
   /*  Inventory Handlers                                               */
@@ -497,7 +507,7 @@ export default function CostumesModal({ onClose }: { onClose: () => void }) {
     { key: "wardrobe", label: "Wardrobe", icon: <Shirt className="w-4 h-4" /> },
     { key: "looks", label: "Looks", icon: <Palette className="w-4 h-4" /> },
     { key: "crossplot", label: "Cross-Plot", icon: <LayoutGrid className="w-4 h-4" /> },
-    { key: "shopping", label: "Shopping List", icon: <ShoppingBag className="w-4 h-4" /> },
+    { key: "purchase", label: "Purchase List", icon: <ShoppingBag className="w-4 h-4" /> },
   ]
 
   return (
@@ -573,14 +583,20 @@ export default function CostumesModal({ onClose }: { onClose: () => void }) {
             onViewModeChange={setViewMode}
             filterTag={filterTag}
             onFilterTagChange={setFilterTag}
+            filterStatus={filterStatus}
+            onFilterStatusChange={setFilterStatus}
+            filterType={filterType}
+            onFilterTypeChange={setFilterType}
+            sortBy={sortBy}
+            onSortByChange={setSortBy}
             onAdd={() => setShowAddItem(true)}
             onEdit={setEditingItem}
             onDelete={(id) => setConfirmDeleteId(id)}
             characterActorMap={characterActorMap}
             actorSpecs={costumes.actorSpecs}
             onShowActorSpecs={setShowActorSpecs}
-            selectedCastActorId={selectedCastActorId}
-            onSelectCastActor={setSelectedCastActorId}
+            wardrobeCharFilter={wardrobeCharFilter}
+            onWardrobeCharFilterChange={setWardrobeCharFilter}
             looks={costumes.looks}
           />
         ) : mainTab === "looks" ? (
@@ -607,15 +623,15 @@ export default function CostumesModal({ onClose }: { onClose: () => void }) {
             selectedCharacterId={selectedCharacterId}
             inventory={costumes.inventory}
           />
-        ) : (
-          <ShoppingTab
+        ) : mainTab === "purchase" ? (
+          <PurchaseTab
             shoppingList={costumes.shoppingList}
             characters={characters}
             onAdd={() => setShowShoppingForm(true)}
             onUpdateStatus={handleUpdateShoppingStatus}
             onDelete={handleDeleteShoppingItem}
           />
-        )}
+        ) : null}
       </div>
 
       {/* ---- Sub-modals ---- */}
@@ -693,14 +709,20 @@ function WardrobeTab({
   onViewModeChange,
   filterTag,
   onFilterTagChange,
+  filterStatus,
+  onFilterStatusChange,
+  filterType,
+  onFilterTypeChange,
+  sortBy,
+  onSortByChange,
   onAdd,
   onEdit,
   onDelete,
   characterActorMap,
   actorSpecs,
   onShowActorSpecs,
-  selectedCastActorId,
-  onSelectCastActor,
+  wardrobeCharFilter,
+  onWardrobeCharFilterChange,
   looks,
 }: {
   inventory: CostumeInventoryItem[]
@@ -711,30 +733,40 @@ function WardrobeTab({
   onViewModeChange: (m: "grid" | "list") => void
   filterTag: string | null
   onFilterTagChange: (t: string | null) => void
+  filterStatus: CostumeItemStatus | "all"
+  onFilterStatusChange: (s: CostumeItemStatus | "all") => void
+  filterType: CostumeItemType | "all"
+  onFilterTypeChange: (t: CostumeItemType | "all") => void
+  sortBy: "name" | "status" | "type" | "brand"
+  onSortByChange: (s: "name" | "status" | "type" | "brand") => void
   onAdd: () => void
   onEdit: (item: CostumeInventoryItem) => void
   onDelete: (id: string) => void
   characterActorMap: { character: Character; castActor: Actor | null }[]
   actorSpecs: ProjectCostumes["actorSpecs"]
   onShowActorSpecs: (actorId: string) => void
-  selectedCastActorId: string | null
-  onSelectCastActor: (id: string | null) => void
+  wardrobeCharFilter: string | null
+  onWardrobeCharFilterChange: (id: string | null) => void
   looks: CostumeLook[]
 }) {
+  const activeFilterCount = [filterTag, filterStatus !== "all" ? filterStatus : null, filterType !== "all" ? filterType : null].filter(Boolean).length
+
   return (
     <div className="h-full flex flex-col">
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-3 px-6 py-3 border-b border-gray-200 bg-white shrink-0">
+        {/* View toggle */}
         <div className="flex items-center gap-1 border border-gray-200 rounded-lg p-0.5">
-          <button onClick={() => onViewModeChange("grid")} className={`p-1.5 rounded-md transition-colors ${viewMode === "grid" ? "bg-gray-200 text-gray-800" : "text-gray-400 hover:text-gray-600"}`}>
+          <button onClick={() => onViewModeChange("grid")} className={`p-1.5 rounded-md transition-colors ${viewMode === "grid" ? "bg-gray-200 text-gray-800" : "text-gray-400 hover:text-gray-600"}`} title="Grid view">
             <Grid3X3 className="w-4 h-4" />
           </button>
-          <button onClick={() => onViewModeChange("list")} className={`p-1.5 rounded-md transition-colors ${viewMode === "list" ? "bg-gray-200 text-gray-800" : "text-gray-400 hover:text-gray-600"}`}>
+          <button onClick={() => onViewModeChange("list")} className={`p-1.5 rounded-md transition-colors ${viewMode === "list" ? "bg-gray-200 text-gray-800" : "text-gray-400 hover:text-gray-600"}`} title="List view">
             <List className="w-4 h-4" />
           </button>
         </div>
 
-        <div className="relative flex-1 max-w-xs">
+        {/* Search */}
+        <div className="relative flex-1 min-w-[160px] max-w-xs">
           <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           <input
             value={searchTerm}
@@ -744,56 +776,104 @@ function WardrobeTab({
           />
         </div>
 
-        {/* Vibe tags filter */}
-        <div className="flex items-center gap-1 overflow-x-auto">
-          <button
-            onClick={() => onFilterTagChange(null)}
-            className={`px-2 py-1 text-[10px] font-medium rounded-full whitespace-nowrap transition-colors ${
-              !filterTag ? "bg-rose-100 text-rose-700" : "bg-gray-100 text-gray-500 hover:bg-gray-200"
-            }`}
-          >
-            All
-          </button>
-          {VIBE_TAGS.slice(0, 8).map((tag) => (
-            <button
-              key={tag}
-              onClick={() => onFilterTagChange(filterTag === tag ? null : tag)}
-              className={`px-2 py-1 text-[10px] font-medium rounded-full whitespace-nowrap transition-colors ${
-                filterTag === tag ? "bg-rose-100 text-rose-700" : "bg-gray-100 text-gray-500 hover:bg-gray-200"
-              }`}
-            >
-              {tag}
-            </button>
+        {/* Status filter */}
+        <select
+          value={filterStatus}
+          onChange={(e) => onFilterStatusChange(e.target.value as CostumeItemStatus | "all")}
+          className="text-xs border border-gray-200 rounded-lg px-2 py-1.5 bg-white text-gray-700 focus:outline-none focus:ring-1 focus:ring-rose-300"
+        >
+          <option value="all">All Statuses</option>
+          {Object.entries(STATUS_COLORS).map(([k, v]) => (
+            <option key={k} value={k}>{v.label}</option>
           ))}
-        </div>
+        </select>
 
-        <button onClick={onAdd} className="ml-auto flex items-center gap-1.5 px-3 py-1.5 bg-rose-600 text-white text-sm font-medium rounded-lg hover:bg-rose-700 transition-colors">
+        {/* Type filter */}
+        <select
+          value={filterType}
+          onChange={(e) => onFilterTypeChange(e.target.value as CostumeItemType | "all")}
+          className="text-xs border border-gray-200 rounded-lg px-2 py-1.5 bg-white text-gray-700 focus:outline-none focus:ring-1 focus:ring-rose-300"
+        >
+          <option value="all">All Types</option>
+          {Object.entries(ITEM_TYPES).map(([k, v]) => (
+            <option key={k} value={k}>{v}</option>
+          ))}
+        </select>
+
+        {/* Sort */}
+        <select
+          value={sortBy}
+          onChange={(e) => onSortByChange(e.target.value as typeof sortBy)}
+          className="text-xs border border-gray-200 rounded-lg px-2 py-1.5 bg-white text-gray-700 focus:outline-none focus:ring-1 focus:ring-rose-300"
+        >
+          <option value="name">Sort: Name</option>
+          <option value="status">Sort: Status</option>
+          <option value="type">Sort: Type</option>
+          <option value="brand">Sort: Brand</option>
+        </select>
+
+        {/* Active filter count badge */}
+        {activeFilterCount > 0 && (
+          <button
+            onClick={() => { onFilterTagChange(null); onFilterStatusChange("all"); onFilterTypeChange("all") }}
+            className="flex items-center gap-1 px-2 py-1 text-[10px] font-medium text-rose-700 bg-rose-50 border border-rose-200 rounded-full hover:bg-rose-100 transition-colors"
+          >
+            {activeFilterCount} filter{activeFilterCount > 1 ? "s" : ""} active
+            <X className="w-3 h-3" />
+          </button>
+        )}
+
+        <button onClick={onAdd} className="ml-auto flex items-center gap-1.5 px-3 py-1.5 bg-rose-600 text-white text-sm font-medium rounded-lg hover:bg-rose-700 transition-colors shrink-0">
           <Plus className="w-4 h-4" /> Add Item
         </button>
+      </div>
+
+      {/* Vibe tags row */}
+      <div className="flex items-center gap-1.5 px-6 py-2 border-b border-gray-100 bg-gray-50/50 shrink-0 overflow-x-auto">
+        <span className="text-[10px] text-gray-500 font-medium shrink-0 mr-1">Tags:</span>
+        <button
+          onClick={() => onFilterTagChange(null)}
+          className={`px-2.5 py-1 text-[10px] font-medium rounded-full whitespace-nowrap transition-colors ${
+            !filterTag ? "bg-rose-100 text-rose-700 border border-rose-200" : "bg-white text-gray-500 border border-gray-200 hover:bg-gray-100"
+          }`}
+        >
+          All
+        </button>
+        {VIBE_TAGS.map((tag) => (
+          <button
+            key={tag}
+            onClick={() => onFilterTagChange(filterTag === tag ? null : tag)}
+            className={`px-2.5 py-1 text-[10px] font-medium rounded-full whitespace-nowrap transition-colors ${
+              filterTag === tag ? "bg-rose-100 text-rose-700 border border-rose-200" : "bg-white text-gray-500 border border-gray-200 hover:bg-gray-100"
+            }`}
+          >
+            {tag}
+          </button>
+        ))}
       </div>
 
       {/* Two-panel: Left = Cast cards, Right = Inventory */}
       <div className="flex-1 flex overflow-hidden">
         {/* Cast panel */}
         <div className="w-64 shrink-0 border-r border-gray-200 bg-white overflow-y-auto p-4">
-          <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Cast Members</h3>
+          <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Characters</h3>
 
           {/* "All" option */}
           <button
-            onClick={() => onSelectCastActor(null)}
+            onClick={() => onWardrobeCharFilterChange(null)}
             className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl mb-2 transition-all text-left ${
-              selectedCastActorId === null
+              wardrobeCharFilter === null
                 ? "bg-rose-50 border-2 border-rose-400 shadow-sm"
                 : "border border-gray-200 hover:border-gray-300 hover:bg-gray-50"
             }`}
           >
             <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
-              selectedCastActorId === null ? "bg-rose-500 text-white" : "bg-gray-200 text-gray-500"
+              wardrobeCharFilter === null ? "bg-rose-500 text-white" : "bg-gray-200 text-gray-500"
             }`}>
               <LayoutGrid className="w-4 h-4" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className={`text-xs font-semibold truncate ${selectedCastActorId === null ? "text-rose-800" : "text-gray-900"}`}>All Wardrobe</p>
+              <p className={`text-xs font-semibold truncate ${wardrobeCharFilter === null ? "text-rose-800" : "text-gray-900"}`}>All Wardrobe</p>
               <p className="text-[10px] text-gray-500">{allInventory.length} items total</p>
             </div>
           </button>
@@ -803,27 +883,24 @@ function WardrobeTab({
           ) : (
             <div className="space-y-1.5">
               {characterActorMap.map(({ character, castActor }) => {
-                const isSelected = castActor && selectedCastActorId === castActor.id
+                const isSelected = wardrobeCharFilter === character.id
                 const charLookCount = looks.filter((l) => l.characterId === character.id).length
                 const charItemIds = new Set(looks.filter((l) => l.characterId === character.id).flatMap((l) => l.itemIds))
                 return (
                   <div key={character.id}>
                     <button
-                      onClick={() => castActor && onSelectCastActor(isSelected ? null : castActor.id)}
-                      disabled={!castActor}
+                      onClick={() => onWardrobeCharFilterChange(isSelected ? null : character.id)}
                       className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl transition-all text-left ${
                         isSelected
                           ? "bg-rose-50 border-2 border-rose-400 shadow-sm"
-                          : castActor
-                          ? "border border-gray-200 hover:border-rose-200 hover:bg-gray-50"
-                          : "border border-gray-200 opacity-50 cursor-not-allowed"
+                          : "border border-gray-200 hover:border-rose-200 hover:bg-gray-50"
                       }`}
                     >
                       {castActor?.headshots?.[0] ? (
                         <img src={castActor.headshots[0]} alt="" className={`w-9 h-11 object-cover rounded-lg shrink-0 ${isSelected ? "ring-2 ring-rose-300" : ""}`} />
                       ) : (
-                        <div className="w-9 h-11 rounded-lg bg-gray-200 flex items-center justify-center shrink-0">
-                          <User className="w-4 h-4 text-gray-400" />
+                        <div className={`w-9 h-11 rounded-lg flex items-center justify-center shrink-0 ${isSelected ? "bg-rose-100" : "bg-gray-100"}`}>
+                          <User className={`w-4 h-4 ${isSelected ? "text-rose-400" : "text-gray-400"}`} />
                         </div>
                       )}
                       <div className="flex-1 min-w-0">
@@ -831,7 +908,10 @@ function WardrobeTab({
                         {castActor ? (
                           <p className="text-[10px] text-gray-500 truncate">{castActor.name}</p>
                         ) : (
-                          <p className="text-[10px] text-amber-600 italic">Not cast</p>
+                          <span className="inline-flex items-center gap-1 text-[10px] text-amber-600 font-medium">
+                            <AlertTriangle className="w-3 h-3" />
+                            Not yet cast
+                          </span>
                         )}
                         <div className="flex items-center gap-2 mt-0.5">
                           <span className="text-[9px] text-gray-400">{charItemIds.size} items</span>
@@ -843,7 +923,7 @@ function WardrobeTab({
                         <div className="w-2 h-2 rounded-full bg-rose-500 shrink-0" />
                       )}
                     </button>
-                    {/* Specs button - shown only when this actor is selected */}
+                    {/* Specs button - shown when a cast actor exists and this character is selected */}
                     {isSelected && castActor && (
                       <button
                         onClick={(e) => { e.stopPropagation(); onShowActorSpecs(castActor.id) }}
@@ -853,6 +933,12 @@ function WardrobeTab({
                         {actorSpecs[castActor.id] ? "View / Edit Specs" : "Add Measurements"}
                       </button>
                     )}
+                    {/* Notice for uncast characters when selected */}
+                    {isSelected && !castActor && (
+                      <div className="mt-1 px-2 py-1.5 bg-amber-50 border border-amber-200 rounded-lg">
+                        <p className="text-[10px] text-amber-700 text-center">Cast an actor to add measurements</p>
+                      </div>
+                    )}
                   </div>
                 )
               })}
@@ -860,11 +946,11 @@ function WardrobeTab({
           )}
         </div>
 
-        {/* Inventory grid */}
+        {/* Inventory grid/list */}
         <div className="flex-1 overflow-y-auto p-6">
-          {/* Active filter banner */}
-          {selectedCastActorId && (() => {
-            const pair = characterActorMap.find(({ castActor }) => castActor?.id === selectedCastActorId)
+          {/* Active character filter banner */}
+          {wardrobeCharFilter && (() => {
+            const pair = characterActorMap.find(({ character }) => character.id === wardrobeCharFilter)
             return pair ? (
               <div className="flex items-center gap-2 mb-4 bg-rose-50 border border-rose-200 rounded-xl px-4 py-2.5">
                 {pair.castActor?.headshots?.[0] ? (
@@ -879,17 +965,33 @@ function WardrobeTab({
                   </p>
                   <p className="text-[10px] text-rose-600">{inventory.length} items across {looks.filter((l) => l.characterId === pair.character.id).length} looks</p>
                 </div>
-                <button onClick={() => onSelectCastActor(null)} className="p-1 text-rose-400 hover:text-rose-600 rounded-md hover:bg-rose-100 transition-colors">
+                {!pair.castActor && (
+                  <span className="inline-flex items-center gap-1 text-[10px] font-medium text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full">
+                    <AlertTriangle className="w-3 h-3" /> Not cast
+                  </span>
+                )}
+                <button onClick={() => onWardrobeCharFilterChange(null)} className="p-1 text-rose-400 hover:text-rose-600 rounded-md hover:bg-rose-100 transition-colors">
                   <X className="w-3.5 h-3.5" />
                 </button>
               </div>
             ) : null
           })()}
+
+          {/* Result count */}
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-xs text-gray-500">
+              <span className="font-semibold text-gray-700">{inventory.length}</span> item{inventory.length !== 1 ? "s" : ""}{wardrobeCharFilter ? " for this character" : " in wardrobe"}
+            </p>
+          </div>
+
           {inventory.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-center">
+            <div className="flex flex-col items-center justify-center h-64 text-center">
               <Shirt className="w-12 h-12 text-gray-300 mb-3" />
-              <p className="text-gray-500 text-sm font-medium">No items in wardrobe</p>
-              <p className="text-gray-400 text-xs mt-1">Add costume pieces, HMU consumables, or durables</p>
+              <p className="text-gray-500 text-sm font-medium">{wardrobeCharFilter ? "No items assigned to this character" : "No items in wardrobe"}</p>
+              <p className="text-gray-400 text-xs mt-1">{wardrobeCharFilter ? "Create a Look to assign inventory items" : "Add costume pieces, HMU consumables, or durables"}</p>
+              {!wardrobeCharFilter && (
+                <button onClick={onAdd} className="mt-4 px-4 py-2 bg-rose-600 text-white text-sm font-medium rounded-lg hover:bg-rose-700 transition-colors">Add First Item</button>
+              )}
             </div>
           ) : viewMode === "grid" ? (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
@@ -898,10 +1000,20 @@ function WardrobeTab({
               ))}
             </div>
           ) : (
-            <div className="space-y-2">
-              {inventory.map((item) => (
-                <InventoryListRow key={item.id} item={item} onEdit={onEdit} onDelete={onDelete} />
-              ))}
+            <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+              <div className="grid grid-cols-[auto_1fr_auto_auto_auto_auto] gap-x-4 px-4 py-2 bg-gray-50 border-b border-gray-200 text-[10px] font-semibold text-gray-500 uppercase tracking-wider">
+                <span>Image</span>
+                <span>Name / Details</span>
+                <span>Tags</span>
+                <span>Status</span>
+                <span>Price</span>
+                <span>Actions</span>
+              </div>
+              <div className="divide-y divide-gray-100">
+                {inventory.map((item) => (
+                  <InventoryListRow key={item.id} item={item} onEdit={onEdit} onDelete={onDelete} />
+                ))}
+              </div>
             </div>
           )}
         </div>
@@ -985,22 +1097,26 @@ function InventoryCard({
 function InventoryListRow({ item, onEdit, onDelete }: { item: CostumeInventoryItem; onEdit: (i: CostumeInventoryItem) => void; onDelete: (id: string) => void }) {
   const st = STATUS_COLORS[item.status]
   return (
-    <div className="flex items-center gap-3 bg-white rounded-xl border border-gray-200 p-3 hover:border-rose-200 transition-colors">
-      <div className="w-10 h-12 rounded bg-gray-100 overflow-hidden shrink-0">
+    <div className="grid grid-cols-[auto_1fr_auto_auto_auto_auto] gap-x-4 items-center px-4 py-3 hover:bg-gray-50 transition-colors">
+      <div className="w-10 h-13 rounded-lg bg-gray-100 overflow-hidden shrink-0">
         {item.imageUrl ? <img src={item.imageUrl} alt="" className="w-full h-full object-cover" crossOrigin="anonymous" /> : <div className="w-full h-full flex items-center justify-center"><Shirt className="w-5 h-5 text-gray-300" /></div>}
       </div>
-      <div className="flex-1 min-w-0">
+      <div className="min-w-0">
         <p className="text-sm font-semibold text-gray-900 truncate">{item.name}</p>
-        <p className="text-[10px] text-gray-500">{ITEM_TYPES[item.type]} {item.brand ? `/ ${item.brand}` : ""} {item.size ? `/ ${item.size}` : ""}</p>
+        <p className="text-[10px] text-gray-500">{ITEM_TYPES[item.type]}{item.brand ? ` / ${item.brand}` : ""}{item.size ? ` / ${item.size}` : ""}</p>
+        {item.vendor && <p className="text-[10px] text-gray-400 truncate">Vendor: {item.vendor}</p>}
       </div>
-      <div className="flex items-center gap-1.5 flex-wrap">
-        {item.vibeTags.slice(0, 2).map((t) => (
+      <div className="flex items-center gap-1 flex-wrap max-w-[120px]">
+        {item.vibeTags.slice(0, 3).map((t) => (
           <span key={t} className="bg-gray-100 text-gray-600 text-[9px] font-medium px-1.5 py-0.5 rounded-full">{t}</span>
         ))}
       </div>
-      <span className={`${st.bg} ${st.text} text-[10px] font-bold px-2 py-0.5 rounded-full`}>{st.label}</span>
-      <button onClick={() => onEdit(item)} className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-colors"><Pencil className="w-3.5 h-3.5" /></button>
-      <button onClick={() => onDelete(item.id)} className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
+      <span className={`${st.bg} ${st.text} text-[10px] font-bold px-2.5 py-0.5 rounded-full whitespace-nowrap`}>{st.label}</span>
+      <span className="text-xs text-gray-600 font-medium whitespace-nowrap">{item.purchasePrice || "--"}</span>
+      <div className="flex items-center gap-1">
+        <button onClick={() => onEdit(item)} className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-colors" title="Edit"><Pencil className="w-3.5 h-3.5" /></button>
+        <button onClick={() => onDelete(item.id)} className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors" title="Delete"><Trash2 className="w-3.5 h-3.5" /></button>
+      </div>
     </div>
   )
 }
@@ -1252,7 +1368,7 @@ const SHOPPING_STATUS_COLORS: Record<string, { bg: string; text: string }> = {
   received: { bg: "bg-emerald-100", text: "text-emerald-700" },
 }
 
-function ShoppingTab({
+function PurchaseTab({
   shoppingList,
   characters,
   onAdd,
@@ -1288,7 +1404,7 @@ function ShoppingTab({
         {shoppingList.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center">
             <ShoppingBag className="w-12 h-12 text-gray-300 mb-3" />
-            <p className="text-gray-500 text-sm font-medium">Shopping list is empty</p>
+            <p className="text-gray-500 text-sm font-medium">Purchase list is empty</p>
             <p className="text-gray-400 text-xs mt-1">Add items that need to be purchased or rented</p>
           </div>
         ) : (
@@ -1790,7 +1906,7 @@ function ShoppingFormModal({
       <div className="bg-gray-100 rounded-2xl w-full max-w-sm shadow-2xl">
         <div className="p-6">
           <div className="flex items-center justify-between mb-5">
-            <h2 className="text-lg font-bold text-gray-900">Add Shopping Request</h2>
+            <h2 className="text-lg font-bold text-gray-900">Add Purchase Request</h2>
             <button onClick={onClose} className="p-1.5 rounded-full hover:bg-gray-200 text-gray-500"><X className="w-5 h-5" /></button>
           </div>
           <div className="space-y-3 mb-5">
