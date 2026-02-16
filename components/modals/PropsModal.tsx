@@ -10,20 +10,34 @@ import {
   List,
   SlidersHorizontal,
   ChevronDown,
-  ThumbsUp,
-  ThumbsDown,
   Check,
-  Play,
-  Upload,
   Package,
   Clock,
   Image as ImageIcon,
+  MessageSquare,
+  Send,
+  Layout,
+  CheckCircle,
+  XCircle,
+  HelpCircle,
 } from "lucide-react"
 import { useCasting } from "@/components/casting/CastingContext"
+import { openModal } from "./ModalManager"
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
 /* ------------------------------------------------------------------ */
+
+type VoteValue = "yes" | "no" | "maybe"
+
+interface PropComment {
+  id: string
+  userId: string
+  userName: string
+  userInitials: string
+  text: string
+  timestamp: Date
+}
 
 interface PropItem {
   id: string
@@ -38,8 +52,9 @@ interface PropItem {
   purchaseType: string
   unitPrice: string
   quantity: number
-  bookedTo: string | null // null = available, string = project name
-  votes: { userId: string; vote: "up" | "down" }[]
+  bookedTo: string | null
+  votes: { userId: string; vote: VoteValue }[]
+  comments: PropComment[]
   addedToProject: boolean
   availability: { day: string; startTime: string; endTime: string }[]
 }
@@ -52,18 +67,18 @@ const CATEGORIES = ["Cameras", "Lenses", "Lighting", "Audio", "Grip", "Set Dress
 
 function generateMockProps(): PropItem[] {
   const items: PropItem[] = [
-    { id: "p1", name: "Arri True Blue", model: "T5", category: "Lighting", brand: "ARRI", serialNumber: "ATB-00192", skuBarcode: "7891234560", notes: "", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Rental", unitPrice: "$1,200", quantity: 3, bookedTo: null, votes: [], addedToProject: false, availability: [] },
-    { id: "p2", name: "RED V-Raptor", model: "8K VV", category: "Cameras", brand: "RED", serialNumber: "RVR-90234", skuBarcode: "7891234561", notes: "", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Rental", unitPrice: "$2,500", quantity: 2, bookedTo: null, votes: [], addedToProject: false, availability: [] },
-    { id: "p3", name: "Sennheiser MKH 416", model: "MKH 416", category: "Audio", brand: "Sennheiser", serialNumber: "SMK-44210", skuBarcode: "7891234562", notes: "Slightly worn windscreen", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Bought", unitPrice: "$999", quantity: 4, bookedTo: null, votes: [], addedToProject: false, availability: [] },
-    { id: "p4", name: "Dana Dolly", model: "Portable", category: "Grip", brand: "Dana Dolly", serialNumber: "DD-11002", skuBarcode: "7891234563", notes: "", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Rental", unitPrice: "$350", quantity: 1, bookedTo: "Jurassic Park - Remake", votes: [], addedToProject: false, availability: [] },
-    { id: "p5", name: "Kino Flo Celeb 450Q", model: "Celeb 450Q", category: "Lighting", brand: "Kino Flo", serialNumber: "KFC-78301", skuBarcode: "7891234564", notes: "", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Rental", unitPrice: "$800", quantity: 2, bookedTo: null, votes: [], addedToProject: false, availability: [] },
-    { id: "p6", name: "Ultra Panavision 70", model: "Ultra 70", category: "Lenses", brand: "Panavision", serialNumber: "4CE0460D0G", skuBarcode: "1234567890", notes: "Lens shows minor dust inside, does not affect image quality.", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Rental", unitPrice: "$60,000", quantity: 1, bookedTo: null, votes: [], addedToProject: false, availability: [] },
-    { id: "p7", name: "Matthews C-Stand", model: "40\"", category: "Grip", brand: "Matthews", serialNumber: "MCS-20102", skuBarcode: "7891234566", notes: "", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Bought", unitPrice: "$180", quantity: 12, bookedTo: null, votes: [], addedToProject: false, availability: [] },
-    { id: "p8", name: "Lectrosonics SMWB", model: "SMWB", category: "Audio", brand: "Lectrosonics", serialNumber: "LSM-66102", skuBarcode: "7891234567", notes: "", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Rental", unitPrice: "$1,800", quantity: 6, bookedTo: "Avatar 3", votes: [], addedToProject: false, availability: [] },
-    { id: "p9", name: "DJI Ronin 2", model: "Ronin 2", category: "Grip", brand: "DJI", serialNumber: "DJR-34501", skuBarcode: "7891234568", notes: "", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Rental", unitPrice: "$450", quantity: 2, bookedTo: null, votes: [], addedToProject: false, availability: [] },
-    { id: "p10", name: "Chimera Softbox", model: "Large", category: "Lighting", brand: "Chimera", serialNumber: "CSB-90001", skuBarcode: "7891234569", notes: "", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Bought", unitPrice: "$320", quantity: 5, bookedTo: null, votes: [], addedToProject: false, availability: [] },
-    { id: "p11", name: "Mole Richardson", model: "Baby 2K", category: "Lighting", brand: "Mole", serialNumber: "MRB-00442", skuBarcode: "7891234570", notes: "", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Rental", unitPrice: "$600", quantity: 4, bookedTo: "Stranger Things S6", votes: [], addedToProject: false, availability: [] },
-    { id: "p12", name: "Cooke S4/i", model: "50mm T2", category: "Lenses", brand: "Cooke", serialNumber: "CS4-12093", skuBarcode: "7891234571", notes: "", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Rental", unitPrice: "$18,000", quantity: 1, bookedTo: null, votes: [], addedToProject: false, availability: [] },
+    { id: "p1", name: "Arri True Blue", model: "T5", category: "Lighting", brand: "ARRI", serialNumber: "ATB-00192", skuBarcode: "7891234560", notes: "", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Rental", unitPrice: "$1,200", quantity: 3, bookedTo: null, votes: [], comments: [], addedToProject: false, availability: [] },
+    { id: "p2", name: "RED V-Raptor", model: "8K VV", category: "Cameras", brand: "RED", serialNumber: "RVR-90234", skuBarcode: "7891234561", notes: "", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Rental", unitPrice: "$2,500", quantity: 2, bookedTo: null, votes: [], comments: [], addedToProject: false, availability: [] },
+    { id: "p3", name: "Sennheiser MKH 416", model: "MKH 416", category: "Audio", brand: "Sennheiser", serialNumber: "SMK-44210", skuBarcode: "7891234562", notes: "Slightly worn windscreen", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Bought", unitPrice: "$999", quantity: 4, bookedTo: null, votes: [], comments: [], addedToProject: false, availability: [] },
+    { id: "p4", name: "Dana Dolly", model: "Portable", category: "Grip", brand: "Dana Dolly", serialNumber: "DD-11002", skuBarcode: "7891234563", notes: "", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Rental", unitPrice: "$350", quantity: 1, bookedTo: "Jurassic Park - Remake", votes: [], comments: [], addedToProject: false, availability: [] },
+    { id: "p5", name: "Kino Flo Celeb 450Q", model: "Celeb 450Q", category: "Lighting", brand: "Kino Flo", serialNumber: "KFC-78301", skuBarcode: "7891234564", notes: "", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Rental", unitPrice: "$800", quantity: 2, bookedTo: null, votes: [], comments: [], addedToProject: false, availability: [] },
+    { id: "p6", name: "Ultra Panavision 70", model: "Ultra 70", category: "Lenses", brand: "Panavision", serialNumber: "4CE0460D0G", skuBarcode: "1234567890", notes: "Lens shows minor dust inside, does not affect image quality.", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Rental", unitPrice: "$60,000", quantity: 1, bookedTo: null, votes: [], comments: [], addedToProject: false, availability: [] },
+    { id: "p7", name: "Matthews C-Stand", model: "40\"", category: "Grip", brand: "Matthews", serialNumber: "MCS-20102", skuBarcode: "7891234566", notes: "", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Bought", unitPrice: "$180", quantity: 12, bookedTo: null, votes: [], comments: [], addedToProject: false, availability: [] },
+    { id: "p8", name: "Lectrosonics SMWB", model: "SMWB", category: "Audio", brand: "Lectrosonics", serialNumber: "LSM-66102", skuBarcode: "7891234567", notes: "", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Rental", unitPrice: "$1,800", quantity: 6, bookedTo: "Avatar 3", votes: [], comments: [], addedToProject: false, availability: [] },
+    { id: "p9", name: "DJI Ronin 2", model: "Ronin 2", category: "Grip", brand: "DJI", serialNumber: "DJR-34501", skuBarcode: "7891234568", notes: "", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Rental", unitPrice: "$450", quantity: 2, bookedTo: null, votes: [], comments: [], addedToProject: false, availability: [] },
+    { id: "p10", name: "Chimera Softbox", model: "Large", category: "Lighting", brand: "Chimera", serialNumber: "CSB-90001", skuBarcode: "7891234569", notes: "", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Bought", unitPrice: "$320", quantity: 5, bookedTo: null, votes: [], comments: [], addedToProject: false, availability: [] },
+    { id: "p11", name: "Mole Richardson", model: "Baby 2K", category: "Lighting", brand: "Mole", serialNumber: "MRB-00442", skuBarcode: "7891234570", notes: "", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Rental", unitPrice: "$600", quantity: 4, bookedTo: "Stranger Things S6", votes: [], comments: [], addedToProject: false, availability: [] },
+    { id: "p12", name: "Cooke S4/i", model: "50mm T2", category: "Lenses", brand: "Cooke", serialNumber: "CS4-12093", skuBarcode: "7891234571", notes: "", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Rental", unitPrice: "$18,000", quantity: 1, bookedTo: null, votes: [], comments: [], addedToProject: false, availability: [] },
   ]
   return items
 }
@@ -109,6 +124,7 @@ function AddItemModal({ onClose, onAdd }: { onClose: () => void; onAdd: (item: P
       quantity: form.quantity,
       bookedTo: null,
       votes: [],
+      comments: [],
       addedToProject: false,
       availability: availSlots.filter((s) => s.day),
     }
@@ -116,8 +132,8 @@ function AddItemModal({ onClose, onAdd }: { onClose: () => void; onAdd: (item: P
     onClose()
   }
 
-  const addSlot = (type: "weekday" | "specific") => {
-    setAvailSlots((s) => [...s, { day: type === "weekday" ? "" : "", startTime: "09:00", endTime: "17:00" }])
+  const addSlot = () => {
+    setAvailSlots((s) => [...s, { day: "", startTime: "09:00", endTime: "17:00" }])
   }
 
   const weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
@@ -245,14 +261,14 @@ function AddItemModal({ onClose, onAdd }: { onClose: () => void; onAdd: (item: P
 
             <div className="flex gap-3">
               <button
-                onClick={() => addSlot("weekday")}
+                onClick={addSlot}
                 className="flex items-center gap-1.5 px-4 py-2 border border-gray-300 rounded-full text-xs font-medium text-gray-700 hover:bg-white transition-colors"
               >
                 <Plus className="w-3.5 h-3.5" />
                 Add Weekday
               </button>
               <button
-                onClick={() => addSlot("specific")}
+                onClick={addSlot}
                 className="flex items-center gap-1.5 px-4 py-2 border border-gray-300 rounded-full text-xs font-medium text-gray-700 hover:bg-white transition-colors"
               >
                 <Plus className="w-3.5 h-3.5" />
@@ -340,29 +356,129 @@ function FloatingSelect({
 }
 
 /* ------------------------------------------------------------------ */
-/*  Prop Card (grid item, matches image 1)                             */
+/*  Vote Button                                                        */
+/* ------------------------------------------------------------------ */
+
+function VoteButton({
+  label,
+  icon: Icon,
+  isActive,
+  count,
+  activeClassName,
+  onClick,
+}: {
+  label: string
+  icon: typeof CheckCircle
+  isActive: boolean
+  count: number
+  activeClassName: string
+  onClick: () => void
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium transition-colors ${
+        isActive ? activeClassName : "text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+      }`}
+      title={label}
+    >
+      <Icon className="w-3.5 h-3.5" />
+      <span>{label}</span>
+      {count > 0 && (
+        <span className="ml-0.5 text-[10px] opacity-80">{count}</span>
+      )}
+    </button>
+  )
+}
+
+/* ------------------------------------------------------------------ */
+/*  Comment Section                                                    */
+/* ------------------------------------------------------------------ */
+
+function CommentSection({
+  comments,
+  onAddComment,
+}: {
+  comments: PropComment[]
+  onAddComment: (text: string) => void
+}) {
+  const [isOpen, setIsOpen] = useState(false)
+  const [text, setText] = useState("")
+
+  const handleSubmit = () => {
+    if (!text.trim()) return
+    onAddComment(text.trim())
+    setText("")
+  }
+
+  return (
+    <div className="mt-1">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center gap-1 text-[11px] text-gray-400 hover:text-gray-600 transition-colors"
+      >
+        <MessageSquare className="w-3 h-3" />
+        {comments.length > 0 ? `${comments.length} comment${comments.length === 1 ? "" : "s"}` : "Add comment"}
+      </button>
+
+      {isOpen && (
+        <div className="mt-2 space-y-2">
+          {/* Existing comments */}
+          {comments.length > 0 && (
+            <div className="space-y-1.5 max-h-28 overflow-y-auto">
+              {comments.map((c) => (
+                <div key={c.id} className="flex items-start gap-2">
+                  <div className="w-5 h-5 rounded-full bg-gray-200 flex items-center justify-center shrink-0 mt-0.5">
+                    <span className="text-[8px] font-bold text-gray-600">{c.userInitials}</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[11px] text-gray-700 leading-snug">{c.text}</p>
+                    <p className="text-[9px] text-gray-400 mt-0.5">{c.userName}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Input */}
+          <div className="flex items-center gap-1.5">
+            <input
+              type="text"
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+              placeholder="Write a comment..."
+              className="flex-1 px-2.5 py-1.5 text-[11px] bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 placeholder-gray-400 text-gray-900"
+            />
+            <button
+              onClick={handleSubmit}
+              disabled={!text.trim()}
+              className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-md transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+            >
+              <Send className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+/* ------------------------------------------------------------------ */
+/*  Prop Card (grid item) -- All Items tab                             */
 /* ------------------------------------------------------------------ */
 
 function PropCard({
   item,
   onToggleAdd,
-  onVote,
-  currentUserId,
 }: {
   item: PropItem
   onToggleAdd: (id: string) => void
-  onVote: (id: string, vote: "up" | "down") => void
-  currentUserId: string | undefined
 }) {
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
 
-  const userVote = item.votes.find((v) => v.userId === currentUserId)?.vote
-  const upVotes = item.votes.filter((v) => v.vote === "up").length
-  const downVotes = item.votes.filter((v) => v.vote === "down").length
-
   const isBooked = !!item.bookedTo
-  const isAvailable = !isBooked
 
   return (
     <div
@@ -443,55 +559,154 @@ function PropCard({
             Add to project
           </button>
         )}
-
-        {/* Voting */}
-        <div className="flex items-center gap-1.5">
-          <button
-            onClick={() => onVote(item.id, "up")}
-            className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded text-xs transition-colors ${
-              userVote === "up"
-                ? "bg-emerald-100 text-emerald-700"
-                : "text-gray-400 hover:text-emerald-600 hover:bg-emerald-50"
-            }`}
-          >
-            <ThumbsUp className="w-3 h-3" />
-            {upVotes > 0 && <span className="text-[10px] font-medium">{upVotes}</span>}
-          </button>
-          <button
-            onClick={() => onVote(item.id, "down")}
-            className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded text-xs transition-colors ${
-              userVote === "down"
-                ? "bg-red-100 text-red-700"
-                : "text-gray-400 hover:text-red-600 hover:bg-red-50"
-            }`}
-          >
-            <ThumbsDown className="w-3 h-3" />
-            {downVotes > 0 && <span className="text-[10px] font-medium">{downVotes}</span>}
-          </button>
-        </div>
+        <span className="text-[10px] text-gray-400 font-medium">{item.unitPrice}</span>
       </div>
     </div>
   )
 }
 
 /* ------------------------------------------------------------------ */
-/*  List Row (compact view)                                            */
+/*  Project Prop Card -- My Project tab (Yes / No / Maybe + Comments)   */
+/* ------------------------------------------------------------------ */
+
+function ProjectPropCard({
+  item,
+  onVote,
+  onAddComment,
+  onRemove,
+  onAddToCanvas,
+  currentUserId,
+}: {
+  item: PropItem
+  onVote: (id: string, vote: VoteValue) => void
+  onAddComment: (id: string, text: string) => void
+  onRemove: (id: string) => void
+  onAddToCanvas: (item: PropItem) => void
+  currentUserId: string | undefined
+}) {
+  const [menuOpen, setMenuOpen] = useState(false)
+  const menuRef = useRef<HTMLDivElement>(null)
+
+  const userVote = item.votes.find((v) => v.userId === currentUserId)?.vote
+  const yesCt = item.votes.filter((v) => v.vote === "yes").length
+  const noCt = item.votes.filter((v) => v.vote === "no").length
+  const maybeCt = item.votes.filter((v) => v.vote === "maybe").length
+
+  return (
+    <div className="bg-white rounded-xl border border-gray-200 hover:border-gray-300 transition-all duration-200 overflow-hidden hover:shadow-sm">
+      <div className="flex p-4 gap-4">
+        {/* Image */}
+        <div className="w-28 h-20 shrink-0 rounded-lg bg-gray-100 overflow-hidden flex items-center justify-center">
+          <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
+        </div>
+
+        {/* Info */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between gap-2">
+            <h3 className="text-sm font-semibold text-gray-900 truncate">{item.name}</h3>
+            <div className="relative" ref={menuRef}>
+              <button
+                onClick={() => setMenuOpen(!menuOpen)}
+                className="p-1 text-gray-400 hover:text-gray-600 rounded transition-colors"
+              >
+                <MoreVertical className="w-4 h-4" />
+              </button>
+              {menuOpen && (
+                <div className="absolute right-0 top-6 bg-white border border-gray-200 rounded-lg shadow-lg py-1 min-w-[140px] z-10">
+                  <button
+                    onClick={() => { onAddToCanvas(item); setMenuOpen(false) }}
+                    className="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                  >
+                    <Layout className="w-3.5 h-3.5" />
+                    Add to Canvas
+                  </button>
+                  <button
+                    onClick={() => { onRemove(item.id); setMenuOpen(false) }}
+                    className="w-full text-left px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                    Remove from project
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="mt-1 space-y-0.5">
+            <p className="text-xs text-gray-500">
+              Category <span className="font-medium text-gray-700">{item.category}</span>
+            </p>
+            <p className="text-xs text-gray-500">
+              Brand <span className="font-medium text-gray-700">{item.brand}</span>
+            </p>
+            <p className="text-xs text-gray-500">
+              Quantity <span className="font-semibold text-gray-900">{item.quantity}</span>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Vote row */}
+      <div className="px-4 pb-2 flex items-center gap-1 flex-wrap">
+        <VoteButton
+          label="Yes"
+          icon={CheckCircle}
+          isActive={userVote === "yes"}
+          count={yesCt}
+          activeClassName="bg-emerald-100 text-emerald-700"
+          onClick={() => onVote(item.id, "yes")}
+        />
+        <VoteButton
+          label="No"
+          icon={XCircle}
+          isActive={userVote === "no"}
+          count={noCt}
+          activeClassName="bg-red-100 text-red-700"
+          onClick={() => onVote(item.id, "no")}
+        />
+        <VoteButton
+          label="Maybe"
+          icon={HelpCircle}
+          isActive={userVote === "maybe"}
+          count={maybeCt}
+          activeClassName="bg-amber-100 text-amber-700"
+          onClick={() => onVote(item.id, "maybe")}
+        />
+
+        <div className="ml-auto">
+          <button
+            onClick={() => onAddToCanvas(item)}
+            className="flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+            title="Add to Canvas"
+          >
+            <Layout className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Canvas</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Comments */}
+      <div className="px-4 pb-3">
+        <CommentSection
+          comments={item.comments}
+          onAddComment={(text) => onAddComment(item.id, text)}
+        />
+      </div>
+    </div>
+  )
+}
+
+/* ------------------------------------------------------------------ */
+/*  List Row -- All Items tab (compact view)                           */
 /* ------------------------------------------------------------------ */
 
 function PropListRow({
   item,
   onToggleAdd,
-  onVote,
-  currentUserId,
 }: {
   item: PropItem
   onToggleAdd: (id: string) => void
-  onVote: (id: string, vote: "up" | "down") => void
-  currentUserId: string | undefined
 }) {
-  const userVote = item.votes.find((v) => v.userId === currentUserId)?.vote
-  const upVotes = item.votes.filter((v) => v.vote === "up").length
-  const downVotes = item.votes.filter((v) => v.vote === "down").length
   const isBooked = !!item.bookedTo
 
   return (
@@ -515,21 +730,7 @@ function PropListRow({
           <span className="text-emerald-600 font-medium">Available</span>
         )}
       </div>
-      <div className="flex items-center gap-1.5">
-        <button
-          onClick={() => onVote(item.id, "up")}
-          className={`p-1 rounded transition-colors ${userVote === "up" ? "bg-emerald-100 text-emerald-700" : "text-gray-400 hover:text-emerald-600"}`}
-        >
-          <ThumbsUp className="w-3.5 h-3.5" />
-        </button>
-        <span className="text-xs text-gray-500 w-6 text-center">{upVotes - downVotes}</span>
-        <button
-          onClick={() => onVote(item.id, "down")}
-          className={`p-1 rounded transition-colors ${userVote === "down" ? "bg-red-100 text-red-700" : "text-gray-400 hover:text-red-600"}`}
-        >
-          <ThumbsDown className="w-3.5 h-3.5" />
-        </button>
-      </div>
+      <div className="text-xs text-gray-500 hidden lg:block w-20 text-right">{item.unitPrice}</div>
       <button
         onClick={() => onToggleAdd(item.id)}
         className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
@@ -540,6 +741,76 @@ function PropListRow({
       >
         {item.addedToProject ? "Added" : "Add"}
       </button>
+    </div>
+  )
+}
+
+/* ------------------------------------------------------------------ */
+/*  Project List Row -- My Project tab (compact view)                   */
+/* ------------------------------------------------------------------ */
+
+function ProjectListRow({
+  item,
+  onVote,
+  onAddComment,
+  onRemove,
+  onAddToCanvas,
+  currentUserId,
+}: {
+  item: PropItem
+  onVote: (id: string, vote: VoteValue) => void
+  onAddComment: (id: string, text: string) => void
+  onRemove: (id: string) => void
+  onAddToCanvas: (item: PropItem) => void
+  currentUserId: string | undefined
+}) {
+  const userVote = item.votes.find((v) => v.userId === currentUserId)?.vote
+  const yesCt = item.votes.filter((v) => v.vote === "yes").length
+  const noCt = item.votes.filter((v) => v.vote === "no").length
+  const maybeCt = item.votes.filter((v) => v.vote === "maybe").length
+
+  return (
+    <div className="px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors">
+      <div className="flex items-center gap-4">
+        <div className="w-12 h-12 shrink-0 rounded-lg bg-gray-100 overflow-hidden">
+          <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-medium text-gray-900 truncate">{item.name}</p>
+          <p className="text-xs text-gray-500">{item.category} &middot; {item.brand}</p>
+        </div>
+
+        {/* Votes */}
+        <div className="flex items-center gap-1">
+          <VoteButton label="Yes" icon={CheckCircle} isActive={userVote === "yes"} count={yesCt} activeClassName="bg-emerald-100 text-emerald-700" onClick={() => onVote(item.id, "yes")} />
+          <VoteButton label="No" icon={XCircle} isActive={userVote === "no"} count={noCt} activeClassName="bg-red-100 text-red-700" onClick={() => onVote(item.id, "no")} />
+          <VoteButton label="Maybe" icon={HelpCircle} isActive={userVote === "maybe"} count={maybeCt} activeClassName="bg-amber-100 text-amber-700" onClick={() => onVote(item.id, "maybe")} />
+        </div>
+
+        <button
+          onClick={() => onAddToCanvas(item)}
+          className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+          title="Add to Canvas"
+        >
+          <Layout className="w-4 h-4" />
+        </button>
+
+        <button
+          onClick={() => onRemove(item.id)}
+          className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
+          title="Remove from project"
+        >
+          <X className="w-4 h-4" />
+        </button>
+      </div>
+
+      {/* Comments inline */}
+      <div className="ml-16 mt-1">
+        <CommentSection
+          comments={item.comments}
+          onAddComment={(text) => onAddComment(item.id, text)}
+        />
+      </div>
     </div>
   )
 }
@@ -599,7 +870,7 @@ export default function PropsModal({ onClose }: PropsModalProps) {
     )
   }
 
-  const handleVote = (id: string, vote: "up" | "down") => {
+  const handleVote = (id: string, vote: VoteValue) => {
     if (!currentUserId) return
     setProps((prev) =>
       prev.map((p) => {
@@ -610,7 +881,7 @@ export default function PropsModal({ onClose }: PropsModalProps) {
           if (newVotes[existing].vote === vote) {
             newVotes.splice(existing, 1) // toggle off
           } else {
-            newVotes[existing] = { userId: currentUserId, vote } // switch
+            newVotes[existing] = { userId: currentUserId, vote }
           }
         } else {
           newVotes.push({ userId: currentUserId, vote })
@@ -618,6 +889,38 @@ export default function PropsModal({ onClose }: PropsModalProps) {
         return { ...p, votes: newVotes }
       })
     )
+  }
+
+  const handleAddComment = (propId: string, text: string) => {
+    if (!state.currentUser) return
+    setProps((prev) =>
+      prev.map((p) => {
+        if (p.id !== propId) return p
+        const newComment: PropComment = {
+          id: `c-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          userId: state.currentUser!.id,
+          userName: state.currentUser!.name,
+          userInitials: state.currentUser!.initials,
+          text,
+          timestamp: new Date(),
+        }
+        return { ...p, comments: [...p.comments, newComment] }
+      })
+    )
+  }
+
+  const handleRemoveFromProject = (id: string) => {
+    setProps((prev) =>
+      prev.map((p) => (p.id === id ? { ...p, addedToProject: false } : p))
+    )
+  }
+
+  const handleAddToCanvas = (item: PropItem) => {
+    // Close Props modal, then open Canvas
+    onClose()
+    setTimeout(() => {
+      openModal("canvas")
+    }, 150)
   }
 
   const handleAddItem = (item: PropItem) => {
@@ -629,6 +932,8 @@ export default function PropsModal({ onClose }: PropsModalProps) {
     const cats = new Set(props.map((p) => p.category))
     return Array.from(cats).sort()
   }, [props])
+
+  const isProjectTab = activeTab === "project"
 
   return (
     <div className="fixed inset-0 bg-gray-50 flex flex-col z-50">
@@ -727,7 +1032,7 @@ export default function PropsModal({ onClose }: PropsModalProps) {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search..."
-            className="w-full pl-9 pr-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 placeholder-gray-400"
+            className="w-full pl-9 pr-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 placeholder-gray-400 text-gray-900"
           />
         </div>
 
@@ -739,12 +1044,6 @@ export default function PropsModal({ onClose }: PropsModalProps) {
           >
             <Plus className="w-4 h-4" />
             Add
-          </button>
-
-          {/* Playerview */}
-          <button className="flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-xl transition-colors shadow-sm">
-            <Play className="w-4 h-4" />
-            Playerview
           </button>
         </div>
       </div>
@@ -781,37 +1080,57 @@ export default function PropsModal({ onClose }: PropsModalProps) {
           <div className="flex flex-col items-center justify-center h-full text-center">
             <Package className="w-12 h-12 text-gray-300 mb-3" />
             <p className="text-gray-500 text-sm font-medium">
-              {activeTab === "project" ? "No props added to this project yet" : "No props found"}
+              {isProjectTab ? "No props added to this project yet" : "No props found"}
             </p>
             <p className="text-gray-400 text-xs mt-1">
-              {activeTab === "project"
+              {isProjectTab
                 ? "Browse the All Items tab and add props to your project"
                 : "Try adjusting your search or filters"}
             </p>
           </div>
         ) : viewMode === "grid" ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filtered.map((item) => (
-              <PropCard
-                key={item.id}
-                item={item}
-                onToggleAdd={handleToggleAdd}
-                onVote={handleVote}
-                currentUserId={currentUserId}
-              />
-            ))}
+            {filtered.map((item) =>
+              isProjectTab ? (
+                <ProjectPropCard
+                  key={item.id}
+                  item={item}
+                  onVote={handleVote}
+                  onAddComment={handleAddComment}
+                  onRemove={handleRemoveFromProject}
+                  onAddToCanvas={handleAddToCanvas}
+                  currentUserId={currentUserId}
+                />
+              ) : (
+                <PropCard
+                  key={item.id}
+                  item={item}
+                  onToggleAdd={handleToggleAdd}
+                />
+              )
+            )}
           </div>
         ) : (
           <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-            {filtered.map((item) => (
-              <PropListRow
-                key={item.id}
-                item={item}
-                onToggleAdd={handleToggleAdd}
-                onVote={handleVote}
-                currentUserId={currentUserId}
-              />
-            ))}
+            {filtered.map((item) =>
+              isProjectTab ? (
+                <ProjectListRow
+                  key={item.id}
+                  item={item}
+                  onVote={handleVote}
+                  onAddComment={handleAddComment}
+                  onRemove={handleRemoveFromProject}
+                  onAddToCanvas={handleAddToCanvas}
+                  currentUserId={currentUserId}
+                />
+              ) : (
+                <PropListRow
+                  key={item.id}
+                  item={item}
+                  onToggleAdd={handleToggleAdd}
+                />
+              )
+            )}
           </div>
         )}
       </div>
