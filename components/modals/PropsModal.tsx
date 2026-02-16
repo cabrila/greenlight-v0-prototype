@@ -137,7 +137,8 @@ function ImageUploadBox({ imageUrl, onImageChange, className }: { imageUrl: stri
   const handleFile = async (file: File) => {
     if (!file.type.startsWith("image/")) return
     const dataUrl = await readFileAsDataUrl(file)
-    onImageChange(dataUrl)
+    const compressed = await compressImage(dataUrl)
+    onImageChange(compressed)
   }
 
   return (
@@ -530,7 +531,8 @@ function InventoryCard({ item, isInProject, onToggleAdd, onEdit, onImageReplace,
     const file = e.dataTransfer.files?.[0]
     if (file?.type.startsWith("image/")) {
       const dataUrl = await readFileAsDataUrl(file)
-      onImageReplace(item.id, dataUrl)
+      const compressed = await compressImage(dataUrl)
+      onImageReplace(item.id, compressed)
     }
   }, [item.id, onImageReplace])
 

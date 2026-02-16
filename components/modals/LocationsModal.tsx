@@ -42,6 +42,7 @@ import {
   Droplets,
 } from "lucide-react"
 import { useCasting } from "@/components/casting/CastingContext"
+import { compressImage } from "@/utils/imageCompression"
 import type {
   ProjectLocation,
   LocationType,
@@ -326,7 +327,8 @@ function PhotoDropZone({ media, onAdd, onDelete, onUpdateCaption, showCaptions =
     const items: LocationMediaItem[] = []
     for (const file of Array.from(files)) {
       if (file.type.startsWith("image/")) {
-        const url = await readFileAsDataUrl(file)
+        const raw = await readFileAsDataUrl(file)
+        const url = await compressImage(raw)
         items.push({ id: uid(), url, type: "photo" })
       }
     }
@@ -840,7 +842,8 @@ function LocationCard({ loc, isSelected, isInProject, onSelect, onToggleAdd, onE
       const items: LocationMediaItem[] = []
       for (const file of Array.from(e.dataTransfer.files)) {
         if (file.type.startsWith("image/")) {
-          const url = await readFileAsDataUrl(file)
+          const raw = await readFileAsDataUrl(file)
+          const url = await compressImage(raw)
           items.push({ id: uid(), url, type: "photo" })
         }
       }
@@ -1326,8 +1329,31 @@ export default function LocationsModal({ onClose }: LocationsModalProps) {
   const projectId = state.currentFocus.currentProjectId
   const currentProject = projectId ? state.projects.find((p) => p.id === projectId) ?? null : null
 
-  const [inventory, setInventory] = useState<ProjectLocation[]>(generateMockLocations)
+  /* ---- Global location inventory (persisted to project data store) ---- */
+  const inventory: ProjectLocation[] = currentProject?.locationInventory || []
+  const inventoryRef = useRef(inventory)
+  inventoryRef.current = inventory
 
+  const syncInventory = useCallback(
+    (updater: (prev: ProjectLocation[]) => ProjectLocation[]) => {
+      if (!projectId) return
+      const next = updater(inventoryRef.current)
+      dispatch({ type: "SET_PROJECT_LOCATION_INVENTORY", payload: { projectId, inventory: next } })
+    },
+    [projectId, dispatch],
+  )
+
+  /* Auto-seed mock data if project has no location inventory yet */
+  const hasSeeded = useRef(false)
+  useEffect(() => {
+    if (!hasSeeded.current && projectId && inventory.length === 0) {
+      hasSeeded.current = true
+      const mockData = generateMockLocations()
+      dispatch({ type: "SET_PROJECT_LOCATION_INVENTORY", payload: { projectId, inventory: mockData } })
+    }
+  }, [projectId, inventory.length, dispatch])
+
+  /* ---- Per-project locations (persisted to project data store) ---- */
   const projectLocations: ProjectLocation[] = currentProject?.locations || []
   const projectLocRef = useRef(projectLocations)
   projectLocRef.current = projectLocations
@@ -1409,7 +1435,7 @@ export default function LocationsModal({ onClose }: LocationsModalProps) {
   }
 
   const handleAddLocation = (loc: ProjectLocation) => {
-    setInventory((prev) => [loc, ...prev])
+    syncInventory((prev) => [loc, ...prev])
     setIsMapAddMode(false)
     setAddAtCoords(null)
   }
@@ -1420,13 +1446,13 @@ export default function LocationsModal({ onClose }: LocationsModalProps) {
   }, [])
 
   const handleSaveEdit = (updated: ProjectLocation) => {
-    setInventory((prev) => prev.map((l) => (l.id === updated.id ? updated : l)))
+    syncInventory((prev) => prev.map((l) => (l.id === updated.id ? updated : l)))
     if (projectLocIds.has(updated.id)) syncProjectLocations((prev) => prev.map((l) => (l.id === updated.id ? updated : l)))
     setEditingLocation(null)
   }
 
   const handleAddMedia = (id: string, items: LocationMediaItem[]) => {
-    setInventory((prev) => prev.map((l) => l.id === id ? { ...l, media: [...l.media, ...items] } : l))
+    syncInventory((prev) => prev.map((l) => l.id === id ? { ...l, media: [...l.media, ...items] } : l))
     if (projectLocIds.has(id)) syncProjectLocations((prev) => prev.map((l) => l.id === id ? { ...l, media: [...l.media, ...items] } : l))
   }
 
@@ -1435,7 +1461,7 @@ export default function LocationsModal({ onClose }: LocationsModalProps) {
   const handleConfirmDelete = () => {
     if (!confirmDeleteId) return
     if (confirmDeleteSource === "inventory") {
-      setInventory((prev) => prev.filter((l) => l.id !== confirmDeleteId))
+      syncInventory((prev) => prev.filter((l) => l.id !== confirmDeleteId))
       if (projectLocIds.has(confirmDeleteId)) syncProjectLocations((prev) => prev.filter((l) => l.id !== confirmDeleteId))
     } else {
       syncProjectLocations((prev) => prev.filter((l) => l.id !== confirmDeleteId))

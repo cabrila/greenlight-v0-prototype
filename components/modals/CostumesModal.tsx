@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useRef, useMemo, useEffect } from "react"
 import { useCasting } from "@/components/casting/CastingContext"
+import { compressImage } from "@/utils/imageCompression"
 import type {
   Actor,
   Character,
@@ -1486,9 +1487,14 @@ function AddItemModal({
 
   const imgInputRef = useRef<HTMLInputElement>(null)
 
-  const handleImgUpload = (file: File) => {
-    const url = URL.createObjectURL(file)
-    setImageUrl(url)
+  const handleImgUpload = async (file: File) => {
+    const reader = new FileReader()
+    reader.onload = async () => {
+      const raw = reader.result as string
+      const compressed = await compressImage(raw)
+      setImageUrl(compressed)
+    }
+    reader.readAsDataURL(file)
   }
 
   const handleSubmit = () => {
