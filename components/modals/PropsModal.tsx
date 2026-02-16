@@ -59,7 +59,7 @@ interface InventoryItem {
 /*  Constants                                                          */
 /* ------------------------------------------------------------------ */
 
-const CATEGORIES = ["Cameras", "Lenses", "Lighting", "Audio", "Grip", "Set Dressing", "Wardrobe", "Vehicles", "Weapons", "Misc"]
+const CATEGORIES = ["Action Props", "Decorations", "Household Items", "Sci-Fi", "Fantasy", "Images"]
 const STATUS_OPTIONS: { value: InventoryItem["status"]; label: string }[] = [
   { value: "available", label: "Available" },
   { value: "in-use", label: "In Use" },
@@ -73,18 +73,18 @@ const STATUS_OPTIONS: { value: InventoryItem["status"]; label: string }[] = [
 
 function generateMockInventory(): InventoryItem[] {
   return [
-    { id: "p1", name: "Arri True Blue", model: "T5", category: "Lighting", brand: "ARRI", serialNumber: "ATB-00192", skuBarcode: "7891234560", notes: "", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Rental", unitPrice: "$1,200", quantity: 3, bookedTo: null, availability: [], status: "available" },
-    { id: "p2", name: "RED V-Raptor", model: "8K VV", category: "Cameras", brand: "RED", serialNumber: "RVR-90234", skuBarcode: "7891234561", notes: "", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Rental", unitPrice: "$2,500", quantity: 2, bookedTo: null, availability: [], status: "available" },
-    { id: "p3", name: "Sennheiser MKH 416", model: "MKH 416", category: "Audio", brand: "Sennheiser", serialNumber: "SMK-44210", skuBarcode: "7891234562", notes: "Slightly worn windscreen", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Bought", unitPrice: "$999", quantity: 4, bookedTo: null, availability: [], status: "available" },
-    { id: "p4", name: "Dana Dolly", model: "Portable", category: "Grip", brand: "Dana Dolly", serialNumber: "DD-11002", skuBarcode: "7891234563", notes: "", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Rental", unitPrice: "$350", quantity: 1, bookedTo: "Jurassic Park - Remake", availability: [], status: "in-use" },
-    { id: "p5", name: "Kino Flo Celeb 450Q", model: "Celeb 450Q", category: "Lighting", brand: "Kino Flo", serialNumber: "KFC-78301", skuBarcode: "7891234564", notes: "", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Rental", unitPrice: "$800", quantity: 2, bookedTo: null, availability: [], status: "available" },
-    { id: "p6", name: "Ultra Panavision 70", model: "Ultra 70", category: "Lenses", brand: "Panavision", serialNumber: "4CE0460D0G", skuBarcode: "1234567890", notes: "Lens shows minor dust inside, does not affect image quality.", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Rental", unitPrice: "$60,000", quantity: 1, bookedTo: null, availability: [], status: "available" },
-    { id: "p7", name: "Matthews C-Stand", model: "40\"", category: "Grip", brand: "Matthews", serialNumber: "MCS-20102", skuBarcode: "7891234566", notes: "", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Bought", unitPrice: "$180", quantity: 12, bookedTo: null, availability: [], status: "available" },
-    { id: "p8", name: "Lectrosonics SMWB", model: "SMWB", category: "Audio", brand: "Lectrosonics", serialNumber: "LSM-66102", skuBarcode: "7891234567", notes: "", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Rental", unitPrice: "$1,800", quantity: 6, bookedTo: "Avatar 3", availability: [], status: "in-use" },
-    { id: "p9", name: "DJI Ronin 2", model: "Ronin 2", category: "Grip", brand: "DJI", serialNumber: "DJR-34501", skuBarcode: "7891234568", notes: "", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Rental", unitPrice: "$450", quantity: 2, bookedTo: null, availability: [], status: "available" },
-    { id: "p10", name: "Chimera Softbox", model: "Large", category: "Lighting", brand: "Chimera", serialNumber: "CSB-90001", skuBarcode: "7891234569", notes: "", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Bought", unitPrice: "$320", quantity: 5, bookedTo: null, availability: [], status: "available" },
-    { id: "p11", name: "Mole Richardson", model: "Baby 2K", category: "Lighting", brand: "Mole", serialNumber: "MRB-00442", skuBarcode: "7891234570", notes: "", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Rental", unitPrice: "$600", quantity: 4, bookedTo: "Stranger Things S6", availability: [], status: "in-use" },
-    { id: "p12", name: "Cooke S4/i", model: "50mm T2", category: "Lenses", brand: "Cooke", serialNumber: "CS4-12093", skuBarcode: "7891234571", notes: "", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Rental", unitPrice: "$18,000", quantity: 1, bookedTo: null, availability: [], status: "available" },
+    { id: "p1", name: "Medieval Broadsword", model: "Steel Replica", category: "Action Props", brand: "Regal Arms", serialNumber: "MBS-00192", skuBarcode: "7891234560", notes: "", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Bought", unitPrice: "$450", quantity: 3, bookedTo: null, availability: [], status: "available" },
+    { id: "p2", name: "Victorian Chandelier", model: "Grand 48", category: "Decorations", brand: "Heritage Lights", serialNumber: "VCH-90234", skuBarcode: "7891234561", notes: "", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Rental", unitPrice: "$2,500", quantity: 2, bookedTo: null, availability: [], status: "available" },
+    { id: "p3", name: "Antique Telephone", model: "Rotary 1950s", category: "Household Items", brand: "Retro Props Co.", serialNumber: "ATP-44210", skuBarcode: "7891234562", notes: "Dial is functional, bell rings", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Bought", unitPrice: "$320", quantity: 4, bookedTo: null, availability: [], status: "available" },
+    { id: "p4", name: "Plasma Rifle", model: "PR-7X", category: "Sci-Fi", brand: "FutureForge", serialNumber: "PLR-11002", skuBarcode: "7891234563", notes: "", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Rental", unitPrice: "$1,800", quantity: 1, bookedTo: "Jurassic Park - Remake", availability: [], status: "in-use" },
+    { id: "p5", name: "Crystal Ball", model: "12\" Illuminated", category: "Fantasy", brand: "Mystic Props", serialNumber: "CRB-78301", skuBarcode: "7891234564", notes: "LED base included", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Bought", unitPrice: "$280", quantity: 2, bookedTo: null, availability: [], status: "available" },
+    { id: "p6", name: "Framed Oil Painting", model: "Large Landscape", category: "Images", brand: "Art House Props", serialNumber: "FOP-460D0G", skuBarcode: "1234567890", notes: "Canvas reproduction, gilt frame", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Rental", unitPrice: "$600", quantity: 1, bookedTo: null, availability: [], status: "available" },
+    { id: "p7", name: "Wooden Treasure Chest", model: "Pirate Style", category: "Fantasy", brand: "Old World Props", serialNumber: "WTC-20102", skuBarcode: "7891234566", notes: "", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Bought", unitPrice: "$180", quantity: 5, bookedTo: null, availability: [], status: "available" },
+    { id: "p8", name: "Holographic Display", model: "HoloDesk v2", category: "Sci-Fi", brand: "FutureForge", serialNumber: "HLD-66102", skuBarcode: "7891234567", notes: "Requires 220V power", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Rental", unitPrice: "$3,200", quantity: 3, bookedTo: "Avatar 3", availability: [], status: "in-use" },
+    { id: "p9", name: "Leather Holster Set", model: "Double Draw", category: "Action Props", brand: "Western Outfitters", serialNumber: "LHS-34501", skuBarcode: "7891234568", notes: "", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Bought", unitPrice: "$150", quantity: 6, bookedTo: null, availability: [], status: "available" },
+    { id: "p10", name: "Velvet Curtain Panels", model: "12ft Burgundy", category: "Decorations", brand: "Stage Dressing Co.", serialNumber: "VCP-90001", skuBarcode: "7891234569", notes: "Flame retardant treated", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Bought", unitPrice: "$420", quantity: 8, bookedTo: null, availability: [], status: "available" },
+    { id: "p11", name: "Cast Iron Skillet", model: "14\"", category: "Household Items", brand: "Lodge", serialNumber: "CIS-00442", skuBarcode: "7891234570", notes: "Pre-seasoned, food safe", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Bought", unitPrice: "$60", quantity: 4, bookedTo: "Stranger Things S6", availability: [], status: "in-use" },
+    { id: "p12", name: "Vintage Movie Poster", model: "27x40 Framed", category: "Images", brand: "Art House Props", serialNumber: "VMP-12093", skuBarcode: "7891234571", notes: "1960s Hitchcock reproduction", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Bought", unitPrice: "$95", quantity: 3, bookedTo: null, availability: [], status: "available" },
   ]
 }
 
@@ -534,7 +534,7 @@ function StatusBadge({ status }: { status: string }) {
 /*  Inventory Card (All Items) -- with drag-and-drop image replacement */
 /* ------------------------------------------------------------------ */
 
-function InventoryCard({ item, isInProject, onToggleAdd, onEdit, onImageReplace }: { item: InventoryItem; isInProject: boolean; onToggleAdd: (id: string) => void; onEdit: (item: InventoryItem) => void; onImageReplace: (id: string, url: string) => void }) {
+function InventoryCard({ item, isInProject, onToggleAdd, onEdit, onImageReplace, onDelete }: { item: InventoryItem; isInProject: boolean; onToggleAdd: (id: string) => void; onEdit: (item: InventoryItem) => void; onImageReplace: (id: string, url: string) => void; onDelete: (id: string) => void }) {
   const [menuOpen, setMenuOpen] = useState(false)
   const [isDragOver, setIsDragOver] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -585,6 +585,10 @@ function InventoryCard({ item, isInProject, onToggleAdd, onEdit, onImageReplace 
                   <button onClick={() => { onToggleAdd(item.id); setMenuOpen(false) }} className="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50">
                     {isInProject ? "Remove from project" : "Add to project"}
                   </button>
+                  <div className="my-1 border-t border-gray-100" />
+                  <button onClick={() => { onDelete(item.id); setMenuOpen(false) }} className="w-full text-left px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2">
+                    <Trash2 className="w-3.5 h-3.5" /> Delete item
+                  </button>
                 </div>
               )}
             </div>
@@ -625,7 +629,7 @@ function InventoryCard({ item, isInProject, onToggleAdd, onEdit, onImageReplace 
 /*  Project Prop Card (My Project tab)                                 */
 /* ------------------------------------------------------------------ */
 
-function ProjectPropCard({ item, onVote, onAddComment, onRemove, onAddToCanvas, onEdit, currentUserId }: { item: ProjectProp; onVote: (id: string, vote: VoteValue) => void; onAddComment: (id: string, text: string) => void; onRemove: (id: string) => void; onAddToCanvas: (item: ProjectProp) => void; onEdit: (item: ProjectProp) => void; currentUserId: string | undefined }) {
+function ProjectPropCard({ item, onVote, onAddComment, onRemove, onAddToCanvas, onEdit, onDelete, currentUserId }: { item: ProjectProp; onVote: (id: string, vote: VoteValue) => void; onAddComment: (id: string, text: string) => void; onRemove: (id: string) => void; onAddToCanvas: (item: ProjectProp) => void; onEdit: (item: ProjectProp) => void; onDelete: (id: string) => void; currentUserId: string | undefined }) {
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
 
@@ -655,8 +659,12 @@ function ProjectPropCard({ item, onVote, onAddComment, onRemove, onAddToCanvas, 
                   <button onClick={() => { onAddToCanvas(item); setMenuOpen(false) }} className="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2">
                     <Layout className="w-3.5 h-3.5" /> Add to Canvas
                   </button>
-                  <button onClick={() => { onRemove(item.id); setMenuOpen(false) }} className="w-full text-left px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2">
-                    <X className="w-3.5 h-3.5" /> Remove
+                  <button onClick={() => { onRemove(item.id); setMenuOpen(false) }} className="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2">
+                    <X className="w-3.5 h-3.5" /> Remove from project
+                  </button>
+                  <div className="my-1 border-t border-gray-100" />
+                  <button onClick={() => { onDelete(item.id); setMenuOpen(false) }} className="w-full text-left px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2">
+                    <Trash2 className="w-3.5 h-3.5" /> Delete item
                   </button>
                 </div>
               )}
@@ -695,7 +703,7 @@ function ProjectPropCard({ item, onVote, onAddComment, onRemove, onAddToCanvas, 
 /*  List rows (compact views)                                          */
 /* ------------------------------------------------------------------ */
 
-function InventoryListRow({ item, isInProject, onToggleAdd, onEdit }: { item: InventoryItem; isInProject: boolean; onToggleAdd: (id: string) => void; onEdit: (item: InventoryItem) => void }) {
+function InventoryListRow({ item, isInProject, onToggleAdd, onEdit, onDelete }: { item: InventoryItem; isInProject: boolean; onToggleAdd: (id: string) => void; onEdit: (item: InventoryItem) => void; onDelete: (id: string) => void }) {
   const isBooked = !!item.bookedTo
   return (
     <div className={`flex items-center gap-4 px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors ${isInProject ? "bg-emerald-50/40" : ""}`}>
@@ -714,6 +722,9 @@ function InventoryListRow({ item, isInProject, onToggleAdd, onEdit }: { item: In
       <button onClick={() => onEdit(item)} className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-colors" title="Edit">
         <Pencil className="w-3.5 h-3.5" />
       </button>
+      <button onClick={() => onDelete(item.id)} className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors" title="Delete">
+        <Trash2 className="w-3.5 h-3.5" />
+      </button>
       <button onClick={() => onToggleAdd(item.id)} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${isInProject ? "bg-emerald-100 text-emerald-700" : "border border-gray-300 text-gray-700 hover:bg-gray-100"}`}>
         {isInProject ? "Added" : "Add"}
       </button>
@@ -721,7 +732,7 @@ function InventoryListRow({ item, isInProject, onToggleAdd, onEdit }: { item: In
   )
 }
 
-function ProjectListRow({ item, onVote, onAddComment, onRemove, onAddToCanvas, onEdit, currentUserId }: { item: ProjectProp; onVote: (id: string, vote: VoteValue) => void; onAddComment: (id: string, text: string) => void; onRemove: (id: string) => void; onAddToCanvas: (item: ProjectProp) => void; onEdit: (item: ProjectProp) => void; currentUserId: string | undefined }) {
+function ProjectListRow({ item, onVote, onAddComment, onRemove, onAddToCanvas, onEdit, onDelete, currentUserId }: { item: ProjectProp; onVote: (id: string, vote: VoteValue) => void; onAddComment: (id: string, text: string) => void; onRemove: (id: string) => void; onAddToCanvas: (item: ProjectProp) => void; onEdit: (item: ProjectProp) => void; onDelete: (id: string) => void; currentUserId: string | undefined }) {
   const userVote = item.votes.find((v) => v.userId === currentUserId)?.vote
   const yesCt = item.votes.filter((v) => v.vote === "yes").length
   const noCt = item.votes.filter((v) => v.vote === "no").length
@@ -748,8 +759,11 @@ function ProjectListRow({ item, onVote, onAddComment, onRemove, onAddToCanvas, o
         <button onClick={() => onAddToCanvas(item)} className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-colors" title="Add to Canvas">
           <Layout className="w-4 h-4" />
         </button>
-        <button onClick={() => onRemove(item.id)} className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors" title="Remove from project">
+        <button onClick={() => onRemove(item.id)} className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-md transition-colors" title="Remove from project">
           <X className="w-4 h-4" />
+        </button>
+        <button onClick={() => onDelete(item.id)} className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors" title="Delete item">
+          <Trash2 className="w-3.5 h-3.5" />
         </button>
       </div>
       <div className="ml-16 mt-1">
@@ -778,13 +792,17 @@ export default function PropsModal({ onClose }: PropsModalProps) {
   /* ---- Project props (from context, persisted) ---- */
   const projectProps: ProjectProp[] = currentProject?.props || []
 
+  /* Keep a ref to always have latest projectProps without stale closures */
+  const projectPropsRef = useRef(projectProps)
+  projectPropsRef.current = projectProps
+
   const syncProjectProps = useCallback(
     (updater: (prev: ProjectProp[]) => ProjectProp[]) => {
       if (!projectId) return
-      const next = updater(projectProps)
+      const next = updater(projectPropsRef.current)
       dispatch({ type: "SET_PROJECT_PROPS", payload: { projectId, props: next } })
     },
-    [projectId, projectProps, dispatch],
+    [projectId, dispatch],
   )
 
   /* ---- UI state ---- */
@@ -796,6 +814,8 @@ export default function PropsModal({ onClose }: PropsModalProps) {
   const [showFilters, setShowFilters] = useState(false)
   const [editingInventoryItem, setEditingInventoryItem] = useState<InventoryItem | null>(null)
   const [editingProjectProp, setEditingProjectProp] = useState<ProjectProp | null>(null)
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
+  const [confirmDeleteSource, setConfirmDeleteSource] = useState<"inventory" | "project">("inventory")
 
   const currentUserId = state.currentUser?.id
 
@@ -914,6 +934,30 @@ export default function PropsModal({ onClose }: PropsModalProps) {
     }
   }
 
+  const handleRequestDeleteInventory = (id: string) => {
+    setConfirmDeleteId(id)
+    setConfirmDeleteSource("inventory")
+  }
+
+  const handleRequestDeleteProject = (id: string) => {
+    setConfirmDeleteId(id)
+    setConfirmDeleteSource("project")
+  }
+
+  const handleConfirmDelete = () => {
+    if (!confirmDeleteId) return
+    if (confirmDeleteSource === "inventory") {
+      setInventory((prev) => prev.filter((p) => p.id !== confirmDeleteId))
+      // Also remove from project if present
+      if (projectPropIds.has(confirmDeleteId)) {
+        syncProjectProps((prev) => prev.filter((p) => p.id !== confirmDeleteId))
+      }
+    } else {
+      syncProjectProps((prev) => prev.filter((p) => p.id !== confirmDeleteId))
+    }
+    setConfirmDeleteId(null)
+  }
+
   const isProjectTab = activeTab === "project"
 
   return (
@@ -923,11 +967,6 @@ export default function PropsModal({ onClose }: PropsModalProps) {
         <div className="flex items-center gap-4">
           <img src="/images/gogreenlight-logo.png" alt="GoGreenlight" className="h-8 w-auto" />
           <div className="inline-flex items-center bg-emerald-600 text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded">Props</div>
-        </div>
-        <div className="hidden sm:flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-xl bg-white min-w-[220px]">
-          <span className="text-xs text-gray-500">Project</span>
-          <span className="text-sm font-medium text-gray-900 truncate">{currentProject?.name || "No Project"}</span>
-          <ChevronDown className="w-4 h-4 text-gray-400 ml-auto" />
         </div>
         <button onClick={onClose} className="p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors">
           <X className="w-5 h-5" />
@@ -991,13 +1030,13 @@ export default function PropsModal({ onClose }: PropsModalProps) {
           ) : viewMode === "grid" ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredProjectProps.map((item) => (
-                <ProjectPropCard key={item.id} item={item} onVote={handleVote} onAddComment={handleAddComment} onRemove={handleRemoveFromProject} onAddToCanvas={handleAddToCanvas} onEdit={(i) => setEditingProjectProp(i)} currentUserId={currentUserId} />
+                <ProjectPropCard key={item.id} item={item} onVote={handleVote} onAddComment={handleAddComment} onRemove={handleRemoveFromProject} onAddToCanvas={handleAddToCanvas} onEdit={(i) => setEditingProjectProp(i)} onDelete={handleRequestDeleteProject} currentUserId={currentUserId} />
               ))}
             </div>
           ) : (
             <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
               {filteredProjectProps.map((item) => (
-                <ProjectListRow key={item.id} item={item} onVote={handleVote} onAddComment={handleAddComment} onRemove={handleRemoveFromProject} onAddToCanvas={handleAddToCanvas} onEdit={(i) => setEditingProjectProp(i)} currentUserId={currentUserId} />
+                <ProjectListRow key={item.id} item={item} onVote={handleVote} onAddComment={handleAddComment} onRemove={handleRemoveFromProject} onAddToCanvas={handleAddToCanvas} onEdit={(i) => setEditingProjectProp(i)} onDelete={handleRequestDeleteProject} currentUserId={currentUserId} />
               ))}
             </div>
           )
@@ -1012,13 +1051,13 @@ export default function PropsModal({ onClose }: PropsModalProps) {
           ) : viewMode === "grid" ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredInventory.map((item) => (
-                <InventoryCard key={item.id} item={item} isInProject={projectPropIds.has(item.id)} onToggleAdd={handleToggleAdd} onEdit={(i) => setEditingInventoryItem(i)} onImageReplace={handleImageReplace} />
+                <InventoryCard key={item.id} item={item} isInProject={projectPropIds.has(item.id)} onToggleAdd={handleToggleAdd} onEdit={(i) => setEditingInventoryItem(i)} onImageReplace={handleImageReplace} onDelete={handleRequestDeleteInventory} />
               ))}
             </div>
           ) : (
             <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
               {filteredInventory.map((item) => (
-                <InventoryListRow key={item.id} item={item} isInProject={projectPropIds.has(item.id)} onToggleAdd={handleToggleAdd} onEdit={(i) => setEditingInventoryItem(i)} />
+                <InventoryListRow key={item.id} item={item} isInProject={projectPropIds.has(item.id)} onToggleAdd={handleToggleAdd} onEdit={(i) => setEditingInventoryItem(i)} onDelete={handleRequestDeleteInventory} />
               ))}
             </div>
           )
@@ -1029,6 +1068,38 @@ export default function PropsModal({ onClose }: PropsModalProps) {
       {showAddModal && <AddItemModal onClose={() => setShowAddModal(false)} onAdd={handleAddInventoryItem} />}
       {editingInventoryItem && <EditItemModal item={editingInventoryItem} onClose={() => setEditingInventoryItem(null)} onSave={handleSaveInventoryEdit} />}
       {editingProjectProp && <EditItemModal item={editingProjectProp} onClose={() => setEditingProjectProp(null)} onSave={handleSaveProjectPropEdit} />}
+
+      {/* Delete Confirmation Dialog */}
+      {confirmDeleteId && (
+        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-[70] p-4">
+          <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden">
+            <div className="p-6">
+              <div className="flex items-center justify-center w-12 h-12 rounded-full bg-red-100 mx-auto mb-4">
+                <Trash2 className="w-6 h-6 text-red-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 text-center">Delete Item</h3>
+              <p className="text-sm text-gray-500 text-center mt-2">
+                Are you sure you want to delete this prop? This action cannot be undone.
+              </p>
+            </div>
+            <div className="flex border-t border-gray-200">
+              <button
+                onClick={() => setConfirmDeleteId(null)}
+                className="flex-1 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <div className="w-px bg-gray-200" />
+              <button
+                onClick={handleConfirmDelete}
+                className="flex-1 px-4 py-3 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
