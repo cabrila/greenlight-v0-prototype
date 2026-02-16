@@ -30,6 +30,14 @@ import {
   ZoomIn,
   ZoomOut,
   BookOpen,
+  BarChart3,
+  Keyboard,
+  Users,
+  ChevronLeft,
+  ArrowUp,
+  ArrowDown,
+  CornerDownLeft,
+  Delete,
 } from "lucide-react"
 import { useCasting } from "@/components/casting/CastingContext"
 import type {
@@ -169,16 +177,48 @@ function ScriptBlockRow({
     }
   }, [block.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  /** Apply smart casing: uppercase for character + scene-heading blocks */
+  const applySmartCasing = useCallback(() => {
+    if (!editRef.current) return
+    const text = editRef.current.textContent || ""
+    if ((block.type === "character" || block.type === "scene-heading") && text.length > 0) {
+      const upper = text.toUpperCase()
+      if (text !== upper) {
+        // Preserve cursor position
+        const sel = window.getSelection()
+        const offset = sel?.focusOffset || text.length
+        editRef.current.textContent = upper
+        onTextChange(upper)
+        // Restore cursor
+        try {
+          const range = document.createRange()
+          const node = editRef.current.firstChild || editRef.current
+          range.setStart(node, Math.min(offset, upper.length))
+          range.collapse(true)
+          sel?.removeAllRanges()
+          sel?.addRange(range)
+        } catch { /* noop */ }
+        return
+      }
+    }
+  }, [block.type, onTextChange])
+
   const handleInput = () => {
     const text = editRef.current?.textContent || ""
     onTextChange(text)
 
+    // Smart casing: auto-uppercase character and scene-heading lines as user types
+    if (block.type === "character" || block.type === "scene-heading") {
+      applySmartCasing()
+    }
+
     // Character autocomplete
     if (block.type === "character" && text.length > 0) {
+      const upper = (editRef.current?.textContent || text).toUpperCase()
       const matches = characters.filter((c) =>
-        c.name.toUpperCase().startsWith(text.toUpperCase())
+        c.name.toUpperCase().startsWith(upper)
       )
-      if (matches.length > 0 && text.toUpperCase() !== matches[0]?.name.toUpperCase()) {
+      if (matches.length > 0 && upper !== matches[0]?.name.toUpperCase()) {
         setAutocompleteItems(matches.slice(0, 5))
         setShowAutocomplete(true)
       } else {
@@ -188,6 +228,13 @@ function ScriptBlockRow({
       setShowAutocomplete(false)
     }
   }
+
+  // Also apply smart casing when block type changes externally
+  useEffect(() => {
+    if (block.type === "character" || block.type === "scene-heading") {
+      applySmartCasing()
+    }
+  }, [block.type, applySmartCasing])
 
   const handleSelectAutocomplete = (name: string) => {
     if (editRef.current) {
@@ -445,6 +492,212 @@ function SynopsisEditor({ synopsis, onChange }: { synopsis: string; onChange: (v
 }
 
 /* ------------------------------------------------------------------ */
+/*  Script Report (character dialogue frequency)                       */
+/* ------------------------------------------------------------------ */
+function ScriptReport({ blocks, characters, onClose }: {
+  blocks: ScriptBlock[]
+  characters: { id: string; name: string }[]
+  onClose: () => void
+}) {
+  const report = useMemo(() => {
+    const counts: Record<string, { name: string; lines: number; linkedId?: string; scenes: Set<string> }> = {}
+    let currentScene = ""
+    for (const b of blocks) {
+      if (b.type === "scene-heading") {
+        currentScene = b.sceneNumber || b.text || ""
+      }
+      if (b.type === "character") {
+        const name = b.text.trim().toUpperCase().replace(/\s*\(.*\)$/, "") // strip (V.O.) etc.
+        if (!name) continue
+        if (!counts[name]) {
+          counts[name] = { name, lines: 0, linkedId: b.linkedCharacterId, scenes: new Set() }
+        }
+        counts[name].lines++
+        if (currentScene) counts[name].scenes.add(currentScene)
+      }
+    }
+    return Object.values(counts).sort((a, b) => b.lines - a.lines)
+  }, [blocks])
+
+  const maxLines = report[0]?.lines || 1
+
+  return (
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[70] flex items-center justify-center" onClick={onClose}>
+      <div className="bg-white rounded-2xl shadow-2xl border border-stone-200 w-full max-w-lg max-h-[80vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
+        {/* Header */}
+        <div className="flex items-center gap-3 px-5 py-4 border-b border-stone-200">
+          <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center">
+            <BarChart3 className="w-4 h-4 text-amber-700" />
+          </div>
+          <div className="flex-1">
+            <h2 className="text-sm font-bold text-stone-900">Script Report</h2>
+            <p className="text-[11px] text-stone-500">Characters ranked by spoken lines</p>
+          </div>
+          <button onClick={onClose} className="p-1.5 text-stone-400 hover:text-stone-600 hover:bg-stone-100 rounded-lg transition-colors">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Stats summary row */}
+        <div className="flex items-center gap-4 px-5 py-3 bg-stone-50 border-b border-stone-100">
+          <div className="text-center">
+            <p className="text-lg font-bold text-stone-900">{report.length}</p>
+            <p className="text-[10px] text-stone-400 uppercase tracking-wider font-semibold">Characters</p>
+          </div>
+          <div className="w-px h-8 bg-stone-200" />
+          <div className="text-center">
+            <p className="text-lg font-bold text-stone-900">{report.reduce((s, r) => s + r.lines, 0)}</p>
+            <p className="text-[10px] text-stone-400 uppercase tracking-wider font-semibold">Dialogue Cues</p>
+          </div>
+          <div className="w-px h-8 bg-stone-200" />
+          <div className="text-center">
+            <p className="text-lg font-bold text-stone-900">{blocks.filter((b) => b.type === "scene-heading").length}</p>
+            <p className="text-[10px] text-stone-400 uppercase tracking-wider font-semibold">Scenes</p>
+          </div>
+        </div>
+
+        {/* Character list */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-1.5">
+          {report.length === 0 ? (
+            <div className="text-center py-12">
+              <Users className="w-8 h-8 text-stone-300 mx-auto mb-2" />
+              <p className="text-xs text-stone-400">No character cues found in the script yet.</p>
+            </div>
+          ) : (
+            report.map((r, i) => {
+              const matched = characters.find((c) => c.id === r.linkedId)
+              return (
+                <div key={r.name} className="flex items-center gap-3 py-2 px-3 rounded-lg hover:bg-stone-50 transition-colors group">
+                  {/* Rank */}
+                  <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${
+                    i === 0 ? "bg-amber-100 text-amber-700" :
+                    i === 1 ? "bg-stone-200 text-stone-600" :
+                    i === 2 ? "bg-orange-100 text-orange-700" :
+                    "bg-stone-100 text-stone-500"
+                  }`}>
+                    {i + 1}
+                  </span>
+
+                  {/* Name + details */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold text-stone-800 uppercase tracking-wide font-mono">{r.name}</span>
+                      {matched && (
+                        <span className="text-[9px] text-teal-600 bg-teal-50 px-1.5 py-0.5 rounded-full font-medium">Linked</span>
+                      )}
+                    </div>
+                    <span className="text-[10px] text-stone-400">
+                      {r.scenes.size} scene{r.scenes.size !== 1 ? "s" : ""}
+                    </span>
+                  </div>
+
+                  {/* Bar chart + count */}
+                  <div className="flex items-center gap-2 shrink-0 w-36">
+                    <div className="flex-1 h-2.5 bg-stone-100 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-amber-400 rounded-full transition-all"
+                        style={{ width: `${(r.lines / maxLines) * 100}%` }}
+                      />
+                    </div>
+                    <span className="text-[11px] font-semibold text-stone-700 min-w-[30px] text-right">
+                      {r.lines}
+                    </span>
+                  </div>
+                </div>
+              )
+            })
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* ------------------------------------------------------------------ */
+/*  Keyboard Shortcuts Panel                                           */
+/* ------------------------------------------------------------------ */
+function ShortcutsPanel({ onClose }: { onClose: () => void }) {
+  const groups = [
+    {
+      title: "Navigation",
+      shortcuts: [
+        { keys: ["Arrow Up"], desc: "Previous block" },
+        { keys: ["Arrow Down"], desc: "Next block" },
+        { keys: ["Ctrl", "F"], desc: "Search script" },
+      ],
+    },
+    {
+      title: "Editing",
+      shortcuts: [
+        { keys: ["Enter"], desc: "New block (smart type)" },
+        { keys: ["Tab"], desc: "Cycle block type" },
+        { keys: ["Backspace"], desc: "Delete empty block" },
+        { keys: ["Ctrl", "Z"], desc: "Undo" },
+        { keys: ["Ctrl", "Shift", "Z"], desc: "Redo" },
+      ],
+    },
+    {
+      title: "Smart Casing",
+      shortcuts: [
+        { keys: ["Character line"], desc: "Auto-uppercase name" },
+        { keys: ["Scene heading"], desc: "Auto-uppercase INT./EXT." },
+      ],
+    },
+    {
+      title: "Block Types",
+      shortcuts: [
+        { keys: ["INT. / EXT."], desc: "Scene heading" },
+        { keys: ["CUT TO:"], desc: "Transition" },
+        { keys: ["( ... )"], desc: "Parenthetical" },
+        { keys: ["ALL CAPS"], desc: "Character cue" },
+      ],
+    },
+  ]
+
+  return (
+    <div className="w-56 bg-white/80 backdrop-blur-sm border-l border-stone-200 shrink-0 overflow-y-auto">
+      <div className="p-3 border-b border-stone-200 flex items-center justify-between">
+        <h2 className="text-[10px] font-bold text-stone-600 uppercase tracking-wider flex items-center gap-1.5">
+          <Keyboard className="w-3.5 h-3.5 text-amber-600" />
+          Shortcuts
+        </h2>
+        <button onClick={onClose} className="p-1 text-stone-400 hover:text-stone-600 rounded transition-colors">
+          <ChevronLeft className="w-3.5 h-3.5 rotate-180" />
+        </button>
+      </div>
+      <div className="p-3 space-y-4">
+        {groups.map((g) => (
+          <div key={g.title}>
+            <p className="text-[9px] font-bold text-stone-400 uppercase tracking-widest mb-2">{g.title}</p>
+            <div className="space-y-1.5">
+              {g.shortcuts.map((s, i) => (
+                <div key={i} className="flex items-start gap-2">
+                  <div className="flex items-center gap-0.5 shrink-0 mt-px">
+                    {s.keys.map((k, j) => (
+                      <span key={j}>
+                        {j > 0 && <span className="text-[8px] text-stone-300 mx-0.5">+</span>}
+                        <kbd className="inline-flex items-center px-1.5 py-0.5 bg-stone-100 border border-stone-200 rounded text-[9px] font-mono font-medium text-stone-600 leading-none">
+                          {k === "Arrow Up" ? <ArrowUp className="w-2.5 h-2.5" /> :
+                           k === "Arrow Down" ? <ArrowDown className="w-2.5 h-2.5" /> :
+                           k === "Enter" ? <CornerDownLeft className="w-2.5 h-2.5" /> :
+                           k === "Backspace" ? <Delete className="w-2.5 h-2.5" /> :
+                           k}
+                        </kbd>
+                      </span>
+                    ))}
+                  </div>
+                  <span className="text-[10px] text-stone-500 leading-tight">{s.desc}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+/* ------------------------------------------------------------------ */
 /*  Main ScriptModal                                                   */
 /* ------------------------------------------------------------------ */
 export default function ScriptModal({ onClose }: { onClose: () => void }) {
@@ -467,6 +720,8 @@ export default function ScriptModal({ onClose }: { onClose: () => void }) {
   const [searchTerm, setSearchTerm] = useState("")
   const [showSearch, setShowSearch] = useState(false)
   const [typewriterMode, setTypewriterMode] = useState(true)
+  const [showReport, setShowReport] = useState(false)
+  const [showShortcuts, setShowShortcuts] = useState(false)
 
   const pageRef = useRef<HTMLDivElement>(null)
   const blockRefs = useRef<Record<string, HTMLDivElement | null>>({})
@@ -682,6 +937,12 @@ export default function ScriptModal({ onClose }: { onClose: () => void }) {
       else undo()
     }
 
+    // Ctrl+F to open search
+    if ((e.ctrlKey || e.metaKey) && e.key === "f") {
+      e.preventDefault()
+      setShowSearch(true)
+    }
+
     // Arrow keys
     if (e.key === "ArrowUp" && idx > 0) {
       const sel = window.getSelection()
@@ -866,9 +1127,28 @@ export default function ScriptModal({ onClose }: { onClose: () => void }) {
         <button
           onClick={() => setShowSearch(!showSearch)}
           className={`p-1.5 rounded-lg transition-colors ${showSearch ? "text-amber-600 bg-amber-50" : "text-stone-400 hover:text-stone-700 hover:bg-stone-100"}`}
-          title="Search"
+          title="Search (Ctrl+F)"
         >
           <Search className="w-4 h-4" />
+        </button>
+
+        {/* Script Report */}
+        <button
+          onClick={() => setShowReport(true)}
+          className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium text-stone-400 hover:text-stone-700 hover:bg-stone-100 border border-transparent transition-colors"
+          title="Script report"
+        >
+          <BarChart3 className="w-3.5 h-3.5" />
+          <span className="hidden lg:inline">Report</span>
+        </button>
+
+        {/* Shortcuts panel */}
+        <button
+          onClick={() => setShowShortcuts(!showShortcuts)}
+          className={`p-1.5 rounded-lg transition-colors ${showShortcuts ? "text-amber-600 bg-amber-50" : "text-stone-400 hover:text-stone-700 hover:bg-stone-100"}`}
+          title="Keyboard shortcuts"
+        >
+          <Keyboard className="w-4 h-4" />
         </button>
 
         <div className="w-px h-6 bg-stone-200" />
@@ -1018,7 +1298,19 @@ export default function ScriptModal({ onClose }: { onClose: () => void }) {
             </div>
           </div>
         </div>
+
+        {/* Keyboard shortcuts side panel */}
+        {showShortcuts && <ShortcutsPanel onClose={() => setShowShortcuts(false)} />}
       </div>
+
+      {/* Script Report overlay */}
+      {showReport && (
+        <ScriptReport
+          blocks={blocks}
+          characters={characters}
+          onClose={() => setShowReport(false)}
+        />
+      )}
 
       {/* Status bar */}
       <div className="h-7 bg-white/90 border-t border-stone-200 flex items-center justify-between px-4 shrink-0 text-[10px] text-stone-400 font-medium">
