@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback, useRef, useMemo } from "react"
+import { useState, useCallback, useRef, useMemo, useEffect } from "react"
 import { useCasting } from "@/components/casting/CastingContext"
 import type {
   Actor,
@@ -298,17 +298,19 @@ export default function CostumesModal({ onClose }: { onClose: () => void }) {
 
   /* ---- Auto-seed mock data if project has characters but no costumes data ---- */
   const hasSeeded = useRef(false)
-  if (
-    !hasSeeded.current &&
-    projectId &&
-    characters.length > 0 &&
-    costumes.inventory.length === 0 &&
-    costumes.looks.length === 0
-  ) {
-    hasSeeded.current = true
-    const mockData = generateMockCostumesData(characters)
-    dispatch({ type: "SET_PROJECT_COSTUMES", payload: { projectId, costumes: mockData } })
-  }
+  useEffect(() => {
+    if (
+      !hasSeeded.current &&
+      projectId &&
+      characters.length > 0 &&
+      costumes.inventory.length === 0 &&
+      costumes.looks.length === 0
+    ) {
+      hasSeeded.current = true
+      const mockData = generateMockCostumesData(characters)
+      dispatch({ type: "SET_PROJECT_COSTUMES", payload: { projectId, costumes: mockData } })
+    }
+  }, [projectId, characters, costumes.inventory.length, costumes.looks.length, dispatch])
 
   /* ---- UI State ---- */
   const [mainTab, setMainTab] = useState<MainTab>("wardrobe")
