@@ -1,7 +1,7 @@
 "use client"
 
 import { useCasting } from "@/components/casting/CastingContext"
-import { Bell, Folder, FileText, Users, Settings, Clapperboard } from "lucide-react"
+import { Bell, Folder, FileText, Users, Settings } from "lucide-react"
 import { openModal } from "@/components/modals/ModalManager"
 import UserMenu from "./UserMenu"
 import { useState, useRef } from "react"
@@ -18,12 +18,9 @@ export default function TopMenuBar() {
     <header className="bg-gradient-to-r from-white via-slate-50 to-white border-b border-slate-200/60 sticky top-0 z-50 backdrop-blur-md shadow-sm">
       <div className="px-6 py-4">
         <div className="flex items-center justify-between">
-          {/* Logo - Updated to match splash screen */}
-          <div className="flex items-center space-x-3">
-            <div className="p-2 bg-success-600 rounded-lg shadow-sm">
-              <Clapperboard className="w-6 h-6 text-white" />
-            </div>
-            <h1 className="text-2xl font-bold text-success-600 tracking-wide">GOGREENLIGHT</h1>
+          {/* Logo */}
+          <div className="flex items-center">
+            <img src="/images/gogreenlight-logo.png" alt="GoGreenlight" className="h-9 w-auto" />
           </div>
 
           {/* Center Menu */}

@@ -14,7 +14,6 @@ import {
   Database,
   HelpCircle,
   Sparkles,
-  Clapperboard,
   Folder,
   FileText,
   Users,
@@ -231,17 +230,12 @@ export default function Sidebar() {
       {/* Logo/Branding section at the top */}
       <div className="p-4 border-b border-slate-200/60">
         {!isCollapsed ? (
-          <div className="flex items-center space-x-3">
-            <div className="p-2 bg-success-600 rounded-lg shadow-sm">
-              <Clapperboard className="w-6 h-6 text-white" />
-            </div>
-            <h1 className="text-2xl font-bold text-success-600 tracking-wide">GOGREENLIGHT</h1>
+          <div className="flex items-center">
+            <img src="/images/gogreenlight-logo.png" alt="GoGreenlight" className="h-9 w-auto" />
           </div>
         ) : (
           <div className="flex justify-center">
-            <div className="p-2 bg-success-600 rounded-lg shadow-sm">
-              <Clapperboard className="w-5 h-5 text-white" />
-            </div>
+            <img src="/images/gogreenlight-logo.png" alt="GoGreenlight" className="h-7 w-auto" />
           </div>
         )}
       </div>
@@ -615,7 +609,7 @@ export default function Sidebar() {
             onClick={handleOpenSplashScreen}
             className="w-full flex items-center space-x-3 px-4 py-2.5 text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200"
           >
-            <Clapperboard className="w-4 h-4" />
+            <img src="/images/gogreenlight-logo.png" alt="GoGreenlight" className="h-5 w-auto" />
             <span>Back to Menu</span>
           </button>
         ) : (
@@ -624,7 +618,7 @@ export default function Sidebar() {
             className="w-full flex justify-center p-3 text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200"
             title="Back to Menu"
           >
-            <Clapperboard className="w-5 h-5" />
+            <img src="/images/gogreenlight-logo.png" alt="GoGreenlight" className="h-5 w-auto" />
           </button>
         )}
       </div>
