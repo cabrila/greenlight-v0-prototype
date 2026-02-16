@@ -250,6 +250,7 @@ export type CastingAction =
   | { type: "CLEAR_TAB_NOTIFICATION"; payload: { tabKey: string; characterId: string } }
   | { type: "CLEAR_ALL_TAB_NOTIFICATIONS"; payload: { characterId: string } }
   | { type: "UPDATE_CHARACTER_CONCEPT_ART"; payload: { characterId: string; conceptArt: string } }
+  | { type: "SET_PROJECT_PROPS"; payload: { projectId: string; props: ProjectProp[] } }
 
 export interface User {
   id: string
@@ -261,6 +262,47 @@ export interface User {
   color: string
 }
 
+export interface PropVote {
+  userId: string
+  vote: "yes" | "no" | "maybe"
+}
+
+export interface PropComment {
+  id: string
+  userId: string
+  userName: string
+  userInitials: string
+  text: string
+  timestamp: number
+}
+
+export interface PropAvailability {
+  id: string
+  day: string
+  startTime: string
+  endTime: string
+}
+
+export interface ProjectProp {
+  id: string
+  name: string
+  model: string
+  category: string
+  brand: string
+  serialNumber: string
+  skuBarcode: string
+  notes: string
+  imageUrl: string
+  purchaseType: string
+  unitPrice: string
+  quantity: number
+  bookedTo: string | null
+  votes: PropVote[]
+  comments: PropComment[]
+  availability: PropAvailability[]
+  status: "available" | "in-use" | "maintenance" | "retired"
+}
+
 export interface Project {
   id: string
   name: string
@@ -270,6 +312,7 @@ export interface Project {
   modifiedDate: number
   terminology?: Terminology
   canvasActors?: CanvasActor[]
+  props?: ProjectProp[]
 }
 
 export interface Character {
