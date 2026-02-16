@@ -37,6 +37,7 @@ import AssignToProjectModal from "./AssignToProjectModal"
 import CharactersModal from "./CharactersModal"
 import ScriptAnalysisModal from "./ScriptAnalysisModal"
 import AddFromDatabaseModal from "./AddFromDatabaseModal"
+import PropsModal from "./PropsModal"
 
 export interface ModalState {
   type: string | null
@@ -260,6 +261,8 @@ export default function ModalManager() {
           return <ScriptAnalysisModal onClose={handleClose} />
         case "addFromDatabase":
           return <AddFromDatabaseModal onClose={handleClose} characterId={modal.data?.characterId} />
+        case "props":
+          return <PropsModal onClose={handleClose} />
         default:
           return null
       }
@@ -272,7 +275,8 @@ export default function ModalManager() {
       modal.type === "splashScreen" ||
       modal.type === "canvas" ||
       modal.type === "characters" ||
-      modal.type === "addFromDatabase"
+      modal.type === "addFromDatabase" ||
+      modal.type === "props"
     ) {
       return <div key={`modal-${index}`}>{modalContent}</div>
     }
