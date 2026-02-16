@@ -609,7 +609,6 @@ export default function Sidebar() {
             onClick={handleOpenSplashScreen}
             className="w-full flex items-center space-x-3 px-4 py-2.5 text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200"
           >
-            <img src="/images/gogreenlight-logo.png" alt="GoGreenlight" className="h-5 w-auto" />
             <span>Back to Menu</span>
           </button>
         ) : (
