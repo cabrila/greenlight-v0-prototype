@@ -109,6 +109,167 @@ function emptyProjectCostumes(): ProjectCostumes {
 }
 
 /* ================================================================== */
+/*  Comprehensive mock data seeder                                     */
+/* ================================================================== */
+
+function generateMockCostumesData(characters: Character[]): ProjectCostumes {
+  /* ---- Actor specs keyed by cast-actor IDs ---- */
+  const actorSpecs: ProjectCostumes["actorSpecs"] = {}
+  const charActorPairs: { character: Character; actor: Actor | null }[] = characters.map((ch) => ({
+    character: ch,
+    actor: getCastActorForCharacter(ch),
+  }))
+
+  // Predefined measurement sets (realistic, varied)
+  const MEASUREMENT_SETS: { measurements: ActorMeasurements; hmuSpecs: ActorHMUSpecs }[] = [
+    {
+      measurements: { chest: "40\"", waist: "32\"", inseam: "32\"", hat: "7 1/4", ring: "10", glove: "L", shoe: "10.5 US" },
+      hmuSpecs: { skinToneCode: "MAC NC35", hairType: "Straight, thick", hairColor: "Dark brown", allergies: ["Latex", "Spirit gum"], tattoos: [{ location: "Left forearm", coverUpNeeded: true }, { location: "Upper back", coverUpNeeded: false }] },
+    },
+    {
+      measurements: { chest: "34\"", waist: "26\"", inseam: "30\"", hat: "7", ring: "6", glove: "S", shoe: "7 US" },
+      hmuSpecs: { skinToneCode: "MAC NW25", hairType: "Wavy, fine", hairColor: "Auburn", allergies: ["Wool"], tattoos: [] },
+    },
+    {
+      measurements: { chest: "44\"", waist: "36\"", inseam: "34\"", hat: "7 3/8", ring: "11", glove: "XL", shoe: "12 US" },
+      hmuSpecs: { skinToneCode: "MAC NC45", hairType: "Coiled, dense", hairColor: "Black", allergies: [], tattoos: [{ location: "Right bicep", coverUpNeeded: true }] },
+    },
+    {
+      measurements: { chest: "36\"", waist: "28\"", inseam: "31\"", hat: "7 1/8", ring: "7", glove: "M", shoe: "8.5 US" },
+      hmuSpecs: { skinToneCode: "MAC NC20", hairType: "Straight, thin", hairColor: "Blonde", allergies: ["Nickel", "Adhesive remover"], tattoos: [{ location: "Ankle", coverUpNeeded: false }] },
+    },
+    {
+      measurements: { chest: "42\"", waist: "34\"", inseam: "33\"", hat: "7 1/4", ring: "10.5", glove: "L", shoe: "11 US" },
+      hmuSpecs: { skinToneCode: "MAC NC30", hairType: "Wavy, medium", hairColor: "Salt & pepper", allergies: ["Eyelash adhesive"], tattoos: [] },
+    },
+    {
+      measurements: { chest: "38\"", waist: "30\"", inseam: "29\"", hat: "6 7/8", ring: "7.5", glove: "M", shoe: "9 US" },
+      hmuSpecs: { skinToneCode: "MAC NW40", hairType: "Curly, thick", hairColor: "Dark brown", allergies: [], tattoos: [{ location: "Wrist", coverUpNeeded: true }, { location: "Collarbone", coverUpNeeded: true }] },
+    },
+  ]
+
+  charActorPairs.forEach(({ actor }, idx) => {
+    if (actor) {
+      const specSet = MEASUREMENT_SETS[idx % MEASUREMENT_SETS.length]
+      actorSpecs[actor.id] = specSet
+    }
+  })
+
+  /* ---- Inventory items (30+ realistic wardrobe & HMU items) ---- */
+  const inventory: CostumeInventoryItem[] = [
+    // Hero costumes
+    { id: "ci-001", name: "Navy Three-Piece Suit", type: "costume-piece", status: "in-stock", brand: "Tom Ford", size: "40R", purchasePrice: "$3,200", vendor: "Western Costume Co.", imageUrl: "/placeholder.svg?height=400&width=300", vibeTags: ["Formal", "Elegant"], notes: "Peak lapel, slim fit. Button stance slightly high.", rentReturnDate: undefined },
+    { id: "ci-002", name: "Distressed Leather Jacket", type: "costume-piece", status: "on-set", brand: "Schott NYC", size: "L", purchasePrice: "$850", vendor: "Prop House LA", imageUrl: "/placeholder.svg?height=400&width=300", vibeTags: ["Rugged", "Distressed", "Casual"], notes: "Pre-aged with sandpaper on elbows and collar" },
+    { id: "ci-003", name: "White Silk Blouse", type: "costume-piece", status: "in-stock", brand: "Equipment", size: "S", purchasePrice: "$320", vendor: "Nordstrom", imageUrl: "/placeholder.svg?height=400&width=300", vibeTags: ["Elegant", "Formal"], notes: "French cuffs, mother of pearl buttons" },
+    { id: "ci-004", name: "Victorian Corset", type: "costume-piece", status: "rented", brand: "Period Corsets UK", size: "28\"", purchasePrice: "$180/week", vendor: "Angels Costumes London", imageUrl: "/placeholder.svg?height=400&width=300", vibeTags: ["Period", "Elegant"], rentReturnDate: "2026-04-15", notes: "Steel-boned, requires dresser assistance" },
+    { id: "ci-005", name: "Military Dress Uniform", type: "costume-piece", status: "in-stock", brand: "Custom Build", size: "42R", purchasePrice: "$1,400", vendor: "In-House Tailor", imageUrl: "/placeholder.svg?height=400&width=300", vibeTags: ["Military", "Formal", "Period"], notes: "WWII era US Army Colonel. Ribbons and insignia included." },
+    { id: "ci-006", name: "Futuristic Bodysuit", type: "costume-piece", status: "in-stock", brand: "Custom Build", size: "M", purchasePrice: "$2,800", vendor: "Ironhead Studio", imageUrl: "/placeholder.svg?height=400&width=300", vibeTags: ["Futuristic", "Sci-Fi"], notes: "Neoprene base with 3D-printed armor plates. LED rigging ready." },
+    { id: "ci-007", name: "Blood-Stained Lab Coat", type: "costume-piece", status: "at-cleaners", brand: "N/A", size: "L", purchasePrice: "$45", vendor: "Amazon", imageUrl: "/placeholder.svg?height=400&width=300", vibeTags: ["Bloody", "Horror"], notes: "Multiple blood applications on chest and sleeves. Matching backup in stock." },
+    { id: "ci-008", name: "Cashmere Overcoat", type: "costume-piece", status: "in-stock", brand: "Max Mara", size: "M", purchasePrice: "$2,100", vendor: "Western Costume Co.", imageUrl: "/placeholder.svg?height=400&width=300", vibeTags: ["Elegant", "Formal"], notes: "Camel color. Dry clean only." },
+    { id: "ci-009", name: "Wrestling Singlet", type: "costume-piece", status: "in-stock", brand: "Nike", size: "L", purchasePrice: "$85", vendor: "Sports Authority", imageUrl: "/placeholder.svg?height=400&width=300", vibeTags: ["Athletic"], notes: "Red and white team colors" },
+    { id: "ci-010", name: "Ballroom Gown", type: "costume-piece", status: "rented", brand: "Custom Build", size: "4", purchasePrice: "$350/week", vendor: "Angels Costumes London", imageUrl: "/placeholder.svg?height=400&width=300", vibeTags: ["Elegant", "Romantic", "Period"], rentReturnDate: "2026-05-01", notes: "Emerald green taffeta, hand-beaded bodice. Handle with extreme care." },
+    { id: "ci-011", name: "Tactical Vest & Pants", type: "costume-piece", status: "on-set", brand: "5.11 Tactical", size: "L", purchasePrice: "$420", vendor: "Mil-Spec Surplus", imageUrl: "/placeholder.svg?height=400&width=300", vibeTags: ["Military", "Rugged"], notes: "Khaki, with functional pouches and radio holster" },
+    { id: "ci-012", name: "Wizard Robe", type: "costume-piece", status: "in-stock", brand: "Custom Build", size: "One Size", purchasePrice: "$600", vendor: "In-House Tailor", imageUrl: "/placeholder.svg?height=400&width=300", vibeTags: ["Fantasy", "Period"], notes: "Deep purple velvet with gold embroidery, hidden pockets for wand rig" },
+    { id: "ci-013", name: "Denim Jeans (Hero)", type: "costume-piece", status: "in-stock", brand: "Levi's 501", size: "32x32", purchasePrice: "$68", vendor: "Levi's Store", imageUrl: "/placeholder.svg?height=400&width=300", vibeTags: ["Casual", "Rugged"], notes: "Medium wash. Pre-distressed at knees to match Scene 14." },
+    { id: "ci-014", name: "Running Sneakers", type: "costume-piece", status: "in-stock", brand: "Nike Pegasus", size: "10.5 US", purchasePrice: "$130", vendor: "Nike.com", imageUrl: "/placeholder.svg?height=400&width=300", vibeTags: ["Athletic", "Casual"], notes: "White/volt. Bought 3 identical pairs for continuity." },
+    { id: "ci-015", name: "Chef Whites Set", type: "costume-piece", status: "in-stock", brand: "Chef Works", size: "M", purchasePrice: "$95", vendor: "Chef Works Direct", imageUrl: "/placeholder.svg?height=400&width=300", vibeTags: ["Uniform", "Casual"], notes: "Double-breasted jacket, checked pants, toque. All cotton." },
+
+    // HMU Consumables
+    { id: "ci-016", name: "Silicone Prosthetic - Scar", type: "hmu-consumable", status: "in-stock", brand: "RBFX", size: "Medium", purchasePrice: "$125", vendor: "Kryolan Pro", imageUrl: "/placeholder.svg?height=400&width=300", vibeTags: ["Horror", "Distressed"], notes: "Forehead scar, pre-painted. 4 applications per piece." },
+    { id: "ci-017", name: "HD Foundation Kit", type: "hmu-consumable", status: "in-stock", brand: "Kryolan", size: "N/A", purchasePrice: "$340", vendor: "Kryolan Pro", imageUrl: "/placeholder.svg?height=400&width=300", vibeTags: [], notes: "16 shades. Includes NC20-NC50 range for principal cast." },
+    { id: "ci-018", name: "Breakaway Blood (Gallons x3)", type: "hmu-consumable", status: "in-stock", brand: "Reel Creations", size: "1 gal each", purchasePrice: "$180", vendor: "Alcone NYC", imageUrl: "/placeholder.svg?height=400&width=300", vibeTags: ["Bloody", "Horror"], notes: "Washable formula. Non-staining on most fabrics." },
+    { id: "ci-019", name: "Aging Stipple Kit", type: "hmu-consumable", status: "in-stock", brand: "Ben Nye", size: "N/A", purchasePrice: "$75", vendor: "Camera Ready Cosmetics", imageUrl: "/placeholder.svg?height=400&width=300", vibeTags: ["Period"], notes: "Latex-based -- CHECK ACTOR ALLERGIES before use" },
+    { id: "ci-020", name: "Tattoo Cover Pro Palette", type: "hmu-consumable", status: "in-stock", brand: "Dermablend", size: "N/A", purchasePrice: "$52", vendor: "Sephora Pro", imageUrl: "/placeholder.svg?height=400&width=300", vibeTags: [], notes: "Heavy coverage, waterproof. For tattoo cover-ups." },
+
+    // Durables (Wigs, Prosthetics)
+    { id: "ci-021", name: "Lace-Front Wig - Long Black", type: "durable", status: "in-stock", brand: "Wig America", size: "Medium cap", purchasePrice: "$680", vendor: "Bob Kelly Wig Creations", imageUrl: "/placeholder.svg?height=400&width=300", vibeTags: ["Elegant", "Fantasy"], notes: "Human hair. Heat-safe up to 350F. Requires daily maintenance." },
+    { id: "ci-022", name: "Bald Cap Kit (x6)", type: "durable", status: "in-stock", brand: "Kryolan", size: "Standard", purchasePrice: "$240", vendor: "Kryolan Pro", imageUrl: "/placeholder.svg?height=400&width=300", vibeTags: ["Sci-Fi"], notes: "Vinyl caps. Edges need blending with Pros-Aide." },
+    { id: "ci-023", name: "Elf Ear Prosthetics", type: "durable", status: "in-stock", brand: "RBFX", size: "Universal", purchasePrice: "$95/pair", vendor: "Alcone NYC", imageUrl: "/placeholder.svg?height=400&width=300", vibeTags: ["Fantasy"], notes: "Silicone. Spirit gum application -- CHECK ALLERGIES" },
+    { id: "ci-024", name: "Period Wig - 1940s Victory Rolls", type: "durable", status: "rented", brand: "Wig America", size: "Medium cap", purchasePrice: "$120/week", vendor: "Angels Costumes London", imageUrl: "/placeholder.svg?height=400&width=300", vibeTags: ["Period", "Elegant"], rentReturnDate: "2026-04-20", notes: "Synthetic fiber. Style is pre-set; avoid heat." },
+    { id: "ci-025", name: "Zombie Bite Prosthetic Set", type: "durable", status: "in-stock", brand: "CFX Masks", size: "N/A", purchasePrice: "$210", vendor: "Kryolan Pro", imageUrl: "/placeholder.svg?height=400&width=300", vibeTags: ["Horror", "Bloody"], notes: "3 progressive stages of infection. Silicone, Pros-Aide adhesive." },
+
+    // Additional costume pieces for depth
+    { id: "ci-026", name: "Trench Coat - Khaki", type: "costume-piece", status: "in-stock", brand: "Burberry", size: "M", purchasePrice: "$2,400", vendor: "Western Costume Co.", imageUrl: "/placeholder.svg?height=400&width=300", vibeTags: ["Formal", "Elegant"], notes: "Iconic check lining. Used for detective character." },
+    { id: "ci-027", name: "Motorcycle Boots", type: "costume-piece", status: "in-stock", brand: "Red Wing", size: "11 US", purchasePrice: "$350", vendor: "Red Wing Store", imageUrl: "/placeholder.svg?height=400&width=300", vibeTags: ["Rugged", "Casual"], notes: "Black harness boots. Pre-scuffed." },
+    { id: "ci-028", name: "Silk Pocket Square Set", type: "costume-piece", status: "in-stock", brand: "Turnbull & Asser", size: "One Size", purchasePrice: "$85/each", vendor: "Nordstrom", imageUrl: "/placeholder.svg?height=400&width=300", vibeTags: ["Formal", "Elegant"], notes: "Burgundy, navy, ivory -- 3pc set for Changes 1-3" },
+    { id: "ci-029", name: "Nurse Scrubs Set", type: "costume-piece", status: "purchased", brand: "Figs", size: "S", purchasePrice: "$110", vendor: "Figs Direct", imageUrl: "/placeholder.svg?height=400&width=300", vibeTags: ["Uniform"], notes: "Ceil blue. Multiples purchased for blood continuity." },
+    { id: "ci-030", name: "Space Helmet", type: "durable", status: "in-stock", brand: "Custom Build", size: "Adjustable", purchasePrice: "$4,500", vendor: "Ironhead Studio", imageUrl: "/placeholder.svg?height=400&width=300", vibeTags: ["Sci-Fi", "Futuristic"], notes: "Vacuum-formed polycarbonate. Visor tints removable. Internal mic mount." },
+  ]
+
+  /* ---- Looks (linking characters to inventory via itemIds) ---- */
+  const looks: CostumeLook[] = []
+  const charCount = charActorPairs.length
+
+  // Predefined look templates per character slot
+  const LOOK_TEMPLATES = [
+    // Character 0 looks
+    [
+      { name: "Day 1 - Power Suit", changeNumber: "1", scriptDays: ["Day 1", "Day 3"], sceneNumbers: ["Sc 1", "Sc 5", "Sc 12"], itemIds: ["ci-001", "ci-028", "ci-014"], continuityNotes: "Tie loosened by Sc 12. Pocket square in breast pocket throughout." },
+      { name: "Day 2 - Casual Evening", changeNumber: "2", scriptDays: ["Day 2"], sceneNumbers: ["Sc 8", "Sc 9"], itemIds: ["ci-002", "ci-013", "ci-027"], continuityNotes: "Jacket collar popped in Sc 9 after fight scene. Blood on right sleeve." },
+      { name: "Day 5 - Military Dress", changeNumber: "3", scriptDays: ["Day 5"], sceneNumbers: ["Sc 22", "Sc 23"], itemIds: ["ci-005", "ci-027"], continuityNotes: "Full medals on. Hat off for indoor scenes." },
+    ],
+    // Character 1 looks
+    [
+      { name: "Day 1 - Office Professional", changeNumber: "1", scriptDays: ["Day 1"], sceneNumbers: ["Sc 2", "Sc 3"], itemIds: ["ci-003", "ci-008", "ci-010"], continuityNotes: "Overcoat removed indoors. Hair pinned up for Sc 2, down for Sc 3." },
+      { name: "Day 3 - Lab Scene", changeNumber: "2", scriptDays: ["Day 3"], sceneNumbers: ["Sc 14", "Sc 15"], itemIds: ["ci-007", "ci-029", "ci-017"], continuityNotes: "Blood application starts clean in Sc 14, progressive staining in Sc 15." },
+      { name: "Day 4 - Ballroom Gala", changeNumber: "3", scriptDays: ["Day 4"], sceneNumbers: ["Sc 18", "Sc 19"], itemIds: ["ci-010", "ci-021", "ci-028"], continuityNotes: "Wig secured with 12 pins. Gown train pinned for dancing in Sc 19." },
+    ],
+    // Character 2 looks
+    [
+      { name: "Day 1 - Street Fighter", changeNumber: "1", scriptDays: ["Day 1", "Day 2"], sceneNumbers: ["Sc 4", "Sc 7", "Sc 10"], itemIds: ["ci-002", "ci-013", "ci-027", "ci-016"], continuityNotes: "Scar prosthetic applied from Sc 7 onward. Jacket torn at Sc 10." },
+      { name: "Day 3 - Tactical Ops", changeNumber: "2", scriptDays: ["Day 3"], sceneNumbers: ["Sc 13", "Sc 16"], itemIds: ["ci-011", "ci-027"], continuityNotes: "Full tactical gear. Night vision goggles on forehead Sc 13, over eyes Sc 16." },
+    ],
+    // Character 3 looks
+    [
+      { name: "Day 1 - Fantasy Wizard", changeNumber: "1", scriptDays: ["Day 1", "Day 6"], sceneNumbers: ["Sc 6", "Sc 25"], itemIds: ["ci-012", "ci-023", "ci-021"], continuityNotes: "Elf ears applied. Robe clasp on right shoulder. Staff in left hand." },
+      { name: "Day 4 - Undercover Modern", changeNumber: "2", scriptDays: ["Day 4"], sceneNumbers: ["Sc 20"], itemIds: ["ci-026", "ci-013", "ci-014"], continuityNotes: "No fantasy elements. Modern disguise look." },
+    ],
+    // Character 4 looks
+    [
+      { name: "Day 2 - Space Explorer", changeNumber: "1", scriptDays: ["Day 2", "Day 5"], sceneNumbers: ["Sc 11", "Sc 24"], itemIds: ["ci-006", "ci-030", "ci-022"], continuityNotes: "Bald cap applied. Helmet visor clear for Sc 11, tinted for Sc 24." },
+      { name: "Day 1 - Off-Duty Casual", changeNumber: "2", scriptDays: ["Day 1"], sceneNumbers: ["Sc 3"], itemIds: ["ci-013", "ci-014", "ci-009"], continuityNotes: "Athletic wear under jacket. Sneakers untied." },
+    ],
+    // Character 5 looks
+    [
+      { name: "Day 3 - Chef Scene", changeNumber: "1", scriptDays: ["Day 3"], sceneNumbers: ["Sc 17"], itemIds: ["ci-015"], continuityNotes: "Sauce stain on right chest area after kitchen mishap." },
+      { name: "Day 6 - Final Stand", changeNumber: "2", scriptDays: ["Day 6"], sceneNumbers: ["Sc 26", "Sc 27"], itemIds: ["ci-002", "ci-007", "ci-025", "ci-018"], continuityNotes: "Progressive zombie damage. Blood application stages 1, 2, 3 across scenes." },
+    ],
+  ]
+
+  for (let i = 0; i < Math.min(charCount, LOOK_TEMPLATES.length); i++) {
+    const ch = charActorPairs[i].character
+    const templates = LOOK_TEMPLATES[i]
+    for (const tmpl of templates) {
+      looks.push({
+        id: `look-${i}-${tmpl.changeNumber}`,
+        name: tmpl.name,
+        characterId: ch.id,
+        changeNumber: tmpl.changeNumber,
+        scriptDays: tmpl.scriptDays,
+        sceneNumbers: tmpl.sceneNumbers,
+        itemIds: tmpl.itemIds.filter((id) => inventory.some((item) => item.id === id)),
+        continuityNotes: tmpl.continuityNotes,
+        referencePhotos: [],
+        matchPhotos: [],
+      })
+    }
+  }
+
+  /* ---- Shopping list ---- */
+  const shoppingList: CostumeShoppingItem[] = [
+    { id: "shop-001", description: "Replacement silk blouse (backup)", vendor: "Nordstrom", estimatedPrice: "$320", status: "approved", requestedBy: "Sandra M.", characterId: charActorPairs[1]?.character.id },
+    { id: "shop-002", description: "Spirit gum remover (6 bottles)", vendor: "Kryolan Pro", estimatedPrice: "$48", status: "ordered", requestedBy: "Mike T.", characterId: undefined },
+    { id: "shop-003", description: "Matching motorcycle boots (backup pair)", vendor: "Red Wing Store", estimatedPrice: "$350", status: "requested", requestedBy: "Sandra M.", characterId: charActorPairs[0]?.character.id },
+    { id: "shop-004", description: "Custom space helmet visor tint inserts", vendor: "Ironhead Studio", estimatedPrice: "$800", status: "approved", requestedBy: "Mike T.", characterId: charActorPairs[4]?.character.id },
+    { id: "shop-005", description: "Additional breakaway blood (2 gal)", vendor: "Alcone NYC", estimatedPrice: "$120", status: "received", requestedBy: "Patricia L.", characterId: undefined },
+    { id: "shop-006", description: "Period-accurate officer cap (WWII)", vendor: "Angels Costumes London", estimatedPrice: "$95/week", status: "requested", requestedBy: "Sandra M.", characterId: charActorPairs[0]?.character.id },
+    { id: "shop-007", description: "Hypoallergenic adhesive for prosthetics", vendor: "Camera Ready Cosmetics", estimatedPrice: "$32", status: "ordered", requestedBy: "Patricia L.", characterId: charActorPairs[2]?.character.id },
+  ].filter((item) => item.characterId !== undefined || !item.characterId)
+
+  return { actorSpecs, inventory, looks, shoppingList }
+}
+
+/* ================================================================== */
 /*  Main Component                                                     */
 /* ================================================================== */
 
@@ -135,6 +296,20 @@ export default function CostumesModal({ onClose }: { onClose: () => void }) {
     [projectId, dispatch],
   )
 
+  /* ---- Auto-seed mock data if project has characters but no costumes data ---- */
+  const hasSeeded = useRef(false)
+  if (
+    !hasSeeded.current &&
+    projectId &&
+    characters.length > 0 &&
+    costumes.inventory.length === 0 &&
+    costumes.looks.length === 0
+  ) {
+    hasSeeded.current = true
+    const mockData = generateMockCostumesData(characters)
+    dispatch({ type: "SET_PROJECT_COSTUMES", payload: { projectId, costumes: mockData } })
+  }
+
   /* ---- UI State ---- */
   const [mainTab, setMainTab] = useState<MainTab>("wardrobe")
   const [searchTerm, setSearchTerm] = useState("")
@@ -144,6 +319,7 @@ export default function CostumesModal({ onClose }: { onClose: () => void }) {
   const [showLookBuilder, setShowLookBuilder] = useState(false)
   const [editingLook, setEditingLook] = useState<CostumeLook | null>(null)
   const [selectedCharacterId, setSelectedCharacterId] = useState<string | null>(null)
+  const [selectedCastActorId, setSelectedCastActorId] = useState<string | null>(null) // "all" or actorId for wardrobe filtering
   const [showActorSpecs, setShowActorSpecs] = useState<string | null>(null) // actorId
   const [showShoppingForm, setShowShoppingForm] = useState(false)
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
@@ -158,9 +334,23 @@ export default function CostumesModal({ onClose }: { onClose: () => void }) {
     return map
   }, [characters])
 
+  /* ---- Build set of item IDs assigned to the selected cast member's character ---- */
+  const castFilterItemIds = useMemo(() => {
+    if (!selectedCastActorId) return null // "All" -- show everything
+    // Find which character this actor is cast to
+    const pair = characterActorMap.find(({ castActor }) => castActor?.id === selectedCastActorId)
+    if (!pair) return null
+    const charLooks = costumes.looks.filter((l) => l.characterId === pair.character.id)
+    return new Set(charLooks.flatMap((l) => l.itemIds))
+  }, [selectedCastActorId, characterActorMap, costumes.looks])
+
   /* ---- Filtered inventory ---- */
   const filteredInventory = useMemo(() => {
     let items = costumes.inventory
+    // Filter by cast member
+    if (castFilterItemIds) {
+      items = items.filter((i) => castFilterItemIds.has(i.id))
+    }
     if (searchTerm) {
       const s = searchTerm.toLowerCase()
       items = items.filter(
@@ -174,7 +364,7 @@ export default function CostumesModal({ onClose }: { onClose: () => void }) {
       items = items.filter((i) => i.vibeTags.includes(filterTag))
     }
     return items
-  }, [costumes.inventory, searchTerm, filterTag])
+  }, [costumes.inventory, searchTerm, filterTag, castFilterItemIds])
 
   /* ================================================================ */
   /*  Inventory Handlers                                               */
@@ -387,6 +577,9 @@ export default function CostumesModal({ onClose }: { onClose: () => void }) {
             characterActorMap={characterActorMap}
             actorSpecs={costumes.actorSpecs}
             onShowActorSpecs={setShowActorSpecs}
+            selectedCastActorId={selectedCastActorId}
+            onSelectCastActor={setSelectedCastActorId}
+            looks={costumes.looks}
           />
         ) : mainTab === "looks" ? (
           <LooksTab
@@ -504,6 +697,9 @@ function WardrobeTab({
   characterActorMap,
   actorSpecs,
   onShowActorSpecs,
+  selectedCastActorId,
+  onSelectCastActor,
+  looks,
 }: {
   inventory: CostumeInventoryItem[]
   allInventory: CostumeInventoryItem[]
@@ -519,6 +715,9 @@ function WardrobeTab({
   characterActorMap: { character: Character; castActor: Actor | null }[]
   actorSpecs: ProjectCostumes["actorSpecs"]
   onShowActorSpecs: (actorId: string) => void
+  selectedCastActorId: string | null
+  onSelectCastActor: (id: string | null) => void
+  looks: CostumeLook[]
 }) {
   return (
     <div className="h-full flex flex-col">
@@ -576,46 +775,114 @@ function WardrobeTab({
         {/* Cast panel */}
         <div className="w-64 shrink-0 border-r border-gray-200 bg-white overflow-y-auto p-4">
           <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Cast Members</h3>
+
+          {/* "All" option */}
+          <button
+            onClick={() => onSelectCastActor(null)}
+            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl mb-2 transition-all text-left ${
+              selectedCastActorId === null
+                ? "bg-rose-50 border-2 border-rose-400 shadow-sm"
+                : "border border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+            }`}
+          >
+            <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+              selectedCastActorId === null ? "bg-rose-500 text-white" : "bg-gray-200 text-gray-500"
+            }`}>
+              <LayoutGrid className="w-4 h-4" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className={`text-xs font-semibold truncate ${selectedCastActorId === null ? "text-rose-800" : "text-gray-900"}`}>All Wardrobe</p>
+              <p className="text-[10px] text-gray-500">{allInventory.length} items total</p>
+            </div>
+          </button>
+
           {characterActorMap.length === 0 ? (
-            <p className="text-xs text-gray-400">No characters in this project</p>
+            <p className="text-xs text-gray-400 mt-2">No characters in this project</p>
           ) : (
-            <div className="space-y-2">
-              {characterActorMap.map(({ character, castActor }) => (
-                <div key={character.id} className="rounded-xl border border-gray-200 p-3 hover:border-rose-200 transition-colors">
-                  <div className="flex items-center gap-2 mb-1.5">
-                    {castActor?.headshots?.[0] ? (
-                      <img src={castActor.headshots[0]} alt="" className="w-8 h-10 object-cover rounded" />
-                    ) : (
-                      <div className="w-8 h-10 rounded bg-gray-200 flex items-center justify-center">
-                        <User className="w-4 h-4 text-gray-400" />
-                      </div>
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-semibold text-gray-900 truncate">{character.name}</p>
-                      {castActor ? (
-                        <p className="text-[10px] text-gray-500 truncate">{castActor.name}</p>
-                      ) : (
-                        <p className="text-[10px] text-amber-600 italic">Not cast</p>
-                      )}
-                    </div>
-                  </div>
-                  {castActor && (
+            <div className="space-y-1.5">
+              {characterActorMap.map(({ character, castActor }) => {
+                const isSelected = castActor && selectedCastActorId === castActor.id
+                const charLookCount = looks.filter((l) => l.characterId === character.id).length
+                const charItemIds = new Set(looks.filter((l) => l.characterId === character.id).flatMap((l) => l.itemIds))
+                return (
+                  <div key={character.id}>
                     <button
-                      onClick={() => onShowActorSpecs(castActor.id)}
-                      className="w-full mt-1 flex items-center justify-center gap-1 px-2 py-1 text-[10px] font-medium text-rose-600 border border-rose-200 rounded-lg hover:bg-rose-50 transition-colors"
+                      onClick={() => castActor && onSelectCastActor(isSelected ? null : castActor.id)}
+                      disabled={!castActor}
+                      className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl transition-all text-left ${
+                        isSelected
+                          ? "bg-rose-50 border-2 border-rose-400 shadow-sm"
+                          : castActor
+                          ? "border border-gray-200 hover:border-rose-200 hover:bg-gray-50"
+                          : "border border-gray-200 opacity-50 cursor-not-allowed"
+                      }`}
                     >
-                      <Ruler className="w-3 h-3" />
-                      {actorSpecs[castActor.id] ? "View / Edit Specs" : "Add Measurements"}
+                      {castActor?.headshots?.[0] ? (
+                        <img src={castActor.headshots[0]} alt="" className={`w-9 h-11 object-cover rounded-lg shrink-0 ${isSelected ? "ring-2 ring-rose-300" : ""}`} />
+                      ) : (
+                        <div className="w-9 h-11 rounded-lg bg-gray-200 flex items-center justify-center shrink-0">
+                          <User className="w-4 h-4 text-gray-400" />
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <p className={`text-xs font-semibold truncate ${isSelected ? "text-rose-800" : "text-gray-900"}`}>{character.name}</p>
+                        {castActor ? (
+                          <p className="text-[10px] text-gray-500 truncate">{castActor.name}</p>
+                        ) : (
+                          <p className="text-[10px] text-amber-600 italic">Not cast</p>
+                        )}
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <span className="text-[9px] text-gray-400">{charItemIds.size} items</span>
+                          <span className="text-[9px] text-gray-300">&middot;</span>
+                          <span className="text-[9px] text-gray-400">{charLookCount} looks</span>
+                        </div>
+                      </div>
+                      {isSelected && (
+                        <div className="w-2 h-2 rounded-full bg-rose-500 shrink-0" />
+                      )}
                     </button>
-                  )}
-                </div>
-              ))}
+                    {/* Specs button - shown only when this actor is selected */}
+                    {isSelected && castActor && (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); onShowActorSpecs(castActor.id) }}
+                        className="w-full mt-1 flex items-center justify-center gap-1 px-2 py-1.5 text-[10px] font-medium text-rose-600 border border-rose-200 rounded-lg hover:bg-rose-50 transition-colors bg-white"
+                      >
+                        <Ruler className="w-3 h-3" />
+                        {actorSpecs[castActor.id] ? "View / Edit Specs" : "Add Measurements"}
+                      </button>
+                    )}
+                  </div>
+                )
+              })}
             </div>
           )}
         </div>
 
         {/* Inventory grid */}
         <div className="flex-1 overflow-y-auto p-6">
+          {/* Active filter banner */}
+          {selectedCastActorId && (() => {
+            const pair = characterActorMap.find(({ castActor }) => castActor?.id === selectedCastActorId)
+            return pair ? (
+              <div className="flex items-center gap-2 mb-4 bg-rose-50 border border-rose-200 rounded-xl px-4 py-2.5">
+                {pair.castActor?.headshots?.[0] ? (
+                  <img src={pair.castActor.headshots[0]} alt="" className="w-6 h-8 rounded object-cover" />
+                ) : (
+                  <div className="w-6 h-8 rounded bg-rose-200 flex items-center justify-center"><User className="w-3 h-3 text-rose-400" /></div>
+                )}
+                <div className="flex-1">
+                  <p className="text-xs font-semibold text-rose-800">
+                    Showing wardrobe for {pair.character.name}
+                    {pair.castActor ? ` (${pair.castActor.name})` : ""}
+                  </p>
+                  <p className="text-[10px] text-rose-600">{inventory.length} items across {looks.filter((l) => l.characterId === pair.character.id).length} looks</p>
+                </div>
+                <button onClick={() => onSelectCastActor(null)} className="p-1 text-rose-400 hover:text-rose-600 rounded-md hover:bg-rose-100 transition-colors">
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            ) : null
+          })()}
           {inventory.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center">
               <Shirt className="w-12 h-12 text-gray-300 mb-3" />
