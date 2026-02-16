@@ -793,12 +793,11 @@ interface PropsModalProps {
 
 export default function PropsModal({ onClose }: PropsModalProps) {
   const { state, dispatch } = useCasting()
-  /* Resolve current project: use focused project, otherwise fall back to first */
-  const currentProject =
-    state.projects.find((p) => p.id === state.currentFocus.currentProjectId) ||
-    state.projects[0] ||
-    null
-  const projectId = currentProject?.id ?? null
+  /* Strictly bind to the active project from the project manager */
+  const projectId = state.currentFocus.currentProjectId
+  const currentProject = projectId
+    ? state.projects.find((p) => p.id === projectId) ?? null
+    : null
 
   /* ---- Global inventory (component state) ---- */
   const [inventory, setInventory] = useState<InventoryItem[]>(generateMockInventory)

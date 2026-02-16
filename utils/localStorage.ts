@@ -23,10 +23,7 @@ export function saveToLocalStorage(state: any): void {
     const serializedState = JSON.stringify(stateToSave)
     localStorage.setItem(STORAGE_KEY, serializedState)
 
-    console.log(
-      "[v0] State saved to localStorage. Saved searches:",
-      stateToSave.currentFocus?.savedSearches?.length || 0,
-    )
+
   } catch (error) {
     console.warn("Failed to save state to localStorage:", error)
   }
