@@ -336,27 +336,19 @@ export default function Sidebar() {
               </div>
 
               <button
-                onClick={() => openModal("userPermissions")}
-                className="w-full flex items-center space-x-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:text-orange-600 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50"
-              >
-                <Settings className="w-4 h-4" />
-                <span>Permissions</span>
-              </button>
-
-              <button
-                onClick={() => openModal("schedule")}
-                className="w-full flex items-center space-x-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:text-indigo-600 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50"
-              >
-                <Calendar className="w-4 h-4" />
-                <span>Schedule</span>
-              </button>
-
-              <button
                 onClick={() => openModal("props")}
                 className="w-full flex items-center space-x-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:text-amber-700 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50"
               >
                 <Package className="w-4 h-4" />
                 <span>Props</span>
+              </button>
+
+              <button
+                onClick={() => openModal("costumes")}
+                className="w-full flex items-center space-x-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:text-pink-600 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50"
+              >
+                <Scissors className="w-4 h-4" />
+                <span>Costumes & Makeup</span>
               </button>
 
               <button
@@ -368,11 +360,19 @@ export default function Sidebar() {
               </button>
 
               <button
-                onClick={() => openModal("costumes")}
-                className="w-full flex items-center space-x-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:text-pink-600 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50"
+                onClick={() => openModal("schedule")}
+                className="w-full flex items-center space-x-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:text-indigo-600 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50"
               >
-                <Scissors className="w-4 h-4" />
-                <span>Costumes & Makeup</span>
+                <Calendar className="w-4 h-4" />
+                <span>Schedule</span>
+              </button>
+
+              <button
+                onClick={() => openModal("userPermissions")}
+                className="w-full flex items-center space-x-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:text-orange-600 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50"
+              >
+                <Settings className="w-4 h-4" />
+                <span>Permissions</span>
               </button>
             </>
           ) : (
@@ -432,27 +432,19 @@ export default function Sidebar() {
               </div>
 
               <button
-                onClick={() => openModal("userPermissions")}
-                className="w-full flex justify-center p-3 text-slate-700 hover:text-orange-600 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50"
-                title="Permissions"
-              >
-                <Settings className="w-5 h-5" />
-              </button>
-
-              <button
-                onClick={() => openModal("schedule")}
-                className="w-full flex justify-center p-3 text-slate-700 hover:text-indigo-600 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50"
-                title="Schedule"
-              >
-                <Calendar className="w-5 h-5" />
-              </button>
-
-              <button
                 onClick={() => openModal("props")}
                 className="w-full flex justify-center p-3 text-slate-700 hover:text-amber-700 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50"
                 title="Props"
               >
                 <Package className="w-5 h-5" />
+              </button>
+
+              <button
+                onClick={() => openModal("costumes")}
+                className="w-full flex justify-center p-3 text-slate-700 hover:text-pink-600 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50"
+                title="Costumes & Makeup"
+              >
+                <Scissors className="w-5 h-5" />
               </button>
 
               <button
@@ -464,11 +456,19 @@ export default function Sidebar() {
               </button>
 
               <button
-                onClick={() => openModal("costumes")}
-                className="w-full flex justify-center p-3 text-slate-700 hover:text-pink-600 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50"
-                title="Costumes & Makeup"
+                onClick={() => openModal("schedule")}
+                className="w-full flex justify-center p-3 text-slate-700 hover:text-indigo-600 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50"
+                title="Schedule"
               >
-                <Scissors className="w-5 h-5" />
+                <Calendar className="w-5 h-5" />
+              </button>
+
+              <button
+                onClick={() => openModal("userPermissions")}
+                className="w-full flex justify-center p-3 text-slate-700 hover:text-orange-600 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50"
+                title="Permissions"
+              >
+                <Settings className="w-5 h-5" />
               </button>
             </>
           )}
