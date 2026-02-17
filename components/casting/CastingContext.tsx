@@ -322,6 +322,7 @@ function validateAndCompleteState(state: any): CastingState {
             lockedSceneSuffixes: project.script.lockedSceneSuffixes || {},
             currentRevision: project.script.currentRevision || "white",
             lastModified: project.script.lastModified || Date.now(),
+            beats: Array.isArray(project.script.beats) ? project.script.beats : [],
           } : undefined,
         }))
       : initialState.projects,

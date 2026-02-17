@@ -38,6 +38,10 @@ import {
   ArrowDown,
   CornerDownLeft,
   Delete,
+  LayoutGrid,
+  GripVertical,
+  Pencil,
+  Link2,
 } from "lucide-react"
 import { useCasting } from "@/components/casting/CastingContext"
 import type {
@@ -46,6 +50,8 @@ import type {
   ScriptData,
   RevisionColor,
   BreakdownTag,
+  BeatItem,
+  BeatColor,
 } from "@/types/casting"
 
 /* ------------------------------------------------------------------ */
@@ -149,6 +155,11 @@ function ScriptBlockRow({
   onRemoveBreakdownTag,
   isLocked,
   zoom,
+  isDragTarget,
+  onDragStart,
+  onDragOver,
+  onDragEnd,
+  onDrop,
 }: {
   block: ScriptBlock
   index: number
@@ -164,11 +175,18 @@ function ScriptBlockRow({
   onRemoveBreakdownTag: (tagId: string) => void
   isLocked: boolean
   zoom: number
+  isDragTarget?: boolean
+  onDragStart?: (idx: number) => void
+  onDragOver?: (idx: number) => void
+  onDragEnd?: () => void
+  onDrop?: (idx: number) => void
 }) {
   const editRef = useRef<HTMLDivElement>(null)
+  const typeBtnRef = useRef<HTMLButtonElement>(null)
   const [showAutocomplete, setShowAutocomplete] = useState(false)
   const [autocompleteItems, setAutocompleteItems] = useState<{ id: string; name: string }[]>([])
   const [showTypeMenu, setShowTypeMenu] = useState(false)
+  const [typeMenuPos, setTypeMenuPos] = useState<{ top: number; left: number }>({ top: 0, left: 0 })
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; text: string } | null>(null)
 
   useEffect(() => {
@@ -176,6 +194,14 @@ function ScriptBlockRow({
       editRef.current.textContent = block.text
     }
   }, [block.id]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Close type menu on outside click
+  useEffect(() => {
+    if (!showTypeMenu) return
+    const handler = () => setShowTypeMenu(false)
+    const timer = setTimeout(() => document.addEventListener("click", handler), 0)
+    return () => { clearTimeout(timer); document.removeEventListener("click", handler) }
+  }, [showTypeMenu])
 
   /** Apply smart casing: uppercase for character + scene-heading blocks */
   const applySmartCasing = useCallback(() => {
@@ -282,8 +308,10 @@ function ScriptBlockRow({
 
   return (
     <div
-      className={`group relative transition-colors ${isActive ? "bg-amber-50/40" : ""}`}
+      className={`group relative transition-colors ${isActive ? "bg-amber-50/40" : ""} ${isDragTarget ? "border-t-2 border-amber-400" : "border-t-2 border-transparent"}`}
       onClick={onActivate}
+      onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = "move"; onDragOver?.(index) }}
+      onDrop={(e) => { e.preventDefault(); onDrop?.(index) }}
     >
       {/* Scene number gutter */}
       {block.type === "scene-heading" && sceneNumber && (
@@ -304,11 +332,30 @@ function ScriptBlockRow({
         <div className={`absolute left-0 top-0 bottom-0 w-1 ${revColor?.bg || "bg-gray-200"} rounded-r`} />
       )}
 
-      {/* Block type indicator (on hover) */}
-      <div className="absolute -left-1 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
+      {/* Drag handle + Block type indicator (on hover) */}
+      <div className="absolute -left-1 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5">
+        {/* Drag handle */}
+        <div
+          draggable
+          onDragStart={(e) => { e.dataTransfer.effectAllowed = "move"; onDragStart?.(index) }}
+          onDragEnd={() => onDragEnd?.()}
+          className="cursor-grab active:cursor-grabbing p-0.5 text-stone-300 hover:text-stone-500 transition-colors"
+          title="Drag to reorder"
+        >
+          <svg className="w-3 h-3" viewBox="0 0 16 16" fill="currentColor"><circle cx="5" cy="3" r="1.5"/><circle cx="11" cy="3" r="1.5"/><circle cx="5" cy="8" r="1.5"/><circle cx="11" cy="8" r="1.5"/><circle cx="5" cy="13" r="1.5"/><circle cx="11" cy="13" r="1.5"/></svg>
+        </div>
+        {/* Type button */}
         <button
-          onClick={(e) => { e.stopPropagation(); setShowTypeMenu(!showTypeMenu) }}
-          className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors"
+          ref={typeBtnRef}
+          onClick={(e) => {
+            e.stopPropagation()
+            if (!showTypeMenu) {
+              const rect = typeBtnRef.current?.getBoundingClientRect()
+              if (rect) setTypeMenuPos({ top: rect.bottom + 4, left: rect.left })
+            }
+            setShowTypeMenu(!showTypeMenu)
+          }}
+          className="p-1 text-stone-400 hover:text-stone-600 hover:bg-stone-100 rounded transition-colors"
           title="Change block type"
         >
           {(() => {
@@ -316,26 +363,29 @@ function ScriptBlockRow({
             return <Icon className="w-3 h-3" />
           })()}
         </button>
-
-        {/* Type picker dropdown */}
-        {showTypeMenu && (
-          <div className="absolute left-0 top-full mt-1 bg-white rounded-lg shadow-xl border border-gray-200 py-1 z-30 min-w-[160px]">
-            {(Object.keys(BLOCK_TYPE_LABELS) as ScriptBlockType[]).map((t) => {
-              const Icon = BLOCK_TYPE_ICONS[t]
-              return (
-                <button
-                  key={t}
-                  onClick={(e) => { e.stopPropagation(); onTypeChange(t); setShowTypeMenu(false) }}
-                  className={`w-full flex items-center gap-2 px-3 py-1.5 text-xs hover:bg-gray-50 transition-colors ${block.type === t ? "text-amber-700 font-semibold bg-amber-50" : "text-gray-700"}`}
-                >
-                  <Icon className="w-3.5 h-3.5" />
-                  {BLOCK_TYPE_LABELS[t]}
-                </button>
-              )
-            })}
-          </div>
-        )}
       </div>
+
+      {/* Type picker dropdown -- fixed to viewport */}
+      {showTypeMenu && (
+        <div
+          className="fixed bg-white rounded-lg shadow-xl border border-stone-200 py-1 z-[80] min-w-[160px]"
+          style={{ top: typeMenuPos.top, left: typeMenuPos.left }}
+        >
+          {(Object.keys(BLOCK_TYPE_LABELS) as ScriptBlockType[]).map((t) => {
+            const Icon = BLOCK_TYPE_ICONS[t]
+            return (
+              <button
+                key={t}
+                onClick={(e) => { e.stopPropagation(); onTypeChange(t); setShowTypeMenu(false) }}
+                className={`w-full flex items-center gap-2 px-3 py-1.5 text-xs hover:bg-stone-50 transition-colors ${block.type === t ? "text-amber-700 font-semibold bg-amber-50" : "text-stone-700"}`}
+              >
+                <Icon className="w-3.5 h-3.5" />
+                {BLOCK_TYPE_LABELS[t]}
+              </button>
+            )
+          })}
+        </div>
+      )}
 
       {/* The editable content */}
       <div className="pl-10 pr-8 py-1">
@@ -377,20 +427,26 @@ function ScriptBlockRow({
         </div>
       )}
 
-      {/* Character autocomplete dropdown */}
-      {showAutocomplete && (
-        <div className="absolute left-1/2 -translate-x-1/2 top-full bg-white rounded-lg shadow-xl border border-gray-200 py-1 z-30 min-w-[180px]">
-          {autocompleteItems.map((c) => (
-            <button
-              key={c.id}
-              onClick={() => handleSelectAutocomplete(c.name)}
-              className="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-amber-50 hover:text-amber-700 transition-colors font-mono uppercase"
-            >
-              {c.name}
-            </button>
-          ))}
-        </div>
-      )}
+      {/* Character autocomplete dropdown -- fixed to viewport, below the row */}
+      {showAutocomplete && editRef.current && (() => {
+        const rect = editRef.current.getBoundingClientRect()
+        return (
+          <div
+            className="fixed bg-white rounded-lg shadow-xl border border-stone-200 py-1 z-[80] min-w-[180px]"
+            style={{ top: rect.bottom + 4, left: rect.left + rect.width / 2 - 90 }}
+          >
+            {autocompleteItems.map((c) => (
+              <button
+                key={c.id}
+                onClick={() => handleSelectAutocomplete(c.name)}
+                className="w-full text-left px-3 py-1.5 text-xs text-stone-700 hover:bg-amber-50 hover:text-amber-700 transition-colors font-mono uppercase"
+              >
+                {c.name}
+              </button>
+            ))}
+          </div>
+        )
+      })()}
 
       {/* Breakdown tagger context menu */}
       {contextMenu && (
@@ -698,6 +754,258 @@ function ShortcutsPanel({ onClose }: { onClose: () => void }) {
 }
 
 /* ------------------------------------------------------------------ */
+/*  Beat Board                                                         */
+/* ------------------------------------------------------------------ */
+const BEAT_COLORS: { key: BeatColor; bg: string; border: string; text: string; ring: string }[] = [
+  { key: "amber", bg: "bg-amber-50", border: "border-amber-200", text: "text-amber-800", ring: "ring-amber-300" },
+  { key: "blue", bg: "bg-blue-50", border: "border-blue-200", text: "text-blue-800", ring: "ring-blue-300" },
+  { key: "green", bg: "bg-green-50", border: "border-green-200", text: "text-green-800", ring: "ring-green-300" },
+  { key: "pink", bg: "bg-pink-50", border: "border-pink-200", text: "text-pink-800", ring: "ring-pink-300" },
+  { key: "purple", bg: "bg-purple-50", border: "border-purple-200", text: "text-purple-800", ring: "ring-purple-300" },
+  { key: "rose", bg: "bg-rose-50", border: "border-rose-200", text: "text-rose-800", ring: "ring-rose-300" },
+  { key: "sky", bg: "bg-sky-50", border: "border-sky-200", text: "text-sky-800", ring: "ring-sky-300" },
+  { key: "stone", bg: "bg-stone-100", border: "border-stone-300", text: "text-stone-800", ring: "ring-stone-400" },
+]
+const DEFAULT_ACTS = ["Act 1", "Act 2", "Act 3"]
+
+function BeatBoard({ beats, onBeatsChange, scenes }: {
+  beats: BeatItem[]
+  onBeatsChange: (beats: BeatItem[]) => void
+  scenes: { id: string; text: string; sceneNumber?: string }[]
+}) {
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [dragId, setDragId] = useState<string | null>(null)
+  const [dragOverAct, setDragOverAct] = useState<string | null>(null)
+  const [dragOverIdx, setDragOverIdx] = useState<number | null>(null)
+
+  // Group beats by act
+  const acts = useMemo(() => {
+    const actSet = new Set(DEFAULT_ACTS)
+    beats.forEach((b) => { if (b.act) actSet.add(b.act) })
+    return Array.from(actSet)
+  }, [beats])
+
+  const beatsByAct = useMemo(() => {
+    const map: Record<string, BeatItem[]> = {}
+    for (const act of acts) map[act] = []
+    for (const b of [...beats].sort((a, c) => a.order - c.order)) {
+      const act = b.act || "Act 1"
+      if (!map[act]) map[act] = []
+      map[act].push(b)
+    }
+    return map
+  }, [beats, acts])
+
+  const addBeat = (act: string) => {
+    const newBeat: BeatItem = {
+      id: uid(),
+      title: "",
+      description: "",
+      color: BEAT_COLORS[Math.floor(Math.random() * BEAT_COLORS.length)].key,
+      act,
+      order: beats.length,
+    }
+    onBeatsChange([...beats, newBeat])
+    setEditingId(newBeat.id)
+  }
+
+  const updateBeat = (id: string, updates: Partial<BeatItem>) => {
+    onBeatsChange(beats.map((b) => b.id === id ? { ...b, ...updates } : b))
+  }
+
+  const deleteBeat = (id: string) => {
+    onBeatsChange(beats.filter((b) => b.id !== id))
+    if (editingId === id) setEditingId(null)
+  }
+
+  const handleDrop = (targetAct: string, targetIdx: number) => {
+    if (!dragId) return
+    const beat = beats.find((b) => b.id === dragId)
+    if (!beat) return
+    // Remove from current position and insert into target
+    const newBeats = beats.filter((b) => b.id !== dragId)
+    const updated = { ...beat, act: targetAct }
+    // Find insert position relative to the target act
+    const actBeats = newBeats.filter((b) => b.act === targetAct)
+    const globalIdx = targetIdx < actBeats.length
+      ? newBeats.indexOf(actBeats[targetIdx])
+      : newBeats.length
+    newBeats.splice(globalIdx >= 0 ? globalIdx : newBeats.length, 0, updated)
+    // Re-order
+    onBeatsChange(newBeats.map((b, i) => ({ ...b, order: i })))
+    setDragId(null)
+    setDragOverAct(null)
+    setDragOverIdx(null)
+  }
+
+  return (
+    <div className="flex-1 overflow-y-auto bg-gradient-to-br from-stone-100 via-stone-50 to-amber-50/20 p-6">
+      {/* Board header */}
+      <div className="max-w-7xl mx-auto mb-6">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center">
+            <LayoutGrid className="w-4 h-4 text-amber-700" />
+          </div>
+          <div>
+            <h2 className="text-sm font-bold text-stone-900">Beat Board</h2>
+            <p className="text-[11px] text-stone-500">{beats.length} beat{beats.length !== 1 ? "s" : ""} across {acts.length} act{acts.length !== 1 ? "s" : ""}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Act columns */}
+      <div className="max-w-7xl mx-auto flex gap-5">
+        {acts.map((act) => {
+          const actBeats = beatsByAct[act] || []
+          const isDropTarget = dragOverAct === act
+          return (
+            <div
+              key={act}
+              className={`flex-1 min-w-[240px] rounded-xl border-2 border-dashed transition-colors ${
+                isDropTarget ? "border-amber-400 bg-amber-50/30" : "border-stone-200 bg-white/50"
+              }`}
+              onDragOver={(e) => {
+                e.preventDefault()
+                e.dataTransfer.dropEffect = "move"
+                setDragOverAct(act)
+                if (dragOverIdx === null) setDragOverIdx(actBeats.length)
+              }}
+              onDrop={(e) => { e.preventDefault(); handleDrop(act, dragOverIdx ?? actBeats.length) }}
+              onDragLeave={() => { if (dragOverAct === act) { setDragOverAct(null); setDragOverIdx(null) } }}
+            >
+              {/* Act header */}
+              <div className="px-4 py-3 border-b border-stone-200/60">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xs font-bold text-stone-700 uppercase tracking-wider">{act}</h3>
+                  <span className="text-[10px] text-stone-400 font-medium">{actBeats.length}</span>
+                </div>
+              </div>
+
+              {/* Beat cards */}
+              <div className="p-3 space-y-2.5 min-h-[120px]">
+                {actBeats.map((beat, beatIdx) => {
+                  const color = BEAT_COLORS.find((c) => c.key === beat.color) || BEAT_COLORS[0]
+                  const linked = beat.linkedSceneId ? scenes.find((s) => s.id === beat.linkedSceneId) : null
+                  const isEditing = editingId === beat.id
+                  const isDragDropTarget = dragOverAct === act && dragOverIdx === beatIdx
+
+                  return (
+                    <div
+                      key={beat.id}
+                      draggable={!isEditing}
+                      onDragStart={(e) => { e.dataTransfer.effectAllowed = "move"; setDragId(beat.id) }}
+                      onDragEnd={() => { setDragId(null); setDragOverAct(null); setDragOverIdx(null) }}
+                      onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); setDragOverAct(act); setDragOverIdx(beatIdx) }}
+                      className={`rounded-lg border ${color.border} ${color.bg} p-3 cursor-grab active:cursor-grabbing transition-all hover:shadow-md group/beat ${
+                        dragId === beat.id ? "opacity-50 scale-95" : ""
+                      } ${isDragDropTarget && dragId !== beat.id ? "ring-2 " + color.ring : ""}`}
+                    >
+                      {isEditing ? (
+                        /* Edit mode */
+                        <div className="space-y-2">
+                          <input
+                            autoFocus
+                            value={beat.title}
+                            onChange={(e) => updateBeat(beat.id, { title: e.target.value })}
+                            placeholder="Beat title..."
+                            className={`w-full text-xs font-bold ${color.text} bg-transparent outline-none border-b border-current/20 pb-1 placeholder-current/40`}
+                            onKeyDown={(e) => { if (e.key === "Escape" || (e.key === "Enter" && !e.shiftKey)) setEditingId(null) }}
+                          />
+                          <textarea
+                            value={beat.description}
+                            onChange={(e) => updateBeat(beat.id, { description: e.target.value })}
+                            placeholder="Description..."
+                            rows={3}
+                            className={`w-full text-[11px] ${color.text} bg-transparent outline-none resize-none placeholder-current/40`}
+                          />
+                          {/* Color picker */}
+                          <div className="flex items-center gap-1 pt-1">
+                            {BEAT_COLORS.map((c) => (
+                              <button
+                                key={c.key}
+                                onClick={() => updateBeat(beat.id, { color: c.key })}
+                                className={`w-4 h-4 rounded-full border-2 ${c.bg} ${beat.color === c.key ? "border-stone-600 ring-1 ring-stone-300" : "border-transparent hover:border-stone-400"}`}
+                              />
+                            ))}
+                          </div>
+                          {/* Link to scene */}
+                          <div className="flex items-center gap-1.5 pt-1">
+                            <Link2 className={`w-3 h-3 ${color.text} opacity-50`} />
+                            <select
+                              value={beat.linkedSceneId || ""}
+                              onChange={(e) => updateBeat(beat.id, { linkedSceneId: e.target.value || undefined })}
+                              className="text-[10px] bg-transparent border border-current/20 rounded px-1.5 py-0.5 outline-none flex-1 min-w-0"
+                            >
+                              <option value="">No linked scene</option>
+                              {scenes.map((s) => (
+                                <option key={s.id} value={s.id}>
+                                  {s.sceneNumber ? `Sc.${s.sceneNumber} - ` : ""}{s.text || "Untitled"}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                          {/* Actions */}
+                          <div className="flex items-center justify-between pt-1">
+                            <button onClick={() => deleteBeat(beat.id)} className="text-[10px] text-red-500 hover:text-red-700 font-medium">Delete</button>
+                            <button onClick={() => setEditingId(null)} className="text-[10px] text-stone-600 hover:text-stone-800 font-semibold">Done</button>
+                          </div>
+                        </div>
+                      ) : (
+                        /* Display mode */
+                        <div onClick={() => setEditingId(beat.id)}>
+                          <div className="flex items-start justify-between gap-2">
+                            <h4 className={`text-xs font-bold ${color.text} leading-tight`}>
+                              {beat.title || <span className="italic opacity-50">Untitled beat</span>}
+                            </h4>
+                            <GripVertical className="w-3 h-3 text-stone-300 shrink-0 opacity-0 group-hover/beat:opacity-100 transition-opacity" />
+                          </div>
+                          {beat.description && (
+                            <p className={`text-[10px] ${color.text} opacity-70 mt-1 line-clamp-3 leading-relaxed`}>
+                              {beat.description}
+                            </p>
+                          )}
+                          {linked && (
+                            <div className="flex items-center gap-1 mt-2">
+                              <Link2 className={`w-2.5 h-2.5 ${color.text} opacity-40`} />
+                              <span className={`text-[9px] font-medium ${color.text} opacity-60 truncate`}>
+                                {linked.sceneNumber ? `Sc.${linked.sceneNumber}` : linked.text?.substring(0, 30)}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
+
+                {/* Drop zone indicator when empty or at end */}
+                {actBeats.length === 0 && !isDropTarget && (
+                  <div className="flex flex-col items-center justify-center py-6 text-stone-300">
+                    <Plus className="w-5 h-5 mb-1" />
+                    <p className="text-[10px] text-stone-400">No beats yet</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Add beat button */}
+              <div className="px-3 pb-3">
+                <button
+                  onClick={() => addBeat(act)}
+                  className="w-full flex items-center justify-center gap-1.5 py-2 rounded-lg border border-dashed border-stone-300 text-stone-400 hover:text-stone-600 hover:border-stone-400 hover:bg-white/50 transition-colors text-[11px] font-medium"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  Add Beat
+                </button>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+/* ------------------------------------------------------------------ */
 /*  Main ScriptModal                                                   */
 /* ------------------------------------------------------------------ */
 export default function ScriptModal({ onClose }: { onClose: () => void }) {
@@ -722,6 +1030,12 @@ export default function ScriptModal({ onClose }: { onClose: () => void }) {
   const [typewriterMode, setTypewriterMode] = useState(true)
   const [showReport, setShowReport] = useState(false)
   const [showShortcuts, setShowShortcuts] = useState(false)
+  const [showBeatBoard, setShowBeatBoard] = useState(false)
+  const [beats, setBeats] = useState<BeatItem[]>(savedScript?.beats || [])
+
+  // Block drag-reorder state
+  const [dragFromIdx, setDragFromIdx] = useState<number | null>(null)
+  const [dragOverIdx, setDragOverIdx] = useState<number | null>(null)
 
   const pageRef = useRef<HTMLDivElement>(null)
   const blockRefs = useRef<Record<string, HTMLDivElement | null>>({})
@@ -758,6 +1072,26 @@ export default function ScriptModal({ onClose }: { onClose: () => void }) {
     return map
   }, [blocks, locked])
 
+  // Keep a beats ref for syncing
+  const beatsRef = useRef(beats)
+  beatsRef.current = beats
+
+  // Block drag reorder handler
+  const handleBlockDrop = useCallback((targetIdx: number) => {
+    if (dragFromIdx === null || dragFromIdx === targetIdx) { setDragFromIdx(null); setDragOverIdx(null); return }
+    pushHistory()
+    setBlocks((prev) => {
+      const next = [...prev]
+      const [moved] = next.splice(dragFromIdx, 1)
+      const insertAt = targetIdx > dragFromIdx ? targetIdx - 1 : targetIdx
+      next.splice(insertAt, 0, moved)
+      return next
+    })
+    setDragFromIdx(null)
+    setDragOverIdx(null)
+    debouncedSave()
+  }, [dragFromIdx, pushHistory, debouncedSave])
+
   // Persist to project
   const syncToProject = useCallback(() => {
     if (!projectId) return
@@ -767,6 +1101,7 @@ export default function ScriptModal({ onClose }: { onClose: () => void }) {
       lockedSceneSuffixes,
       currentRevision,
       lastModified: Date.now(),
+      beats: beatsRef.current,
     }
     dispatch({ type: "SET_PROJECT_SCRIPT", payload: { projectId, script: scriptData } })
   }, [projectId, locked, lockedSceneSuffixes, currentRevision, dispatch])
@@ -1113,6 +1448,16 @@ export default function ScriptModal({ onClose }: { onClose: () => void }) {
           <List className="w-4 h-4" />
         </button>
 
+        {/* Beat Board toggle */}
+        <button
+          onClick={() => setShowBeatBoard(!showBeatBoard)}
+          className={`flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium transition-colors border ${showBeatBoard ? "text-amber-700 bg-amber-50 border-amber-200" : "text-stone-400 hover:text-stone-700 hover:bg-stone-100 border-transparent"}`}
+          title="Beat board"
+        >
+          <LayoutGrid className="w-3.5 h-3.5" />
+          <span className="hidden lg:inline">Beats</span>
+        </button>
+
         {/* Breakdown tagger toggle */}
         <button
           onClick={() => setShowBreakdownTags(!showBreakdownTags)}
@@ -1221,83 +1566,99 @@ export default function ScriptModal({ onClose }: { onClose: () => void }) {
 
       {/* Main content */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Scene navigator sidebar */}
-        {showSceneNav && (
-          <div className="w-60 bg-white/70 border-r border-stone-200 shrink-0 overflow-y-auto">
-            <div className="p-3 border-b border-stone-200">
-              <h2 className="text-xs font-bold text-stone-700 uppercase tracking-wider flex items-center gap-1.5">
-                <Hash className="w-3.5 h-3.5 text-amber-600" />
-                Scenes
-              </h2>
-            </div>
-            <div className="p-2">
-              <SceneNavigator blocks={blocks} onJumpToScene={handleJumpToScene} />
-            </div>
-          </div>
-        )}
-
-        {/* Script page */}
-        <div className="flex-1 overflow-y-auto" ref={pageRef}>
-          <div className="max-w-[8.5in] mx-auto my-8">
-            {/* Page representation */}
-            <div className="bg-white rounded-sm shadow-lg border border-stone-200/80 min-h-[11in]" style={{ padding: `${1 * zoom}in ${1.5 * zoom}in` }}>
-              {blocks.map((block, idx) => (
-                <div key={block.id} ref={(el) => { blockRefs.current[block.id] = el }}>
-                  {/* Highlight search matches */}
-                  <div className={searchTerm && searchMatchIds.has(block.id) ? "bg-amber-100/50 -mx-4 px-4 rounded" : ""}>
-                    <ScriptBlockRow
-                      block={block}
-                      index={idx}
-                      isActive={activeBlockIdx === idx}
-                      onActivate={() => setActiveBlockIdx(idx)}
-                      onTextChange={(text) => handleTextChange(idx, text)}
-                      onKeyDown={(e) => handleKeyDown(idx, e)}
-                      onTypeChange={(type) => handleTypeChange(idx, type)}
-                      sceneNumber={sceneNumbers[block.id]}
-                      characters={characters}
-                      showBreakdownTags={showBreakdownTags}
-                      onAddBreakdownTag={(tag) => handleAddBreakdownTag(idx, tag)}
-                      onRemoveBreakdownTag={(tagId) => handleRemoveBreakdownTag(idx, tagId)}
-                      isLocked={locked}
-                      zoom={zoom}
-                    />
-                    {/* Synopsis slot for scene headings */}
-                    {block.type === "scene-heading" && (
-                      <SynopsisEditor
-                        synopsis={block.synopsis || ""}
-                        onChange={(v) => handleSynopsisChange(idx, v)}
-                      />
-                    )}
-                  </div>
+        {showBeatBoard ? (
+          /* ---- Beat Board View ---- */
+          <BeatBoard
+            beats={beats}
+            onBeatsChange={(newBeats) => { setBeats(newBeats); debouncedSave() }}
+            scenes={blocks.filter((b) => b.type === "scene-heading").map((b) => ({ id: b.id, text: b.text, sceneNumber: sceneNumbers[b.id] }))}
+          />
+        ) : (
+          <>
+            {/* Scene navigator sidebar */}
+            {showSceneNav && (
+              <div className="w-60 bg-white/70 border-r border-stone-200 shrink-0 overflow-y-auto">
+                <div className="p-3 border-b border-stone-200">
+                  <h2 className="text-xs font-bold text-stone-700 uppercase tracking-wider flex items-center gap-1.5">
+                    <Hash className="w-3.5 h-3.5 text-amber-600" />
+                    Scenes
+                  </h2>
                 </div>
-              ))}
+                <div className="p-2">
+                  <SceneNavigator blocks={blocks} onJumpToScene={handleJumpToScene} />
+                </div>
+              </div>
+            )}
 
-              {/* Empty-state bottom click area to add new blocks */}
-              <div
-                className="min-h-[200px] cursor-text"
-                onClick={() => {
-                  const lastBlock = blocks[blocks.length - 1]
-                  if (lastBlock && lastBlock.text.trim() === "") {
-                    setActiveBlockIdx(blocks.length - 1)
-                    const el = blockRefs.current[lastBlock.id]
-                    const editable = el?.querySelector("[contenteditable]") as HTMLElement
-                    editable?.focus()
-                  } else {
-                    pushHistory()
-                    const newBlock: ScriptBlock = { id: uid(), type: "action", text: "" }
-                    setBlocks((prev) => [...prev, newBlock])
-                    setActiveBlockIdx(blocks.length)
-                    setTimeout(() => {
-                      const el = blockRefs.current[newBlock.id]
-                      const editable = el?.querySelector("[contenteditable]") as HTMLElement
-                      editable?.focus()
-                    }, 20)
-                  }
-                }}
-              />
+            {/* Script page */}
+            <div className="flex-1 overflow-y-auto" ref={pageRef}>
+              <div className="max-w-[8.5in] mx-auto my-8">
+                {/* Page representation */}
+                <div className="bg-white rounded-sm shadow-lg border border-stone-200/80 min-h-[11in]" style={{ padding: `${1 * zoom}in ${1.5 * zoom}in` }}>
+                  {blocks.map((block, idx) => (
+                    <div key={block.id} ref={(el) => { blockRefs.current[block.id] = el }}>
+                      {/* Highlight search matches */}
+                      <div className={searchTerm && searchMatchIds.has(block.id) ? "bg-amber-100/50 -mx-4 px-4 rounded" : ""}>
+                        <ScriptBlockRow
+                          block={block}
+                          index={idx}
+                          isActive={activeBlockIdx === idx}
+                          onActivate={() => setActiveBlockIdx(idx)}
+                          onTextChange={(text) => handleTextChange(idx, text)}
+                          onKeyDown={(e) => handleKeyDown(idx, e)}
+                          onTypeChange={(type) => handleTypeChange(idx, type)}
+                          sceneNumber={sceneNumbers[block.id]}
+                          characters={characters}
+                          showBreakdownTags={showBreakdownTags}
+                          onAddBreakdownTag={(tag) => handleAddBreakdownTag(idx, tag)}
+                          onRemoveBreakdownTag={(tagId) => handleRemoveBreakdownTag(idx, tagId)}
+                          isLocked={locked}
+                          zoom={zoom}
+                          isDragTarget={dragOverIdx === idx}
+                          onDragStart={setDragFromIdx}
+                          onDragOver={setDragOverIdx}
+                          onDragEnd={() => { setDragFromIdx(null); setDragOverIdx(null) }}
+                          onDrop={handleBlockDrop}
+                        />
+                        {/* Synopsis slot for scene headings */}
+                        {block.type === "scene-heading" && (
+                          <SynopsisEditor
+                            synopsis={block.synopsis || ""}
+                            onChange={(v) => handleSynopsisChange(idx, v)}
+                          />
+                        )}
+                      </div>
+                    </div>
+                  ))}
+
+                  {/* Empty-state bottom click area to add new blocks */}
+                  <div
+                    className="min-h-[200px] cursor-text"
+                    onClick={() => {
+                      const lastBlock = blocks[blocks.length - 1]
+                      if (lastBlock && lastBlock.text.trim() === "") {
+                        setActiveBlockIdx(blocks.length - 1)
+                        const el = blockRefs.current[lastBlock.id]
+                        const editable = el?.querySelector("[contenteditable]") as HTMLElement
+                        editable?.focus()
+                      } else {
+                        pushHistory()
+                        const newBlock: ScriptBlock = { id: uid(), type: "action", text: "" }
+                        setBlocks((prev) => [...prev, newBlock])
+                        setActiveBlockIdx(blocks.length)
+                        setTimeout(() => {
+                          const el = blockRefs.current[newBlock.id]
+                          const editable = el?.querySelector("[contenteditable]") as HTMLElement
+                          editable?.focus()
+                        }, 20)
+                      }
+                    }}
+                  />
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
+          </>
+        )}
 
         {/* Keyboard shortcuts side panel */}
         {showShortcuts && <ShortcutsPanel onClose={() => setShowShortcuts(false)} />}
@@ -1315,15 +1676,28 @@ export default function ScriptModal({ onClose }: { onClose: () => void }) {
       {/* Status bar */}
       <div className="h-7 bg-white/90 border-t border-stone-200 flex items-center justify-between px-4 shrink-0 text-[10px] text-stone-400 font-medium">
         <div className="flex items-center gap-4">
-          <span>{blocks.length} block{blocks.length !== 1 ? "s" : ""}</span>
-          <span>{sceneCount} scene{sceneCount !== 1 ? "s" : ""}</span>
-          <span>~{estimatedPages} page{estimatedPages !== 1 ? "s" : ""}</span>
-          {locked && <span className="text-red-500 flex items-center gap-0.5"><Lock className="w-2.5 h-2.5" /> Locked</span>}
+          {showBeatBoard ? (
+            <>
+              <span className="text-amber-600 font-semibold">Beat Board</span>
+              <span>{beats.length} beat{beats.length !== 1 ? "s" : ""}</span>
+            </>
+          ) : (
+            <>
+              <span>{blocks.length} block{blocks.length !== 1 ? "s" : ""}</span>
+              <span>{sceneCount} scene{sceneCount !== 1 ? "s" : ""}</span>
+              <span>~{estimatedPages} page{estimatedPages !== 1 ? "s" : ""}</span>
+              {locked && <span className="text-red-500 flex items-center gap-0.5"><Lock className="w-2.5 h-2.5" /> Locked</span>}
+            </>
+          )}
         </div>
         <div className="flex items-center gap-4">
-          <span>Block {activeBlockIdx + 1} of {blocks.length}</span>
-          <span className="uppercase">{BLOCK_TYPE_LABELS[blocks[activeBlockIdx]?.type || "action"]}</span>
-          <span>{currentRevision !== "white" ? `Rev: ${currentRevision}` : ""}</span>
+          {!showBeatBoard && (
+            <>
+              <span>Block {activeBlockIdx + 1} of {blocks.length}</span>
+              <span className="uppercase">{BLOCK_TYPE_LABELS[blocks[activeBlockIdx]?.type || "action"]}</span>
+              <span>{currentRevision !== "white" ? `Rev: ${currentRevision}` : ""}</span>
+            </>
+          )}
           <span>Auto-saving</span>
         </div>
       </div>

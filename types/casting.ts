@@ -538,6 +538,21 @@ export interface ScriptBlock {
   revisionColor?: RevisionColor
 }
 
+export type BeatColor = "amber" | "blue" | "green" | "pink" | "purple" | "rose" | "sky" | "stone"
+
+export interface BeatItem {
+  id: string
+  title: string
+  description: string
+  color: BeatColor
+  /** Act label (e.g. "Act 1", "Act 2", "Act 3") */
+  act: string
+  /** Linked scene-heading block id, if any */
+  linkedSceneId?: string
+  /** Order index for sorting */
+  order: number
+}
+
 export interface ScriptData {
   blocks: ScriptBlock[]
   /** Whether the script is locked (scene numbers frozen) */
@@ -548,6 +563,8 @@ export interface ScriptData {
   currentRevision: RevisionColor
   /** Timestamp of last modification */
   lastModified: number
+  /** Beat board items */
+  beats?: BeatItem[]
 }
 
 export interface Project {
