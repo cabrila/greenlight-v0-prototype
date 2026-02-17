@@ -24,6 +24,7 @@ import {
   MapPin,
   Scissors,
   ScrollText,
+  ChevronDown,
 } from "lucide-react"
 import { openModal } from "@/components/modals/ModalManager"
 import { useState, useEffect, useRef } from "react"
@@ -35,6 +36,7 @@ export default function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [isLoadingDemo, setIsLoadingDemo] = useState(false)
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
+  const [castingToolsOpen, setCastingToolsOpen] = useState(false)
   const userAvatarRef = useRef<HTMLDivElement>(null)
 
   const [collapsedSections, setCollapsedSections] = useState<{
@@ -301,21 +303,37 @@ export default function Sidebar() {
                 <span>Characters</span>
               </button>
 
-              <button
-                onClick={() => openModal("castingBreakdown")}
-                className="w-full flex items-center space-x-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:text-info-600 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50"
-              >
-                <FileText className="w-4 h-4" />
-                <span>Casting Breakdown</span>
-              </button>
-
-              <button
-                onClick={() => openModal("teamSuggestions")}
-                className="w-full flex items-center space-x-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:text-purple-600 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50"
-              >
-                <Users className="w-4 h-4" />
-                <span>Team Suggestions</span>
-              </button>
+              {/* Casting Tools accordion */}
+              <div className="rounded-xl border border-slate-200/50 bg-white/60 overflow-hidden">
+                <button
+                  onClick={() => setCastingToolsOpen(!castingToolsOpen)}
+                  className="w-full flex items-center justify-between px-4 py-2.5 text-sm font-medium text-slate-700 hover:text-slate-900 hover:bg-white transition-all duration-200"
+                >
+                  <span className="flex items-center space-x-3">
+                    <Sparkles className="w-4 h-4" />
+                    <span>Casting Tools</span>
+                  </span>
+                  <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${castingToolsOpen ? "rotate-180" : ""}`} />
+                </button>
+                <div className={`overflow-hidden transition-all duration-200 ${castingToolsOpen ? "max-h-40" : "max-h-0"}`}>
+                  <div className="px-2 pb-2 space-y-1">
+                    <button
+                      onClick={() => openModal("castingBreakdown")}
+                      className="w-full flex items-center space-x-3 px-3 py-2 text-[13px] font-medium text-slate-600 hover:text-info-600 hover:bg-info-50 rounded-lg transition-colors"
+                    >
+                      <FileText className="w-3.5 h-3.5" />
+                      <span>Casting Breakdown</span>
+                    </button>
+                    <button
+                      onClick={() => openModal("teamSuggestions")}
+                      className="w-full flex items-center space-x-3 px-3 py-2 text-[13px] font-medium text-slate-600 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+                    >
+                      <Users className="w-3.5 h-3.5" />
+                      <span>Team Suggestions</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
 
               <button
                 onClick={() => openModal("userPermissions")}
@@ -383,21 +401,35 @@ export default function Sidebar() {
                 <UserCircle className="w-5 h-5" />
               </button>
 
-              <button
-                onClick={() => openModal("castingBreakdown")}
-                className="w-full flex justify-center p-3 text-slate-700 hover:text-info-600 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50"
-                title="Casting Breakdown"
-              >
-                <FileText className="w-5 h-5" />
-              </button>
-
-              <button
-                onClick={() => openModal("teamSuggestions")}
-                className="w-full flex justify-center p-3 text-slate-700 hover:text-purple-600 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50"
-                title="Team Suggestions"
-              >
-                <Users className="w-5 h-5" />
-              </button>
+              {/* Casting Tools collapsed group */}
+              <div className="relative group/casting">
+                <button
+                  onClick={() => setCastingToolsOpen(!castingToolsOpen)}
+                  className={`w-full flex justify-center p-3 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50 ${castingToolsOpen ? "text-info-600" : "text-slate-700 hover:text-info-600"}`}
+                  title="Casting Tools"
+                >
+                  <Sparkles className="w-5 h-5" />
+                </button>
+                {castingToolsOpen && (
+                  <div className="absolute left-full top-0 ml-2 bg-white rounded-xl shadow-xl border border-slate-200 py-1.5 z-50 min-w-[170px]">
+                    <p className="px-3 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Casting Tools</p>
+                    <button
+                      onClick={() => { openModal("castingBreakdown"); setCastingToolsOpen(false) }}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-slate-700 hover:text-info-600 hover:bg-info-50 transition-colors"
+                    >
+                      <FileText className="w-3.5 h-3.5" />
+                      Casting Breakdown
+                    </button>
+                    <button
+                      onClick={() => { openModal("teamSuggestions"); setCastingToolsOpen(false) }}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-slate-700 hover:text-purple-600 hover:bg-purple-50 transition-colors"
+                    >
+                      <Users className="w-3.5 h-3.5" />
+                      Team Suggestions
+                    </button>
+                  </div>
+                )}
+              </div>
 
               <button
                 onClick={() => openModal("userPermissions")}
