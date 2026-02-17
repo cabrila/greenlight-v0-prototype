@@ -333,7 +333,7 @@ function ScriptBlockRow({
       )}
 
       {/* Drag handle + Block type indicator (on hover) */}
-      <div className="absolute -left-1 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5">
+      <div className="absolute -left-6 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5">
         {/* Drag handle */}
         <div
           draggable
