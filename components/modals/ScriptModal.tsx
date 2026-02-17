@@ -1076,22 +1076,6 @@ export default function ScriptModal({ onClose }: { onClose: () => void }) {
   const beatsRef = useRef(beats)
   beatsRef.current = beats
 
-  // Block drag reorder handler
-  const handleBlockDrop = useCallback((targetIdx: number) => {
-    if (dragFromIdx === null || dragFromIdx === targetIdx) { setDragFromIdx(null); setDragOverIdx(null); return }
-    pushHistory()
-    setBlocks((prev) => {
-      const next = [...prev]
-      const [moved] = next.splice(dragFromIdx, 1)
-      const insertAt = targetIdx > dragFromIdx ? targetIdx - 1 : targetIdx
-      next.splice(insertAt, 0, moved)
-      return next
-    })
-    setDragFromIdx(null)
-    setDragOverIdx(null)
-    debouncedSave()
-  }, [dragFromIdx, pushHistory, debouncedSave])
-
   // Persist to project
   const syncToProject = useCallback(() => {
     if (!projectId) return
@@ -1149,6 +1133,22 @@ export default function ScriptModal({ onClose }: { onClose: () => void }) {
       setBlocks(JSON.parse(JSON.stringify(historyRef.current[historyIdxRef.current])))
     }
   }, [])
+
+  // Block drag reorder handler
+  const handleBlockDrop = useCallback((targetIdx: number) => {
+    if (dragFromIdx === null || dragFromIdx === targetIdx) { setDragFromIdx(null); setDragOverIdx(null); return }
+    pushHistory()
+    setBlocks((prev) => {
+      const next = [...prev]
+      const [moved] = next.splice(dragFromIdx, 1)
+      const insertAt = targetIdx > dragFromIdx ? targetIdx - 1 : targetIdx
+      next.splice(insertAt, 0, moved)
+      return next
+    })
+    setDragFromIdx(null)
+    setDragOverIdx(null)
+    debouncedSave()
+  }, [dragFromIdx, pushHistory, debouncedSave])
 
   // Push initial history
   useEffect(() => { pushHistory() }, []) // eslint-disable-line react-hooks/exhaustive-deps
