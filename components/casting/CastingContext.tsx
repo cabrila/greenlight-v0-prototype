@@ -4,6 +4,7 @@ import type React from "react"
 import { createContext, type ReactNode, useReducer, useEffect, useContext } from "react"
 import type { CastingState, CastingAction, Actor, Notification } from "@/types/casting"
 import { saveToLocalStorage, clearLocalStorage, loadFromLocalStorage } from "@/utils/localStorage"
+import { MOCK_SCHEDULE_ENTRIES, MOCK_SCENES, MOCK_PRODUCTION_PHASES } from "@/data/mockScriptAndSchedule"
 
 // --- helper ---------------------------------------------
 function safeArray<T>(arr: T[] | undefined | null): T[] {
@@ -191,38 +192,9 @@ function getInitialState(): CastingState {
     },
     // New: Front-end only tab display names
     tabDisplayNames: {},
-    scheduleEntries: [],
-    scenes: [],
-    productionPhases: [
-      {
-        id: "principal",
-        name: "Principal Photography",
-        startDate: "2024-03-01",
-        color: "text-blue-700",
-        bgColor: "bg-blue-500",
-      },
-      {
-        id: "pickups",
-        name: "Pickups",
-        startDate: "2024-03-12",
-        color: "text-orange-700",
-        bgColor: "bg-orange-500",
-      },
-      {
-        id: "second-unit",
-        name: "Second Unit",
-        startDate: "2024-03-20",
-        color: "text-lime-700",
-        bgColor: "bg-lime-500",
-      },
-      {
-        id: "rehearsals",
-        name: "Rehearsals",
-        startDate: "2024-03-02",
-        color: "text-yellow-700",
-        bgColor: "bg-yellow-500",
-      },
-    ],
+    scheduleEntries: MOCK_SCHEDULE_ENTRIES,
+    scenes: MOCK_SCENES,
+    productionPhases: MOCK_PRODUCTION_PHASES,
     filters: {
       status: [],
       ageRange: { min: 0, max: 100 },

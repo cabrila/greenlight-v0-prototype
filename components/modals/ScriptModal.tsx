@@ -53,6 +53,7 @@ import type {
   BeatItem,
   BeatColor,
 } from "@/types/casting"
+import { MOCK_SCRIPT_DATA } from "@/data/mockScriptAndSchedule"
 
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                            */
@@ -127,12 +128,7 @@ function detectBlockType(text: string): ScriptBlockType | null {
 
 function getEmptyScript(): ScriptData {
   return {
-    blocks: [
-      { id: uid(), type: "scene-heading", text: "" },
-    ],
-    locked: false,
-    lockedSceneSuffixes: {},
-    currentRevision: "white",
+    ...MOCK_SCRIPT_DATA,
     lastModified: Date.now(),
   }
 }
