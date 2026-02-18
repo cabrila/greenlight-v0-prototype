@@ -518,7 +518,7 @@ function StatusBadge({ status }: { status: string }) {
 /*  Inventory Card (All Items) -- with drag-and-drop image replacement */
 /* ------------------------------------------------------------------ */
 
-function InventoryCard({ item, isInProject, onToggleAdd, onEdit, onImageReplace, onDelete, onAddToCanvas, hasProject }: { item: InventoryItem; isInProject: boolean; onToggleAdd: (id: string) => void; onEdit: (item: InventoryItem) => void; onImageReplace: (id: string, url: string) => void; onDelete: (id: string) => void; onAddToCanvas: (item: InventoryItem) => void; hasProject: boolean }) {
+function InventoryCard({ item, isInProject, onToggleAdd, onEdit, onImageReplace, onDelete, onAddToCanvas, hasProject, onVote, onAddComment, currentUserId, votes, comments }: { item: InventoryItem; isInProject: boolean; onToggleAdd: (id: string) => void; onEdit: (item: InventoryItem) => void; onImageReplace: (id: string, url: string) => void; onDelete: (id: string) => void; onAddToCanvas: (item: InventoryItem) => void; hasProject: boolean; onVote?: (id: string, vote: VoteValue) => void; onAddComment?: (id: string, text: string) => void; currentUserId?: string; votes?: PropVote[]; comments?: PropComment[] }) {
   const [menuOpen, setMenuOpen] = useState(false)
   const [isDragOver, setIsDragOver] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -614,6 +614,28 @@ function InventoryCard({ item, isInProject, onToggleAdd, onEdit, onImageReplace,
           <span className="text-[10px] text-gray-400 font-medium">{item.unitPrice}</span>
         </div>
       </div>
+
+      {/* Response buttons + note when in project */}
+      {isInProject && onVote && onAddComment && (() => {
+        const itemVotes = votes || []
+        const itemComments = comments || []
+        const userVote = itemVotes.find((v) => v.userId === currentUserId)?.vote
+        const yesCt = itemVotes.filter((v) => v.vote === "yes").length
+        const noCt = itemVotes.filter((v) => v.vote === "no").length
+        const maybeCt = itemVotes.filter((v) => v.vote === "maybe").length
+        return (
+          <>
+            <div className="px-4 pb-2 flex items-center gap-1 flex-wrap border-t border-gray-100 pt-2">
+              <VoteButton label="Yes" icon={CheckCircle} isActive={userVote === "yes"} count={yesCt} activeClassName="bg-emerald-100 text-emerald-700" onClick={() => onVote(item.id, "yes")} />
+              <VoteButton label="No" icon={XCircle} isActive={userVote === "no"} count={noCt} activeClassName="bg-red-100 text-red-700" onClick={() => onVote(item.id, "no")} />
+              <VoteButton label="Maybe" icon={HelpCircle} isActive={userVote === "maybe"} count={maybeCt} activeClassName="bg-amber-100 text-amber-700" onClick={() => onVote(item.id, "maybe")} />
+            </div>
+            <div className="px-4 pb-3">
+              <CommentSection comments={itemComments} onAddComment={(text) => onAddComment(item.id, text)} />
+            </div>
+          </>
+        )
+      })()}
     </div>
   )
 }
@@ -1087,7 +1109,7 @@ export default function PropsModal({ onClose }: PropsModalProps) {
           ) : viewMode === "grid" ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredInventory.map((item) => (
-                <InventoryCard key={item.id} item={item} isInProject={projectPropIds.has(item.id)} onToggleAdd={handleToggleAdd} onEdit={(i) => setEditingInventoryItem(i)} onImageReplace={handleImageReplace} onDelete={handleRequestDeleteInventory} onAddToCanvas={handleAddToCanvas} hasProject={!!projectId} />
+                <InventoryCard key={item.id} item={item} isInProject={projectPropIds.has(item.id)} onToggleAdd={handleToggleAdd} onEdit={(i) => setEditingInventoryItem(i)} onImageReplace={handleImageReplace} onDelete={handleRequestDeleteInventory} onAddToCanvas={handleAddToCanvas} hasProject={!!projectId} onVote={handleVote} onAddComment={handleAddComment} currentUserId={currentUserId} votes={projectProps.find((p) => p.id === item.id)?.votes} comments={projectProps.find((p) => p.id === item.id)?.comments} />
               ))}
             </div>
           ) : (

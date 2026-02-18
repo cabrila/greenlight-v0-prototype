@@ -399,6 +399,10 @@ export interface ProjectLocation {
 
   /* Booking */
   bookedTo: string | null
+
+  /* Voting / feedback (when added to project) */
+  votes?: PropVote[]
+  comments?: PropComment[]
 }
 
 /* ------------------------------------------------------------------ */
@@ -441,6 +445,10 @@ export interface CostumeInventoryItem {
   vibeTags: string[]            // "Bloody", "Formal", "Distressed", etc.
   rentReturnDate?: string       // ISO date – only if status === "rented"
   notes?: string
+
+  /* Voting / feedback */
+  votes?: PropVote[]
+  comments?: PropComment[]
 }
 
 /** Layer C: The "Look" – composite unit joining Character + Inventory */

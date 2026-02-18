@@ -43,6 +43,11 @@ import {
   Film,
   Layers,
   Layout,
+  CheckCircle,
+  XCircle,
+  HelpCircle,
+  MessageSquare,
+  Send,
 } from "lucide-react"
 import { useCasting } from "@/components/casting/CastingContext"
 import { openModal } from "./ModalManager"
@@ -56,7 +61,11 @@ import type {
   LocationScheduleBlock,
   LocationBlackoutDate,
   LocationSceneTag,
+  PropVote,
+  PropComment,
 } from "@/types/casting"
+
+type VoteValue = "yes" | "no" | "maybe"
 
 /* ------------------------------------------------------------------ */
 /*  Constants                                                          */
@@ -821,15 +830,69 @@ function InteractiveMap({
 }
 
 /* ------------------------------------------------------------------ */
-/*  Location Card (Instagram-style with hover preview + drag-drop)     */
-/* ------------------------------------------------------------------ */
+  /*  Location Vote / Comment components                                 */
+  /* ------------------------------------------------------------------ */
 
-function LocationCard({ loc, isSelected, isInProject, onSelect, onToggleAdd, onEdit, onDelete, onAddToCanvas, hasProject, onAddMedia }: {
+  function LocVoteButton({ label, icon: Icon, isActive, count, activeClassName, onClick }: { label: string; icon: typeof CheckCircle; isActive: boolean; count: number; activeClassName: string; onClick: () => void }) {
+    return (
+      <button onClick={(e) => { e.stopPropagation(); onClick() }} className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium transition-colors ${isActive ? activeClassName : "text-gray-400 hover:bg-gray-100 hover:text-gray-600"}`} title={label}>
+        <Icon className="w-3.5 h-3.5" />
+        <span>{label}</span>
+        {count > 0 && <span className="ml-0.5 text-[10px] opacity-80">{count}</span>}
+      </button>
+    )
+  }
+
+  function LocCommentSection({ comments, onAddComment }: { comments: PropComment[]; onAddComment: (text: string) => void }) {
+    const [isOpen, setIsOpen] = useState(false)
+    const [text, setText] = useState("")
+    const handleSubmit = () => { if (!text.trim()) return; onAddComment(text.trim()); setText("") }
+    return (
+      <div className="mt-1">
+        <button onClick={(e) => { e.stopPropagation(); setIsOpen(!isOpen) }} className="flex items-center gap-1 text-[11px] text-gray-400 hover:text-gray-600 transition-colors">
+          <MessageSquare className="w-3 h-3" />
+          {comments.length > 0 ? `${comments.length} note${comments.length === 1 ? "" : "s"}` : "Add note"}
+        </button>
+        {isOpen && (
+          <div className="mt-2 space-y-2" onClick={(e) => e.stopPropagation()}>
+            {comments.length > 0 && (
+              <div className="space-y-1.5 max-h-28 overflow-y-auto">
+                {comments.map((c) => (
+                  <div key={c.id} className="flex items-start gap-2">
+                    <div className="w-5 h-5 rounded-full bg-gray-200 flex items-center justify-center shrink-0 mt-0.5">
+                      <span className="text-[8px] font-bold text-gray-600">{c.userInitials}</span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[11px] text-gray-700 leading-snug">{c.text}</p>
+                      <p className="text-[9px] text-gray-400 mt-0.5">{c.userName}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            <div className="flex items-center gap-1.5">
+              <input type="text" value={text} onChange={(e) => setText(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleSubmit()} placeholder="Write a note..." className="flex-1 px-2.5 py-1.5 text-[11px] bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-teal-500 focus:border-teal-500 placeholder-gray-400 text-gray-900" />
+              <button onClick={handleSubmit} disabled={!text.trim()} className="p-1.5 text-teal-600 hover:bg-teal-50 rounded-md transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
+                <Send className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  /* ------------------------------------------------------------------ */
+  /*  Location Card (Instagram-style with hover preview + drag-drop)     */
+  /* ------------------------------------------------------------------ */
+  
+  function LocationCard({ loc, isSelected, isInProject, onSelect, onToggleAdd, onEdit, onDelete, onAddToCanvas, hasProject, onAddMedia, onVote, onAddComment, currentUserId }: {
   loc: ProjectLocation; isSelected: boolean; isInProject: boolean;
   onSelect: (id: string) => void; onToggleAdd: (id: string) => void;
   onEdit: (loc: ProjectLocation) => void; onDelete: (id: string) => void;
   onAddToCanvas: (loc: ProjectLocation) => void;
-  hasProject: boolean; onAddMedia: (id: string, items: LocationMediaItem[]) => void
+  hasProject: boolean; onAddMedia: (id: string, items: LocationMediaItem[]) => void;
+  onVote?: (id: string, vote: VoteValue) => void; onAddComment?: (id: string, text: string) => void; currentUserId?: string
 }) {
   const [menuOpen, setMenuOpen] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
@@ -1011,6 +1074,26 @@ function LocationCard({ loc, isSelected, isInProject, onSelect, onToggleAdd, onE
           )}
           <span className="text-[10px] text-gray-500 font-semibold">{loc.dailyRate}<span className="text-gray-400 font-normal">/day</span></span>
         </div>
+
+        {/* Response buttons + note when in project */}
+        {isInProject && onVote && onAddComment && (() => {
+          const itemVotes = loc.votes || []
+          const itemComments = loc.comments || []
+          const userVote = itemVotes.find((v) => v.userId === currentUserId)?.vote
+          const yesCt = itemVotes.filter((v) => v.vote === "yes").length
+          const noCt = itemVotes.filter((v) => v.vote === "no").length
+          const maybeCt = itemVotes.filter((v) => v.vote === "maybe").length
+          return (
+            <div className="mt-2.5 pt-2 border-t border-gray-100">
+              <div className="flex items-center gap-1 flex-wrap">
+                <LocVoteButton label="Yes" icon={CheckCircle} isActive={userVote === "yes"} count={yesCt} activeClassName="bg-emerald-100 text-emerald-700" onClick={() => onVote(loc.id, "yes")} />
+                <LocVoteButton label="No" icon={XCircle} isActive={userVote === "no"} count={noCt} activeClassName="bg-red-100 text-red-700" onClick={() => onVote(loc.id, "no")} />
+                <LocVoteButton label="Maybe" icon={HelpCircle} isActive={userVote === "maybe"} count={maybeCt} activeClassName="bg-amber-100 text-amber-700" onClick={() => onVote(loc.id, "maybe")} />
+              </div>
+              <LocCommentSection comments={itemComments} onAddComment={(text) => onAddComment(loc.id, text)} />
+            </div>
+          )
+        })()}
       </div>
 
       {/* Gallery modal */}
@@ -1602,6 +1685,57 @@ export default function LocationsModal({ onClose }: LocationsModalProps) {
     }
   }
 
+  const currentUserId = state.currentUser?.id
+
+  const handleLocVote = (id: string, vote: VoteValue) => {
+    if (!currentUserId) return
+    syncProjectLocations((prev) =>
+      prev.map((l) => {
+        if (l.id !== id) return l
+        const votes = l.votes || []
+        const existing = votes.findIndex((v) => v.userId === currentUserId)
+        const newVotes = [...votes]
+        if (existing >= 0) {
+          if (newVotes[existing].vote === vote) newVotes.splice(existing, 1)
+          else newVotes[existing] = { userId: currentUserId, vote }
+        } else {
+          newVotes.push({ userId: currentUserId, vote })
+        }
+        return { ...l, votes: newVotes }
+      }),
+    )
+    // Also update inventory so changes persist across tabs
+    syncInventory((prev) =>
+      prev.map((l) => {
+        if (l.id !== id) return l
+        const votes = l.votes || []
+        const existing = votes.findIndex((v) => v.userId === currentUserId)
+        const newVotes = [...votes]
+        if (existing >= 0) {
+          if (newVotes[existing].vote === vote) newVotes.splice(existing, 1)
+          else newVotes[existing] = { userId: currentUserId, vote }
+        } else {
+          newVotes.push({ userId: currentUserId, vote })
+        }
+        return { ...l, votes: newVotes }
+      }),
+    )
+  }
+
+  const handleLocAddComment = (locId: string, text: string) => {
+    if (!state.currentUser) return
+    const newComment: PropComment = {
+      id: `c-${Date.now()}`,
+      userId: state.currentUser.id,
+      userName: state.currentUser.name,
+      userInitials: state.currentUser.initials,
+      text,
+      timestamp: Date.now(),
+    }
+    syncProjectLocations((prev) => prev.map((l) => (l.id === locId ? { ...l, comments: [...(l.comments || []), newComment] } : l)))
+    syncInventory((prev) => prev.map((l) => (l.id === locId ? { ...l, comments: [...(l.comments || []), newComment] } : l)))
+  }
+
   const handleAddLocation = (loc: ProjectLocation) => {
     syncInventory((prev) => [loc, ...prev])
     setIsMapAddMode(false)
@@ -1804,6 +1938,9 @@ export default function LocationsModal({ onClose }: LocationsModalProps) {
                             onAddToCanvas={handleAddToCanvas}
                             hasProject={!!projectId}
                             onAddMedia={handleAddMedia}
+                            onVote={handleLocVote}
+                            onAddComment={handleLocAddComment}
+                            currentUserId={currentUserId}
                           />
                         </div>
                       ))}
@@ -1846,6 +1983,9 @@ export default function LocationsModal({ onClose }: LocationsModalProps) {
                     onAddToCanvas={handleAddToCanvas}
                     hasProject={!!projectId}
                     onAddMedia={handleAddMedia}
+                    onVote={handleLocVote}
+                    onAddComment={handleLocAddComment}
+                    currentUserId={currentUserId}
                   />
                 </div>
               ))}
