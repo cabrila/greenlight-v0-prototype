@@ -308,6 +308,46 @@ export default function CostumesModal({ onClose }: { onClose: () => void }) {
     [projectId, dispatch],
   )
 
+  const currentUserId = state.currentUser?.id
+
+  const handleCostumeVote = (itemId: string, vote: VoteValue) => {
+    if (!currentUserId) return
+    syncCostumes((prev) => ({
+      ...prev,
+      inventory: prev.inventory.map((item) => {
+        if (item.id !== itemId) return item
+        const votes = item.votes || []
+        const existing = votes.findIndex((v) => v.userId === currentUserId)
+        const newVotes = [...votes]
+        if (existing >= 0) {
+          if (newVotes[existing].vote === vote) newVotes.splice(existing, 1)
+          else newVotes[existing] = { userId: currentUserId, vote }
+        } else {
+          newVotes.push({ userId: currentUserId, vote })
+        }
+        return { ...item, votes: newVotes }
+      }),
+    }))
+  }
+
+  const handleCostumeAddComment = (itemId: string, text: string) => {
+    if (!state.currentUser) return
+    const newComment: PropComment = {
+      id: `c-${Date.now()}`,
+      userId: state.currentUser.id,
+      userName: state.currentUser.name,
+      userInitials: state.currentUser.initials,
+      text,
+      timestamp: Date.now(),
+    }
+    syncCostumes((prev) => ({
+      ...prev,
+      inventory: prev.inventory.map((item) =>
+        item.id === itemId ? { ...item, comments: [...(item.comments || []), newComment] } : item
+      ),
+    }))
+  }
+
   /* ---- Auto-seed mock data if project has characters but no costumes data ---- */
   const hasSeeded = useRef(false)
   useEffect(() => {
@@ -609,6 +649,9 @@ export default function CostumesModal({ onClose }: { onClose: () => void }) {
             wardrobeCharFilter={wardrobeCharFilter}
             onWardrobeCharFilterChange={setWardrobeCharFilter}
             looks={costumes.looks}
+            onVote={handleCostumeVote}
+            onAddComment={handleCostumeAddComment}
+            currentUserId={currentUserId}
           />
         ) : mainTab === "looks" ? (
           <LooksTab
@@ -735,7 +778,10 @@ function WardrobeTab({
   wardrobeCharFilter,
   onWardrobeCharFilterChange,
   looks,
-}: {
+  onVote,
+  onAddComment,
+  currentUserId,
+  }: {
   inventory: CostumeInventoryItem[]
   allInventory: CostumeInventoryItem[]
   searchTerm: string
@@ -759,6 +805,9 @@ function WardrobeTab({
   wardrobeCharFilter: string | null
   onWardrobeCharFilterChange: (id: string | null) => void
   looks: CostumeLook[]
+  onVote?: (id: string, vote: VoteValue) => void
+  onAddComment?: (id: string, text: string) => void
+  currentUserId?: string
 }) {
   const activeFilterCount = [filterTag, filterStatus !== "all" ? filterStatus : null, filterType !== "all" ? filterType : null].filter(Boolean).length
 
@@ -1007,7 +1056,7 @@ function WardrobeTab({
           ) : viewMode === "grid" ? (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
               {inventory.map((item) => (
-                <InventoryCard key={item.id} item={item} onEdit={onEdit} onDelete={onDelete} />
+                <InventoryCard key={item.id} item={item} onEdit={onEdit} onDelete={onDelete} onAddToCanvas={() => {}} onVote={onVote} onAddComment={onAddComment} currentUserId={currentUserId} />
               ))}
             </div>
           ) : (
