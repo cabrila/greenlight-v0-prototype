@@ -15,7 +15,7 @@ import {
   Upload,
   Trash2,
   Pencil,
-  Map,
+  Map as MapIcon,
   Building2,
   TreePine,
   Camera,
