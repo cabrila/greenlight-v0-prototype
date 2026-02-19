@@ -412,9 +412,9 @@ export default function ProjectManagerModal({ onClose }: ProjectManagerModalProp
 
   const handleExportProject = (project: Project) => {
     try {
-      // Create comprehensive export data including metadata and full tab structure
+      // Create comprehensive export data including all modules
       const exportData = {
-        version: "2.0", // Updated version to indicate enhanced export format
+        version: "3.0",
         exportDate: new Date().toISOString(),
         exportedBy: state.currentUser?.name || "Unknown User",
         project: {
@@ -429,7 +429,6 @@ export default function ProjectManagerModal({ onClose }: ProjectManagerModalProp
                 char.actors.audition.length +
                 char.actors.approval.length +
                 char.actors.shortLists.reduce((slSum, sl) => slSum + sl.actors.length, 0) +
-                // Include custom tabs in count
                 Object.entries(char.actors)
                   .filter(([key]) => !["longList", "audition", "approval", "shortLists"].includes(key))
                   .reduce((customSum, [, actors]) => customSum + (Array.isArray(actors) ? actors.length : 0), 0)
@@ -439,20 +438,32 @@ export default function ProjectManagerModal({ onClose }: ProjectManagerModalProp
             hasCustomTabs: state.tabDefinitions.some((tab) => tab.isCustom),
             hasRenamedTabs: Object.keys(state.tabDisplayNames).length > 0,
             customTabsCount: state.tabDefinitions.filter((tab) => tab.isCustom).length,
+            // Module coverage summary
+            hasScript: !!(project as any).script?.blocks?.length,
+            hasProps: !!((project as any).props?.length || (project as any).propInventory?.length),
+            hasLocations: !!((project as any).locations?.length || (project as any).locationInventory?.length),
+            hasCostumes: !!(project as any).costumes?.inventory?.length,
+            hasSchedule: state.scheduleEntries.length > 0,
+            hasScenes: state.scenes.length > 0,
           },
         },
-        // Include complete tab structure and display names
+        // Schedule data (lives on global state, not the project)
+        schedule: {
+          entries: state.scheduleEntries,
+          scenes: state.scenes,
+          productionPhases: state.productionPhases,
+        },
+        // Tab structure and display names
         tabStructure: {
           definitions: state.tabDefinitions,
           displayNames: state.tabDisplayNames,
-          order: state.tabDefinitions.map((tab) => tab.key), // Preserve tab order
+          order: state.tabDefinitions.map((tab) => tab.key),
         },
-        // Include related data that might be needed for full restoration
+        // Related data for full restoration
         relatedData: {
           users: state.users.filter((user) => project.projectUsers.some((pu) => pu.userId === user.id)),
           permissionLevels: state.permissionLevels,
           predefinedStatuses: state.predefinedStatuses,
-          // Include current terminology for this project
           terminology: project.terminology || state.terminology,
         },
       }
@@ -517,7 +528,7 @@ export default function ProjectManagerModal({ onClose }: ProjectManagerModalProp
         isNewFormat = true
         console.log("Detected enhanced format with version:", importData.version)
 
-        if (!["2.0"].includes(importData.version)) {
+        if (!["2.0", "3.0"].includes(importData.version)) {
           throw new Error(
             `Unsupported enhanced file version: ${importData.version}. Please use a file exported from a compatible version of the application.`,
           )
@@ -734,6 +745,15 @@ Please ensure you're importing a file exported from this application, or check t
             ? []
             : [{ userId: state.currentUser?.id || "", permissionLevel: "admin" }]),
         ],
+        // Preserve module data from the export
+        ...(projectData.script ? { script: projectData.script } : {}),
+        ...(projectData.props ? { props: projectData.props } : {}),
+        ...(projectData.propInventory ? { propInventory: projectData.propInventory } : {}),
+        ...(projectData.locations ? { locations: projectData.locations } : {}),
+        ...(projectData.locationInventory ? { locationInventory: projectData.locationInventory } : {}),
+        ...(projectData.costumes ? { costumes: projectData.costumes } : {}),
+        ...(projectData.canvasActors ? { canvasActors: projectData.canvasActors } : {}),
+        ...(projectData.terminology ? { terminology: projectData.terminology } : {}),
         // Process characters with more robust error handling
         characters: projectData.characters.map((character: any, charIndex: number) => {
           const newCharId = `char_${Date.now()}_${charIndex}_${Math.random().toString(36).substr(2, 9)}`
@@ -865,6 +885,26 @@ Please ensure you're importing a file exported from this application, or check t
         payload: newProjectId,
       })
 
+      // Restore schedule data if present (v3.0+)
+      let scheduleRestored = false
+      if (importData.schedule && typeof importData.schedule === "object") {
+        if (Array.isArray(importData.schedule.entries) && importData.schedule.entries.length > 0) {
+          dispatch({ type: "SET_SCHEDULE_ENTRIES", payload: importData.schedule.entries })
+        }
+        if (Array.isArray(importData.schedule.scenes) && importData.schedule.scenes.length > 0) {
+          dispatch({ type: "SET_SCENES", payload: importData.schedule.scenes })
+        }
+        if (Array.isArray(importData.schedule.productionPhases) && importData.schedule.productionPhases.length > 0) {
+          dispatch({ type: "SET_PRODUCTION_PHASES", payload: importData.schedule.productionPhases })
+        }
+        scheduleRestored = true
+        console.log("Schedule data restored:", {
+          entries: importData.schedule.entries?.length || 0,
+          scenes: importData.schedule.scenes?.length || 0,
+          phases: importData.schedule.productionPhases?.length || 0,
+        })
+      }
+
       const totalActors = importedProject.characters.reduce((sum, char) => {
         return (
           sum +
@@ -875,9 +915,19 @@ Please ensure you're importing a file exported from this application, or check t
         )
       }, 0)
 
+      // Build descriptive success message
+      const modulesSummary: string[] = []
+      if ((importedProject as any).script?.blocks?.length) modulesSummary.push("Script")
+      if ((importedProject as any).props?.length || (importedProject as any).propInventory?.length) modulesSummary.push("Props")
+      if ((importedProject as any).locations?.length || (importedProject as any).locationInventory?.length) modulesSummary.push("Locations")
+      if ((importedProject as any).costumes?.inventory?.length) modulesSummary.push("Costumes")
+      if (scheduleRestored) modulesSummary.push("Schedule")
+
+      const modulesText = modulesSummary.length > 0 ? ` Modules restored: ${modulesSummary.join(", ")}.` : ""
+
       setImportStatus({
         type: "success",
-        message: `Project "${projectData.name}" imported successfully! ${importedProject.characters.length} characters and ${totalActors} actors restored.${isEnhancedFormat ? " Tab structure and custom tabs preserved." : isNewFormat ? "" : " (Legacy format detected and converted)"}`,
+        message: `Project "${projectData.name}" imported successfully! ${importedProject.characters.length} characters and ${totalActors} actors restored.${modulesText}${isEnhancedFormat ? " Tab structure preserved." : isNewFormat ? "" : " (Legacy format converted)"}`,
       })
       setTimeout(() => setImportStatus({ type: null, message: "" }), 5000)
     } catch (error) {
@@ -1102,7 +1152,7 @@ Please ensure you're importing a file exported from this application, or check t
                   )}
 
                   <p className="text-xs text-gray-500">
-                    Exported file can be imported to restore the project exactly as it is now
+                    Exports all project data -- Script, Props, Locations, Costumes & Makeup, Schedule, characters, and tab structure -- into a single portable JSON file
                   </p>
                 </div>
 

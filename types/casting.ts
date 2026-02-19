@@ -256,6 +256,9 @@ export type CastingAction =
   | { type: "SET_PROJECT_PROP_INVENTORY"; payload: { projectId: string; inventory: PropInventoryItem[] } }
   | { type: "SET_PROJECT_LOCATION_INVENTORY"; payload: { projectId: string; inventory: ProjectLocation[] } }
   | { type: "SET_PROJECT_SCRIPT"; payload: { projectId: string; script: ScriptData } }
+  | { type: "SET_SCHEDULE_ENTRIES"; payload: ScheduleEntry[] }
+  | { type: "SET_SCENES"; payload: Scene[] }
+  | { type: "SET_PRODUCTION_PHASES"; payload: ProductionPhase[] }
 
 export interface User {
   id: string

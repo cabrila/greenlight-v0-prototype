@@ -3033,6 +3033,18 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
       }
       break
 
+    case "SET_SCHEDULE_ENTRIES":
+      newState = { ...state, scheduleEntries: action.payload }
+      break
+
+    case "SET_SCENES":
+      newState = { ...state, scenes: action.payload }
+      break
+
+    case "SET_PRODUCTION_PHASES":
+      newState = { ...state, productionPhases: action.payload }
+      break
+
     case "ADD_CANVAS_ACTOR": {
       const { projectId, canvasActor } = action.payload
 
