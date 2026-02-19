@@ -330,6 +330,15 @@ export default function CostumesModal({ onClose }: { onClose: () => void }) {
     }))
   }
 
+  const handleCostumeImageReplace = async (itemId: string, url: string) => {
+    syncCostumes((prev) => ({
+      ...prev,
+      inventory: prev.inventory.map((item) =>
+        item.id === itemId ? { ...item, imageUrl: url } : item
+      ),
+    }))
+  }
+
   const handleCostumeAddComment = (itemId: string, text: string) => {
     if (!state.currentUser) return
     const newComment: PropComment = {
@@ -652,6 +661,7 @@ export default function CostumesModal({ onClose }: { onClose: () => void }) {
             onVote={handleCostumeVote}
             onAddComment={handleCostumeAddComment}
             currentUserId={currentUserId}
+            onImageReplace={handleCostumeImageReplace}
           />
         ) : mainTab === "looks" ? (
           <LooksTab
@@ -781,6 +791,7 @@ function WardrobeTab({
   onVote,
   onAddComment,
   currentUserId,
+  onImageReplace,
   }: {
   inventory: CostumeInventoryItem[]
   allInventory: CostumeInventoryItem[]
@@ -808,6 +819,7 @@ function WardrobeTab({
   onVote?: (id: string, vote: VoteValue) => void
   onAddComment?: (id: string, text: string) => void
   currentUserId?: string
+  onImageReplace?: (id: string, url: string) => void
 }) {
   const activeFilterCount = [filterTag, filterStatus !== "all" ? filterStatus : null, filterType !== "all" ? filterType : null].filter(Boolean).length
 
@@ -1056,7 +1068,7 @@ function WardrobeTab({
           ) : viewMode === "grid" ? (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
               {inventory.map((item) => (
-                <InventoryCard key={item.id} item={item} onEdit={onEdit} onDelete={onDelete} onAddToCanvas={() => {}} onVote={onVote} onAddComment={onAddComment} currentUserId={currentUserId} />
+                <InventoryCard key={item.id} item={item} onEdit={onEdit} onDelete={onDelete} onAddToCanvas={() => {}} onVote={onVote} onAddComment={onAddComment} currentUserId={currentUserId} onImageReplace={onImageReplace} />
               ))}
             </div>
           ) : (
@@ -1147,6 +1159,7 @@ function InventoryCard({
   onVote,
   onAddComment,
   currentUserId,
+  onImageReplace,
 }: {
   item: CostumeInventoryItem
   onEdit: (item: CostumeInventoryItem) => void
@@ -1155,21 +1168,72 @@ function InventoryCard({
   onVote?: (id: string, vote: VoteValue) => void
   onAddComment?: (id: string, text: string) => void
   currentUserId?: string
+  onImageReplace?: (id: string, url: string) => void
 }) {
   const [menuOpen, setMenuOpen] = useState(false)
+  const [isDragOver, setIsDragOver] = useState(false)
+  const dragCounter = useRef(0)
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const st = STATUS_COLORS[item.status]
+
+  const handleFiles = (files: FileList | null) => {
+    if (!files || !onImageReplace) return
+    const file = files[0]
+    if (!file?.type.startsWith("image/")) return
+    const reader = new FileReader()
+    reader.onload = async (e) => {
+      const raw = e.target?.result as string
+      if (raw) {
+        const compressed = await compressImage(raw)
+        onImageReplace(item.id, compressed)
+      }
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const onDragEnter = (e: React.DragEvent) => {
+    e.preventDefault(); e.stopPropagation()
+    dragCounter.current++
+    if (e.dataTransfer.types.includes("Files")) setIsDragOver(true)
+  }
+  const onDragLeave = (e: React.DragEvent) => {
+    e.preventDefault(); e.stopPropagation()
+    dragCounter.current--
+    if (dragCounter.current === 0) setIsDragOver(false)
+  }
+  const onDragOver = (e: React.DragEvent) => { e.preventDefault(); e.stopPropagation() }
+  const onDrop = (e: React.DragEvent) => {
+    e.preventDefault(); e.stopPropagation()
+    dragCounter.current = 0; setIsDragOver(false)
+    handleFiles(e.dataTransfer.files)
+  }
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-md hover:border-rose-200 transition-all group relative">
-      {/* Portrait image (fashion magazine aspect ratio) */}
-      <div className="aspect-[3/4] bg-gray-100 relative overflow-hidden">
+      {/* Portrait image (fashion magazine aspect ratio) -- drag-and-drop zone */}
+      <div
+        className={`aspect-[3/4] bg-gray-100 relative overflow-hidden transition-all ${isDragOver ? "ring-2 ring-inset ring-rose-400 bg-rose-50" : ""}`}
+        onDragEnter={onDragEnter}
+        onDragLeave={onDragLeave}
+        onDragOver={onDragOver}
+        onDrop={onDrop}
+      >
+        {/* Drag overlay */}
+        {isDragOver && (
+          <div className="absolute inset-0 z-20 bg-rose-50/80 backdrop-blur-sm flex flex-col items-center justify-center pointer-events-none">
+            <Upload className="w-8 h-8 text-rose-400 mb-1.5" />
+            <p className="text-xs font-semibold text-rose-600">Drop image here</p>
+          </div>
+        )}
         {item.imageUrl ? (
           <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" crossOrigin="anonymous" />
         ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <Shirt className="w-10 h-10 text-gray-300" />
+          <div className="w-full h-full flex flex-col items-center justify-center gap-1.5 cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+            <Upload className="w-8 h-8 text-gray-300" />
+            <p className="text-[10px] text-gray-400 font-medium">Drop or click to upload</p>
           </div>
         )}
+        <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => { handleFiles(e.target.files); e.target.value = "" }} />
         <div className="absolute top-2 left-2 flex flex-wrap gap-1">
           <span className={`${st.bg} ${st.text} text-[9px] font-bold px-1.5 py-0.5 rounded-full`}>{st.label}</span>
         </div>
