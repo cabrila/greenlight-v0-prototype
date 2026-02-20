@@ -1604,46 +1604,34 @@ export default function ActorCard({
               {!actor.isCast && state.currentUser && state.cardViewSettings.showActionButtons && (
                 <div className="grid grid-cols-3 gap-1">
                   <button
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      handleVote("yes")
-                    }}
-                    className={`px-1 py-0.5 text-[10px] font-semibold rounded-lg border-2 transition-all duration-200 transform active:scale-95 ${
+                    onClick={(e) => { e.stopPropagation(); handleVote("yes") }}
+                    className={`px-1.5 py-1 text-[10px] font-semibold rounded-full text-center transition-all duration-200 active:scale-95 ${
                       currentUserVote === "yes"
-                        ? "bg-success-600 text-white border-success-700 shadow-md hover:bg-success-700"
-                        : "bg-success-100 text-success-700 border-success-300 hover:bg-success-200 hover:border-success-400"
+                        ? "bg-[#b5c9a8] text-[#4a5b3f] ring-2 ring-[#8fa67e]"
+                        : "bg-[#d5dece] text-[#6b7a5e] hover:bg-[#c8d4bf]"
                     }`}
                   >
-                    <Heart className="w-2.5 h-2.5 mx-auto mb-0.5" />
                     Yes
                   </button>
                   <button
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      handleVote("no")
-                    }}
-                    className={`px-1 py-0.5 text-[10px] font-semibold rounded-lg border-2 transition-all duration-200 transform active:scale-95 ${
-                      currentUserVote === "no"
-                        ? "bg-error-600 text-white border-error-700 shadow-md hover:bg-error-700"
-                        : "bg-error-100 text-error-700 border-error-300 hover:bg-error-200 hover:border-error-400"
+                    onClick={(e) => { e.stopPropagation(); handleVote("maybe") }}
+                    className={`px-1.5 py-1 text-[10px] font-semibold rounded-full text-center transition-all duration-200 active:scale-95 ${
+                      currentUserVote === "maybe"
+                        ? "bg-[#f0d9b5] text-[#7a6a3a] ring-2 ring-[#d4b88a]"
+                        : "bg-[#f5e6d0] text-[#9b8a5e] hover:bg-[#eddbbd]"
                     }`}
                   >
-                    <X className="w-2.5 h-2.5 mx-auto mb-0.5" />
-                    No
+                    Maybe
                   </button>
                   <button
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      handleVote("maybe")
-                    }}
-                    className={`px-1 py-0.5 text-[10px] font-semibold rounded-lg border-2 text-center transition-all duration-200 transform active:scale-95 ${
-                      currentUserVote === "maybe"
-                        ? "bg-info-600 text-white border-info-700 shadow-md hover:bg-info-700"
-                        : "bg-info-100 text-info-700 border-info-300 hover:bg-info-200 hover:border-info-400"
+                    onClick={(e) => { e.stopPropagation(); handleVote("no") }}
+                    className={`px-1.5 py-1 text-[10px] font-semibold rounded-full text-center transition-all duration-200 active:scale-95 ${
+                      currentUserVote === "no"
+                        ? "bg-[#e8b4b8] text-[#8b4c4f] ring-2 ring-[#d49396]"
+                        : "bg-[#f0cdd0] text-[#a06b6e] hover:bg-[#e8bfc3]"
                     }`}
                   >
-                    <Star className="w-2.5 h-2.5 mx-auto mb-0.5" />
-                    Maybe
+                    No
                   </button>
                 </div>
               )}

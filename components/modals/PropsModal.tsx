@@ -433,16 +433,22 @@ function EditItemModal({ item, onClose, onSave }: { item: InventoryItem | Projec
 /*  Vote Button                                                        */
 /* ------------------------------------------------------------------ */
 
-function VoteButton({ label, icon: Icon, isActive, count, activeClassName, onClick }: { label: string; icon: typeof CheckCircle; isActive: boolean; count: number; activeClassName: string; onClick: () => void }) {
+const VOTE_PILL_STYLES: Record<string, { base: string; active: string }> = {
+  Yes:   { base: "bg-[#d5dece] text-[#6b7a5e] hover:bg-[#c8d4bf]", active: "bg-[#b5c9a8] text-[#4a5b3f] ring-2 ring-[#8fa67e]" },
+  Maybe: { base: "bg-[#f5e6d0] text-[#9b8a5e] hover:bg-[#eddbbd]", active: "bg-[#f0d9b5] text-[#7a6a3a] ring-2 ring-[#d4b88a]" },
+  No:    { base: "bg-[#f0cdd0] text-[#a06b6e] hover:bg-[#e8bfc3]", active: "bg-[#e8b4b8] text-[#8b4c4f] ring-2 ring-[#d49396]" },
+}
+
+function VoteButton({ label, isActive, count, onClick }: { label: string; icon?: typeof CheckCircle; isActive: boolean; count: number; activeClassName?: string; onClick: () => void }) {
+  const style = VOTE_PILL_STYLES[label] || VOTE_PILL_STYLES["Maybe"]
   return (
     <button
       onClick={onClick}
-      className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium transition-colors ${isActive ? activeClassName : "text-gray-400 hover:bg-gray-100 hover:text-gray-600"}`}
+      className={`flex-1 px-3 py-1.5 rounded-full text-xs font-semibold text-center transition-all duration-200 ${isActive ? style.active : style.base}`}
       title={label}
     >
-      <Icon className="w-3.5 h-3.5" />
       <span>{label}</span>
-      {count > 0 && <span className="ml-0.5 text-[10px] opacity-80">{count}</span>}
+      {count > 0 && <span className="ml-1 text-[10px] opacity-70">{count}</span>}
     </button>
   )
 }
@@ -625,10 +631,10 @@ function InventoryCard({ item, isInProject, onToggleAdd, onEdit, onImageReplace,
         const maybeCt = itemVotes.filter((v) => v.vote === "maybe").length
         return (
           <>
-            <div className="px-4 pb-2 flex items-center gap-1 flex-wrap border-t border-gray-100 pt-2">
-              <VoteButton label="Yes" icon={CheckCircle} isActive={userVote === "yes"} count={yesCt} activeClassName="bg-emerald-100 text-emerald-700" onClick={() => onVote(item.id, "yes")} />
-              <VoteButton label="No" icon={XCircle} isActive={userVote === "no"} count={noCt} activeClassName="bg-red-100 text-red-700" onClick={() => onVote(item.id, "no")} />
-              <VoteButton label="Maybe" icon={HelpCircle} isActive={userVote === "maybe"} count={maybeCt} activeClassName="bg-amber-100 text-amber-700" onClick={() => onVote(item.id, "maybe")} />
+            <div className="px-4 pb-2 flex items-center gap-1.5 border-t border-gray-100 pt-2">
+              <VoteButton label="Yes" isActive={userVote === "yes"} count={yesCt} onClick={() => onVote(item.id, "yes")} />
+              <VoteButton label="Maybe" isActive={userVote === "maybe"} count={maybeCt} onClick={() => onVote(item.id, "maybe")} />
+              <VoteButton label="No" isActive={userVote === "no"} count={noCt} onClick={() => onVote(item.id, "no")} />
             </div>
             <div className="px-4 pb-3">
               <CommentSection comments={itemComments} onAddComment={(text) => onAddComment(item.id, text)} />
@@ -694,10 +700,10 @@ function ProjectPropCard({ item, onVote, onAddComment, onRemove, onAddToCanvas, 
       </div>
 
       {/* Vote row */}
-      <div className="px-4 pb-2 flex items-center gap-1 flex-wrap">
-        <VoteButton label="Yes" icon={CheckCircle} isActive={userVote === "yes"} count={yesCt} activeClassName="bg-emerald-100 text-emerald-700" onClick={() => onVote(item.id, "yes")} />
-        <VoteButton label="No" icon={XCircle} isActive={userVote === "no"} count={noCt} activeClassName="bg-red-100 text-red-700" onClick={() => onVote(item.id, "no")} />
-        <VoteButton label="Maybe" icon={HelpCircle} isActive={userVote === "maybe"} count={maybeCt} activeClassName="bg-amber-100 text-amber-700" onClick={() => onVote(item.id, "maybe")} />
+      <div className="px-4 pb-2 flex items-center gap-1.5">
+        <VoteButton label="Yes" isActive={userVote === "yes"} count={yesCt} onClick={() => onVote(item.id, "yes")} />
+        <VoteButton label="Maybe" isActive={userVote === "maybe"} count={maybeCt} onClick={() => onVote(item.id, "maybe")} />
+        <VoteButton label="No" isActive={userVote === "no"} count={noCt} onClick={() => onVote(item.id, "no")} />
         <div className="ml-auto">
           <button onClick={() => onAddToCanvas(item)} className="flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors" title="Add to Canvas">
             <Layout className="w-3.5 h-3.5" />
@@ -768,10 +774,10 @@ function ProjectListRow({ item, onVote, onAddComment, onRemove, onAddToCanvas, o
           <p className="text-sm font-medium text-gray-900 truncate">{item.name}</p>
           <p className="text-xs text-gray-500">{item.category} &middot; {item.brand}</p>
         </div>
-        <div className="flex items-center gap-1">
-          <VoteButton label="Yes" icon={CheckCircle} isActive={userVote === "yes"} count={yesCt} activeClassName="bg-emerald-100 text-emerald-700" onClick={() => onVote(item.id, "yes")} />
-          <VoteButton label="No" icon={XCircle} isActive={userVote === "no"} count={noCt} activeClassName="bg-red-100 text-red-700" onClick={() => onVote(item.id, "no")} />
-          <VoteButton label="Maybe" icon={HelpCircle} isActive={userVote === "maybe"} count={maybeCt} activeClassName="bg-amber-100 text-amber-700" onClick={() => onVote(item.id, "maybe")} />
+        <div className="flex items-center gap-1.5">
+          <VoteButton label="Yes" isActive={userVote === "yes"} count={yesCt} onClick={() => onVote(item.id, "yes")} />
+          <VoteButton label="Maybe" isActive={userVote === "maybe"} count={maybeCt} onClick={() => onVote(item.id, "maybe")} />
+          <VoteButton label="No" isActive={userVote === "no"} count={noCt} onClick={() => onVote(item.id, "no")} />
         </div>
         <button onClick={() => onEdit(item)} className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-colors" title="Edit">
           <Pencil className="w-3.5 h-3.5" />

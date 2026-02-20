@@ -336,18 +336,18 @@ export default function PlayerView() {
                   <div className="flex space-x-2 mb-2">
                     {state.users.map((user) => {
                       const userVote = currentActor.userVotes[user.id]
-                      let bgGradient = "bg-gradient-to-br from-slate-200 to-slate-300"
-                      let textColor = "text-slate-600"
+                      let bgGradient = "bg-slate-200"
+                      let textColor = "text-slate-500"
 
                       if (userVote === "yes") {
-                        bgGradient = "bg-gradient-to-br from-green-500 to-green-600"
-                        textColor = "text-white"
+                        bgGradient = "bg-[#b5c9a8]"
+                        textColor = "text-[#4a5b3f]"
                       } else if (userVote === "no") {
-                        bgGradient = "bg-gradient-to-br from-red-500 to-red-600"
-                        textColor = "text-white"
+                        bgGradient = "bg-[#e8b4b8]"
+                        textColor = "text-[#8b4c4f]"
                       } else if (userVote === "maybe") {
-                        bgGradient = "bg-gradient-to-br from-blue-500 to-blue-600"
-                        textColor = "text-white"
+                        bgGradient = "bg-[#f0d9b5]"
+                        textColor = "text-[#7a6a3a]"
                       }
 
                       return (
@@ -384,36 +384,33 @@ export default function PlayerView() {
                 <div className="grid grid-cols-3 gap-3 mt-4">
                   <button
                     onClick={() => handleVote("yes")}
-                    className={`px-4 py-2.5 text-sm font-semibold rounded-xl border-2 transition-all duration-200 shadow-sm hover:shadow-md transform hover:-translate-y-0.5 ${
+                    className={`px-4 py-3 text-sm font-semibold rounded-full text-center transition-all duration-200 ${
                       currentUserVote === "yes"
-                        ? "bg-gradient-to-r from-green-600 to-green-700 text-white border-green-700"
-                        : "bg-gradient-to-r from-green-100 to-green-200 text-green-700 border-green-300 hover:from-green-200 hover:to-green-300"
+                        ? "bg-[#b5c9a8] text-[#4a5b3f] ring-2 ring-[#8fa67e]"
+                        : "bg-[#d5dece] text-[#6b7a5e] hover:bg-[#c8d4bf]"
                     }`}
                   >
-                    <Heart className="w-4 h-4 mx-auto mb-1" />
                     Yes
                   </button>
                   <button
-                    onClick={() => handleVote("no")}
-                    className={`px-4 py-2.5 text-sm font-semibold rounded-xl border-2 transition-all duration-200 shadow-sm hover:shadow-md transform hover:-translate-y-0.5 ${
-                      currentUserVote === "no"
-                        ? "bg-gradient-to-r from-red-600 to-red-700 text-white border-red-700"
-                        : "bg-gradient-to-r from-red-100 to-red-200 text-red-700 border-red-300 hover:from-red-200 hover:to-red-300"
+                    onClick={() => handleVote("maybe")}
+                    className={`px-4 py-3 text-sm font-semibold rounded-full text-center transition-all duration-200 ${
+                      currentUserVote === "maybe"
+                        ? "bg-[#f0d9b5] text-[#7a6a3a] ring-2 ring-[#d4b88a]"
+                        : "bg-[#f5e6d0] text-[#9b8a5e] hover:bg-[#eddbbd]"
                     }`}
                   >
-                    <X className="w-4 h-4 mx-auto mb-1" />
-                    No
+                    Maybe
                   </button>
                   <button
-                    onClick={() => handleVote("maybe")}
-                    className={`px-4 py-2.5 text-sm font-semibold rounded-xl border-2 text-center transition-all duration-200 shadow-sm hover:shadow-md transform hover:-translate-y-0.5 ${
-                      currentUserVote === "maybe"
-                        ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white border-blue-700"
-                        : "bg-gradient-to-r from-blue-100 to-blue-200 text-blue-700 border-blue-300 hover:from-blue-200 hover:to-blue-300"
+                    onClick={() => handleVote("no")}
+                    className={`px-4 py-3 text-sm font-semibold rounded-full text-center transition-all duration-200 ${
+                      currentUserVote === "no"
+                        ? "bg-[#e8b4b8] text-[#8b4c4f] ring-2 ring-[#d49396]"
+                        : "bg-[#f0cdd0] text-[#a06b6e] hover:bg-[#e8bfc3]"
                     }`}
                   >
-                    <Star className="w-4 h-4 mx-auto mb-1" />
-                    Maybe
+                    No
                   </button>
                 </div>
               )}

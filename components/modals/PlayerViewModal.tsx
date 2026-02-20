@@ -568,10 +568,10 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
 
   const getUserVoteDisplay = (userId: string) => {
     const vote = currentActor.userVotes[userId]
-    if (vote === "yes") return { display: "Yes", class: "bg-gradient-to-r from-green-500 to-green-600 text-white" }
-    if (vote === "no") return { display: "No", class: "bg-gradient-to-r from-red-500 to-red-600 text-white" }
-    if (vote === "maybe") return { display: "Maybe", class: "bg-gradient-to-r from-blue-500 to-blue-600 text-white" }
-    return { display: "Pending", class: "bg-gray-100 text-gray-500 border border-gray-300" }
+    if (vote === "yes") return { display: "Yes", class: "bg-[#b5c9a8] text-[#4a5b3f]" }
+    if (vote === "no") return { display: "No", class: "bg-[#e8b4b8] text-[#8b4c4f]" }
+    if (vote === "maybe") return { display: "Maybe", class: "bg-[#f0d9b5] text-[#7a6a3a]" }
+    return { display: "Pending", class: "bg-gray-100 text-gray-500" }
   }
 
   const currentUserVote = state.currentUser ? currentActor.userVotes[state.currentUser.id] : null
@@ -1240,42 +1240,36 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
               </h4>
 
               {/* Vote Buttons - Responsive Grid */}
-              <div className="grid grid-cols-3 gap-1 sm:gap-2 mb-3 sm:mb-4">
+              <div className="grid grid-cols-3 gap-1.5 sm:gap-2 mb-3 sm:mb-4">
                 <button
                   onClick={() => handleVote("yes")}
-                  className={`relative overflow-hidden px-2 sm:px-3 py-1.5 sm:py-2 text-xs font-bold rounded-lg border-2 transition-all duration-300 transform hover:scale-105 ${
+                  className={`px-2 sm:px-3 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold rounded-full text-center transition-all duration-200 ${
                     currentUserVote === "yes"
-                      ? "bg-gradient-to-r from-green-500 to-green-600 text-white border-green-600 shadow-lg shadow-green-500/25"
-                      : "bg-gradient-to-r from-green-50 to-green-100 text-green-700 border-green-300 hover:from-green-100 hover:to-green-200"
+                      ? "bg-[#b5c9a8] text-[#4a5b3f] ring-2 ring-[#8fa67e]"
+                      : "bg-[#d5dece] text-[#6b7a5e] hover:bg-[#c8d4bf]"
                   }`}
                 >
-                  <Heart className="w-3 h-3 mx-auto mb-1" />
                   Yes
-                  {currentUserVote === "yes" && <div className="absolute inset-0 bg-white/20 animate-pulse"></div>}
-                </button>
-                <button
-                  onClick={() => handleVote("no")}
-                  className={`relative overflow-hidden px-2 sm:px-3 py-1.5 sm:py-2 text-xs font-bold rounded-lg border-2 transition-all duration-300 transform hover:scale-105 ${
-                    currentUserVote === "no"
-                      ? "bg-gradient-to-r from-red-500 to-red-600 text-white border-red-600 shadow-lg shadow-red-500/25"
-                      : "bg-gradient-to-r from-red-50 to-red-100 text-red-700 border-red-300 hover:from-red-100 hover:to-red-200"
-                  }`}
-                >
-                  <X className="w-3 h-3 mx-auto mb-1" />
-                  No
-                  {currentUserVote === "no" && <div className="absolute inset-0 bg-white/20 animate-pulse"></div>}
                 </button>
                 <button
                   onClick={() => handleVote("maybe")}
-                  className={`relative overflow-hidden px-2 sm:px-3 py-1.5 sm:py-2 text-xs font-bold rounded-lg border-2 transition-all duration-300 transform hover:scale-105 ${
+                  className={`px-2 sm:px-3 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold rounded-full text-center transition-all duration-200 ${
                     currentUserVote === "maybe"
-                      ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white border-blue-600 shadow-lg shadow-blue-500/25"
-                      : "bg-gradient-to-r from-blue-50 to-blue-100 text-blue-700 border-blue-300 hover:from-blue-100 hover:to-blue-200"
+                      ? "bg-[#f0d9b5] text-[#7a6a3a] ring-2 ring-[#d4b88a]"
+                      : "bg-[#f5e6d0] text-[#9b8a5e] hover:bg-[#eddbbd]"
                   }`}
                 >
-                  <Star className="w-3 h-3 mx-auto mb-1" />
                   Maybe
-                  {currentUserVote === "maybe" && <div className="absolute inset-0 bg-white/20 animate-pulse"></div>}
+                </button>
+                <button
+                  onClick={() => handleVote("no")}
+                  className={`px-2 sm:px-3 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold rounded-full text-center transition-all duration-200 ${
+                    currentUserVote === "no"
+                      ? "bg-[#e8b4b8] text-[#8b4c4f] ring-2 ring-[#d49396]"
+                      : "bg-[#f0cdd0] text-[#a06b6e] hover:bg-[#e8bfc3]"
+                  }`}
+                >
+                  No
                 </button>
               </div>
 

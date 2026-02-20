@@ -1098,12 +1098,18 @@ function WardrobeTab({
 /*  Vote / Comment components for Costumes                             */
 /* ================================================================== */
 
-function CostumeVoteButton({ label, icon: Icon, isActive, count, activeClassName, onClick }: { label: string; icon: typeof CheckCircle; isActive: boolean; count: number; activeClassName: string; onClick: () => void }) {
+const COSTUME_VOTE_PILL: Record<string, { base: string; active: string }> = {
+  Yes:   { base: "bg-[#d5dece] text-[#6b7a5e] hover:bg-[#c8d4bf]", active: "bg-[#b5c9a8] text-[#4a5b3f] ring-2 ring-[#8fa67e]" },
+  Maybe: { base: "bg-[#f5e6d0] text-[#9b8a5e] hover:bg-[#eddbbd]", active: "bg-[#f0d9b5] text-[#7a6a3a] ring-2 ring-[#d4b88a]" },
+  No:    { base: "bg-[#f0cdd0] text-[#a06b6e] hover:bg-[#e8bfc3]", active: "bg-[#e8b4b8] text-[#8b4c4f] ring-2 ring-[#d49396]" },
+}
+
+function CostumeVoteButton({ label, isActive, count, onClick }: { label: string; icon?: typeof CheckCircle; isActive: boolean; count: number; activeClassName?: string; onClick: () => void }) {
+  const style = COSTUME_VOTE_PILL[label] || COSTUME_VOTE_PILL["Maybe"]
   return (
-    <button onClick={(e) => { e.stopPropagation(); onClick() }} className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium transition-colors ${isActive ? activeClassName : "text-gray-400 hover:bg-gray-100 hover:text-gray-600"}`} title={label}>
-      <Icon className="w-3.5 h-3.5" />
+    <button onClick={(e) => { e.stopPropagation(); onClick() }} className={`flex-1 px-3 py-1.5 rounded-full text-xs font-semibold text-center transition-all duration-200 ${isActive ? style.active : style.base}`} title={label}>
       <span>{label}</span>
-      {count > 0 && <span className="ml-0.5 text-[10px] opacity-80">{count}</span>}
+      {count > 0 && <span className="ml-1 text-[10px] opacity-70">{count}</span>}
     </button>
   )
 }
@@ -1284,10 +1290,10 @@ function InventoryCard({
           const maybeCt = itemVotes.filter((v) => v.vote === "maybe").length
           return (
             <div className="mt-2 pt-2 border-t border-gray-100">
-              <div className="flex items-center gap-1 flex-wrap">
-                <CostumeVoteButton label="Yes" icon={CheckCircle} isActive={userVote === "yes"} count={yesCt} activeClassName="bg-emerald-100 text-emerald-700" onClick={() => onVote(item.id, "yes")} />
-                <CostumeVoteButton label="No" icon={XCircle} isActive={userVote === "no"} count={noCt} activeClassName="bg-red-100 text-red-700" onClick={() => onVote(item.id, "no")} />
-                <CostumeVoteButton label="Maybe" icon={HelpCircle} isActive={userVote === "maybe"} count={maybeCt} activeClassName="bg-amber-100 text-amber-700" onClick={() => onVote(item.id, "maybe")} />
+              <div className="flex items-center gap-1.5">
+                <CostumeVoteButton label="Yes" isActive={userVote === "yes"} count={yesCt} onClick={() => onVote(item.id, "yes")} />
+                <CostumeVoteButton label="Maybe" isActive={userVote === "maybe"} count={maybeCt} onClick={() => onVote(item.id, "maybe")} />
+                <CostumeVoteButton label="No" isActive={userVote === "no"} count={noCt} onClick={() => onVote(item.id, "no")} />
               </div>
               <CostumeCommentSection comments={itemComments} onAddComment={(text) => onAddComment(item.id, text)} />
             </div>
