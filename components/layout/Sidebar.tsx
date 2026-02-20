@@ -233,42 +233,62 @@ export default function Sidebar() {
         isCollapsed ? "w-20" : "w-72"
       }`}
     >
-      {/* Logo/Branding section at the top */}
+      {/* Logo + Notifications header */}
       <div className="p-4 border-b border-slate-200/60">
-        <div className="relative overflow-hidden">
-          {/* Full logo (expanded) */}
-          <div
-            className={`flex items-center transition-all duration-300 ease-in-out ${
-              isCollapsed ? "opacity-0 scale-90 max-h-0" : "opacity-100 scale-100 max-h-12"
-            }`}
+        {/* Expanded: logo row with bell to the right */}
+        <div
+          className={`flex items-center justify-between transition-all duration-300 ease-in-out ${
+            isCollapsed ? "opacity-0 scale-95 max-h-0 pointer-events-none" : "opacity-100 scale-100 max-h-14"
+          }`}
+        >
+          <img src="/images/gogreenlight-logo.png" alt="GoGreenlight" className="h-9 w-auto" />
+          <button
+            onClick={() => openModal("notifications")}
+            className="relative p-1.5 text-slate-500 hover:text-success-600 rounded-lg hover:bg-slate-100 transition-all duration-200"
+            title="Notifications"
+            aria-label={`Notifications${unreadNotifications > 0 ? `, ${unreadNotifications} unread` : ""}`}
           >
-            <img src="/images/gogreenlight-logo.png" alt="GoGreenlight" className="h-9 w-auto" />
-          </div>
-          {/* Mini logo (collapsed) */}
-          <div
-            className={`flex justify-center transition-all duration-300 ease-in-out ${
-              isCollapsed ? "opacity-100 scale-100 max-h-12" : "opacity-0 scale-90 max-h-0"
-            }`}
-          >
-            <img src="/images/logo-mini.png" alt="GoGreenlight" className="h-10 w-10 rounded-lg" />
-          </div>
+            <Bell className="w-4 h-4" />
+            {unreadNotifications > 0 && (
+              <div className="absolute -top-0.5 -right-0.5 bg-error-500 text-white text-[9px] font-bold min-w-[16px] h-4 px-1 rounded-full flex items-center justify-center shadow-sm notification-badge-pulse">
+                {unreadNotifications}
+              </div>
+            )}
+          </button>
+        </div>
+        {/* Collapsed: centered mini logo */}
+        <div
+          className={`flex justify-center transition-all duration-300 ease-in-out ${
+            isCollapsed ? "opacity-100 scale-100 max-h-14" : "opacity-0 scale-95 max-h-0 pointer-events-none"
+          }`}
+        >
+          <img src="/images/logo-mini.png" alt="GoGreenlight" className="h-10 w-10 rounded-lg" />
         </div>
       </div>
 
-      {/* Toggle Button and Notifications Icon */}
-      <div className="flex items-center justify-between p-4 border-b border-slate-200/60">
-        <button
-          onClick={() => openModal("notifications")}
-          className="relative p-2 text-slate-700 hover:text-success-600 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50"
-          title="Notifications"
+      {/* Toggle Button (and Notifications when collapsed) */}
+      <div className={`flex items-center p-4 border-b border-slate-200/60 ${isCollapsed ? "justify-between" : "justify-end"}`}>
+        {/* Bell in original position only when collapsed */}
+        <div
+          className={`transition-all duration-300 ease-in-out ${
+            isCollapsed ? "opacity-100 scale-100 w-auto" : "opacity-0 scale-75 w-0 overflow-hidden pointer-events-none"
+          }`}
         >
-          <Bell className="w-5 h-5" />
-          {unreadNotifications > 0 && (
-            <div className="absolute -top-1 -right-1 bg-error-500 text-white text-xs font-bold min-w-[20px] h-5 px-1.5 rounded-full flex items-center justify-center shadow-lg notification-badge-pulse">
-              {unreadNotifications}
-            </div>
-          )}
-        </button>
+          <button
+            onClick={() => openModal("notifications")}
+            className="relative p-2 text-slate-700 hover:text-success-600 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50"
+            title="Notifications"
+            aria-label={`Notifications${unreadNotifications > 0 ? `, ${unreadNotifications} unread` : ""}`}
+            tabIndex={isCollapsed ? 0 : -1}
+          >
+            <Bell className="w-5 h-5" />
+            {unreadNotifications > 0 && (
+              <div className="absolute -top-1 -right-1 bg-error-500 text-white text-xs font-bold min-w-[20px] h-5 px-1.5 rounded-full flex items-center justify-center shadow-lg notification-badge-pulse">
+                {unreadNotifications}
+              </div>
+            )}
+          </button>
+        </div>
 
         <button
           onClick={toggleSidebar}
