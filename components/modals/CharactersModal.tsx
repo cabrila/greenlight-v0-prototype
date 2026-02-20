@@ -450,35 +450,134 @@ export default function CharactersModal({ onClose }: CharactersModalProps) {
                           : "border-slate-200 hover:border-success-300"
                       }`}
                     >
-                      {/* Concept Art / Placeholder Image */}
+                      {/* Mosaic / Greenlit Hero Image Area */}
                       <div className="relative aspect-[4/3] bg-gradient-to-br from-slate-100 to-slate-200 overflow-hidden">
-                        {character.conceptArt ? (
-                          <img
-                            src={character.conceptArt || "/placeholder.svg"}
-                            alt={`${character.name} concept art`}
-                            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                          />
-                        ) : (
-                          <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400">
-                            <ImageIcon className="w-12 h-12 mb-2 opacity-50" />
-                            <span className="text-xs font-medium">No concept art</span>
-                          </div>
-                        )}
+                        {(() => {
+                          const actorsWithPhotos = allActors.filter((a) => a.headshots?.[0])
+                          const primaryGreenlit = greenlitActors.find((a) => a.headshots?.[0])
+                          const otherActors = primaryGreenlit ? allActors.filter((a) => a.id !== primaryGreenlit.id) : []
+                          const MAX_MOSAIC = 9
+                          const MAX_AVATAR_ROW = 5
 
-                        {/* Upload Button Overlay */}
+                          // --- State A: Greenlit hero ---
+                          if (primaryGreenlit) {
+                            return (
+                              <>
+                                <img
+                                  src={primaryGreenlit.headshots[0]}
+                                  alt={primaryGreenlit.name}
+                                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                  crossOrigin="anonymous"
+                                />
+                                {/* Gradient scrim at bottom for avatar row */}
+                                {otherActors.length > 0 && (
+                                  <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/50 to-transparent" />
+                                )}
+                                {/* Avatar row overlay */}
+                                {otherActors.length > 0 && (
+                                  <div className="absolute bottom-2.5 left-3 flex items-center">
+                                    {otherActors.slice(0, MAX_AVATAR_ROW).map((actor, i) => (
+                                      <div
+                                        key={actor.id}
+                                        className="w-7 h-7 rounded-full border-2 border-white overflow-hidden bg-slate-300 flex-shrink-0 shadow-sm"
+                                        style={{ marginLeft: i > 0 ? "-6px" : "0", zIndex: MAX_AVATAR_ROW - i }}
+                                        title={actor.name}
+                                      >
+                                        {actor.headshots?.[0] ? (
+                                          <img src={actor.headshots[0]} alt={actor.name} className="w-full h-full object-cover" crossOrigin="anonymous" />
+                                        ) : (
+                                          <div className="w-full h-full flex items-center justify-center">
+                                            <User className="w-3 h-3 text-slate-500" />
+                                          </div>
+                                        )}
+                                      </div>
+                                    ))}
+                                    {otherActors.length > MAX_AVATAR_ROW && (
+                                      <div
+                                        className="w-7 h-7 rounded-full border-2 border-white bg-slate-800/70 flex items-center justify-center text-[9px] font-bold text-white flex-shrink-0 shadow-sm"
+                                        style={{ marginLeft: "-6px", zIndex: 0 }}
+                                      >
+                                        +{otherActors.length - MAX_AVATAR_ROW}
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
+                              </>
+                            )
+                          }
+
+                          // --- State B: Mosaic grid ---
+                          if (actorsWithPhotos.length > 0) {
+                            const tiles = actorsWithPhotos.slice(0, MAX_MOSAIC)
+                            const overflow = allActors.length - tiles.length
+                            const cols = tiles.length === 1 ? 1 : tiles.length <= 4 ? 2 : 3
+                            return (
+                              <div
+                                className="w-full h-full grid gap-[2px]"
+                                style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}
+                              >
+                                {tiles.map((actor) => (
+                                  <div key={actor.id} className="relative overflow-hidden bg-slate-200" title={actor.name}>
+                                    <img
+                                      src={actor.headshots[0]}
+                                      alt={actor.name}
+                                      className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
+                                      crossOrigin="anonymous"
+                                    />
+                                  </div>
+                                ))}
+                                {overflow > 0 && (
+                                  <div className="absolute bottom-2 right-2 px-2 py-0.5 bg-slate-900/60 backdrop-blur-sm text-white text-[10px] font-semibold rounded-md">
+                                    +{overflow} more
+                                  </div>
+                                )}
+                              </div>
+                            )
+                          }
+
+                          // --- State C: Empty placeholder (no actors or no photos) ---
+                          if (allActors.length > 0) {
+                            // Actors exist but no headshots
+                            const avatarCols = Math.min(allActors.length, 4)
+                            return (
+                              <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 px-4">
+                                <div className="flex items-center justify-center" style={{ gap: "4px" }}>
+                                  {allActors.slice(0, 6).map((actor) => (
+                                    <div key={actor.id} className="w-9 h-9 rounded-full bg-slate-200 flex items-center justify-center text-xs font-bold text-slate-500" title={actor.name}>
+                                      {actor.name.charAt(0).toUpperCase()}
+                                    </div>
+                                  ))}
+                                  {allActors.length > 6 && (
+                                    <div className="w-9 h-9 rounded-full bg-slate-300 flex items-center justify-center text-[10px] font-bold text-slate-600">
+                                      +{allActors.length - 6}
+                                    </div>
+                                  )}
+                                </div>
+                                <span className="text-[11px] font-medium text-slate-400">{allActors.length} actor{allActors.length !== 1 ? "s" : ""} - no headshots</span>
+                              </div>
+                            )
+                          }
+
+                          return (
+                            <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400">
+                              <ImageIcon className="w-12 h-12 mb-2 opacity-50" />
+                              <span className="text-xs font-medium">No actors yet</span>
+                            </div>
+                          )
+                        })()}
+
+                        {/* Upload & AI generate buttons (hover overlay) */}
                         <button
                           onClick={(e) => handleUploadClick(e, character.id)}
-                          className="absolute bottom-3 right-3 p-2.5 bg-white/90 backdrop-blur-sm rounded-xl shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-white hover:scale-105"
+                          className="absolute bottom-3 right-3 p-2.5 bg-white/90 backdrop-blur-sm rounded-xl shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-white hover:scale-105 z-10"
                           title="Upload concept art"
                         >
                           <Upload className="w-4 h-4 text-slate-600" />
                         </button>
-
-                        {/* AI Generate Button Overlay */}
                         <button
                           onClick={(e) => handleGenerateArt(e, character.id, character.name)}
                           disabled={generatingArtCharacterId === character.id}
-                          className="absolute bottom-3 right-14 p-2.5 bg-white/90 backdrop-blur-sm rounded-xl shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-white hover:scale-105 disabled:opacity-100 disabled:cursor-wait"
+                          className="absolute bottom-3 right-14 p-2.5 bg-white/90 backdrop-blur-sm rounded-xl shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-white hover:scale-105 disabled:opacity-100 disabled:cursor-wait z-10"
                           title="Generate AI concept art"
                         >
                           {generatingArtCharacterId === character.id ? (
@@ -488,8 +587,8 @@ export default function CharactersModal({ onClose }: CharactersModalProps) {
                           )}
                         </button>
 
-                        {/* Status Badge */}
-                        <div className="absolute top-3 left-3 flex items-center gap-2">
+                        {/* Status Badges */}
+                        <div className="absolute top-3 left-3 flex items-center gap-2 z-10">
                           {isSelected && (
                             <div className="px-2.5 py-1 bg-success-500 text-white text-xs font-semibold rounded-lg shadow-md">
                               Current
