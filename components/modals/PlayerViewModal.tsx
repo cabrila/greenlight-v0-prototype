@@ -835,7 +835,6 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
                     className="w-32 h-32 sm:w-36 sm:h-36 lg:w-40 lg:h-40 xl:w-44 xl:h-44 mx-auto relative cursor-pointer group"
                     onClick={() => handleOpenPhotoViewer(currentHeadshotIndex)}
                   >
-                    <div className="absolute inset-0 bg-gradient-to-br from-emerald-400 to-blue-500 rounded-xl opacity-20 group-hover:opacity-30 transition-opacity"></div>
                     <img
                       src={getCurrentImageUrl() || "/placeholder.svg"}
                       alt={currentActor.name}
