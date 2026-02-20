@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useCasting } from "@/components/casting/CastingContext"
-import { ChevronLeft, ChevronRight, X, Crown, Star, Heart, MessageSquare } from 'lucide-react'
+import { ChevronLeft, ChevronRight, X, Crown, Star, Heart, MessageSquare, CheckCircle2 } from 'lucide-react'
 import PlayerViewNotes from "./PlayerViewNotes"
 import type { Note } from "@/types/casting"
 
@@ -264,20 +264,21 @@ export default function PlayerView() {
                 </>
               )}
 
-              {/* Cast/Greenlit Overlay */}
+              {/* Cast/Greenlit Badge (no photo tint) */}
               {isCast && (
-                <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-emerald-600/20 flex items-center justify-center text-emerald-800 text-2xl font-bold rounded-lg pointer-events-none">
-                  <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white px-6 py-3 rounded-xl flex items-center space-x-2 shadow-lg">
-                    <Crown className="w-6 h-6" />
-                    <span>CAST</span>
+                <div className="absolute top-4 left-4 pointer-events-none z-10">
+                  <div className="bg-white/90 backdrop-blur-sm text-slate-800 px-4 py-2 rounded-full flex items-center space-x-2 shadow-md border border-slate-200">
+                    <Crown className="w-4 h-4 text-amber-500" />
+                    <span className="text-sm font-bold tracking-wide">CAST</span>
                   </div>
                 </div>
               )}
 
               {!isCast && currentActor.isGreenlit && (
-                <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/30 to-emerald-600/30 flex items-center justify-center text-white text-2xl font-bold rounded-lg pointer-events-none">
-                  <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white px-4 py-2 rounded-xl shadow-lg">
-                    GREENLIT
+                <div className="absolute top-4 left-4 pointer-events-none z-10">
+                  <div className="bg-white/90 backdrop-blur-sm text-slate-800 px-4 py-2 rounded-full flex items-center space-x-2 shadow-md border border-slate-200">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                    <span className="text-sm font-bold tracking-wide">GREENLIT</span>
                   </div>
                 </div>
               )}
