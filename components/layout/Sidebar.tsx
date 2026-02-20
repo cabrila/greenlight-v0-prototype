@@ -235,15 +235,24 @@ export default function Sidebar() {
     >
       {/* Logo/Branding section at the top */}
       <div className="p-4 border-b border-slate-200/60">
-        {!isCollapsed ? (
-          <div className="flex items-center">
+        <div className="relative overflow-hidden">
+          {/* Full logo (expanded) */}
+          <div
+            className={`flex items-center transition-all duration-300 ease-in-out ${
+              isCollapsed ? "opacity-0 scale-90 max-h-0" : "opacity-100 scale-100 max-h-12"
+            }`}
+          >
             <img src="/images/gogreenlight-logo.png" alt="GoGreenlight" className="h-9 w-auto" />
           </div>
-        ) : (
-          <div className="flex justify-center">
-            <img src="/images/gogreenlight-logo.png" alt="GoGreenlight" className="h-7 w-auto" />
+          {/* Mini logo (collapsed) */}
+          <div
+            className={`flex justify-center transition-all duration-300 ease-in-out ${
+              isCollapsed ? "opacity-100 scale-100 max-h-12" : "opacity-0 scale-90 max-h-0"
+            }`}
+          >
+            <img src="/images/logo-mini.png" alt="GoGreenlight" className="h-10 w-10 rounded-lg" />
           </div>
-        )}
+        </div>
       </div>
 
       {/* Toggle Button and Notifications Icon */}
