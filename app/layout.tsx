@@ -1,10 +1,15 @@
 import type React from "react" // Good practice to import React
 import type { Metadata } from "next"
-import { Inter } from 'next/font/google'
-import "./globals.css" // Your global styles
-import { ThemeProvider } from "@/components/theme-provider" // CRITICAL: Ensure this path is correct
+import { Gabarito } from 'next/font/google'
+import "./globals.css"
+import { ThemeProvider } from "@/components/theme-provider"
 
-const inter = Inter({ subsets: ["latin"] })
+const gabarito = Gabarito({
+  subsets: ["latin"],
+  variable: "--font-gabarito",
+  display: "swap",
+  weight: ["400", "500", "600", "700", "800", "900"],
+})
 
 export const metadata: Metadata = {
   title: "GoGreenlight Casting", // Or your application's title
@@ -18,8 +23,8 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
+    <html lang="en" suppressHydrationWarning className={`${gabarito.variable} antialiased`}>
+      <body className="font-sans">
         <ThemeProvider
           attribute="class" // CRITICAL: This tells next-themes to use class-based theming
           defaultTheme="light" // Sets the default theme (can be "light", "dark", or "system")
