@@ -697,23 +697,23 @@ export default function Sidebar() {
 
       {/* Back to Menu Section - Fixed at bottom */}
       <div className="p-4 border-t border-slate-200/60 mt-auto">
-        {!isCollapsed ? (
-          <button
-            onClick={handleOpenSplashScreen}
-            className="w-full flex items-center space-x-3 px-4 py-2.5 text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200"
+        <button
+          onClick={handleOpenSplashScreen}
+          className={`w-full flex items-center text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all duration-300 shadow-sm hover:shadow-md border border-slate-200 ${
+            isCollapsed ? "justify-center p-3" : "gap-3 px-4 py-2.5"
+          }`}
+          title="Back to Menu"
+          aria-label="Back to Menu"
+        >
+          <Home className={`flex-shrink-0 transition-all duration-300 ${isCollapsed ? "w-5 h-5" : "w-4 h-4"}`} />
+          <span
+            className={`whitespace-nowrap transition-all duration-300 ${
+              isCollapsed ? "w-0 opacity-0 overflow-hidden" : "w-auto opacity-100"
+            }`}
           >
-            <Home className="w-4 h-4" />
-            <span>Back to Menu</span>
-          </button>
-        ) : (
-          <button
-            onClick={handleOpenSplashScreen}
-            className="w-full flex justify-center p-3 text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200"
-            title="Back to Menu"
-          >
-            <img src="/images/gogreenlight-logo.png" alt="GoGreenlight" className="h-5 w-auto" />
-          </button>
-        )}
+            Back to Menu
+          </span>
+        </button>
       </div>
 
       {/* Context Menu */}
