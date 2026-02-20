@@ -266,40 +266,33 @@ export default function Sidebar() {
         </div>
       </div>
 
-      {/* Toggle Button (and Notifications when collapsed) */}
-      <div className={`flex items-center p-4 border-b border-slate-200/60 ${isCollapsed ? "justify-between" : "justify-end"}`}>
-        {/* Bell in original position only when collapsed */}
-        <div
-          className={`transition-all duration-300 ease-in-out ${
-            isCollapsed ? "opacity-100 scale-100 w-auto" : "opacity-0 scale-75 w-0 overflow-hidden pointer-events-none"
-          }`}
+      {/* Collapsed: bell + toggle row between logo and menu */}
+      <div
+        className={`flex items-center justify-between px-4 py-2 border-b border-slate-200/60 transition-all duration-300 ${
+          isCollapsed ? "max-h-16 opacity-100" : "max-h-0 opacity-0 overflow-hidden py-0 border-b-0"
+        }`}
+      >
+        <button
+          onClick={() => openModal("notifications")}
+          className="relative p-2 text-slate-700 hover:text-success-600 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50"
+          title="Notifications"
+          aria-label={`Notifications${unreadNotifications > 0 ? `, ${unreadNotifications} unread` : ""}`}
+          tabIndex={isCollapsed ? 0 : -1}
         >
-          <button
-            onClick={() => openModal("notifications")}
-            className="relative p-2 text-slate-700 hover:text-success-600 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50"
-            title="Notifications"
-            aria-label={`Notifications${unreadNotifications > 0 ? `, ${unreadNotifications} unread` : ""}`}
-            tabIndex={isCollapsed ? 0 : -1}
-          >
-            <Bell className="w-5 h-5" />
-            {unreadNotifications > 0 && (
-              <div className="absolute -top-1 -right-1 bg-error-500 text-white text-xs font-bold min-w-[20px] h-5 px-1.5 rounded-full flex items-center justify-center shadow-lg notification-badge-pulse">
-                {unreadNotifications}
-              </div>
-            )}
-          </button>
-        </div>
-
+          <Bell className="w-5 h-5" />
+          {unreadNotifications > 0 && (
+            <div className="absolute -top-1 -right-1 bg-error-500 text-white text-xs font-bold min-w-[20px] h-5 px-1.5 rounded-full flex items-center justify-center shadow-lg notification-badge-pulse">
+              {unreadNotifications}
+            </div>
+          )}
+        </button>
         <button
           onClick={toggleSidebar}
           className="p-2 hover:bg-slate-100 rounded-xl transition-all duration-200 group"
-          aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+          aria-label="Expand sidebar"
+          tabIndex={isCollapsed ? 0 : -1}
         >
-          {isCollapsed ? (
-            <ChevronRight className="w-5 h-5 text-slate-600 group-hover:text-success-600 transition-colors" />
-          ) : (
-            <ChevronLeft className="w-5 h-5 text-slate-600 group-hover:text-success-600 transition-colors" />
-          )}
+          <ChevronRight className="w-5 h-5 text-slate-600 group-hover:text-success-600 transition-colors" />
         </button>
       </div>
 
@@ -308,13 +301,22 @@ export default function Sidebar() {
         <div className="p-4 space-y-2 border-b border-slate-200/60">
           {!isCollapsed ? (
             <>
-              <button
-                onClick={() => openModal("projectManager")}
-                className="w-full flex items-center space-x-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:text-success-600 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50"
-              >
-                <Folder className="w-4 h-4" />
-                <span className="truncate">Project: {currentProject?.name || "N/A"}</span>
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => openModal("projectManager")}
+                  className="flex-1 min-w-0 flex items-center space-x-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:text-success-600 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50"
+                >
+                  <Folder className="w-4 h-4 flex-shrink-0" />
+                  <span className="truncate">Project: {currentProject?.name || "N/A"}</span>
+                </button>
+                <button
+                  onClick={toggleSidebar}
+                  className="flex-shrink-0 p-2 hover:bg-slate-100 rounded-xl transition-all duration-200 group border border-slate-200/50"
+                  aria-label="Collapse sidebar"
+                >
+                  <ChevronLeft className="w-4 h-4 text-slate-500 group-hover:text-success-600 transition-colors" />
+                </button>
+              </div>
 
               <button
                 onClick={() => openModal("script")}
