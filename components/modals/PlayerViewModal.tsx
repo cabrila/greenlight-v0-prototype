@@ -467,10 +467,11 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
   const handleVote = (vote: "yes" | "no" | "maybe") => {
     if (!state.currentUser) return
 
-    // Special handling for 'maybe' vote - require a note
+    // Special handling for 'maybe' vote - always require a comment
+    // Unless the user is toggling OFF an existing maybe vote
     if (vote === "maybe") {
-      const hasExistingNotes = currentActor.notes && currentActor.notes.length > 0
-      if (!hasExistingNotes) {
+      const currentVote = state.currentUser ? currentActor.userVotes?.[state.currentUser.id] : null
+      if (currentVote !== "maybe") {
         setShowMaybeNotePrompt(true)
         return
       }
@@ -1346,44 +1347,45 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
 
         {/* Maybe Note Prompt Modal */}
         {showMaybeNotePrompt && (
-          <div className="fixed inset-0 bg-black bg-opacity-75 z-[70] flex items-center justify-center">
-            <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4">
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] flex items-center justify-center p-4">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md animate-in fade-in zoom-in-95 duration-200">
               <div className="p-6">
-                <div className="flex items-center space-x-3 mb-4">
-                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                    <MessageSquare className="w-5 h-5 text-blue-600" />
+                <div className="flex items-center gap-3 mb-5">
+                  <div className="w-10 h-10 bg-[#f5e6d0] rounded-full flex items-center justify-center flex-shrink-0">
+                    <MessageSquare className="w-5 h-5 text-[#8b7a4a]" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900">Add a Note for "Maybe"</h3>
-                    <p className="text-sm text-gray-600">Please explain why you're unsure about this actor</p>
+                    <h3 className="text-base font-bold text-slate-900">Why "Maybe"?</h3>
+                    <p className="text-sm text-slate-500">A comment is required when voting maybe</p>
                   </div>
                 </div>
-                
+
                 <textarea
                   value={maybeNoteText}
                   onChange={(e) => setMaybeNoteText(e.target.value)}
-                  placeholder="Add your thoughts about this actor..."
-                  className="w-full p-3 border border-gray-300 rounded-lg text-sm resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Share your thoughts about this actor..."
+                  className="w-full p-3 border border-slate-200 rounded-xl text-sm resize-none focus:ring-2 focus:ring-[#d4b88a] focus:border-transparent bg-slate-50 placeholder:text-slate-400"
                   rows={4}
                   autoFocus
                 />
-                
-                <div className="flex justify-end space-x-3 mt-4">
+                <p className="text-[11px] text-slate-400 mt-1.5 ml-1">{maybeNoteText.trim().length > 0 ? `${maybeNoteText.trim().length} characters` : "Required"}</p>
+
+                <div className="flex justify-end gap-3 mt-4">
                   <button
                     onClick={() => {
                       setShowMaybeNotePrompt(false)
                       setMaybeNoteText("")
                     }}
-                    className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                    className="px-4 py-2 text-sm font-medium text-slate-500 hover:text-slate-700 rounded-full hover:bg-slate-100 transition-colors"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={handleMaybeWithNote}
                     disabled={!maybeNoteText.trim()}
-                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="px-5 py-2 text-sm font-semibold rounded-full transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed bg-[#f0d9b5] text-[#7a6a3a] hover:bg-[#e8cf9f] ring-1 ring-[#d4b88a]/50"
                   >
-                    Vote Maybe
+                    Submit & Vote Maybe
                   </button>
                 </div>
               </div>
