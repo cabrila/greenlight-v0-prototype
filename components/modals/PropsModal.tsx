@@ -23,10 +23,13 @@ import {
   Upload,
   Trash2,
   Pencil,
+  Film,
+  User,
 } from "lucide-react"
 import { useCasting } from "@/components/casting/CastingContext"
 import { openModal } from "./ModalManager"
-import type { ProjectProp, PropVote, PropComment, PropAvailability, PropInventoryItem } from "@/types/casting"
+import type { ProjectProp, PropVote, PropComment, PropAvailability, PropInventoryItem, Character, Actor } from "@/types/casting"
+import type { Scene } from "@/types/schedule"
 import { compressImage } from "@/utils/imageCompression"
 
 /* ------------------------------------------------------------------ */
@@ -54,20 +57,22 @@ const STATUS_OPTIONS: { value: InventoryItem["status"]; label: string }[] = [
 /*  Mock inventory data                                                */
 /* ------------------------------------------------------------------ */
 
-function generateMockInventory(): InventoryItem[] {
+function generateMockInventory(characters: Character[], scenes: Scene[]): InventoryItem[] {
+  const charId = (idx: number) => characters[idx]?.id ?? null
+  const scnIds = (...indices: number[]) => indices.filter((i) => scenes[i]).map((i) => scenes[i].id)
   return [
-    { id: "p1", name: "Medieval Broadsword", model: "Steel Replica", category: "Action Props", brand: "Regal Arms", serialNumber: "MBS-00192", skuBarcode: "7891234560", notes: "", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Bought", unitPrice: "$450", quantity: 3, bookedTo: null, availability: [], status: "available" },
-    { id: "p2", name: "Victorian Chandelier", model: "Grand 48", category: "Decorations", brand: "Heritage Lights", serialNumber: "VCH-90234", skuBarcode: "7891234561", notes: "", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Rental", unitPrice: "$2,500", quantity: 2, bookedTo: null, availability: [], status: "available" },
-    { id: "p3", name: "Antique Telephone", model: "Rotary 1950s", category: "Household Items", brand: "Retro Props Co.", serialNumber: "ATP-44210", skuBarcode: "7891234562", notes: "Dial is functional, bell rings", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Bought", unitPrice: "$320", quantity: 4, bookedTo: null, availability: [], status: "available" },
-    { id: "p4", name: "Plasma Rifle", model: "PR-7X", category: "Sci-Fi", brand: "FutureForge", serialNumber: "PLR-11002", skuBarcode: "7891234563", notes: "", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Rental", unitPrice: "$1,800", quantity: 1, bookedTo: "Jurassic Park - Remake", availability: [], status: "in-use" },
-    { id: "p5", name: "Crystal Ball", model: "12\" Illuminated", category: "Fantasy", brand: "Mystic Props", serialNumber: "CRB-78301", skuBarcode: "7891234564", notes: "LED base included", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Bought", unitPrice: "$280", quantity: 2, bookedTo: null, availability: [], status: "available" },
-    { id: "p6", name: "Framed Oil Painting", model: "Large Landscape", category: "Images", brand: "Art House Props", serialNumber: "FOP-460D0G", skuBarcode: "1234567890", notes: "Canvas reproduction, gilt frame", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Rental", unitPrice: "$600", quantity: 1, bookedTo: null, availability: [], status: "available" },
-    { id: "p7", name: "Wooden Treasure Chest", model: "Pirate Style", category: "Fantasy", brand: "Old World Props", serialNumber: "WTC-20102", skuBarcode: "7891234566", notes: "", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Bought", unitPrice: "$180", quantity: 5, bookedTo: null, availability: [], status: "available" },
-    { id: "p8", name: "Holographic Display", model: "HoloDesk v2", category: "Sci-Fi", brand: "FutureForge", serialNumber: "HLD-66102", skuBarcode: "7891234567", notes: "Requires 220V power", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Rental", unitPrice: "$3,200", quantity: 3, bookedTo: "Avatar 3", availability: [], status: "in-use" },
-    { id: "p9", name: "Leather Holster Set", model: "Double Draw", category: "Action Props", brand: "Western Outfitters", serialNumber: "LHS-34501", skuBarcode: "7891234568", notes: "", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Bought", unitPrice: "$150", quantity: 6, bookedTo: null, availability: [], status: "available" },
-    { id: "p10", name: "Velvet Curtain Panels", model: "12ft Burgundy", category: "Decorations", brand: "Stage Dressing Co.", serialNumber: "VCP-90001", skuBarcode: "7891234569", notes: "Flame retardant treated", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Bought", unitPrice: "$420", quantity: 8, bookedTo: null, availability: [], status: "available" },
-    { id: "p11", name: "Cast Iron Skillet", model: "14\"", category: "Household Items", brand: "Lodge", serialNumber: "CIS-00442", skuBarcode: "7891234570", notes: "Pre-seasoned, food safe", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Bought", unitPrice: "$60", quantity: 4, bookedTo: "Stranger Things S6", availability: [], status: "in-use" },
-    { id: "p12", name: "Vintage Movie Poster", model: "27x40 Framed", category: "Images", brand: "Art House Props", serialNumber: "VMP-12093", skuBarcode: "7891234571", notes: "1960s Hitchcock reproduction", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Bought", unitPrice: "$95", quantity: 3, bookedTo: null, availability: [], status: "available" },
+    { id: "p1", name: "Medieval Broadsword", model: "Steel Replica", category: "Action Props", brand: "Regal Arms", serialNumber: "MBS-00192", skuBarcode: "7891234560", notes: "", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Bought", unitPrice: "$450", quantity: 3, bookedTo: null, availability: [], status: "available", sceneIds: scnIds(0, 2), characterId: charId(0) },
+    { id: "p2", name: "Victorian Chandelier", model: "Grand 48", category: "Decorations", brand: "Heritage Lights", serialNumber: "VCH-90234", skuBarcode: "7891234561", notes: "", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Rental", unitPrice: "$2,500", quantity: 2, bookedTo: null, availability: [], status: "available", sceneIds: scnIds(1), characterId: null },
+    { id: "p3", name: "Antique Telephone", model: "Rotary 1950s", category: "Household Items", brand: "Retro Props Co.", serialNumber: "ATP-44210", skuBarcode: "7891234562", notes: "Dial is functional, bell rings", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Bought", unitPrice: "$320", quantity: 4, bookedTo: null, availability: [], status: "available", sceneIds: scnIds(0, 1, 3), characterId: charId(1) },
+    { id: "p4", name: "Plasma Rifle", model: "PR-7X", category: "Sci-Fi", brand: "FutureForge", serialNumber: "PLR-11002", skuBarcode: "7891234563", notes: "", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Rental", unitPrice: "$1,800", quantity: 1, bookedTo: "Jurassic Park - Remake", availability: [], status: "in-use", sceneIds: scnIds(2, 4), characterId: charId(0) },
+    { id: "p5", name: "Crystal Ball", model: "12\" Illuminated", category: "Fantasy", brand: "Mystic Props", serialNumber: "CRB-78301", skuBarcode: "7891234564", notes: "LED base included", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Bought", unitPrice: "$280", quantity: 2, bookedTo: null, availability: [], status: "available", sceneIds: scnIds(3), characterId: charId(2) },
+    { id: "p6", name: "Framed Oil Painting", model: "Large Landscape", category: "Images", brand: "Art House Props", serialNumber: "FOP-460D0G", skuBarcode: "1234567890", notes: "Canvas reproduction, gilt frame", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Rental", unitPrice: "$600", quantity: 1, bookedTo: null, availability: [], status: "available", sceneIds: [], characterId: null },
+    { id: "p7", name: "Wooden Treasure Chest", model: "Pirate Style", category: "Fantasy", brand: "Old World Props", serialNumber: "WTC-20102", skuBarcode: "7891234566", notes: "", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Bought", unitPrice: "$180", quantity: 5, bookedTo: null, availability: [], status: "available", sceneIds: scnIds(0, 4), characterId: null },
+    { id: "p8", name: "Holographic Display", model: "HoloDesk v2", category: "Sci-Fi", brand: "FutureForge", serialNumber: "HLD-66102", skuBarcode: "7891234567", notes: "Requires 220V power", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Rental", unitPrice: "$3,200", quantity: 3, bookedTo: "Avatar 3", availability: [], status: "in-use", sceneIds: scnIds(1, 2), characterId: null },
+    { id: "p9", name: "Leather Holster Set", model: "Double Draw", category: "Action Props", brand: "Western Outfitters", serialNumber: "LHS-34501", skuBarcode: "7891234568", notes: "", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Bought", unitPrice: "$150", quantity: 6, bookedTo: null, availability: [], status: "available", sceneIds: scnIds(0), characterId: charId(0) },
+    { id: "p10", name: "Velvet Curtain Panels", model: "12ft Burgundy", category: "Decorations", brand: "Stage Dressing Co.", serialNumber: "VCP-90001", skuBarcode: "7891234569", notes: "Flame retardant treated", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Bought", unitPrice: "$420", quantity: 8, bookedTo: null, availability: [], status: "available", sceneIds: scnIds(1, 3), characterId: null },
+    { id: "p11", name: "Cast Iron Skillet", model: "14\"", category: "Household Items", brand: "Lodge", serialNumber: "CIS-00442", skuBarcode: "7891234570", notes: "Pre-seasoned, food safe", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Bought", unitPrice: "$60", quantity: 4, bookedTo: "Stranger Things S6", availability: [], status: "in-use", sceneIds: scnIds(2), characterId: charId(1) },
+    { id: "p12", name: "Vintage Movie Poster", model: "27x40 Framed", category: "Images", brand: "Art House Props", serialNumber: "VMP-12093", skuBarcode: "7891234571", notes: "1960s Hitchcock reproduction", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Bought", unitPrice: "$95", quantity: 3, bookedTo: null, availability: [], status: "available", sceneIds: [], characterId: null },
   ]
 }
 
@@ -168,14 +173,25 @@ function ImageUploadBox({ imageUrl, onImageChange, className }: { imageUrl: stri
 /*  Add Item Sub-Modal                                                 */
 /* ------------------------------------------------------------------ */
 
-function AddItemModal({ onClose, onAdd }: { onClose: () => void; onAdd: (item: InventoryItem) => void }) {
+function AddItemModal({ onClose, onAdd, scenes, characters, characterActorMap }: { onClose: () => void; onAdd: (item: InventoryItem) => void; scenes: Scene[]; characters: Character[]; characterActorMap: { character: Character; castActor: Actor | null }[] }) {
   const [form, setForm] = useState({ name: "", model: "", category: "", serialNumber: "", brand: "", skuBarcode: "", notes: "", purchaseType: "", unitPrice: "", quantity: 1 })
   const [imageUrl, setImageUrl] = useState("/placeholder.svg?height=120&width=160")
+  const [selectedSceneIds, setSelectedSceneIds] = useState<string[]>([])
+  const [selectedCharacterId, setSelectedCharacterId] = useState<string | null>(null)
+  const [sceneSearch, setSceneSearch] = useState("")
   const [availSlots, setAvailSlots] = useState<{ id: string; day: string; startTime: string; endTime: string }[]>([
     { id: uid(), day: "", startTime: "09:00", endTime: "17:00" },
   ])
 
   const update = (field: string, value: string | number) => setForm((f) => ({ ...f, [field]: value }))
+
+  const toggleScene = (id: string) => setSelectedSceneIds((prev) => prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id])
+
+  const filteredScenes = useMemo(() => {
+    if (!sceneSearch) return scenes
+    const q = sceneSearch.toLowerCase()
+    return scenes.filter((s) => s.sceneNumber.toLowerCase().includes(q) || s.location.toLowerCase().includes(q) || (s.description || "").toLowerCase().includes(q))
+  }, [scenes, sceneSearch])
 
   const handleSubmit = () => {
     if (!form.name.trim()) return
@@ -195,6 +211,8 @@ function AddItemModal({ onClose, onAdd }: { onClose: () => void; onAdd: (item: I
       bookedTo: null,
       availability: availSlots.filter((s) => s.day),
       status: "available",
+      sceneIds: selectedSceneIds,
+      characterId: selectedCharacterId,
     }
     onAdd(newItem)
     onClose()
@@ -235,6 +253,108 @@ function AddItemModal({ onClose, onAdd }: { onClose: () => void; onAdd: (item: I
           <div className="grid grid-cols-2 gap-4">
             <FloatingField label="Brand" value={form.brand} onChange={(v) => update("brand", v)} />
             <FloatingField label="Sku / Barcode" value={form.skuBarcode} onChange={(v) => update("skuBarcode", v)} />
+          </div>
+
+          {/* Scene Assignment */}
+          <div>
+            <h3 className="text-base font-bold text-gray-900">Scenes</h3>
+            <p className="text-xs text-gray-500 mb-3">Assign this prop to one or more scenes.</p>
+            {selectedSceneIds.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 mb-3">
+                {selectedSceneIds.map((sid) => {
+                  const scene = scenes.find((s) => s.id === sid)
+                  if (!scene) return null
+                  return (
+                    <span key={sid} className="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full text-[11px] font-medium">
+                      <Film className="w-3 h-3" />
+                      Sc {scene.sceneNumber}
+                      <button onClick={() => toggleScene(sid)} className="ml-0.5 text-emerald-400 hover:text-emerald-700 transition-colors">
+                        <X className="w-3 h-3" />
+                      </button>
+                    </span>
+                  )
+                })}
+              </div>
+            )}
+            {scenes.length > 0 ? (
+              <div className="bg-white border border-gray-300 rounded-xl overflow-hidden">
+                <div className="relative border-b border-gray-200">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
+                  <input value={sceneSearch} onChange={(e) => setSceneSearch(e.target.value)} placeholder="Search scenes..." className="w-full pl-8 pr-3 py-2.5 text-xs bg-gray-50 focus:outline-none focus:bg-white text-gray-900 placeholder-gray-400" />
+                </div>
+                <div className="max-h-40 overflow-y-auto divide-y divide-gray-100">
+                  {filteredScenes.map((scene) => {
+                    const isSelected = selectedSceneIds.includes(scene.id)
+                    return (
+                      <button key={scene.id} onClick={() => toggleScene(scene.id)} className={`w-full flex items-center gap-3 px-3 py-2.5 text-left transition-colors ${isSelected ? "bg-emerald-50" : "hover:bg-gray-50"}`}>
+                        <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-colors ${isSelected ? "bg-emerald-600 border-emerald-600" : "border-gray-300"}`}>
+                          {isSelected && <Check className="w-3 h-3 text-white" />}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-semibold text-gray-900">Sc {scene.sceneNumber}</span>
+                            <span className="text-[10px] text-gray-400">{scene.intExt}. {scene.location} - {scene.dayNight}</span>
+                          </div>
+                          {scene.description && <p className="text-[10px] text-gray-500 truncate mt-0.5">{scene.description}</p>}
+                        </div>
+                        <span className="text-[10px] text-gray-400 shrink-0">{scene.pages} pg</span>
+                      </button>
+                    )
+                  })}
+                  {filteredScenes.length === 0 && <p className="text-center text-xs text-gray-400 py-4">No scenes match your search</p>}
+                </div>
+              </div>
+            ) : (
+              <p className="text-xs text-gray-400 italic">No scenes available. Add scenes in the Schedule view.</p>
+            )}
+          </div>
+
+          {/* Character Assignment */}
+          <div>
+            <h3 className="text-base font-bold text-gray-900">Character</h3>
+            <p className="text-xs text-gray-500 mb-3">Assign this prop to a character (optional).</p>
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => setSelectedCharacterId(null)}
+                className={`flex items-center gap-2 px-3 py-2 rounded-xl border-2 transition-all text-left ${
+                  selectedCharacterId === null
+                    ? "border-emerald-400 bg-emerald-50 shadow-sm"
+                    : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+                }`}
+              >
+                <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${selectedCharacterId === null ? "bg-emerald-500 text-white" : "bg-gray-200 text-gray-400"}`}>
+                  <Package className="w-3.5 h-3.5" />
+                </div>
+                <span className={`text-xs font-medium ${selectedCharacterId === null ? "text-emerald-700" : "text-gray-600"}`}>No character</span>
+              </button>
+              {characterActorMap.map(({ character, castActor }) => {
+                const isSelected = selectedCharacterId === character.id
+                return (
+                  <button
+                    key={character.id}
+                    onClick={() => setSelectedCharacterId(isSelected ? null : character.id)}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-xl border-2 transition-all text-left ${
+                      isSelected
+                        ? "border-emerald-400 bg-emerald-50 shadow-sm"
+                        : "border-gray-200 hover:border-emerald-200 hover:bg-gray-50"
+                    }`}
+                  >
+                    {castActor?.headshots?.[0] ? (
+                      <img src={castActor.headshots[0]} alt="" className={`w-7 h-8 object-cover rounded-lg shrink-0 ${isSelected ? "ring-2 ring-emerald-300" : ""}`} />
+                    ) : (
+                      <div className={`w-7 h-8 rounded-lg flex items-center justify-center shrink-0 ${isSelected ? "bg-emerald-100" : "bg-gray-100"}`}>
+                        <User className={`w-3.5 h-3.5 ${isSelected ? "text-emerald-500" : "text-gray-400"}`} />
+                      </div>
+                    )}
+                    <div className="min-w-0">
+                      <p className={`text-xs font-semibold truncate ${isSelected ? "text-emerald-700" : "text-gray-800"}`}>{character.name}</p>
+                      {castActor && <p className="text-[10px] text-gray-500 truncate">{castActor.name}</p>}
+                    </div>
+                  </button>
+                )
+              })}
+            </div>
+            {characters.length === 0 && <p className="text-xs text-gray-400 italic mt-2">No characters in this project yet.</p>}
           </div>
 
           {/* Notes */}
@@ -295,7 +415,7 @@ function AddItemModal({ onClose, onAdd }: { onClose: () => void; onAdd: (item: I
 /*  Edit Item Modal (pre-populated, status, delete availability)       */
 /* ------------------------------------------------------------------ */
 
-function EditItemModal({ item, onClose, onSave }: { item: InventoryItem | ProjectProp; onClose: () => void; onSave: (updated: InventoryItem | ProjectProp) => void }) {
+function EditItemModal({ item, onClose, onSave, scenes, characters, characterActorMap }: { item: InventoryItem | ProjectProp; onClose: () => void; onSave: (updated: InventoryItem | ProjectProp) => void; scenes: Scene[]; characters: Character[]; characterActorMap: { character: Character; castActor: Actor | null }[] }) {
   const [form, setForm] = useState({
     name: item.name,
     model: item.model,
@@ -310,12 +430,22 @@ function EditItemModal({ item, onClose, onSave }: { item: InventoryItem | Projec
     status: item.status,
   })
   const [imageUrl, setImageUrl] = useState(item.imageUrl)
+  const [selectedSceneIds, setSelectedSceneIds] = useState<string[]>(item.sceneIds || [])
+  const [selectedCharacterId, setSelectedCharacterId] = useState<string | null>(item.characterId ?? null)
+  const [sceneSearch, setSceneSearch] = useState("")
   const [availSlots, setAvailSlots] = useState<{ id: string; day: string; startTime: string; endTime: string }[]>(
     item.availability.length > 0 ? item.availability.map((a) => ({ id: "id" in a ? (a as any).id : uid(), day: a.day, startTime: a.startTime, endTime: a.endTime })) : [{ id: uid(), day: "", startTime: "09:00", endTime: "17:00" }]
   )
 
   const update = (field: string, value: string | number) => setForm((f) => ({ ...f, [field]: value }))
   const weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+  const toggleScene = (id: string) => setSelectedSceneIds((prev) => prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id])
+
+  const filteredScenes = useMemo(() => {
+    if (!sceneSearch) return scenes
+    const q = sceneSearch.toLowerCase()
+    return scenes.filter((s) => s.sceneNumber.toLowerCase().includes(q) || s.location.toLowerCase().includes(q) || (s.description || "").toLowerCase().includes(q))
+  }, [scenes, sceneSearch])
 
   const handleDeleteSlot = (slotId: string) => {
     setAvailSlots((s) => s.filter((slot) => slot.id !== slotId))
@@ -327,6 +457,8 @@ function EditItemModal({ item, onClose, onSave }: { item: InventoryItem | Projec
       ...form,
       imageUrl,
       availability: availSlots.filter((s) => s.day),
+      sceneIds: selectedSceneIds,
+      characterId: selectedCharacterId,
     } as any)
     onClose()
   }
@@ -370,6 +502,107 @@ function EditItemModal({ item, onClose, onSave }: { item: InventoryItem | Projec
           <div className="relative">
             <textarea value={form.notes} onChange={(e) => update("notes", e.target.value)} rows={3} className="w-full px-4 pt-6 pb-2 bg-white border border-gray-300 rounded-xl text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 resize-none peer placeholder-transparent" placeholder="Notes" />
             <label className="absolute left-4 top-2 text-xs text-gray-500 transition-all pointer-events-none">Notes</label>
+          </div>
+
+          {/* Scene Assignment */}
+          <div>
+            <h3 className="text-base font-bold text-gray-900">Scenes</h3>
+            <p className="text-xs text-gray-500 mb-3">Assign this prop to one or more scenes.</p>
+            {selectedSceneIds.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 mb-3">
+                {selectedSceneIds.map((sid) => {
+                  const scene = scenes.find((s) => s.id === sid)
+                  if (!scene) return null
+                  return (
+                    <span key={sid} className="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full text-[11px] font-medium">
+                      <Film className="w-3 h-3" />
+                      Sc {scene.sceneNumber}
+                      <button onClick={() => toggleScene(sid)} className="ml-0.5 text-emerald-400 hover:text-emerald-700 transition-colors">
+                        <X className="w-3 h-3" />
+                      </button>
+                    </span>
+                  )
+                })}
+              </div>
+            )}
+            {scenes.length > 0 ? (
+              <div className="bg-white border border-gray-300 rounded-xl overflow-hidden">
+                <div className="relative border-b border-gray-200">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
+                  <input value={sceneSearch} onChange={(e) => setSceneSearch(e.target.value)} placeholder="Search scenes..." className="w-full pl-8 pr-3 py-2.5 text-xs bg-gray-50 focus:outline-none focus:bg-white text-gray-900 placeholder-gray-400" />
+                </div>
+                <div className="max-h-40 overflow-y-auto divide-y divide-gray-100">
+                  {filteredScenes.map((scene) => {
+                    const isSelected = selectedSceneIds.includes(scene.id)
+                    return (
+                      <button key={scene.id} onClick={() => toggleScene(scene.id)} className={`w-full flex items-center gap-3 px-3 py-2.5 text-left transition-colors ${isSelected ? "bg-emerald-50" : "hover:bg-gray-50"}`}>
+                        <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-colors ${isSelected ? "bg-emerald-600 border-emerald-600" : "border-gray-300"}`}>
+                          {isSelected && <Check className="w-3 h-3 text-white" />}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-semibold text-gray-900">Sc {scene.sceneNumber}</span>
+                            <span className="text-[10px] text-gray-400">{scene.intExt}. {scene.location} - {scene.dayNight}</span>
+                          </div>
+                          {scene.description && <p className="text-[10px] text-gray-500 truncate mt-0.5">{scene.description}</p>}
+                        </div>
+                        <span className="text-[10px] text-gray-400 shrink-0">{scene.pages} pg</span>
+                      </button>
+                    )
+                  })}
+                  {filteredScenes.length === 0 && <p className="text-center text-xs text-gray-400 py-4">No scenes match your search</p>}
+                </div>
+              </div>
+            ) : (
+              <p className="text-xs text-gray-400 italic">No scenes available. Add scenes in the Schedule view.</p>
+            )}
+          </div>
+
+          {/* Character Assignment */}
+          <div>
+            <h3 className="text-base font-bold text-gray-900">Character</h3>
+            <p className="text-xs text-gray-500 mb-3">Assign this prop to a character (optional).</p>
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => setSelectedCharacterId(null)}
+                className={`flex items-center gap-2 px-3 py-2 rounded-xl border-2 transition-all text-left ${
+                  selectedCharacterId === null
+                    ? "border-emerald-400 bg-emerald-50 shadow-sm"
+                    : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+                }`}
+              >
+                <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${selectedCharacterId === null ? "bg-emerald-500 text-white" : "bg-gray-200 text-gray-400"}`}>
+                  <Package className="w-3.5 h-3.5" />
+                </div>
+                <span className={`text-xs font-medium ${selectedCharacterId === null ? "text-emerald-700" : "text-gray-600"}`}>No character</span>
+              </button>
+              {characterActorMap.map(({ character, castActor }) => {
+                const isSelected = selectedCharacterId === character.id
+                return (
+                  <button
+                    key={character.id}
+                    onClick={() => setSelectedCharacterId(isSelected ? null : character.id)}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-xl border-2 transition-all text-left ${
+                      isSelected
+                        ? "border-emerald-400 bg-emerald-50 shadow-sm"
+                        : "border-gray-200 hover:border-emerald-200 hover:bg-gray-50"
+                    }`}
+                  >
+                    {castActor?.headshots?.[0] ? (
+                      <img src={castActor.headshots[0]} alt="" className={`w-7 h-8 object-cover rounded-lg shrink-0 ${isSelected ? "ring-2 ring-emerald-300" : ""}`} />
+                    ) : (
+                      <div className={`w-7 h-8 rounded-lg flex items-center justify-center shrink-0 ${isSelected ? "bg-emerald-100" : "bg-gray-100"}`}>
+                        <User className={`w-3.5 h-3.5 ${isSelected ? "text-emerald-500" : "text-gray-400"}`} />
+                      </div>
+                    )}
+                    <div className="min-w-0">
+                      <p className={`text-xs font-semibold truncate ${isSelected ? "text-emerald-700" : "text-gray-800"}`}>{character.name}</p>
+                      {castActor && <p className="text-[10px] text-gray-500 truncate">{castActor.name}</p>}
+                    </div>
+                  </button>
+                )
+              })}
+            </div>
           </div>
 
           {/* Status */}
@@ -524,7 +757,7 @@ function StatusBadge({ status }: { status: string }) {
 /*  Inventory Card (All Items) -- with drag-and-drop image replacement */
 /* ------------------------------------------------------------------ */
 
-function InventoryCard({ item, isInProject, onToggleAdd, onEdit, onImageReplace, onDelete, onAddToCanvas, hasProject, onVote, onAddComment, currentUserId, votes, comments }: { item: InventoryItem; isInProject: boolean; onToggleAdd: (id: string) => void; onEdit: (item: InventoryItem) => void; onImageReplace: (id: string, url: string) => void; onDelete: (id: string) => void; onAddToCanvas: (item: InventoryItem) => void; hasProject: boolean; onVote?: (id: string, vote: VoteValue) => void; onAddComment?: (id: string, text: string) => void; currentUserId?: string; votes?: PropVote[]; comments?: PropComment[] }) {
+function InventoryCard({ item, isInProject, onToggleAdd, onEdit, onImageReplace, onDelete, onAddToCanvas, hasProject, onVote, onAddComment, currentUserId, votes, comments, scenes, characters }: { item: InventoryItem; isInProject: boolean; onToggleAdd: (id: string) => void; onEdit: (item: InventoryItem) => void; onImageReplace: (id: string, url: string) => void; onDelete: (id: string) => void; onAddToCanvas: (item: InventoryItem) => void; hasProject: boolean; onVote?: (id: string, vote: VoteValue) => void; onAddComment?: (id: string, text: string) => void; currentUserId?: string; votes?: PropVote[]; comments?: PropComment[]; scenes?: Scene[]; characters?: Character[] }) {
   const [menuOpen, setMenuOpen] = useState(false)
   const [isDragOver, setIsDragOver] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -595,6 +828,38 @@ function InventoryCard({ item, isInProject, onToggleAdd, onEdit, onImageReplace,
         </div>
       </div>
 
+      {/* Scene & Character badges */}
+      {((item.sceneIds && item.sceneIds.length > 0) || item.characterId) && (
+        <div className="px-4 pb-2 flex flex-wrap items-center gap-1.5">
+          {item.characterId && (() => {
+            const char = characters?.find((c) => c.id === item.characterId)
+            return char ? (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-100 text-gray-700 rounded-full text-[10px] font-medium">
+                <User className="w-3 h-3 text-gray-500" />
+                {char.name}
+              </span>
+            ) : null
+          })()}
+          {item.sceneIds && item.sceneIds.length > 0 && (() => {
+            const resolved = item.sceneIds.map((sid) => scenes?.find((s) => s.id === sid)).filter(Boolean) as Scene[]
+            if (resolved.length === 0) return null
+            const show = resolved.slice(0, 3)
+            const extra = resolved.length - 3
+            return (
+              <>
+                {show.map((sc) => (
+                  <span key={sc.id} className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full text-[10px] font-medium" title={`${sc.intExt}. ${sc.location} - ${sc.dayNight}`}>
+                    <Film className="w-3 h-3" />
+                    Sc {sc.sceneNumber}
+                  </span>
+                ))}
+                {extra > 0 && <span className="text-[10px] text-gray-400 font-medium">+{extra} more</span>}
+              </>
+            )
+          })()}
+        </div>
+      )}
+
       {/* Footer */}
       <div className="px-4 pb-3 flex items-center justify-between">
         {isBooked ? (
@@ -650,7 +915,7 @@ function InventoryCard({ item, isInProject, onToggleAdd, onEdit, onImageReplace,
 /*  Project Prop Card (My Project tab)                                 */
 /* ------------------------------------------------------------------ */
 
-function ProjectPropCard({ item, onVote, onAddComment, onRemove, onAddToCanvas, onEdit, onDelete, currentUserId }: { item: ProjectProp; onVote: (id: string, vote: VoteValue) => void; onAddComment: (id: string, text: string) => void; onRemove: (id: string) => void; onAddToCanvas: (item: ProjectProp) => void; onEdit: (item: ProjectProp) => void; onDelete: (id: string) => void; currentUserId: string | undefined }) {
+function ProjectPropCard({ item, onVote, onAddComment, onRemove, onAddToCanvas, onEdit, onDelete, currentUserId, scenes, characters }: { item: ProjectProp; onVote: (id: string, vote: VoteValue) => void; onAddComment: (id: string, text: string) => void; onRemove: (id: string) => void; onAddToCanvas: (item: ProjectProp) => void; onEdit: (item: ProjectProp) => void; onDelete: (id: string) => void; currentUserId: string | undefined; scenes?: Scene[]; characters?: Character[] }) {
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
 
@@ -698,6 +963,38 @@ function ProjectPropCard({ item, onVote, onAddComment, onRemove, onAddToCanvas, 
           </div>
         </div>
       </div>
+
+      {/* Scene & Character badges */}
+      {((item.sceneIds && item.sceneIds.length > 0) || item.characterId) && (
+        <div className="px-4 pb-2 flex flex-wrap items-center gap-1.5">
+          {item.characterId && (() => {
+            const char = characters?.find((c) => c.id === item.characterId)
+            return char ? (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-100 text-gray-700 rounded-full text-[10px] font-medium">
+                <User className="w-3 h-3 text-gray-500" />
+                {char.name}
+              </span>
+            ) : null
+          })()}
+          {item.sceneIds && item.sceneIds.length > 0 && (() => {
+            const resolved = item.sceneIds.map((sid) => scenes?.find((s) => s.id === sid)).filter(Boolean) as Scene[]
+            if (resolved.length === 0) return null
+            const show = resolved.slice(0, 3)
+            const extra = resolved.length - 3
+            return (
+              <>
+                {show.map((sc) => (
+                  <span key={sc.id} className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full text-[10px] font-medium" title={`${sc.intExt}. ${sc.location} - ${sc.dayNight}`}>
+                    <Film className="w-3 h-3" />
+                    Sc {sc.sceneNumber}
+                  </span>
+                ))}
+                {extra > 0 && <span className="text-[10px] text-gray-400 font-medium">+{extra} more</span>}
+              </>
+            )
+          })()}
+        </div>
+      )}
 
       {/* Vote row */}
       <div className="px-4 pb-2 flex items-center gap-1.5">
@@ -815,6 +1112,25 @@ export default function PropsModal({ onClose }: PropsModalProps) {
     ? state.projects.find((p) => p.id === projectId) ?? null
     : null
 
+  /* ---- Scenes & Characters ---- */
+  const scenes: Scene[] = state.scenes || []
+  const characters: Character[] = currentProject?.characters || []
+
+  /* Helper to find the cast actor for a character (mirroring CostumesModal pattern) */
+  const getCastActorForCharacter = useCallback((ch: Character): Actor | null => {
+    const approvalActors = ch.actors?.approval || []
+    if (approvalActors.length > 0) return approvalActors[0]
+    const shortLists = ch.actors?.shortLists || []
+    for (const sl of shortLists) {
+      if ("actors" in sl && Array.isArray((sl as any).actors) && (sl as any).actors.length > 0) return (sl as any).actors[0]
+    }
+    return null
+  }, [])
+
+  const characterActorMap = useMemo(() => {
+    return characters.map((ch) => ({ character: ch, castActor: getCastActorForCharacter(ch) }))
+  }, [characters, getCastActorForCharacter])
+
   /* ---- Global inventory (persisted to project data store) ---- */
   const inventory: InventoryItem[] = currentProject?.propInventory || []
   const inventoryRef = useRef(inventory)
@@ -834,10 +1150,10 @@ export default function PropsModal({ onClose }: PropsModalProps) {
   useEffect(() => {
     if (!hasSeeded.current && projectId && inventory.length === 0) {
       hasSeeded.current = true
-      const mockData = generateMockInventory()
+      const mockData = generateMockInventory(characters, scenes)
       dispatch({ type: "SET_PROJECT_PROP_INVENTORY", payload: { projectId, inventory: mockData } })
     }
-  }, [projectId, inventory.length, dispatch])
+  }, [projectId, inventory.length, dispatch, characters, scenes])
 
   /* ---- Project props (from context, persisted) ---- */
   const projectProps: ProjectProp[] = currentProject?.props || []
@@ -964,7 +1280,7 @@ export default function PropsModal({ onClose }: PropsModalProps) {
     syncInventory((prev) => prev.map((p) => (p.id === updated.id ? { ...p, ...updated } as InventoryItem : p)))
     // Also update in project props if it exists there
     if (projectPropIds.has(updated.id)) {
-      syncProjectProps((prev) => prev.map((p) => (p.id === updated.id ? { ...p, name: updated.name, model: updated.model, category: updated.category, brand: updated.brand, serialNumber: updated.serialNumber, skuBarcode: updated.skuBarcode, notes: updated.notes, imageUrl: updated.imageUrl, purchaseType: updated.purchaseType, unitPrice: updated.unitPrice, quantity: updated.quantity, status: updated.status, availability: updated.availability } : p)))
+      syncProjectProps((prev) => prev.map((p) => (p.id === updated.id ? { ...p, name: updated.name, model: updated.model, category: updated.category, brand: updated.brand, serialNumber: updated.serialNumber, skuBarcode: updated.skuBarcode, notes: updated.notes, imageUrl: updated.imageUrl, purchaseType: updated.purchaseType, unitPrice: updated.unitPrice, quantity: updated.quantity, status: updated.status, availability: updated.availability, sceneIds: updated.sceneIds, characterId: updated.characterId } : p)))
     }
     setEditingInventoryItem(null)
   }
@@ -972,7 +1288,7 @@ export default function PropsModal({ onClose }: PropsModalProps) {
   const handleSaveProjectPropEdit = (updated: InventoryItem | ProjectProp) => {
     syncProjectProps((prev) => prev.map((p) => (p.id === updated.id ? { ...p, ...updated } as ProjectProp : p)))
     // Also update in inventory
-    syncInventory((prev) => prev.map((p) => (p.id === updated.id ? { ...p, name: updated.name, model: updated.model, category: updated.category, brand: updated.brand, serialNumber: updated.serialNumber, skuBarcode: updated.skuBarcode, notes: updated.notes, imageUrl: updated.imageUrl, purchaseType: updated.purchaseType, unitPrice: updated.unitPrice, quantity: updated.quantity, status: updated.status, availability: updated.availability } as InventoryItem : p)))
+    syncInventory((prev) => prev.map((p) => (p.id === updated.id ? { ...p, name: updated.name, model: updated.model, category: updated.category, brand: updated.brand, serialNumber: updated.serialNumber, skuBarcode: updated.skuBarcode, notes: updated.notes, imageUrl: updated.imageUrl, purchaseType: updated.purchaseType, unitPrice: updated.unitPrice, quantity: updated.quantity, status: updated.status, availability: updated.availability, sceneIds: updated.sceneIds, characterId: updated.characterId } as InventoryItem : p)))
     setEditingProjectProp(null)
   }
 
@@ -1094,7 +1410,7 @@ export default function PropsModal({ onClose }: PropsModalProps) {
           ) : viewMode === "grid" ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredProjectProps.map((item) => (
-                <ProjectPropCard key={item.id} item={item} onVote={handleVote} onAddComment={handleAddComment} onRemove={handleRemoveFromProject} onAddToCanvas={handleAddToCanvas} onEdit={(i) => setEditingProjectProp(i)} onDelete={handleRequestDeleteProject} currentUserId={currentUserId} />
+                <ProjectPropCard key={item.id} item={item} onVote={handleVote} onAddComment={handleAddComment} onRemove={handleRemoveFromProject} onAddToCanvas={handleAddToCanvas} onEdit={(i) => setEditingProjectProp(i)} onDelete={handleRequestDeleteProject} currentUserId={currentUserId} scenes={scenes} characters={characters} />
               ))}
             </div>
           ) : (
@@ -1115,7 +1431,7 @@ export default function PropsModal({ onClose }: PropsModalProps) {
           ) : viewMode === "grid" ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredInventory.map((item) => (
-                <InventoryCard key={item.id} item={item} isInProject={projectPropIds.has(item.id)} onToggleAdd={handleToggleAdd} onEdit={(i) => setEditingInventoryItem(i)} onImageReplace={handleImageReplace} onDelete={handleRequestDeleteInventory} onAddToCanvas={handleAddToCanvas} hasProject={!!projectId} onVote={handleVote} onAddComment={handleAddComment} currentUserId={currentUserId} votes={projectProps.find((p) => p.id === item.id)?.votes} comments={projectProps.find((p) => p.id === item.id)?.comments} />
+                <InventoryCard key={item.id} item={item} isInProject={projectPropIds.has(item.id)} onToggleAdd={handleToggleAdd} onEdit={(i) => setEditingInventoryItem(i)} onImageReplace={handleImageReplace} onDelete={handleRequestDeleteInventory} onAddToCanvas={handleAddToCanvas} hasProject={!!projectId} onVote={handleVote} onAddComment={handleAddComment} currentUserId={currentUserId} votes={projectProps.find((p) => p.id === item.id)?.votes} comments={projectProps.find((p) => p.id === item.id)?.comments} scenes={scenes} characters={characters} />
               ))}
             </div>
           ) : (
@@ -1129,9 +1445,9 @@ export default function PropsModal({ onClose }: PropsModalProps) {
       </div>
 
       {/* Sub-modals */}
-      {showAddModal && <AddItemModal onClose={() => setShowAddModal(false)} onAdd={handleAddInventoryItem} />}
-      {editingInventoryItem && <EditItemModal item={editingInventoryItem} onClose={() => setEditingInventoryItem(null)} onSave={handleSaveInventoryEdit} />}
-      {editingProjectProp && <EditItemModal item={editingProjectProp} onClose={() => setEditingProjectProp(null)} onSave={handleSaveProjectPropEdit} />}
+      {showAddModal && <AddItemModal onClose={() => setShowAddModal(false)} onAdd={handleAddInventoryItem} scenes={scenes} characters={characters} characterActorMap={characterActorMap} />}
+      {editingInventoryItem && <EditItemModal item={editingInventoryItem} onClose={() => setEditingInventoryItem(null)} onSave={handleSaveInventoryEdit} scenes={scenes} characters={characters} characterActorMap={characterActorMap} />}
+      {editingProjectProp && <EditItemModal item={editingProjectProp} onClose={() => setEditingProjectProp(null)} onSave={handleSaveProjectPropEdit} scenes={scenes} characters={characters} characterActorMap={characterActorMap} />}
 
       {/* Delete Confirmation Dialog */}
       {confirmDeleteId && (

@@ -309,6 +309,10 @@ export interface ProjectProp {
   comments: PropComment[]
   availability: PropAvailability[]
   status: "available" | "in-use" | "maintenance" | "retired"
+  /** IDs of scenes this prop is used in */
+  sceneIds?: string[]
+  /** ID of the character this prop is assigned to */
+  characterId?: string | null
 }
 
 /* ------------------------------------------------------------------ */
@@ -505,6 +509,10 @@ export interface PropInventoryItem {
   bookedTo: string | null
   availability: { id: string; day: string; startTime: string; endTime: string }[]
   status: "available" | "in-use" | "maintenance" | "retired"
+  /** IDs of scenes this prop is used in */
+  sceneIds?: string[]
+  /** ID of the character this prop is assigned to */
+  characterId?: string | null
 }
 
 /* ------------------------------------------------------------------ */
