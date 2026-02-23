@@ -74,6 +74,33 @@ interface CharactersModalProps {
 type SortOption = "alphabetical" | "actorCount" | "progress" | "recent"
 type FilterOption = "all" | "cast" | "inProgress" | "notStarted"
 type GenderFilter = "all" | "male" | "female" | "other"
+type CardViewMode = "full" | "medium" | "small"
+
+function ViewModeToggle({ value, onChange }: { value: CardViewMode; onChange: (mode: CardViewMode) => void }) {
+  const modes: { mode: CardViewMode; label: string; icon: React.ReactNode }[] = [
+    { mode: "full", label: "Full", icon: <LayoutGrid className="w-3.5 h-3.5" /> },
+    { mode: "medium", label: "Medium", icon: <svg viewBox="0 0 14 14" className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="1" y="1" width="5" height="5" rx="1" /><rect x="8" y="1" width="5" height="5" rx="1" /><rect x="1" y="8" width="5" height="5" rx="1" /><rect x="8" y="8" width="5" height="5" rx="1" /></svg> },
+    { mode: "small", label: "Small", icon: <svg viewBox="0 0 14 14" className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="1.5"><line x1="1" y1="3" x2="13" y2="3" /><line x1="1" y1="7" x2="13" y2="7" /><line x1="1" y1="11" x2="13" y2="11" /></svg> },
+  ]
+  return (
+    <div className="flex items-center bg-slate-100 rounded-lg p-0.5 gap-0.5">
+      {modes.map(({ mode, label, icon }) => (
+        <button
+          key={mode}
+          onClick={(e) => { e.stopPropagation(); onChange(mode) }}
+          className={`flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium transition-all duration-150 ${
+            value === mode ? "bg-white text-slate-800 shadow-sm" : "text-slate-500 hover:text-slate-700"
+          }`}
+          title={`${label} view`}
+          aria-label={`${label} view`}
+        >
+          {icon}
+          <span className="hidden sm:inline">{label}</span>
+        </button>
+      ))}
+    </div>
+  )
+}
 
 interface CharacterCardInnerProps {
   character: Character
@@ -88,6 +115,7 @@ interface CharacterCardInnerProps {
   handleUploadClick: (e: React.MouseEvent, id: string) => void
   handleGenerateArt: (e: React.MouseEvent, id: string, name: string) => void
   handleActorSelect: (e: React.MouseEvent, characterId: string, actorId: string) => void
+  viewMode?: CardViewMode
 }
 
 function CharacterCardInner({
@@ -103,13 +131,102 @@ function CharacterCardInner({
   handleUploadClick,
   handleGenerateArt,
   handleActorSelect,
+  viewMode = "full",
 }: CharacterCardInnerProps) {
   const MAX_MOSAIC = 9
   const MAX_AVATAR_ROW = 5
   const actorsWithPhotos = allActors.filter((a) => a.headshots?.[0])
   const primaryGreenlit = greenlitActors.find((a) => a.headshots?.[0])
   const otherActors = primaryGreenlit ? allActors.filter((a) => a.id !== primaryGreenlit.id) : []
+  const heroImg = primaryGreenlit?.headshots?.[0] || actorsWithPhotos[0]?.headshots?.[0]
 
+  // ─── Small: compact list row ───
+  if (viewMode === "small") {
+    return (
+      <div
+        onClick={() => handleCharacterClick(character.id)}
+        className={`group flex items-center gap-3 px-3 py-2.5 bg-white rounded-xl border-2 cursor-pointer transition-all duration-200 hover:shadow-md ${
+          isSelected ? "border-success-500 ring-2 ring-success-500/20 shadow-sm" : "border-slate-200 hover:border-success-300"
+        }`}
+      >
+        {/* Thumbnail */}
+        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-slate-100 to-slate-200 overflow-hidden flex-shrink-0">
+          {heroImg ? (
+            <img src={heroImg} alt={character.name} className="w-full h-full object-cover" crossOrigin="anonymous" />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-sm font-bold text-slate-400">
+              {character.name.charAt(0)}
+            </div>
+          )}
+        </div>
+        {/* Info */}
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold text-slate-900 truncate">{character.name}</p>
+          <div className="flex items-center gap-2 mt-0.5">
+            <span className="text-[11px] text-slate-500">{allActors.length} actor{allActors.length !== 1 ? "s" : ""}</span>
+            {castingStatus.hasGreenlit && (
+              <span className="text-[11px] text-success-600 flex items-center gap-0.5 font-medium"><CircleCheckBig className="w-3 h-3" />Cast</span>
+            )}
+          </div>
+        </div>
+        {/* Badges */}
+        {isSelected && <span className="px-2 py-0.5 bg-success-500 text-white text-[10px] font-semibold rounded-md flex-shrink-0">Current</span>}
+        <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-success-500 transition-colors flex-shrink-0" />
+      </div>
+    )
+  }
+
+  // ─── Medium: compact card with small image ───
+  if (viewMode === "medium") {
+    return (
+      <div
+        onClick={() => handleCharacterClick(character.id)}
+        className={`group relative bg-white rounded-xl border-2 overflow-hidden cursor-pointer transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 ${
+          isSelected ? "border-success-500 ring-2 ring-success-500/20 shadow-sm" : "border-slate-200 hover:border-success-300"
+        }`}
+      >
+        {/* Compact image */}
+        <div className="relative aspect-[3/2] bg-gradient-to-br from-slate-100 to-slate-200 overflow-hidden">
+          {heroImg ? (
+            <img src={heroImg} alt={character.name} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" crossOrigin="anonymous" />
+          ) : allActors.length > 0 ? (
+            <div className="absolute inset-0 flex items-center justify-center gap-1">
+              {allActors.slice(0, 3).map((a) => (
+                <div key={a.id} className="w-7 h-7 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-500">{a.name.charAt(0)}</div>
+              ))}
+              {allActors.length > 3 && <div className="w-7 h-7 rounded-full bg-slate-300 flex items-center justify-center text-[10px] font-bold text-slate-600">+{allActors.length - 3}</div>}
+            </div>
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center text-slate-400"><ImageIcon className="w-8 h-8 opacity-40" /></div>
+          )}
+          {/* Status badges */}
+          <div className="absolute top-2 left-2 flex items-center gap-1 z-10">
+            {isSelected && <div className="px-1.5 py-0.5 bg-success-500 text-white text-[10px] font-semibold rounded-md shadow-sm">Current</div>}
+            {castingStatus.hasGreenlit && <div className="px-1.5 py-0.5 bg-success-100 text-success-700 text-[10px] font-semibold rounded-md shadow-sm flex items-center gap-0.5"><CircleCheckBig className="w-2.5 h-2.5" />Cast</div>}
+          </div>
+          {/* Overlay actor count */}
+          {allActors.length > 0 && (
+            <div className="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 bg-slate-900/60 backdrop-blur-sm text-white text-[10px] font-semibold rounded-md">
+              {allActors.length}
+            </div>
+          )}
+        </div>
+        {/* Compact info */}
+        <div className="px-3 py-2.5">
+          <div className="flex items-center justify-between gap-1">
+            <h3 className="text-sm font-semibold text-slate-900 truncate">{character.name}</h3>
+            <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-success-500 transition-colors flex-shrink-0" />
+          </div>
+          <div className="flex items-center gap-1.5 mt-1">
+            <span className="text-[11px] text-slate-500">{allActors.length} actor{allActors.length !== 1 ? "s" : ""}</span>
+            {greenlitActors.length > 0 && <span className="text-[11px] text-success-600 font-medium flex items-center gap-0.5"><CircleCheckBig className="w-3 h-3" />{greenlitActors.length}</span>}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // ─── Full: original mosaic card ───
   return (
     <div
       onClick={() => handleCharacterClick(character.id)}
@@ -319,7 +436,18 @@ export default function CharactersModal({ onClose }: CharactersModalProps) {
   const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null)
   const [editingCategoryName, setEditingCategoryName] = useState("")
   const [activeCharId, setActiveCharId] = useState<string | null>(null)
+  const [categoryViewModes, setCategoryViewModes] = useState<Record<string, CardViewMode>>({})
+  const [globalViewMode, setGlobalViewMode] = useState<CardViewMode>("full")
   const editInputRef = useRef<HTMLInputElement>(null)
+
+  const getCategoryViewMode = (catId: string): CardViewMode => categoryViewModes[catId] || "full"
+  const setCategoryViewMode = (catId: string, mode: CardViewMode) => setCategoryViewModes((prev) => ({ ...prev, [catId]: mode }))
+  const gridClasses = (mode: CardViewMode) =>
+    mode === "small"
+      ? "flex flex-col gap-2 p-4"
+      : mode === "medium"
+        ? "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 p-4"
+        : "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-4"
 
   const currentProject = state.projects.find((p) => p.id === state.currentFocus.currentProjectId)
   const characters = currentProject?.characters || []
@@ -926,6 +1054,8 @@ export default function CharactersModal({ onClose }: CharactersModalProps) {
                               {catChars.length} character{catChars.length !== 1 ? "s" : ""}
                             </span>
 
+                            <ViewModeToggle value={getCategoryViewMode(category.id)} onChange={(m) => setCategoryViewMode(category.id, m)} />
+
                             <button
                               onClick={() => { setEditingCategoryId(category.id); setEditingCategoryName(category.name) }}
                               className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-200 transition-colors"
@@ -953,7 +1083,7 @@ export default function CharactersModal({ onClose }: CharactersModalProps) {
                               {catChars.length === 0 ? (
                                 <EmptyDropZone categoryId={category.id} />
                               ) : (
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-4">
+                                <div className={gridClasses(getCategoryViewMode(category.id))}>
                                   {catChars.map((character) => {
                                     const allActors = getAllActors(character)
                                     const castingStatus = getCastingStatus(character)
@@ -975,6 +1105,7 @@ export default function CharactersModal({ onClose }: CharactersModalProps) {
                                           handleUploadClick={handleUploadClick}
                                           handleGenerateArt={handleGenerateArt}
                                           handleActorSelect={handleActorSelect}
+                                          viewMode={getCategoryViewMode(category.id)}
                                         />
                                       </SortableCharacterWrapper>
                                     )
@@ -997,9 +1128,10 @@ export default function CharactersModal({ onClose }: CharactersModalProps) {
                           <span className="text-xs text-slate-400 font-medium tabular-nums">
                             {uncategorizedChars.length} character{uncategorizedChars.length !== 1 ? "s" : ""}
                           </span>
+                          <ViewModeToggle value={getCategoryViewMode("_uncategorized")} onChange={(m) => setCategoryViewMode("_uncategorized", m)} />
                         </div>
                         <SortableContext items={uncategorizedChars.map((c) => c.id)} strategy={rectSortingStrategy} id="uncategorized">
-                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-4">
+                          <div className={gridClasses(getCategoryViewMode("_uncategorized"))}>
                             {uncategorizedChars.map((character) => {
                               const allActors = getAllActors(character)
                               const castingStatus = getCastingStatus(character)
@@ -1021,6 +1153,7 @@ export default function CharactersModal({ onClose }: CharactersModalProps) {
                                     handleUploadClick={handleUploadClick}
                                     handleGenerateArt={handleGenerateArt}
                                     handleActorSelect={handleActorSelect}
+                                    viewMode={getCategoryViewMode("_uncategorized")}
                                   />
                                 </SortableCharacterWrapper>
                               )
@@ -1049,32 +1182,44 @@ export default function CharactersModal({ onClose }: CharactersModalProps) {
                   </DragOverlay>
                 </DndContext>
               ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-                {filteredAndSortedCharacters.map((character) => {
-                  const allActors = getAllActors(character)
-                  const castingStatus = getCastingStatus(character)
-                  const isSelected = state.currentFocus.characterId === character.id
-                  const selectedActor = getSelectedActor(character)
-                  const greenlitActors = allActors.filter((a) => a.isGreenlit)
+              <div>
+                <div className="flex justify-end mb-4">
+                  <ViewModeToggle value={globalViewMode} onChange={setGlobalViewMode} />
+                </div>
+                <div className={
+                  globalViewMode === "small"
+                    ? "flex flex-col gap-2"
+                    : globalViewMode === "medium"
+                      ? "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3"
+                      : "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"
+                }>
+                  {filteredAndSortedCharacters.map((character) => {
+                    const allActors = getAllActors(character)
+                    const castingStatus = getCastingStatus(character)
+                    const isSelected = state.currentFocus.characterId === character.id
+                    const selectedActor = getSelectedActor(character)
+                    const greenlitActors = allActors.filter((a) => a.isGreenlit)
 
-                  return (
-                    <CharacterCardInner
-                      key={character.id}
-                      character={character}
-                      allActors={allActors}
-                      castingStatus={castingStatus}
-                      isSelected={isSelected}
-                      selectedActor={selectedActor}
-                      greenlitActors={greenlitActors}
-                      selectedActors={selectedActors}
-                      generatingArtCharacterId={generatingArtCharacterId}
-                      handleCharacterClick={handleCharacterClick}
-                      handleUploadClick={handleUploadClick}
-                      handleGenerateArt={handleGenerateArt}
-                      handleActorSelect={handleActorSelect}
-                    />
-                  )
-                })}
+                    return (
+                      <CharacterCardInner
+                        key={character.id}
+                        character={character}
+                        allActors={allActors}
+                        castingStatus={castingStatus}
+                        isSelected={isSelected}
+                        selectedActor={selectedActor}
+                        greenlitActors={greenlitActors}
+                        selectedActors={selectedActors}
+                        generatingArtCharacterId={generatingArtCharacterId}
+                        handleCharacterClick={handleCharacterClick}
+                        handleUploadClick={handleUploadClick}
+                        handleGenerateArt={handleGenerateArt}
+                        handleActorSelect={handleActorSelect}
+                        viewMode={globalViewMode}
+                      />
+                    )
+                  })}
+                </div>
               </div>
             )}
           </div>
