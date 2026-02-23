@@ -41,12 +41,15 @@ import type { Character, Actor } from "@/types/casting"
 import {
   DndContext,
   closestCenter,
+  pointerWithin,
   PointerSensor,
   KeyboardSensor,
   useSensor,
   useSensors,
+  useDroppable,
   type DragEndEvent,
   type DragStartEvent,
+  type DragOverEvent,
   DragOverlay,
 } from "@dnd-kit/core"
 import {
@@ -244,6 +247,34 @@ function CharacterCardInner({
           </div>
         )}
       </div>
+    </div>
+  )
+}
+
+function CategoryDropZone({ categoryId, children }: { categoryId: string; children: React.ReactNode }) {
+  const { setNodeRef, isOver } = useDroppable({ id: categoryId })
+  return (
+    <div
+      ref={setNodeRef}
+      className={`min-h-[60px] transition-colors duration-200 ${isOver ? "bg-success-50/50" : ""}`}
+    >
+      {children}
+    </div>
+  )
+}
+
+function EmptyDropZone({ categoryId }: { categoryId: string }) {
+  const { setNodeRef, isOver } = useDroppable({ id: categoryId })
+  return (
+    <div
+      ref={setNodeRef}
+      className={`flex items-center justify-center py-10 text-sm border-2 border-dashed m-4 rounded-xl transition-all duration-200 ${
+        isOver
+          ? "border-success-400 bg-success-50 text-success-600"
+          : "border-slate-200 text-slate-400"
+      }`}
+    >
+      {isOver ? "Drop here to add" : "Drag characters here"}
     </div>
   )
 }
@@ -509,35 +540,44 @@ export default function CharactersModal({ onClose }: CharactersModalProps) {
   const handleDragEnd = (event: DragEndEvent) => {
     setActiveCharId(null)
     const { active, over } = event
-    if (!over || active.id === over.id) return
+    if (!over) return
 
     const activeId = active.id as string
     const overId = over.id as string
+    if (activeId === overId) return
 
-    // Find source category (or uncategorized)
+    // Find which category the dragged item currently belongs to
     const sourceCat = categories.find((c) => c.characterIds.includes(activeId))
-    // Destination: either the over item's category, or the droppable zone id (cat_xxx_drop)
+
+    // Determine destination: overId could be a category id (from useDroppable), or a character id (from useSortable)
     let destCat: CharacterCategory | undefined
     let destIsUncategorized = false
 
-    if (overId === "uncategorized_drop") {
-      destIsUncategorized = true
-    } else if (overId.endsWith("_drop")) {
-      destCat = categories.find((c) => `${c.id}_drop` === overId)
-    } else {
+    // Check if overId matches a category id directly (dropped on the category zone / empty zone)
+    destCat = categories.find((c) => c.id === overId)
+
+    if (!destCat) {
+      // overId is a character id -- find which category it belongs to
       destCat = categories.find((c) => c.characterIds.includes(overId))
-      if (!destCat && !categorizedIds.has(overId)) destIsUncategorized = true
+      // If the over-character is uncategorized, destination is uncategorized
+      if (!destCat) {
+        destIsUncategorized = true
+      }
     }
 
     let next = categories.map((c) => ({ ...c, characterIds: [...c.characterIds] }))
 
-    // Remove from source
+    // Remove from source category first
     if (sourceCat) {
-      next = next.map((c) => (c.id === sourceCat.id ? { ...c, characterIds: c.characterIds.filter((id) => id !== activeId) } : c))
+      next = next.map((c) =>
+        c.id === sourceCat.id
+          ? { ...c, characterIds: c.characterIds.filter((id) => id !== activeId) }
+          : c
+      )
     }
 
     if (destIsUncategorized) {
-      // Just remove from source -- it's now uncategorized
+      // Just remove from source -- character becomes uncategorized
       persistCategories(next)
       return
     }
@@ -545,31 +585,32 @@ export default function CharactersModal({ onClose }: CharactersModalProps) {
     if (destCat) {
       const destIdx = next.findIndex((c) => c.id === destCat!.id)
       if (destIdx === -1) return
-      const overIdx = next[destIdx].characterIds.indexOf(overId)
+
+      const overCharIdx = next[destIdx].characterIds.indexOf(overId)
+
       if (sourceCat?.id === destCat.id) {
         // Reorder within same category
-        const srcCatUpdated = next[destIdx]
-        const oldIdx = srcCatUpdated.characterIds.indexOf(activeId)
-        if (oldIdx === -1) {
-          // was removed above, insert at overIdx
-          srcCatUpdated.characterIds.splice(Math.max(overIdx, 0), 0, activeId)
-        } else {
-          next[destIdx].characterIds = arrayMove(srcCatUpdated.characterIds, oldIdx, overIdx >= 0 ? overIdx : srcCatUpdated.characterIds.length)
+        const currentIds = next[destIdx].characterIds
+        const activeIdx = currentIds.indexOf(activeId)
+        if (activeIdx >= 0 && overCharIdx >= 0) {
+          next[destIdx].characterIds = arrayMove(currentIds, activeIdx, overCharIdx)
+        } else if (activeIdx === -1) {
+          // Was removed above, re-insert at position
+          currentIds.splice(Math.max(overCharIdx, 0), 0, activeId)
         }
       } else {
-        // Move to different category
-        if (overIdx >= 0) {
-          next[destIdx].characterIds.splice(overIdx, 0, activeId)
+        // Moving to a different category
+        if (overCharIdx >= 0) {
+          // Insert next to the character we dropped on
+          next[destIdx].characterIds.splice(overCharIdx, 0, activeId)
         } else {
+          // Dropped on the empty zone of this category -- append
           next[destIdx].characterIds.push(activeId)
         }
       }
-      persistCategories(next)
-      return
-    }
 
-    // Dropped on a drop zone id
-    persistCategories(next)
+      persistCategories(next)
+    }
   }
 
   // Find the dragged character for DragOverlay
@@ -840,7 +881,7 @@ export default function CharactersModal({ onClose }: CharactersModalProps) {
             ) : showCategoryView ? (
                 <DndContext
                   sensors={sensors}
-                  collisionDetection={closestCenter}
+                  collisionDetection={pointerWithin}
                   onDragStart={handleDragStart}
                   onDragEnd={handleDragEnd}
                 >
@@ -907,14 +948,10 @@ export default function CharactersModal({ onClose }: CharactersModalProps) {
                               category.isExpanded ? "max-h-[4000px] opacity-100" : "max-h-0 opacity-0"
                             }`}
                           >
+                            <CategoryDropZone categoryId={category.id}>
                             <SortableContext items={catChars.map((c) => c.id)} strategy={rectSortingStrategy} id={category.id}>
                               {catChars.length === 0 ? (
-                                <div
-                                  className="flex items-center justify-center py-10 text-slate-400 text-sm border-2 border-dashed border-slate-200 m-4 rounded-xl"
-                                  data-droppable-id={`${category.id}_drop`}
-                                >
-                                  Drag characters here
-                                </div>
+                                <EmptyDropZone categoryId={category.id} />
                               ) : (
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-4">
                                   {catChars.map((character) => {
@@ -945,6 +982,7 @@ export default function CharactersModal({ onClose }: CharactersModalProps) {
                                 </div>
                               )}
                             </SortableContext>
+                            </CategoryDropZone>
                           </div>
                         </div>
                       )
