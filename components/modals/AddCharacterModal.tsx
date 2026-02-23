@@ -109,7 +109,7 @@ export default function AddCharacterModal({ onClose }: AddCharacterModalProps) {
           className="text-xl font-bold cursor-context-menu"
           onContextMenu={(e) => handleContextMenu(e, "character", "singular")}
         >
-          Add New {getCurrentTerminology(state).character.singular}
+          Create New {getCurrentTerminology(state).character.singular}
         </h2>
         <div className="flex items-center space-x-3">
           <button
@@ -207,7 +207,7 @@ export default function AddCharacterModal({ onClose }: AddCharacterModalProps) {
           className="px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 cursor-context-menu"
           onContextMenu={(e) => handleContextMenu(e, "character", "singular")}
         >
-          Add {getCurrentTerminology(state).character.singular}
+          Create {getCurrentTerminology(state).character.singular}
         </button>
       </div>
       {/* Terminology Context Menu */}

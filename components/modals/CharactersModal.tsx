@@ -784,7 +784,7 @@ export default function CharactersModal({ onClose }: CharactersModalProps) {
                   className="bg-success-500 hover:bg-success-600 text-white rounded-xl px-4 py-2 flex items-center gap-2 transition-all duration-200 shadow-md hover:shadow-lg"
                 >
                   <Plus className="w-4 h-4" />
-                  <span>Add Character</span>
+                  <span>Create Character</span>
                 </Button>
                 <button
                   onClick={() => {
@@ -1229,7 +1229,13 @@ export default function CharactersModal({ onClose }: CharactersModalProps) {
         </div>
       </div>
 
-      {showAddCharacterModal && <AddCharacterModal onClose={() => setShowAddCharacterModal(false)} />}
+      {showAddCharacterModal && (
+        <div className="fixed inset-0 z-[60] flex items-start justify-center pt-[8vh] bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="animate-in slide-in-from-top-4 fade-in duration-300 w-full max-w-2xl mx-4">
+            <AddCharacterModal onClose={() => setShowAddCharacterModal(false)} />
+          </div>
+        </div>
+      )}
     </>
   )
 }

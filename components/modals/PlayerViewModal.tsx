@@ -142,7 +142,7 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
       uploadActors: "Upload Actors",
       character_singular: "Character",
       characters: "Characters",
-      addCharacter: "Add Character",
+      addCharacter: "Create Character",
     }
 
     let projectTerminology = {}

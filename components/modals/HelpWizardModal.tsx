@@ -92,7 +92,7 @@ export default function HelpWizardModal({ onClose }: HelpWizardModalProps) {
             </h4>
             <div className="pl-6 space-y-2">
               <p className="text-sm text-gray-600">
-                1. Click <span className="font-medium text-emerald-600">+ Add Character</span> in the main view.
+                1. Click <span className="font-medium text-emerald-600">+ Create Character</span> in the main view.
               </p>
               <p className="text-sm text-gray-600">2. Fill in character name and description.</p>
               <p className="text-sm text-gray-600">3. Add age range, physical attributes, and role details.</p>
