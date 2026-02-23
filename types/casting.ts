@@ -252,6 +252,7 @@ export type CastingAction =
   | { type: "UPDATE_CHARACTER_CONCEPT_ART"; payload: { characterId: string; conceptArt: string } }
   | { type: "SET_PROJECT_PROPS"; payload: { projectId: string; props: ProjectProp[] } }
   | { type: "SET_PROJECT_LOCATIONS"; payload: { projectId: string; locations: ProjectLocation[] } }
+  | { type: "SET_PROP_PURCHASE_REQUESTS"; payload: { projectId: string; requests: PropPurchaseRequest[] } }
   | { type: "SET_PROJECT_COSTUMES"; payload: { projectId: string; costumes: ProjectCostumes } }
   | { type: "SET_PROJECT_PROP_INVENTORY"; payload: { projectId: string; inventory: PropInventoryItem[] } }
   | { type: "SET_PROJECT_LOCATION_INVENTORY"; payload: { projectId: string; inventory: ProjectLocation[] } }
@@ -492,8 +493,24 @@ export interface ProjectCostumes {
   shoppingList: CostumeShoppingItem[]
 }
 
-/** An item in the global prop inventory (the "All" tab). */
-export interface PropInventoryItem {
+  /** Purchase / design request for a prop */
+  export interface PropPurchaseRequest {
+  id: string
+  description: string
+  quantity: number
+  vendor: string
+  estimatedPrice: string
+  designNotes: string
+  status: "requested" | "approved" | "ordered" | "received" | "in-design" | "design-complete"
+  requestType: "purchase" | "design" | "fabrication"
+  requestedBy: string
+  characterId?: string
+  sceneIds?: string[]
+  priority: "low" | "medium" | "high" | "urgent"
+  }
+
+  /** An item in the global prop inventory (the "All" tab). */
+  export interface PropInventoryItem {
   id: string
   name: string
   model: string
@@ -600,6 +617,8 @@ export interface Project {
   costumes?: ProjectCostumes
   /** Global prop inventory ("All" tab in Props modal) */
   propInventory?: PropInventoryItem[]
+  /** Prop purchase / design requests */
+  propPurchaseRequests?: PropPurchaseRequest[]
   /** Global location inventory ("All Locations" tab in Locations modal) */
   locationInventory?: ProjectLocation[]
   /** Script data */

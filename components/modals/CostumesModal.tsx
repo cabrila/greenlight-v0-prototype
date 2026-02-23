@@ -649,7 +649,7 @@ export default function CostumesModal({ onClose }: { onClose: () => void }) {
     { key: "makeup", label: "Makeup", icon: <Scissors className="w-4 h-4" /> },
     { key: "looks", label: "Looks", icon: <Palette className="w-4 h-4" /> },
     { key: "crossplot", label: "Cross-Plot", icon: <LayoutGrid className="w-4 h-4" /> },
-    { key: "purchase", label: "Purchase List", icon: <ShoppingBag className="w-4 h-4" /> },
+    { key: "purchase", label: "Purchase/Design", icon: <ShoppingBag className="w-4 h-4" /> },
   ]
 
   return (

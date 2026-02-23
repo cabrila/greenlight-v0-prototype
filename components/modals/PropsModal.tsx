@@ -27,10 +27,13 @@ import {
   LayoutGrid,
   AlertTriangle,
   Palette,
+  ShoppingBag,
+  Wrench,
+  ArrowRight,
 } from "lucide-react"
 import { useCasting } from "@/components/casting/CastingContext"
 import { openModal } from "./ModalManager"
-import type { ProjectProp, PropVote, PropComment, PropAvailability, PropInventoryItem, Character, Actor } from "@/types/casting"
+import type { ProjectProp, PropVote, PropComment, PropAvailability, PropInventoryItem, PropPurchaseRequest, Character, Actor } from "@/types/casting"
 import type { Scene } from "@/types/schedule"
 import { compressImage } from "@/utils/imageCompression"
 
@@ -1209,7 +1212,7 @@ export default function PropsModal({ onClose }: PropsModalProps) {
   )
 
   /* ---- UI state ---- */
-  type MainTab = "inventory" | "project" | "crossplot"
+  type MainTab = "inventory" | "project" | "crossplot" | "purchase"
   const [mainTab, setMainTab] = useState<MainTab>("inventory")
   const [searchTerm, setSearchTerm] = useState("")
   const [activeTab, setActiveTab] = useState<"all" | "project">("all")
@@ -1221,6 +1224,18 @@ export default function PropsModal({ onClose }: PropsModalProps) {
   const [editingProjectProp, setEditingProjectProp] = useState<ProjectProp | null>(null)
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
   const [confirmDeleteSource, setConfirmDeleteSource] = useState<"inventory" | "project">("inventory")
+  const [showPurchaseForm, setShowPurchaseForm] = useState(false)
+
+  /* ---- Purchase / Design Requests ---- */
+  const purchaseRequests: PropPurchaseRequest[] = currentProject?.propPurchaseRequests ?? []
+  const syncPurchaseRequests = useCallback(
+    (updater: (prev: PropPurchaseRequest[]) => PropPurchaseRequest[]) => {
+      if (!projectId) return
+      const next = updater(purchaseRequests)
+      dispatch({ type: "SET_PROP_PURCHASE_REQUESTS", payload: { projectId, requests: next } })
+    },
+    [projectId, dispatch, purchaseRequests],
+  )
 
   const currentUserId = state.currentUser?.id
 
@@ -1370,9 +1385,10 @@ export default function PropsModal({ onClose }: PropsModalProps) {
   const isProjectTab = activeTab === "project"
 
   const TABS: { key: MainTab; label: string; icon: React.ReactNode }[] = [
-    { key: "inventory", label: "Inventory", icon: <Package className="w-4 h-4" /> },
-    { key: "project", label: "Project Props", icon: <Palette className="w-4 h-4" /> },
-    { key: "crossplot", label: "Cross-Plot", icon: <LayoutGrid className="w-4 h-4" /> },
+  { key: "inventory", label: "Inventory", icon: <Package className="w-4 h-4" /> },
+  { key: "project", label: "Project Props", icon: <Palette className="w-4 h-4" /> },
+  { key: "crossplot", label: "Cross-Plot", icon: <LayoutGrid className="w-4 h-4" /> },
+  { key: "purchase", label: "Purchase/Design", icon: <ShoppingBag className="w-4 h-4" /> },
   ]
 
   return (
@@ -1412,6 +1428,9 @@ export default function PropsModal({ onClose }: PropsModalProps) {
             {t.key === "project" && projectProps.length > 0 && (
               <span className="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-1.5 py-0.5 rounded-full">{projectProps.length}</span>
             )}
+            {t.key === "purchase" && purchaseRequests.length > 0 && (
+              <span className="bg-amber-100 text-amber-700 text-[10px] font-bold px-1.5 py-0.5 rounded-full">{purchaseRequests.length}</span>
+            )}
           </button>
         ))}
       </div>
@@ -1426,6 +1445,15 @@ export default function PropsModal({ onClose }: PropsModalProps) {
           </div>
         ) : mainTab === "crossplot" ? (
           <PropsCrossPlotTab inventory={inventory} scenes={scenes} characters={characters} characterActorMap={characterActorMap} onEditProp={(item) => setEditingInventoryItem(item)} />
+        ) : mainTab === "purchase" ? (
+          <PropsPurchaseTab
+            requests={purchaseRequests}
+            characters={characters}
+            scenes={scenes}
+            onAdd={() => setShowPurchaseForm(true)}
+            onUpdateStatus={(id, status) => syncPurchaseRequests((prev) => prev.map((r) => r.id === id ? { ...r, status } : r))}
+            onDelete={(id) => syncPurchaseRequests((prev) => prev.filter((r) => r.id !== id))}
+          />
         ) : (
           /* Inventory / Project tab with character panel */
           <div className="h-full flex flex-col">
@@ -1696,6 +1724,18 @@ export default function PropsModal({ onClose }: PropsModalProps) {
       {showAddModal && <AddItemModal onClose={() => setShowAddModal(false)} onAdd={handleAddInventoryItem} scenes={scenes} characters={characters} characterActorMap={characterActorMap} />}
       {editingInventoryItem && <EditItemModal item={editingInventoryItem} onClose={() => setEditingInventoryItem(null)} onSave={handleSaveInventoryEdit} scenes={scenes} characters={characters} characterActorMap={characterActorMap} />}
       {editingProjectProp && <EditItemModal item={editingProjectProp} onClose={() => setEditingProjectProp(null)} onSave={handleSaveProjectPropEdit} scenes={scenes} characters={characters} characterActorMap={characterActorMap} />}
+
+      {showPurchaseForm && (
+        <PropsPurchaseFormModal
+          characters={characters}
+          scenes={scenes}
+          onClose={() => setShowPurchaseForm(false)}
+          onSave={(item) => {
+            syncPurchaseRequests((prev) => [...prev, { ...item, id: `ppr-${Date.now()}-${Math.random().toString(36).slice(2, 7)}` }])
+            setShowPurchaseForm(false)
+          }}
+        />
+      )}
 
       {/* Delete Confirmation Dialog */}
       {confirmDeleteId && (

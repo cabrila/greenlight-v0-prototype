@@ -1928,6 +1928,17 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
       }
       break
 
+    case "SET_PROP_PURCHASE_REQUESTS":
+      newState = {
+        ...state,
+        projects: state.projects.map((project) =>
+          project.id === action.payload.projectId
+            ? { ...project, propPurchaseRequests: action.payload.requests }
+            : project
+        ),
+      }
+      break
+
     case "SET_PROJECT_COSTUMES":
       newState = {
         ...state,
