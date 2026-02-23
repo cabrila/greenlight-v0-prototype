@@ -1996,3 +1996,535 @@ function PropsCrossPlotTab({
     </div>
   )
 }
+
+/* ================================================================== */
+/*  PURCHASE / DESIGN TAB                                              */
+/* ================================================================== */
+
+const PURCHASE_STATUS_COLORS: Record<string, { bg: string; text: string; label: string }> = {
+  requested: { bg: "bg-gray-100", text: "text-gray-700", label: "Requested" },
+  approved: { bg: "bg-blue-100", text: "text-blue-700", label: "Approved" },
+  ordered: { bg: "bg-amber-100", text: "text-amber-700", label: "Ordered" },
+  received: { bg: "bg-emerald-100", text: "text-emerald-700", label: "Received" },
+  "in-design": { bg: "bg-purple-100", text: "text-purple-700", label: "In Design" },
+  "design-complete": { bg: "bg-teal-100", text: "text-teal-700", label: "Design Complete" },
+}
+
+const REQUEST_TYPE_COLORS: Record<string, { bg: string; text: string; icon: React.ReactNode }> = {
+  purchase: { bg: "bg-emerald-50", text: "text-emerald-700", icon: <ShoppingBag className="w-3 h-3" /> },
+  design: { bg: "bg-purple-50", text: "text-purple-700", icon: <Palette className="w-3 h-3" /> },
+  fabrication: { bg: "bg-amber-50", text: "text-amber-700", icon: <Wrench className="w-3 h-3" /> },
+}
+
+const PRIORITY_COLORS: Record<string, { bg: string; text: string }> = {
+  low: { bg: "bg-gray-100", text: "text-gray-600" },
+  medium: { bg: "bg-blue-100", text: "text-blue-700" },
+  high: { bg: "bg-orange-100", text: "text-orange-700" },
+  urgent: { bg: "bg-red-100", text: "text-red-700" },
+}
+
+function PropsPurchaseTab({
+  requests,
+  characters,
+  scenes,
+  onAdd,
+  onUpdateStatus,
+  onDelete,
+}: {
+  requests: PropPurchaseRequest[]
+  characters: Character[]
+  scenes: Scene[]
+  onAdd: () => void
+  onUpdateStatus: (id: string, status: PropPurchaseRequest["status"]) => void
+  onDelete: (id: string) => void
+}) {
+  const [filterType, setFilterType] = useState<"all" | "purchase" | "design" | "fabrication">("all")
+  const [filterStatus, setFilterStatus] = useState<string>("all")
+
+  const filtered = useMemo(() => {
+    let items = requests
+    if (filterType !== "all") items = items.filter((r) => r.requestType === filterType)
+    if (filterStatus !== "all") items = items.filter((r) => r.status === filterStatus)
+    return items
+  }, [requests, filterType, filterStatus])
+
+  const grouped: Record<string, PropPurchaseRequest[]> = {}
+  for (const item of filtered) {
+    const key = item.requestType
+    if (!grouped[key]) grouped[key] = []
+    grouped[key].push(item)
+  }
+
+  const totalEstimate = requests.reduce((sum, r) => sum + (parseFloat(r.estimatedPrice.replace(/[^0-9.]/g, "")) || 0), 0)
+  const pendingCount = requests.filter((r) => r.status === "requested" || r.status === "approved").length
+  const urgentCount = requests.filter((r) => r.priority === "urgent" || r.priority === "high").length
+
+  return (
+    <div className="h-full flex flex-col">
+      {/* Toolbar */}
+      <div className="flex flex-wrap items-center gap-3 px-6 py-3 border-b border-gray-200 bg-white shrink-0">
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold text-gray-900">Purchase & Design Requests</p>
+          <p className="text-xs text-gray-500">
+            {requests.length} request{requests.length !== 1 ? "s" : ""}
+            {totalEstimate > 0 && <span className="mx-1">{"\u2022"}</span>}
+            {totalEstimate > 0 && <span>Est. total: ${totalEstimate.toFixed(2)}</span>}
+            {pendingCount > 0 && <span className="mx-1">{"\u2022"}</span>}
+            {pendingCount > 0 && <span className="text-amber-600 font-medium">{pendingCount} pending</span>}
+          </p>
+        </div>
+
+        <select
+          value={filterType}
+          onChange={(e) => setFilterType(e.target.value as typeof filterType)}
+          className="text-xs border border-gray-200 rounded-lg px-2 py-1.5 bg-white text-gray-700 focus:outline-none focus:ring-1 focus:ring-emerald-300"
+        >
+          <option value="all">All Types</option>
+          <option value="purchase">Purchase</option>
+          <option value="design">Design</option>
+          <option value="fabrication">Fabrication</option>
+        </select>
+
+        <select
+          value={filterStatus}
+          onChange={(e) => setFilterStatus(e.target.value)}
+          className="text-xs border border-gray-200 rounded-lg px-2 py-1.5 bg-white text-gray-700 focus:outline-none focus:ring-1 focus:ring-emerald-300"
+        >
+          <option value="all">All Statuses</option>
+          <option value="requested">Requested</option>
+          <option value="approved">Approved</option>
+          <option value="ordered">Ordered</option>
+          <option value="received">Received</option>
+          <option value="in-design">In Design</option>
+          <option value="design-complete">Design Complete</option>
+        </select>
+
+        <button
+          onClick={onAdd}
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-700 text-white text-sm font-medium rounded-lg hover:bg-emerald-800 transition-colors shrink-0"
+        >
+          <Plus className="w-4 h-4" /> New Request
+        </button>
+      </div>
+
+      {/* Content */}
+      <div className="flex-1 overflow-y-auto p-6">
+        {requests.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-full text-center">
+            <ShoppingBag className="w-12 h-12 text-gray-300 mb-3" />
+            <p className="text-gray-500 text-sm font-medium">No purchase or design requests yet</p>
+            <p className="text-gray-400 text-xs mt-1 max-w-xs">
+              Add requests for props that need to be purchased, custom designed, or fabricated for the production
+            </p>
+            <button
+              onClick={onAdd}
+              className="mt-4 px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 transition-colors"
+            >
+              Create First Request
+            </button>
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-64 text-center">
+            <Search className="w-10 h-10 text-gray-300 mb-3" />
+            <p className="text-gray-500 text-sm font-medium">No requests match your filters</p>
+            <button
+              onClick={() => { setFilterType("all"); setFilterStatus("all") }}
+              className="mt-2 text-emerald-600 text-xs font-medium hover:underline"
+            >
+              Clear filters
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {urgentCount > 0 && (
+              <div className="flex items-center gap-2 px-4 py-2.5 bg-red-50 border border-red-200 rounded-xl text-sm text-red-800">
+                <AlertTriangle className="w-4 h-4 shrink-0" />
+                <span className="font-medium">
+                  {urgentCount} high-priority or urgent request{urgentCount !== 1 ? "s" : ""} need attention
+                </span>
+              </div>
+            )}
+
+            {(["purchase", "design", "fabrication"] as const).map((type) => {
+              const items = grouped[type]
+              if (!items || items.length === 0) return null
+              const typeInfo = REQUEST_TYPE_COLORS[type]
+              const typeLabel = type.charAt(0).toUpperCase() + type.slice(1)
+              const typeTotal = items.reduce(
+                (sum, r) => sum + (parseFloat(r.estimatedPrice.replace(/[^0-9.]/g, "")) || 0),
+                0,
+              )
+
+              return (
+                <div key={type} className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+                  <div className="px-5 py-3 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
+                    <div className="flex items-center gap-2.5">
+                      <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-semibold ${typeInfo.bg} ${typeInfo.text}`}>
+                        {typeInfo.icon}
+                        {typeLabel}
+                      </span>
+                      <span className="text-xs text-gray-500">
+                        {items.length} item{items.length !== 1 ? "s" : ""}
+                      </span>
+                    </div>
+                    {typeTotal > 0 && (
+                      <span className="text-xs font-medium text-gray-600">Est. ${typeTotal.toFixed(2)}</span>
+                    )}
+                  </div>
+
+                  <div className="divide-y divide-gray-100">
+                    {items.map((item) => {
+                      const ch = characters.find((c) => c.id === item.characterId)
+                      const s = PURCHASE_STATUS_COLORS[item.status] ?? PURCHASE_STATUS_COLORS.requested
+                      const p = PRIORITY_COLORS[item.priority] ?? PRIORITY_COLORS.medium
+                      const itemScenes =
+                        item.sceneIds
+                          ?.map((sid) => scenes.find((sc) => sc.id === sid))
+                          .filter(Boolean) || []
+
+                      return (
+                        <div
+                          key={item.id}
+                          className="px-5 py-3.5 flex items-start gap-3 group hover:bg-gray-50/50 transition-colors"
+                        >
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <p className="text-sm font-medium text-gray-900">{item.description}</p>
+                              <span
+                                className={`inline-flex px-1.5 py-0.5 rounded text-[9px] font-bold uppercase ${p.bg} ${p.text}`}
+                              >
+                                {item.priority}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-3 mt-1 text-[10px] text-gray-500">
+                              {item.quantity > 1 && <span>Qty: {item.quantity}</span>}
+                              {item.estimatedPrice && <span>{item.estimatedPrice}</span>}
+                              {item.vendor && <span>{item.vendor}</span>}
+                              {ch && (
+                                <span className="inline-flex items-center gap-0.5">
+                                  <User className="w-3 h-3" /> {ch.name}
+                                </span>
+                              )}
+                              <span className="text-gray-400">by {item.requestedBy}</span>
+                            </div>
+                            {item.designNotes && (
+                              <p className="text-[10px] text-gray-500 italic mt-1 line-clamp-2">
+                                {item.designNotes}
+                              </p>
+                            )}
+                            {itemScenes.length > 0 && (
+                              <div className="flex flex-wrap gap-1 mt-1.5">
+                                {itemScenes.slice(0, 4).map((sc: any) => (
+                                  <span
+                                    key={sc.id}
+                                    className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded text-[9px] font-medium"
+                                  >
+                                    <Film className="w-2.5 h-2.5" /> Sc {sc.sceneNumber}
+                                  </span>
+                                ))}
+                                {itemScenes.length > 4 && (
+                                  <span className="text-[9px] text-gray-400">
+                                    +{itemScenes.length - 4}
+                                  </span>
+                                )}
+                              </div>
+                            )}
+                          </div>
+
+                          <select
+                            value={item.status}
+                            onChange={(e) =>
+                              onUpdateStatus(item.id, e.target.value as PropPurchaseRequest["status"])
+                            }
+                            className={`text-[10px] font-bold px-2 py-1 rounded-full border-0 cursor-pointer shrink-0 ${s.bg} ${s.text}`}
+                          >
+                            <option value="requested">Requested</option>
+                            <option value="approved">Approved</option>
+                            <option value="ordered">Ordered</option>
+                            <option value="received">Received</option>
+                            <option value="in-design">In Design</option>
+                            <option value="design-complete">Design Complete</option>
+                          </select>
+
+                          <button
+                            onClick={() => onDelete(item.id)}
+                            className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors opacity-0 group-hover:opacity-100 shrink-0"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+/* ================================================================== */
+/*  PURCHASE / DESIGN FORM MODAL                                       */
+/* ================================================================== */
+
+function PropsPurchaseFormModal({
+  characters,
+  scenes,
+  onClose,
+  onSave,
+}: {
+  characters: Character[]
+  scenes: Scene[]
+  onClose: () => void
+  onSave: (item: Omit<PropPurchaseRequest, "id">) => void
+}) {
+  const [description, setDescription] = useState("")
+  const [quantity, setQuantity] = useState("1")
+  const [vendor, setVendor] = useState("")
+  const [price, setPrice] = useState("")
+  const [designNotes, setDesignNotes] = useState("")
+  const [requestType, setRequestType] = useState<PropPurchaseRequest["requestType"]>("purchase")
+  const [priority, setPriority] = useState<PropPurchaseRequest["priority"]>("medium")
+  const [charId, setCharId] = useState("")
+  const [selectedSceneIds, setSelectedSceneIds] = useState<string[]>([])
+
+  const sortedScenes = useMemo(
+    () =>
+      [...scenes].sort((a, b) => {
+        const numA = parseInt(a.sceneNumber.replace(/\D/g, ""), 10) || 0
+        const numB = parseInt(b.sceneNumber.replace(/\D/g, ""), 10) || 0
+        return numA - numB
+      }),
+    [scenes],
+  )
+
+  const handleSubmit = () => {
+    if (!description.trim()) return
+    onSave({
+      description: description.trim(),
+      quantity: parseInt(quantity, 10) || 1,
+      vendor: vendor.trim(),
+      estimatedPrice: price.trim(),
+      designNotes: designNotes.trim(),
+      status: "requested",
+      requestType,
+      requestedBy: "Current User",
+      priority,
+      characterId: charId || undefined,
+      sceneIds: selectedSceneIds.length > 0 ? selectedSceneIds : undefined,
+    })
+  }
+
+  const toggleScene = (id: string) => {
+    setSelectedSceneIds((prev) =>
+      prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id],
+    )
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-[60] p-4">
+      <div className="bg-gray-100 rounded-2xl w-full max-w-lg shadow-2xl max-h-[85vh] flex flex-col">
+        <div className="p-6 overflow-y-auto flex-1">
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="text-lg font-bold text-gray-900">New Purchase/Design Request</h2>
+            <button
+              onClick={onClose}
+              className="p-1.5 rounded-full hover:bg-gray-200 text-gray-500"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          <div className="space-y-3">
+            {/* Request Type */}
+            <div>
+              <label className="text-[10px] text-gray-500 font-medium mb-1.5 block">
+                Request Type
+              </label>
+              <div className="flex gap-2">
+                {(["purchase", "design", "fabrication"] as const).map((t) => {
+                  const info = REQUEST_TYPE_COLORS[t]
+                  const label = t.charAt(0).toUpperCase() + t.slice(1)
+                  return (
+                    <button
+                      key={t}
+                      type="button"
+                      onClick={() => setRequestType(t)}
+                      className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium border transition-colors ${
+                        requestType === t
+                          ? `${info.bg} ${info.text} border-current`
+                          : "bg-white text-gray-500 border-gray-200 hover:bg-gray-50"
+                      }`}
+                    >
+                      {info.icon}
+                      {label}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* Description */}
+            <div className="relative">
+              <label className="absolute left-3 top-1.5 text-[10px] text-gray-500 pointer-events-none">
+                Description *
+              </label>
+              <input
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                className="w-full pt-5 pb-2 px-3 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-1 focus:ring-emerald-300"
+              />
+            </div>
+
+            {/* Quantity & Price */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="relative">
+                <label className="absolute left-3 top-1.5 text-[10px] text-gray-500 pointer-events-none">
+                  Quantity
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  value={quantity}
+                  onChange={(e) => setQuantity(e.target.value)}
+                  className="w-full pt-5 pb-2 px-3 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-1 focus:ring-emerald-300"
+                />
+              </div>
+              <div className="relative">
+                <label className="absolute left-3 top-1.5 text-[10px] text-gray-500 pointer-events-none">
+                  Estimated Price
+                </label>
+                <input
+                  value={price}
+                  onChange={(e) => setPrice(e.target.value)}
+                  placeholder="$0.00"
+                  className="w-full pt-5 pb-2 px-3 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-1 focus:ring-emerald-300"
+                />
+              </div>
+            </div>
+
+            {/* Vendor */}
+            <div className="relative">
+              <label className="absolute left-3 top-1.5 text-[10px] text-gray-500 pointer-events-none">
+                Vendor / Supplier
+              </label>
+              <input
+                value={vendor}
+                onChange={(e) => setVendor(e.target.value)}
+                className="w-full pt-5 pb-2 px-3 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-1 focus:ring-emerald-300"
+              />
+            </div>
+
+            {/* Priority */}
+            <div>
+              <label className="text-[10px] text-gray-500 font-medium mb-1.5 block">Priority</label>
+              <div className="flex gap-2">
+                {(["low", "medium", "high", "urgent"] as const).map((p) => {
+                  const info = PRIORITY_COLORS[p]
+                  return (
+                    <button
+                      key={p}
+                      type="button"
+                      onClick={() => setPriority(p)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors capitalize ${
+                        priority === p
+                          ? `${info.bg} ${info.text} border-current`
+                          : "bg-white text-gray-500 border-gray-200 hover:bg-gray-50"
+                      }`}
+                    >
+                      {p}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* Character */}
+            <div className="relative">
+              <label className="absolute left-3 top-1.5 text-[10px] text-gray-500 pointer-events-none z-[1]">
+                For Character (optional)
+              </label>
+              <select
+                value={charId}
+                onChange={(e) => setCharId(e.target.value)}
+                className="w-full pt-5 pb-2 px-3 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-1 focus:ring-emerald-300 appearance-none cursor-pointer"
+              >
+                <option value="">None</option>
+                {characters.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+            </div>
+
+            {/* Scene Selection */}
+            {sortedScenes.length > 0 && (
+              <div>
+                <label className="text-[10px] text-gray-500 font-medium mb-1.5 block">
+                  Scene Associations (optional)
+                </label>
+                <div className="flex flex-wrap gap-1.5 max-h-[100px] overflow-y-auto p-2 bg-white rounded-xl border border-gray-200">
+                  {sortedScenes.map((sc) => {
+                    const isSelected = selectedSceneIds.includes(sc.id)
+                    return (
+                      <button
+                        key={sc.id}
+                        type="button"
+                        onClick={() => toggleScene(sc.id)}
+                        className={`inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-medium border transition-colors ${
+                          isSelected
+                            ? "bg-emerald-50 text-emerald-700 border-emerald-300"
+                            : "bg-gray-50 text-gray-500 border-gray-200 hover:bg-gray-100"
+                        }`}
+                      >
+                        <Film className="w-3 h-3" />
+                        Sc {sc.sceneNumber}
+                        {isSelected && <Check className="w-3 h-3" />}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Design Notes */}
+            <div>
+              <label className="text-[10px] text-gray-500 font-medium mb-1.5 block">
+                Design Notes
+              </label>
+              <textarea
+                value={designNotes}
+                onChange={(e) => setDesignNotes(e.target.value)}
+                placeholder="Dimensions, materials, references, aging instructions..."
+                rows={3}
+                className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-1 focus:ring-emerald-300 resize-none"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="px-6 py-4 border-t border-gray-200 bg-white rounded-b-2xl flex justify-end gap-2">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSubmit}
+            disabled={!description.trim()}
+            className="px-5 py-2 bg-emerald-700 text-white text-sm font-semibold rounded-lg hover:bg-emerald-800 disabled:opacity-40 transition-colors"
+          >
+            Add Request
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
