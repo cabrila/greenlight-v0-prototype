@@ -8,7 +8,6 @@ import {
   MoreVertical,
   Grid3X3,
   List,
-  SlidersHorizontal,
   ChevronDown,
   Check,
   Package,
@@ -832,12 +831,12 @@ function InventoryCard({ item, isInProject, onToggleAdd, onEdit, onImageReplace,
       </div>
 
       {/* Scene & Character badges */}
-      {((item.sceneIds && item.sceneIds.length > 0) || item.characterId) && (
-        <div className="px-4 pb-2 flex flex-wrap items-center gap-1.5">
+      <div className="px-4 pb-2">
+        <div className="flex flex-wrap items-center gap-1.5">
           {item.characterId && (() => {
             const char = characters?.find((c) => c.id === item.characterId)
             return char ? (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-100 text-gray-700 rounded-full text-[10px] font-medium">
+              <span className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 text-gray-700 rounded-lg text-[10px] font-medium">
                 <User className="w-3 h-3 text-gray-500" />
                 {char.name}
               </span>
@@ -851,7 +850,7 @@ function InventoryCard({ item, isInProject, onToggleAdd, onEdit, onImageReplace,
             return (
               <>
                 {show.map((sc) => (
-                  <span key={sc.id} className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full text-[10px] font-medium" title={`${sc.intExt}. ${sc.location} - ${sc.dayNight}`}>
+                  <span key={sc.id} className="inline-flex items-center gap-1 px-2 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg text-[10px] font-semibold" title={`${sc.intExt}. ${sc.location} - ${sc.dayNight}`}>
                     <Film className="w-3 h-3" />
                     Sc {sc.sceneNumber}
                   </span>
@@ -860,8 +859,11 @@ function InventoryCard({ item, isInProject, onToggleAdd, onEdit, onImageReplace,
               </>
             )
           })()}
+          {(!item.sceneIds || item.sceneIds.length === 0) && !item.characterId && (
+            <span className="text-[10px] text-gray-300 italic">No scene or character assigned</span>
+          )}
         </div>
-      )}
+      </div>
 
       {/* Footer */}
       <div className="px-4 pb-3 flex items-center justify-between">
@@ -968,12 +970,12 @@ function ProjectPropCard({ item, onVote, onAddComment, onRemove, onAddToCanvas, 
       </div>
 
       {/* Scene & Character badges */}
-      {((item.sceneIds && item.sceneIds.length > 0) || item.characterId) && (
-        <div className="px-4 pb-2 flex flex-wrap items-center gap-1.5">
+      <div className="px-4 pb-2">
+        <div className="flex flex-wrap items-center gap-1.5">
           {item.characterId && (() => {
             const char = characters?.find((c) => c.id === item.characterId)
             return char ? (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-100 text-gray-700 rounded-full text-[10px] font-medium">
+              <span className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 text-gray-700 rounded-lg text-[10px] font-medium">
                 <User className="w-3 h-3 text-gray-500" />
                 {char.name}
               </span>
@@ -987,7 +989,7 @@ function ProjectPropCard({ item, onVote, onAddComment, onRemove, onAddToCanvas, 
             return (
               <>
                 {show.map((sc) => (
-                  <span key={sc.id} className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full text-[10px] font-medium" title={`${sc.intExt}. ${sc.location} - ${sc.dayNight}`}>
+                  <span key={sc.id} className="inline-flex items-center gap-1 px-2 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg text-[10px] font-semibold" title={`${sc.intExt}. ${sc.location} - ${sc.dayNight}`}>
                     <Film className="w-3 h-3" />
                     Sc {sc.sceneNumber}
                   </span>
@@ -996,8 +998,11 @@ function ProjectPropCard({ item, onVote, onAddComment, onRemove, onAddToCanvas, 
               </>
             )
           })()}
+          {(!item.sceneIds || item.sceneIds.length === 0) && !item.characterId && (
+            <span className="text-[10px] text-gray-300 italic">No scene or character assigned</span>
+          )}
         </div>
-      )}
+      </div>
 
       {/* Vote row */}
       <div className="px-4 pb-2 flex items-center gap-1.5">
@@ -1212,7 +1217,6 @@ export default function PropsModal({ onClose }: PropsModalProps) {
   const [categoryFilter, setCategoryFilter] = useState("")
   const [charFilter, setCharFilter] = useState<string | null>(null)
   const [showAddModal, setShowAddModal] = useState(false)
-  const [showFilters, setShowFilters] = useState(false)
   const [editingInventoryItem, setEditingInventoryItem] = useState<InventoryItem | null>(null)
   const [editingProjectProp, setEditingProjectProp] = useState<ProjectProp | null>(null)
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
@@ -1421,7 +1425,7 @@ export default function PropsModal({ onClose }: PropsModalProps) {
             <p className="text-gray-400 text-xs mt-1">Create or open a project first to manage props</p>
           </div>
         ) : mainTab === "crossplot" ? (
-          <PropsCrossPlotTab inventory={inventory} scenes={scenes} characters={characters} characterActorMap={characterActorMap} />
+          <PropsCrossPlotTab inventory={inventory} scenes={scenes} characters={characters} characterActorMap={characterActorMap} onEditProp={(item) => setEditingInventoryItem(item)} />
         ) : (
           /* Inventory / Project tab with character panel */
           <div className="h-full flex flex-col">
@@ -1737,13 +1741,16 @@ function PropsCrossPlotTab({
   scenes,
   characters,
   characterActorMap,
+  onEditProp,
 }: {
   inventory: InventoryItem[]
   scenes: Scene[]
   characters: Character[]
   characterActorMap: { character: Character; castActor: Actor | null }[]
+  onEditProp?: (item: InventoryItem) => void
 }) {
   const [selectedCharacterId, setSelectedCharacterId] = useState<string | null>(null)
+  const [expandedCell, setExpandedCell] = useState<string | null>(null)
 
   const displayChars = selectedCharacterId ? characters.filter((c) => c.id === selectedCharacterId) : characters
   const sortedScenes = useMemo(
@@ -1756,6 +1763,12 @@ function PropsCrossPlotTab({
     [scenes],
   )
 
+  /* Also include "Unassigned" column for props with scene IDs but no character */
+  const hasUnassigned = useMemo(
+    () => inventory.some((p) => !p.characterId && p.sceneIds && p.sceneIds.length > 0),
+    [inventory],
+  )
+
   /* Build matrix: scene -> character -> props[] */
   const matrix = useMemo(() => {
     const m: Record<string, Record<string, InventoryItem[]>> = {}
@@ -1766,29 +1779,45 @@ function PropsCrossPlotTab({
           (p) => p.characterId === ch.id && p.sceneIds?.includes(sc.id),
         )
       }
+      if (hasUnassigned && !selectedCharacterId) {
+        m[sc.id]["__unassigned__"] = inventory.filter(
+          (p) => !p.characterId && p.sceneIds?.includes(sc.id),
+        )
+      }
     }
     return m
-  }, [sortedScenes, displayChars, inventory])
+  }, [sortedScenes, displayChars, inventory, hasUnassigned, selectedCharacterId])
 
   /* Detect continuity issues: same character has different props between consecutive scenes */
   const continuityFlags = useMemo(() => {
     const flags = new Set<string>()
+    const checkCols = [...displayChars.map((c) => c.id)]
+    if (hasUnassigned && !selectedCharacterId) checkCols.push("__unassigned__")
     for (let i = 1; i < sortedScenes.length; i++) {
-      for (const ch of displayChars) {
-        const prev = matrix[sortedScenes[i - 1].id]?.[ch.id] || []
-        const curr = matrix[sortedScenes[i].id]?.[ch.id] || []
+      for (const colId of checkCols) {
+        const prev = matrix[sortedScenes[i - 1].id]?.[colId] || []
+        const curr = matrix[sortedScenes[i].id]?.[colId] || []
         if (prev.length === 0 || curr.length === 0) continue
         const prevIds = new Set(prev.map((p) => p.id))
         const currIds = new Set(curr.map((p) => p.id))
         const added = curr.filter((p) => !prevIds.has(p.id))
         const removed = prev.filter((p) => !currIds.has(p.id))
         if (added.length > 0 || removed.length > 0) {
-          flags.add(`${sortedScenes[i].id}-${ch.id}`)
+          flags.add(`${sortedScenes[i].id}-${colId}`)
         }
       }
     }
     return flags
-  }, [sortedScenes, displayChars, matrix])
+  }, [sortedScenes, displayChars, matrix, hasUnassigned, selectedCharacterId])
+
+  /* Scene-level prop summary */
+  const scenePropCounts = useMemo(() => {
+    const counts: Record<string, number> = {}
+    for (const sc of sortedScenes) {
+      counts[sc.id] = inventory.filter((p) => p.sceneIds?.includes(sc.id)).length
+    }
+    return counts
+  }, [sortedScenes, inventory])
 
   if (sortedScenes.length === 0) {
     return (
@@ -1800,79 +1829,112 @@ function PropsCrossPlotTab({
     )
   }
 
+  /* Column IDs for rendering */
+  const colDefs: { id: string; name: string; actor?: string }[] = displayChars.map((ch) => {
+    const pair = characterActorMap.find((c) => c.character.id === ch.id)
+    return { id: ch.id, name: ch.name, actor: pair?.castActor?.name }
+  })
+  if (hasUnassigned && !selectedCharacterId) {
+    colDefs.push({ id: "__unassigned__", name: "Unassigned" })
+  }
+
   return (
     <div className="h-full flex flex-col">
-      {/* Character filter */}
+      {/* Toolbar */}
       <div className="flex items-center gap-3 px-6 py-3 bg-white border-b border-gray-200 shrink-0">
-        <span className="text-xs text-gray-500">Character:</span>
+        <span className="text-xs font-medium text-gray-500">Filter:</span>
         <select
           value={selectedCharacterId ?? ""}
           onChange={(e) => setSelectedCharacterId(e.target.value || null)}
-          className="text-sm border border-gray-200 rounded-lg px-2 py-1.5 bg-white"
+          className="text-xs border border-gray-200 rounded-lg px-2 py-1.5 bg-white text-gray-700 focus:outline-none focus:ring-1 focus:ring-emerald-300"
         >
           <option value="">All Characters</option>
           {characters.map((ch) => (
             <option key={ch.id} value={ch.id}>{ch.name}</option>
           ))}
         </select>
-        {continuityFlags.size > 0 && (
-          <div className="ml-auto flex items-center gap-1.5 text-xs text-amber-600 font-medium">
-            <AlertTriangle className="w-4 h-4" />
-            {continuityFlags.size} potential continuity issue{continuityFlags.size !== 1 ? "s" : ""}
-          </div>
-        )}
+
+        {/* Summary stats */}
+        <div className="ml-auto flex items-center gap-4">
+          <span className="text-[10px] text-gray-400">{sortedScenes.length} scenes &middot; {colDefs.length} columns</span>
+          {continuityFlags.size > 0 && (
+            <div className="flex items-center gap-1.5 text-xs text-amber-600 font-medium bg-amber-50 border border-amber-200 rounded-full px-2.5 py-1">
+              <AlertTriangle className="w-3.5 h-3.5" />
+              {continuityFlags.size} continuity issue{continuityFlags.size !== 1 ? "s" : ""}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Cross-plot table */}
-      <div className="flex-1 overflow-auto p-6">
-        <div className="min-w-max">
-          <table className="border-collapse w-full">
+      <div className="flex-1 overflow-auto">
+        <div className="min-w-max p-6">
+          <table className="border-collapse w-full bg-white rounded-xl border border-gray-200 overflow-hidden">
             <thead>
               <tr>
-                <th className="sticky left-0 z-10 bg-gray-100 px-4 py-2 text-xs font-semibold text-gray-500 uppercase border-b border-r border-gray-300 min-w-[140px]">
+                <th className="sticky left-0 z-10 bg-gray-50 px-4 py-3 text-[10px] font-semibold text-gray-500 uppercase tracking-wider border-b border-r border-gray-200 min-w-[140px] text-left">
                   Scene
                 </th>
-                {displayChars.map((ch) => {
-                  const pair = characterActorMap.find((c) => c.character.id === ch.id)
-                  return (
-                    <th key={ch.id} className="px-4 py-2 border-b border-gray-300 min-w-[180px] bg-gray-100">
-                      <p className="text-xs font-semibold text-gray-900">{ch.name}</p>
-                      {pair?.castActor && <p className="text-[10px] text-gray-500 font-normal">{pair.castActor.name}</p>}
-                    </th>
-                  )
-                })}
+                {colDefs.map((col) => (
+                  <th key={col.id} className="px-4 py-3 border-b border-gray-200 min-w-[180px] bg-gray-50 text-left">
+                    <p className="text-xs font-semibold text-gray-900">{col.name}</p>
+                    {col.actor && <p className="text-[10px] text-gray-500 font-normal">{col.actor}</p>}
+                    {col.id === "__unassigned__" && <p className="text-[10px] text-gray-400 font-normal">No character</p>}
+                  </th>
+                ))}
               </tr>
             </thead>
             <tbody>
-              {sortedScenes.map((scene) => (
-                <tr key={scene.id} className="hover:bg-gray-50">
-                  <td className="sticky left-0 z-10 bg-white px-4 py-2 text-xs border-b border-r border-gray-200">
-                    <div className="font-medium text-gray-700">Sc {scene.sceneNumber}</div>
-                    <div className="text-[10px] text-gray-400">{scene.intExt}. {scene.location}</div>
+              {sortedScenes.map((scene, sceneIdx) => (
+                <tr key={scene.id} className="group hover:bg-gray-50/50">
+                  <td className="sticky left-0 z-10 bg-white group-hover:bg-gray-50 px-4 py-2.5 text-xs border-b border-r border-gray-200">
+                    <div className="flex items-center gap-2">
+                      <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 text-[10px] font-bold shrink-0">
+                        {scene.sceneNumber}
+                      </span>
+                      <div className="min-w-0">
+                        <div className="text-[10px] text-gray-500 truncate">{scene.intExt}. {scene.location}</div>
+                        <div className="text-[9px] text-gray-400">{scene.dayNight} &middot; {scenePropCounts[scene.id]} prop{scenePropCounts[scene.id] !== 1 ? "s" : ""}</div>
+                      </div>
+                    </div>
                   </td>
-                  {displayChars.map((ch) => {
-                    const props = matrix[scene.id]?.[ch.id] || []
-                    const isFlag = continuityFlags.has(`${scene.id}-${ch.id}`)
+                  {colDefs.map((col) => {
+                    const props = matrix[scene.id]?.[col.id] || []
+                    const isFlag = continuityFlags.has(`${scene.id}-${col.id}`)
+                    const cellKey = `${scene.id}-${col.id}`
+                    const isExpanded = expandedCell === cellKey
                     return (
-                      <td key={ch.id} className={`px-3 py-2 border-b border-gray-200 align-top ${isFlag ? "bg-amber-50" : ""}`}>
+                      <td key={col.id} className={`px-3 py-2 border-b border-gray-200 align-top transition-colors ${isFlag ? "bg-amber-50/70" : ""}`}>
                         {props.length > 0 ? (
                           <div className="space-y-1">
-                            {props.map((p) => (
+                            {(isExpanded ? props : props.slice(0, 2)).map((p) => (
                               <div
                                 key={p.id}
-                                className={`flex items-center gap-2 rounded-lg px-2 py-1.5 text-xs ${
+                                onClick={() => onEditProp?.(p)}
+                                className={`flex items-center gap-2 rounded-lg px-2 py-1.5 text-xs cursor-pointer transition-all hover:shadow-sm ${
                                   isFlag
-                                    ? "border-2 border-amber-400 bg-amber-100"
-                                    : "bg-emerald-50 border border-emerald-200"
+                                    ? "border-2 border-amber-300 bg-amber-100/80 hover:bg-amber-100"
+                                    : "bg-emerald-50 border border-emerald-200 hover:border-emerald-300"
                                 }`}
                               >
-                                <img src={p.imageUrl} alt="" className="w-6 h-6 rounded object-cover shrink-0" />
-                                <div className="min-w-0">
+                                <img src={p.imageUrl} alt="" className="w-7 h-7 rounded-md object-cover shrink-0" />
+                                <div className="min-w-0 flex-1">
                                   <p className="font-medium text-gray-900 truncate text-[11px]">{p.name}</p>
                                   <p className="text-gray-500 text-[9px]">{p.category}</p>
                                 </div>
+                                <Pencil className="w-3 h-3 text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
                               </div>
                             ))}
+                            {props.length > 2 && !isExpanded && (
+                              <button onClick={() => setExpandedCell(cellKey)} className="text-[9px] font-medium text-emerald-600 hover:text-emerald-700 px-1">
+                                +{props.length - 2} more
+                              </button>
+                            )}
+                            {isExpanded && props.length > 2 && (
+                              <button onClick={() => setExpandedCell(null)} className="text-[9px] font-medium text-gray-400 hover:text-gray-600 px-1">
+                                Show less
+                              </button>
+                            )}
                             {isFlag && (
                               <span className="inline-flex items-center gap-0.5 mt-0.5 text-[9px] font-bold text-amber-700">
                                 <AlertTriangle className="w-3 h-3" /> Prop Change
@@ -1880,7 +1942,7 @@ function PropsCrossPlotTab({
                             )}
                           </div>
                         ) : (
-                          <span className="text-gray-300 text-xs">--</span>
+                          <span className="text-gray-200 text-xs select-none">&mdash;</span>
                         )}
                       </td>
                     )
