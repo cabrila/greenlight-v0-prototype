@@ -1021,7 +1021,7 @@ function ProjectPropCard({ item, onVote, onAddComment, onRemove, onAddToCanvas, 
 /*  List rows (compact views)                                          */
 /* ------------------------------------------------------------------ */
 
-function InventoryListRow({ item, isInProject, onToggleAdd, onEdit, onDelete, hasProject }: { item: InventoryItem; isInProject: boolean; onToggleAdd: (id: string) => void; onEdit: (item: InventoryItem) => void; onDelete: (id: string) => void; hasProject: boolean }) {
+function InventoryListRow({ item, isInProject, onToggleAdd, onEdit, onDelete, hasProject, scenes, characters }: { item: InventoryItem; isInProject: boolean; onToggleAdd: (id: string) => void; onEdit: (item: InventoryItem) => void; onDelete: (id: string) => void; hasProject: boolean; scenes?: Scene[]; characters?: Character[] }) {
   const isBooked = !!item.bookedTo
   return (
     <div className={`flex items-center gap-4 px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors ${isInProject ? "bg-emerald-50/40" : ""}`}>
@@ -1030,7 +1030,20 @@ function InventoryListRow({ item, isInProject, onToggleAdd, onEdit, onDelete, ha
       </div>
       <div className="flex-1 min-w-0">
         <p className="text-sm font-medium text-gray-900 truncate">{item.name}</p>
-        <p className="text-xs text-gray-500">{item.category} &middot; {item.brand}</p>
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <span className="text-xs text-gray-500">{item.category} &middot; {item.brand}</span>
+          {item.characterId && (() => {
+            const char = characters?.find((c) => c.id === item.characterId)
+            return char ? <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-gray-100 text-gray-600 rounded text-[9px] font-medium"><User className="w-2.5 h-2.5" />{char.name}</span> : null
+          })()}
+          {item.sceneIds && item.sceneIds.length > 0 && (() => {
+            const resolved = item.sceneIds.map((sid) => scenes?.find((s) => s.id === sid)).filter(Boolean) as Scene[]
+            return resolved.slice(0, 2).map((sc) => (
+              <span key={sc.id} className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-emerald-50 text-emerald-600 border border-emerald-200 rounded text-[9px] font-medium"><Film className="w-2.5 h-2.5" />Sc {sc.sceneNumber}</span>
+            ))
+          })()}
+          {item.sceneIds && item.sceneIds.length > 2 && <span className="text-[9px] text-gray-400">+{item.sceneIds.length - 2}</span>}
+        </div>
       </div>
       <div className="hidden sm:block text-xs text-gray-500 w-16 text-center">Qty: {item.quantity}</div>
       <div className="hidden md:block w-36 text-xs">
@@ -1055,7 +1068,7 @@ function InventoryListRow({ item, isInProject, onToggleAdd, onEdit, onDelete, ha
   )
 }
 
-function ProjectListRow({ item, onVote, onAddComment, onRemove, onAddToCanvas, onEdit, onDelete, currentUserId }: { item: ProjectProp; onVote: (id: string, vote: VoteValue) => void; onAddComment: (id: string, text: string) => void; onRemove: (id: string) => void; onAddToCanvas: (item: ProjectProp) => void; onEdit: (item: ProjectProp) => void; onDelete: (id: string) => void; currentUserId: string | undefined }) {
+function ProjectListRow({ item, onVote, onAddComment, onRemove, onAddToCanvas, onEdit, onDelete, currentUserId, scenes, characters }: { item: ProjectProp; onVote: (id: string, vote: VoteValue) => void; onAddComment: (id: string, text: string) => void; onRemove: (id: string) => void; onAddToCanvas: (item: ProjectProp) => void; onEdit: (item: ProjectProp) => void; onDelete: (id: string) => void; currentUserId: string | undefined; scenes?: Scene[]; characters?: Character[] }) {
   const userVote = item.votes.find((v) => v.userId === currentUserId)?.vote
   const yesCt = item.votes.filter((v) => v.vote === "yes").length
   const noCt = item.votes.filter((v) => v.vote === "no").length
@@ -1069,7 +1082,20 @@ function ProjectListRow({ item, onVote, onAddComment, onRemove, onAddToCanvas, o
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium text-gray-900 truncate">{item.name}</p>
-          <p className="text-xs text-gray-500">{item.category} &middot; {item.brand}</p>
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="text-xs text-gray-500">{item.category} &middot; {item.brand}</span>
+            {item.characterId && (() => {
+              const char = characters?.find((c) => c.id === item.characterId)
+              return char ? <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-gray-100 text-gray-600 rounded text-[9px] font-medium"><User className="w-2.5 h-2.5" />{char.name}</span> : null
+            })()}
+            {item.sceneIds && item.sceneIds.length > 0 && (() => {
+              const resolved = item.sceneIds.map((sid) => scenes?.find((s) => s.id === sid)).filter(Boolean) as Scene[]
+              return resolved.slice(0, 2).map((sc) => (
+                <span key={sc.id} className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-emerald-50 text-emerald-600 border border-emerald-200 rounded text-[9px] font-medium"><Film className="w-2.5 h-2.5" />Sc {sc.sceneNumber}</span>
+              ))
+            })()}
+            {item.sceneIds && item.sceneIds.length > 2 && <span className="text-[9px] text-gray-400">+{item.sceneIds.length - 2}</span>}
+          </div>
         </div>
         <div className="flex items-center gap-1.5">
           <VoteButton label="Yes" isActive={userVote === "yes"} count={yesCt} onClick={() => onVote(item.id, "yes")} />
@@ -1117,13 +1143,16 @@ export default function PropsModal({ onClose }: PropsModalProps) {
   const characters: Character[] = currentProject?.characters || []
 
   /* Helper to find the cast actor for a character (mirroring CostumesModal pattern) */
-  const getCastActorForCharacter = useCallback((ch: Character): Actor | null => {
-    const approvalActors = ch.actors?.approval || []
-    if (approvalActors.length > 0) return approvalActors[0]
-    const shortLists = ch.actors?.shortLists || []
-    for (const sl of shortLists) {
-      if ("actors" in sl && Array.isArray((sl as any).actors) && (sl as any).actors.length > 0) return (sl as any).actors[0]
-    }
+  const getCastActorForCharacter = useCallback((character: Character): Actor | null => {
+    const allActors: Actor[] = [
+      ...((character.actors?.longList as Actor[]) || []),
+      ...((character.actors?.audition as Actor[]) || []),
+      ...((character.actors?.approval as Actor[]) || []),
+      ...(character.actors?.shortLists?.flatMap((sl) => sl.actors) || []),
+    ]
+    const approved = (character.actors?.approval as Actor[]) || []
+    if (approved.length > 0) return approved[0]
+    if (allActors.length > 0) return allActors[0]
     return null
   }, [])
 
@@ -1416,7 +1445,7 @@ export default function PropsModal({ onClose }: PropsModalProps) {
           ) : (
             <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
               {filteredProjectProps.map((item) => (
-                <ProjectListRow key={item.id} item={item} onVote={handleVote} onAddComment={handleAddComment} onRemove={handleRemoveFromProject} onAddToCanvas={handleAddToCanvas} onEdit={(i) => setEditingProjectProp(i)} onDelete={handleRequestDeleteProject} currentUserId={currentUserId} />
+                <ProjectListRow key={item.id} item={item} onVote={handleVote} onAddComment={handleAddComment} onRemove={handleRemoveFromProject} onAddToCanvas={handleAddToCanvas} onEdit={(i) => setEditingProjectProp(i)} onDelete={handleRequestDeleteProject} currentUserId={currentUserId} scenes={scenes} characters={characters} />
               ))}
             </div>
           )
@@ -1437,7 +1466,7 @@ export default function PropsModal({ onClose }: PropsModalProps) {
           ) : (
             <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
               {filteredInventory.map((item) => (
-                <InventoryListRow key={item.id} item={item} isInProject={projectPropIds.has(item.id)} onToggleAdd={handleToggleAdd} onEdit={(i) => setEditingInventoryItem(i)} onDelete={handleRequestDeleteInventory} hasProject={!!projectId} />
+                <InventoryListRow key={item.id} item={item} isInProject={projectPropIds.has(item.id)} onToggleAdd={handleToggleAdd} onEdit={(i) => setEditingInventoryItem(i)} onDelete={handleRequestDeleteInventory} hasProject={!!projectId} scenes={scenes} characters={characters} />
               ))}
             </div>
           )
