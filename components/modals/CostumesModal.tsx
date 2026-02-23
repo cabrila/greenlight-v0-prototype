@@ -101,6 +101,24 @@ const VIBE_TAGS = [
   "Uniform",
 ]
 
+const MAKEUP_TAGS = [
+  "Natural",
+  "Glamour",
+  "SFX",
+  "Aging",
+  "Bruising",
+  "Prosthetic",
+  "Fantasy",
+  "Period",
+  "Horror",
+  "Bloody",
+  "Beauty",
+  "Corrective",
+  "Bald Cap",
+  "Wig",
+  "Tattoo Cover",
+]
+
 const STATUS_COLORS: Record<CostumeItemStatus, { bg: string; text: string; label: string }> = {
   "in-stock": { bg: "bg-emerald-100", text: "text-emerald-700", label: "In Stock" },
   rented: { bg: "bg-blue-100", text: "text-blue-700", label: "Rented" },
@@ -206,6 +224,23 @@ function generateMockCostumesData(characters: Character[]): ProjectCostumes {
     { id: "ci-028", name: "Silk Pocket Square Set", type: "costume-piece", status: "in-stock", brand: "Turnbull & Asser", size: "One Size", purchasePrice: "$85/each", vendor: "Nordstrom", imageUrl: "/placeholder.svg?height=400&width=300", vibeTags: ["Formal", "Elegant"], notes: "Burgundy, navy, ivory -- 3pc set for Changes 1-3" },
     { id: "ci-029", name: "Nurse Scrubs Set", type: "costume-piece", status: "purchased", brand: "Figs", size: "S", purchasePrice: "$110", vendor: "Figs Direct", imageUrl: "/placeholder.svg?height=400&width=300", vibeTags: ["Uniform"], notes: "Ceil blue. Multiples purchased for blood continuity." },
     { id: "ci-030", name: "Space Helmet", type: "durable", status: "in-stock", brand: "Custom Build", size: "Adjustable", purchasePrice: "$4,500", vendor: "Ironhead Studio", imageUrl: "/placeholder.svg?height=400&width=300", vibeTags: ["Sci-Fi", "Futuristic"], notes: "Vacuum-formed polycarbonate. Visor tints removable. Internal mic mount." },
+
+    // Additional Makeup & HMU items
+    { id: "ci-031", name: "Bruise Wheel Palette", type: "hmu-consumable", status: "in-stock", brand: "Ben Nye", size: "N/A", purchasePrice: "$24", vendor: "Camera Ready Cosmetics", imageUrl: "/placeholder.svg?height=400&width=300", vibeTags: ["Bruising", "SFX", "Horror"], notes: "5-color wheel: red, yellow, blue, purple, green. Build up layers for realistic bruising." },
+    { id: "ci-032", name: "Setting Spray - Matte Finish", type: "hmu-consumable", status: "in-stock", brand: "Urban Decay", size: "4 oz", purchasePrice: "$34", vendor: "Sephora Pro", imageUrl: "/placeholder.svg?height=400&width=300", vibeTags: ["Natural", "Beauty"], notes: "All Nighter formula. Long-wear, humidity-resistant. Use on all principals." },
+    { id: "ci-033", name: "Lace-Front Wig - Silver Bob", type: "durable", status: "in-stock", brand: "Arda Wigs", size: "Small/Medium cap", purchasePrice: "$420", vendor: "Bob Kelly Wig Creations", imageUrl: "/placeholder.svg?height=400&width=300", vibeTags: ["Wig", "Fantasy", "Glamour"], notes: "Heat-safe synthetic. Pre-styled, needs minor trimming for actor fit." },
+    { id: "ci-034", name: "Pros-Aide Adhesive (8 oz)", type: "hmu-consumable", status: "in-stock", brand: "ADM Tronics", size: "8 oz", purchasePrice: "$38", vendor: "Alcone NYC", imageUrl: "/placeholder.svg?height=400&width=300", vibeTags: ["Prosthetic", "SFX"], notes: "Medical-grade. Patch test ALL actors 24hrs before use. Remove with Detach oil." },
+    { id: "ci-035", name: "Gelatin Prosthetic Kit - Burn Set", type: "durable", status: "in-stock", brand: "Kryolan", size: "N/A", purchasePrice: "$185", vendor: "Kryolan Pro", imageUrl: "/placeholder.svg?height=400&width=300", vibeTags: ["SFX", "Horror", "Prosthetic"], notes: "3 progressive burn stages: redness, blistering, charring. Gelatin-based, single use per piece." },
+    { id: "ci-036", name: "Airbrush Makeup System", type: "durable", status: "in-stock", brand: "Temptu", size: "N/A", purchasePrice: "$350", vendor: "Temptu Direct", imageUrl: "/placeholder.svg?height=400&width=300", vibeTags: ["Beauty", "Natural", "Corrective"], notes: "S/B silicone-based formula. Compressor + 2 guns. Full shade range loaded." },
+    { id: "ci-037", name: "Color Contact Lenses - Ice Blue", type: "hmu-consumable", status: "in-stock", brand: "Orion Vision", size: "Plano (0.00)", purchasePrice: "$65/pair", vendor: "Lens.com Pro", imageUrl: "/placeholder.svg?height=400&width=300", vibeTags: ["Fantasy", "SFX"], notes: "FDA-approved cosmetic lenses. Max 8hr wear. Trained HMU applies only." },
+    { id: "ci-038", name: "Tooth Enamel Paint - Gold", type: "hmu-consumable", status: "in-stock", brand: "Kryolan", size: "12ml", purchasePrice: "$18", vendor: "Kryolan Pro", imageUrl: "/placeholder.svg?height=400&width=300", vibeTags: ["Fantasy", "Period", "SFX"], notes: "Food-safe, temporary tooth color. Dries in 30s. Alcohol-based remover." },
+    { id: "ci-039", name: "Nose & Chin Prosthetic Set", type: "durable", status: "rented", brand: "RBFX", size: "Custom mold", purchasePrice: "$200/week", vendor: "Alcone NYC", imageUrl: "/placeholder.svg?height=400&width=300", vibeTags: ["Prosthetic", "Period", "Aging"], rentReturnDate: "2026-05-10", notes: "Foam latex. Custom lifecast for lead actor. Application time ~45min." },
+    { id: "ci-040", name: "Hair Graying Spray", type: "hmu-consumable", status: "in-stock", brand: "Streaks n Tips", size: "3 oz", purchasePrice: "$12", vendor: "Camera Ready Cosmetics", imageUrl: "/placeholder.svg?height=400&width=300", vibeTags: ["Aging", "Period"], notes: "Temporary, washes out. Apply in thin layers for salt-and-pepper look." },
+    { id: "ci-041", name: "Sweat Simulation Spray", type: "hmu-consumable", status: "in-stock", brand: "Reel Creations", size: "8 oz", purchasePrice: "$22", vendor: "Alcone NYC", imageUrl: "/placeholder.svg?height=400&width=300", vibeTags: ["Natural", "SFX"], notes: "Glycerin-based, long-lasting shine. Mist from 12in for natural perspiration look." },
+    { id: "ci-042", name: "Sclera Lenses - Zombie White", type: "hmu-consumable", status: "in-stock", brand: "Orion Vision", size: "22mm", purchasePrice: "$180/pair", vendor: "Lens.com Pro", imageUrl: "/placeholder.svg?height=400&width=300", vibeTags: ["Horror", "SFX", "Fantasy"], notes: "Full scleral coverage. Max 4hr wear. Optometrist fitting required. 2 backup pairs available." },
+    { id: "ci-043", name: "Lace-Front Wig - Ginger Period Updo", type: "durable", status: "rented", brand: "Wig America", size: "Medium cap", purchasePrice: "$150/week", vendor: "Angels Costumes London", imageUrl: "/placeholder.svg?height=400&width=300", vibeTags: ["Wig", "Period", "Elegant"], rentReturnDate: "2026-04-25", notes: "Pre-styled 1920s finger wave. Human hair blend. Pin curl maintenance nightly." },
+    { id: "ci-044", name: "Scar Wax (Rigid Collodion)", type: "hmu-consumable", status: "in-stock", brand: "Mehron", size: "0.5 oz", purchasePrice: "$9", vendor: "Camera Ready Cosmetics", imageUrl: "/placeholder.svg?height=400&width=300", vibeTags: ["SFX", "Horror", "Corrective"], notes: "Creates puckered scar effect directly on skin. Patch test 24hr before. Remove with oil." },
+    { id: "ci-045", name: "Lip Palette - Period Reds", type: "hmu-consumable", status: "in-stock", brand: "RCMA", size: "N/A", purchasePrice: "$42", vendor: "Camera Ready Cosmetics", imageUrl: "/placeholder.svg?height=400&width=300", vibeTags: ["Beauty", "Period", "Glamour"], notes: "8 shades from 1920s oxblood to 1950s cherry. Long-wear, transfer-proof formula." },
   ]
 
   /* ---- Looks (linking characters to inventory via itemIds) ---- */
@@ -217,14 +252,14 @@ function generateMockCostumesData(characters: Character[]): ProjectCostumes {
     // Character 0 looks
     [
       { name: "Day 1 - Power Suit", changeNumber: "1", scriptDays: ["Day 1", "Day 3"], sceneNumbers: ["Sc 1", "Sc 5", "Sc 12"], itemIds: ["ci-001", "ci-028", "ci-014"], continuityNotes: "Tie loosened by Sc 12. Pocket square in breast pocket throughout." },
-      { name: "Day 2 - Casual Evening", changeNumber: "2", scriptDays: ["Day 2"], sceneNumbers: ["Sc 8", "Sc 9"], itemIds: ["ci-002", "ci-013", "ci-027"], continuityNotes: "Jacket collar popped in Sc 9 after fight scene. Blood on right sleeve." },
+      { name: "Day 2 - Casual Evening", changeNumber: "2", scriptDays: ["Day 2"], sceneNumbers: ["Sc 8", "Sc 9"], itemIds: ["ci-002", "ci-013", "ci-027", "ci-031", "ci-020"], continuityNotes: "Jacket collar popped in Sc 9 after fight scene. Blood on right sleeve. Bruise makeup on cheekbone from Sc 9. Tattoo cover on forearm." },
       { name: "Day 5 - Military Dress", changeNumber: "3", scriptDays: ["Day 5"], sceneNumbers: ["Sc 22", "Sc 23"], itemIds: ["ci-005", "ci-027"], continuityNotes: "Full medals on. Hat off for indoor scenes." },
     ],
     // Character 1 looks
     [
       { name: "Day 1 - Office Professional", changeNumber: "1", scriptDays: ["Day 1"], sceneNumbers: ["Sc 2", "Sc 3"], itemIds: ["ci-003", "ci-008", "ci-010"], continuityNotes: "Overcoat removed indoors. Hair pinned up for Sc 2, down for Sc 3." },
-      { name: "Day 3 - Lab Scene", changeNumber: "2", scriptDays: ["Day 3"], sceneNumbers: ["Sc 14", "Sc 15"], itemIds: ["ci-007", "ci-029", "ci-017"], continuityNotes: "Blood application starts clean in Sc 14, progressive staining in Sc 15." },
-      { name: "Day 4 - Ballroom Gala", changeNumber: "3", scriptDays: ["Day 4"], sceneNumbers: ["Sc 18", "Sc 19"], itemIds: ["ci-010", "ci-021", "ci-028"], continuityNotes: "Wig secured with 12 pins. Gown train pinned for dancing in Sc 19." },
+      { name: "Day 3 - Lab Scene", changeNumber: "2", scriptDays: ["Day 3"], sceneNumbers: ["Sc 14", "Sc 15"], itemIds: ["ci-007", "ci-029", "ci-017", "ci-032"], continuityNotes: "Blood application starts clean in Sc 14, progressive staining in Sc 15. Matte setting spray on foundation." },
+      { name: "Day 4 - Ballroom Gala", changeNumber: "3", scriptDays: ["Day 4"], sceneNumbers: ["Sc 18", "Sc 19"], itemIds: ["ci-010", "ci-021", "ci-028", "ci-045", "ci-032"], continuityNotes: "Wig secured with 12 pins. Gown train pinned for dancing in Sc 19. Glamour lip in 1940s cherry. Full airbrush base." },
     ],
     // Character 2 looks
     [
@@ -233,7 +268,7 @@ function generateMockCostumesData(characters: Character[]): ProjectCostumes {
     ],
     // Character 3 looks
     [
-      { name: "Day 1 - Fantasy Wizard", changeNumber: "1", scriptDays: ["Day 1", "Day 6"], sceneNumbers: ["Sc 6", "Sc 25"], itemIds: ["ci-012", "ci-023", "ci-021"], continuityNotes: "Elf ears applied. Robe clasp on right shoulder. Staff in left hand." },
+      { name: "Day 1 - Fantasy Wizard", changeNumber: "1", scriptDays: ["Day 1", "Day 6"], sceneNumbers: ["Sc 6", "Sc 25"], itemIds: ["ci-012", "ci-023", "ci-021", "ci-037", "ci-034", "ci-038"], continuityNotes: "Elf ears applied w/ Pros-Aide. Ice blue contacts inserted. Gold tooth enamel on canines. Robe clasp on right shoulder. Staff in left hand." },
       { name: "Day 4 - Undercover Modern", changeNumber: "2", scriptDays: ["Day 4"], sceneNumbers: ["Sc 20"], itemIds: ["ci-026", "ci-013", "ci-014"], continuityNotes: "No fantasy elements. Modern disguise look." },
     ],
     // Character 4 looks
@@ -244,7 +279,7 @@ function generateMockCostumesData(characters: Character[]): ProjectCostumes {
     // Character 5 looks
     [
       { name: "Day 3 - Chef Scene", changeNumber: "1", scriptDays: ["Day 3"], sceneNumbers: ["Sc 17"], itemIds: ["ci-015"], continuityNotes: "Sauce stain on right chest area after kitchen mishap." },
-      { name: "Day 6 - Final Stand", changeNumber: "2", scriptDays: ["Day 6"], sceneNumbers: ["Sc 26", "Sc 27"], itemIds: ["ci-002", "ci-007", "ci-025", "ci-018"], continuityNotes: "Progressive zombie damage. Blood application stages 1, 2, 3 across scenes." },
+      { name: "Day 6 - Final Stand", changeNumber: "2", scriptDays: ["Day 6"], sceneNumbers: ["Sc 26", "Sc 27"], itemIds: ["ci-002", "ci-007", "ci-025", "ci-018", "ci-042", "ci-035", "ci-044"], continuityNotes: "Progressive zombie damage. Blood application stages 1, 2, 3 across scenes. Sclera zombie lenses in. Gelatin burn on neck Sc 27. Scar wax on jaw." },
     ],
   ]
 
@@ -285,7 +320,7 @@ function generateMockCostumesData(characters: Character[]): ProjectCostumes {
 /*  Main Component                                                     */
 /* ================================================================== */
 
-type MainTab = "wardrobe" | "looks" | "crossplot" | "purchase"
+type MainTab = "wardrobe" | "makeup" | "looks" | "crossplot" | "purchase"
 
 export default function CostumesModal({ onClose }: { onClose: () => void }) {
   const { state, dispatch } = useCasting()
@@ -391,6 +426,14 @@ export default function CostumesModal({ onClose }: { onClose: () => void }) {
   const [filterType, setFilterType] = useState<CostumeItemType | "all">("all")
   const [sortBy, setSortBy] = useState<"name" | "status" | "type" | "brand">("name")
 
+  // Makeup tab state
+  const [makeupSearchTerm, setMakeupSearchTerm] = useState("")
+  const [makeupViewMode, setMakeupViewMode] = useState<"grid" | "list">("grid")
+  const [makeupFilterTag, setMakeupFilterTag] = useState<string | null>(null)
+  const [makeupFilterStatus, setMakeupFilterStatus] = useState<CostumeItemStatus | "all">("all")
+  const [makeupSortBy, setMakeupSortBy] = useState<"name" | "status" | "type" | "brand">("name")
+  const [makeupCharFilter, setMakeupCharFilter] = useState<string | null>(null)
+
   /* ---- Character/Actor mapping ---- */
   const characterActorMap = useMemo(() => {
     const map: { character: Character; castActor: Actor | null }[] = []
@@ -407,10 +450,21 @@ export default function CostumesModal({ onClose }: { onClose: () => void }) {
     return new Set(charLooks.flatMap((l) => l.itemIds))
   }, [wardrobeCharFilter, costumes.looks])
 
-  /* ---- Filtered + sorted inventory ---- */
+  /* ---- Wardrobe items (costume-piece only) ---- */
+  const wardrobeInventory = useMemo(() => costumes.inventory.filter((i) => i.type === "costume-piece"), [costumes.inventory])
+  /* ---- Makeup items (hmu-consumable + durable) ---- */
+  const makeupInventory = useMemo(() => costumes.inventory.filter((i) => i.type === "hmu-consumable" || i.type === "durable"), [costumes.inventory])
+
+  /* ---- Makeup character filter item IDs ---- */
+  const makeupCastFilterItemIds = useMemo(() => {
+    if (!makeupCharFilter) return null
+    const charLooks = costumes.looks.filter((l) => l.characterId === makeupCharFilter)
+    return new Set(charLooks.flatMap((l) => l.itemIds))
+  }, [makeupCharFilter, costumes.looks])
+
+  /* ---- Filtered + sorted wardrobe inventory ---- */
   const filteredInventory = useMemo(() => {
-    let items = costumes.inventory
-    // Filter by character
+    let items = wardrobeInventory
     if (castFilterItemIds) {
       items = items.filter((i) => castFilterItemIds.has(i.id))
     }
@@ -426,7 +480,6 @@ export default function CostumesModal({ onClose }: { onClose: () => void }) {
     if (filterTag) items = items.filter((i) => i.vibeTags.includes(filterTag))
     if (filterStatus !== "all") items = items.filter((i) => i.status === filterStatus)
     if (filterType !== "all") items = items.filter((i) => i.type === filterType)
-    // Sort
     const sorted = [...items]
     sorted.sort((a, b) => {
       if (sortBy === "name") return a.name.localeCompare(b.name)
@@ -436,7 +489,35 @@ export default function CostumesModal({ onClose }: { onClose: () => void }) {
       return 0
     })
     return sorted
-  }, [costumes.inventory, searchTerm, filterTag, filterStatus, filterType, sortBy, castFilterItemIds])
+  }, [wardrobeInventory, searchTerm, filterTag, filterStatus, filterType, sortBy, castFilterItemIds])
+
+  /* ---- Filtered + sorted makeup inventory ---- */
+  const filteredMakeupInventory = useMemo(() => {
+    let items = makeupInventory
+    if (makeupCastFilterItemIds) {
+      items = items.filter((i) => makeupCastFilterItemIds.has(i.id))
+    }
+    if (makeupSearchTerm) {
+      const s = makeupSearchTerm.toLowerCase()
+      items = items.filter(
+        (i) =>
+          i.name.toLowerCase().includes(s) ||
+          i.brand?.toLowerCase().includes(s) ||
+          i.vibeTags.some((t) => t.toLowerCase().includes(s)),
+      )
+    }
+    if (makeupFilterTag) items = items.filter((i) => i.vibeTags.includes(makeupFilterTag))
+    if (makeupFilterStatus !== "all") items = items.filter((i) => i.status === makeupFilterStatus)
+    const sorted = [...items]
+    sorted.sort((a, b) => {
+      if (makeupSortBy === "name") return a.name.localeCompare(b.name)
+      if (makeupSortBy === "status") return a.status.localeCompare(b.status)
+      if (makeupSortBy === "type") return a.type.localeCompare(b.type)
+      if (makeupSortBy === "brand") return (a.brand ?? "").localeCompare(b.brand ?? "")
+      return 0
+    })
+    return sorted
+  }, [makeupInventory, makeupSearchTerm, makeupFilterTag, makeupFilterStatus, makeupSortBy, makeupCastFilterItemIds])
 
   /* ================================================================ */
   /*  Inventory Handlers                                               */
@@ -565,6 +646,7 @@ export default function CostumesModal({ onClose }: { onClose: () => void }) {
 
   const TABS: { key: MainTab; label: string; icon: React.ReactNode }[] = [
     { key: "wardrobe", label: "Wardrobe", icon: <Shirt className="w-4 h-4" /> },
+    { key: "makeup", label: "Makeup", icon: <Scissors className="w-4 h-4" /> },
     { key: "looks", label: "Looks", icon: <Palette className="w-4 h-4" /> },
     { key: "crossplot", label: "Cross-Plot", icon: <LayoutGrid className="w-4 h-4" /> },
     { key: "purchase", label: "Purchase List", icon: <ShoppingBag className="w-4 h-4" /> },
@@ -636,7 +718,7 @@ export default function CostumesModal({ onClose }: { onClose: () => void }) {
         ) : mainTab === "wardrobe" ? (
           <WardrobeTab
             inventory={filteredInventory}
-            allInventory={costumes.inventory}
+            allInventory={wardrobeInventory}
             searchTerm={searchTerm}
             onSearchChange={setSearchTerm}
             viewMode={viewMode}
