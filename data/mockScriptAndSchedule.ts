@@ -322,19 +322,23 @@ export const MOCK_PRODUCTION_PHASES: ProductionPhase[] = [
 const now = Date.now()
 
 export const MOCK_SCHEDULE_ENTRIES: ScheduleEntry[] = [
-  /* --- Day 1: Hatchery & Control Room --- */
+  /* ================================================================
+   *  Day 1 — INTERIORS / NIGHT
+   *  Scenes 1 (Hatchery), 2 (Control Room), 6 (Tunnels)
+   *  All interior night sets on adjacent stages — no company move.
+   * ================================================================ */
   {
     id: id("sched", 1),
-    title: "Day 1 — Hatchery / Control Room Int",
+    title: "Day 1 — Hatchery / Control Room / Tunnels (Int Night)",
     date: "2024-04-08",
     phaseId: "principal",
     startTime: "06:00",
-    endTime: "19:00",
-    location: "Stage 9 — Genesis Lab & Control Room Sets",
+    endTime: "21:00",
+    location: "Stage 9 — Genesis Lab & Control Room Sets / Stage 5 — Tunnel Set",
     sceneType: "INT",
-    sceneNotes: "Dress hatchery incubation pods (practical LED). Control Room multi-monitor rig. VFX tracking markers for hatchling raptor.",
-    props: [PROPS.EMBRYO_CASE, PROPS.TABLET, PROPS.FENCING_CTRL, PROPS.SATELLITE, PROPS.RADIO],
-    actorIds: [CHARACTERS.GRANT.id, CHARACTERS.STONE.id, CHARACTERS.PARK.id, CHARACTERS.MALKOVA.id],
+    sceneNotes: "AM: Hatchery — dress incubation pods (practical LED), VFX tracking markers for raptor hatchling. MID: Control Room — multi-monitor rig, 3D island map on main screen. PM: Tunnels — ankle-deep practical water, steam pipes, emergency lighting, junction box 7 hero prop.",
+    props: [PROPS.EMBRYO_CASE, PROPS.TABLET, PROPS.FENCING_CTRL, PROPS.SATELLITE, PROPS.RADIO, "Junction box 7 (hero prop)", "Cole's toolbox", "Flashlight (practical)"],
+    actorIds: [CHARACTERS.GRANT.id, CHARACTERS.STONE.id, CHARACTERS.PARK.id, CHARACTERS.MALKOVA.id, CHARACTERS.COLE.id],
     crewMembers: [
       "Director — James Wan",
       "1st AD — Priya Singh",
@@ -342,123 +346,75 @@ export const MOCK_SCHEDULE_ENTRIES: ScheduleEntry[] = [
       "Gaffer — Dan Kowalski",
       "VFX Sup — Maya Torres",
       "Script Sup — Lena Martinez",
-      "SFX — Tommy Liu (hatchery steam/fog)",
+      "SFX — Tommy Liu (hatchery steam/fog, tunnel water/steam)",
       "Props Master — Kelly Huang",
+      "Sound — Chris Nolan",
     ],
     redFlags: [
       { id: id("rf", 1), type: "important", message: "VFX raptor puppet + tracking markers needed for Pod 17 hatching sequence", color: "bg-blue-500" },
+      { id: id("rf", 2), type: "important", message: "Water on tunnel set — electrical safety protocol. All crew in waterproof boots.", color: "bg-red-500" },
+      { id: id("rf", 3), type: "warning", message: "Long day (15 hrs) — monitor turnaround for Day 2 night shoot. Cole wraps after tunnels.", color: "bg-amber-500" },
     ],
-    notes: `Scenes 1 & 2. Start with hatchery (Grant + Stone) while control room is lit. Flip to control room after lunch. Costumes: ${COSTUMES.GRANT_LAB}, ${COSTUMES.STONE_LAB}, ${COSTUMES.PARK_TECH}, ${COSTUMES.MALKOVA_EXEC}`,
+    notes: `Scenes 1, 2 & 6. Start with hatchery (Grant + Stone) while control room is lit. Flip to control room mid-morning (Park + Malkova). After lunch move to Stage 5 tunnels (Cole + Park on radio). Costumes: ${COSTUMES.GRANT_LAB}, ${COSTUMES.STONE_LAB}, ${COSTUMES.PARK_TECH}, ${COSTUMES.MALKOVA_EXEC}, ${COSTUMES.COLE_MECHANIC} (distressed/wet for tunnels).`,
     createdAt: now,
     updatedAt: now,
   },
 
-  /* --- Day 2: Jungle Night Ext --- */
+  /* ================================================================
+   *  Day 2 — EXTERIORS / NIGHT
+   *  Scenes 3 (Jungle Ambush), 4 (Compound Gate), 5 (Raptor Paddock)
+   *  All night exteriors on backlot — logical flow from jungle to compound.
+   * ================================================================ */
   {
     id: id("sched", 2),
-    title: "Day 2 — Jungle Night Ext (Ambush)",
+    title: "Day 2 — Jungle / Compound / Raptor Paddock (Ext Night)",
     date: "2024-04-09",
     phaseId: "principal",
-    startTime: "17:00",
+    startTime: "16:00",
     endTime: "05:00",
-    location: "Kualoa Ranch — Jungle Trail / Backlot",
+    location: "Kualoa Ranch — Jungle Trail / Backlot — Compound & Raptor Paddock Sets",
     sceneType: "EXT",
-    sceneNotes: "Night shoot. Rain towers x4. Raptor puppet on wire rig for leap. Practical foliage dressing. Pre-rig spotlight on dolly track.",
-    props: [PROPS.TRANQ_RIFLE, PROPS.NIGHT_GOGGLES, PROPS.RADIO, PROPS.RAPTOR_COLLAR, PROPS.FLARE_GUN],
-    actorIds: [CHARACTERS.REYES.id, CHARACTERS.WEBB.id],
+    sceneNotes: "Full night shoot. Start at jungle trail with rain towers x4, raptor puppet on wire rig for leap. Move to compound gate for Cole welding gag (SFX sparks), 12 extras as compound workers. Wrap at raptor paddock — bent steel + claw marks set dressing.",
+    props: [PROPS.TRANQ_RIFLE, PROPS.NIGHT_GOGGLES, PROPS.RADIO, PROPS.RAPTOR_COLLAR, PROPS.FLARE_GUN, PROPS.MED_KIT, PROPS.MAP],
+    actorIds: [CHARACTERS.REYES.id, CHARACTERS.WEBB.id, CHARACTERS.GRANT.id, CHARACTERS.STONE.id, CHARACTERS.COLE.id, CHARACTERS.DIAZ.id],
     crewMembers: [
       "Director — James Wan",
       "1st AD — Priya Singh",
       "DP — Roger Deakins",
       "Gaffer — Dan Kowalski",
-      "SFX — Tommy Liu (rain towers)",
+      "SFX — Tommy Liu (rain towers, welding sparks)",
       "Stunt Coord — Ava Bennett",
       "Creature FX — Kyle Nedham",
       "Key Grip — Hector Ruiz",
+      "Extras Coord — Benny Cho",
     ],
     redFlags: [
-      { id: id("rf", 2), type: "warning", message: "Night shoot — overtime probable after 03:00. Rain towers need 90 min setup.", color: "bg-amber-500" },
-      { id: id("rf", 3), type: "important", message: "Raptor stunt rig safety check required before first take", color: "bg-red-500" },
+      { id: id("rf", 4), type: "warning", message: "Night shoot — overtime probable after 03:00. Rain towers need 90 min setup for jungle trail.", color: "bg-amber-500" },
+      { id: id("rf", 5), type: "important", message: "Raptor stunt rig safety check required before first take. Stunt double for Reyes on raptor tackle.", color: "bg-red-500" },
+      { id: id("rf", 6), type: "warning", message: "Welding SFX requires fire safety officer. 12 BG extras needed for compound — release after Sc 4 wraps.", color: "bg-amber-500" },
     ],
-    notes: `Scene 3. Need rain-soaked coverage for both actors. Stunt double for Reyes on raptor tackle. Costumes: ${COSTUMES.REYES_RAIN}, ${COSTUMES.WEBB_RANGER}. Props: tranq rifle has 6 practical dart loads.`,
+    notes: `Scenes 3, 4 & 5. Begin at jungle trail (Reyes + Webb) for raptor ambush. Company move to compound after Sc 3 wraps (~21:00). Sc 4 compound lockdown (Grant, Cole, Diaz + extras). Finish at raptor paddock (Grant + Stone). Costumes: ${COSTUMES.REYES_RAIN}, ${COSTUMES.WEBB_RANGER}, ${COSTUMES.GRANT_FIELD}, ${COSTUMES.STONE_JUNGLE}, ${COSTUMES.COLE_MECHANIC}, ${COSTUMES.DIAZ_MEDIC}. Tranq rifle has 6 practical dart loads.`,
     createdAt: now,
     updatedAt: now,
   },
 
-  /* --- Day 3: Compound & Raptor Paddock --- */
+  /* ================================================================
+   *  Day 3 — EXTERIORS / DAWN-DAY
+   *  Scenes 7 (River Valley), 8 (T-Rex Enclosure)
+   *  Pre-dawn river location then move to rex paddock backlot.
+   * ================================================================ */
   {
     id: id("sched", 3),
-    title: "Day 3 — Compound Gate / Raptor Paddock",
-    date: "2024-04-10",
-    phaseId: "principal",
-    startTime: "07:00",
-    endTime: "20:00",
-    location: "Backlot — Compound Set / Raptor Paddock Set",
-    sceneType: "EXT",
-    sceneNotes: "AM: Compound gate — Cole welding gag (SFX sparks). PM: Raptor paddock bent steel + claw marks. 12 extras as compound workers.",
-    props: [PROPS.MED_KIT, PROPS.RADIO, PROPS.TRANQ_RIFLE, PROPS.MAP, PROPS.RAPTOR_COLLAR],
-    actorIds: [CHARACTERS.GRANT.id, CHARACTERS.STONE.id, CHARACTERS.COLE.id, CHARACTERS.DIAZ.id],
-    crewMembers: [
-      "Director — James Wan",
-      "1st AD — Priya Singh",
-      "DP — Roger Deakins",
-      "Gaffer — Dan Kowalski",
-      "SFX — Tommy Liu (welding sparks)",
-      "Extras Coord — Benny Cho",
-      "Locations — Jay Park",
-      "Transpo — Reggie Frost",
-    ],
-    redFlags: [
-      { id: id("rf", 4), type: "warning", message: "Welding SFX requires fire safety officer on set. No overtime — hard wrap at 20:00 per location agreement.", color: "bg-amber-500" },
-    ],
-    notes: `Scenes 4 & 5. Compound lockdown sequence first, then move to raptor paddock. Costumes: ${COSTUMES.GRANT_FIELD}, ${COSTUMES.STONE_JUNGLE}, ${COSTUMES.COLE_MECHANIC}, ${COSTUMES.DIAZ_MEDIC}. 12 BG extras in compound worker wardrobe.`,
-    createdAt: now,
-    updatedAt: now,
-  },
-
-  /* --- Day 4: Maintenance Tunnels --- */
-  {
-    id: id("sched", 4),
-    title: "Day 4 — Maintenance Tunnels Int",
+    title: "Day 3 — River Valley & Rex Enclosure (Ext Dawn/Day)",
     date: "2024-04-11",
-    phaseId: "principal",
-    startTime: "08:00",
-    endTime: "18:00",
-    location: "Stage 5 — Tunnel Set (practical water + steam)",
-    sceneType: "INT",
-    sceneNotes: "Ankle-deep practical water on set. Emergency lighting rig. Junction box 7 hero prop. Raptor sound FX playback for Cole reactions.",
-    props: [PROPS.RADIO, PROPS.FENCING_CTRL, "Junction box 7 (hero prop)", "Cole's toolbox", "Flashlight (practical)"],
-    actorIds: [CHARACTERS.COLE.id, CHARACTERS.PARK.id],
-    crewMembers: [
-      "Director — James Wan",
-      "1st AD — Priya Singh",
-      "DP — Roger Deakins",
-      "Gaffer — Dan Kowalski",
-      "SFX — Tommy Liu (steam, water)",
-      "Sound — Chris Nolan",
-      "Props Master — Kelly Huang",
-    ],
-    redFlags: [
-      { id: id("rf", 5), type: "important", message: "Water on set — electrical safety protocol. All crew in waterproof boots.", color: "bg-red-500" },
-    ],
-    notes: `Scene 6. Tense solo sequence for Cole with Park on radio. Costumes: ${COSTUMES.COLE_MECHANIC} (additional distress/wet), ${COSTUMES.PARK_TECH}. Park coverage shot separately on control room set after lunch.`,
-    createdAt: now,
-    updatedAt: now,
-  },
-
-  /* --- Day 5: River Valley / T-Rex Enclosure --- */
-  {
-    id: id("sched", 5),
-    title: "Day 5 — River Valley & Rex Enclosure Ext",
-    date: "2024-04-12",
     phaseId: "principal",
     startTime: "04:30",
     endTime: "17:00",
-    location: "Kualoa Ranch — River / Backlot — Rex Paddock",
+    location: "Kualoa Ranch — River Valley / Backlot — Rex Paddock",
     sceneType: "EXT",
-    sceneNotes: "Pre-dawn call for mist on river. Base camp tents + portable lab dressing. PM: Rex enclosure gate (broken hinges SFX). Jeep picture car rigged.",
+    sceneNotes: "Pre-dawn call for natural mist on river. Base camp tents + portable lab dressing. 8 BG extras as researchers. PM: Rex enclosure gate (broken hinges SFX). Jeep picture car rigged on dolly track.",
     props: [PROPS.TRANQ_RIFLE, PROPS.RADIO, PROPS.FLARE_GUN, PROPS.TABLET, PROPS.JEEP_KEYS, PROPS.MAP, "Specimen coolers x4"],
-    actorIds: [CHARACTERS.GRANT.id, CHARACTERS.STONE.id, CHARACTERS.REYES.id, CHARACTERS.WEBB.id, CHARACTERS.DIAZ.id],
+    actorIds: [CHARACTERS.REYES.id, CHARACTERS.WEBB.id, CHARACTERS.GRANT.id, CHARACTERS.STONE.id, CHARACTERS.DIAZ.id],
     crewMembers: [
       "Director — James Wan",
       "1st AD — Priya Singh",
@@ -467,30 +423,35 @@ export const MOCK_SCHEDULE_ENTRIES: ScheduleEntry[] = [
       "Locations — Jay Park",
       "Transpo — Reggie Frost",
       "Picture Car — Sam Ortega (Jeep)",
-      "SFX — Tommy Liu (broken gate)",
+      "SFX — Tommy Liu (broken gate hinges)",
+      "Extras Coord — Benny Cho",
     ],
     redFlags: [
-      { id: id("rf", 6), type: "warning", message: "Dawn call — talent in the works by 04:00. Coffee/craft services required at base by 03:30.", color: "bg-amber-500" },
-      { id: id("rf", 7), type: "important", message: "Company move from river to rex paddock — allow 60 min for relocation at lunch", color: "bg-red-500" },
+      { id: id("rf", 7), type: "warning", message: "Dawn call — talent in the works by 04:00. Coffee/craft services required at base by 03:30.", color: "bg-amber-500" },
+      { id: id("rf", 8), type: "important", message: "Company move from river to rex paddock — allow 60 min for relocation at lunch.", color: "bg-red-500" },
     ],
-    notes: `Scenes 7 & 8. River camp evacuation at dawn, then rex enclosure after lunch. Costumes: ${COSTUMES.GRANT_FIELD}, ${COSTUMES.STONE_JUNGLE}, ${COSTUMES.REYES_TACTICAL}, ${COSTUMES.WEBB_RANGER}, ${COSTUMES.DIAZ_MEDIC}. 8 BG extras as researchers.`,
+    notes: `Scenes 7 & 8. River camp evacuation at dawn (Reyes, Webb, Diaz + extras), then rex enclosure after lunch (Grant + Stone in jeep). Costumes: ${COSTUMES.GRANT_FIELD}, ${COSTUMES.STONE_JUNGLE}, ${COSTUMES.REYES_TACTICAL}, ${COSTUMES.WEBB_RANGER}, ${COSTUMES.DIAZ_MEDIC}. 8 BG extras as researchers — release after Sc 7 wraps.`,
     createdAt: now,
     updatedAt: now,
   },
 
-  /* --- Day 6: Visitor Center --- */
+  /* ================================================================
+   *  Day 4 — INT/EXT DAY
+   *  Scenes 9 (Visitor Center), 10 (Dock Escape)
+   *  Morning on stage for visitor center, PM company move to harbor.
+   * ================================================================ */
   {
-    id: id("sched", 6),
-    title: "Day 6 — Visitor Center Int (Standoff)",
-    date: "2024-04-14",
+    id: id("sched", 4),
+    title: "Day 4 — Visitor Center / Supply Dock (Int-Ext Day)",
+    date: "2024-04-12",
     phaseId: "principal",
-    startTime: "07:00",
+    startTime: "06:00",
     endTime: "19:00",
-    location: "Stage 2 — Visitor Center Main Hall Set",
-    sceneType: "INT",
-    sceneNotes: "Fossilized skeleton hanging rig (pre-rigged overnight). Cryo-case hero prop. Raptor claw sounds from practical speaker rigs for actor reactions. Marble floor — watch reflections for VFX.",
-    props: [PROPS.EMBRYO_CASE, PROPS.FLARE_GUN, "Malkova's briefcase"],
-    actorIds: [CHARACTERS.GRANT.id, CHARACTERS.MALKOVA.id],
+    location: "Stage 2 — Visitor Center Set / Haleiwa Harbor (dock)",
+    sceneType: "INT/EXT",
+    sceneNotes: "AM: Visitor Center — fossilized skeleton hanging rig (pre-rigged overnight), cryo-case hero prop, raptor claw sounds from practical speaker rigs, marble floor VFX reflections. PM: Supply Dock — boat rigged and idling, tide-dependent shooting window.",
+    props: [PROPS.EMBRYO_CASE, PROPS.FLARE_GUN, PROPS.MED_KIT, PROPS.RADIO, "Malkova's briefcase"],
+    actorIds: [CHARACTERS.GRANT.id, CHARACTERS.MALKOVA.id, CHARACTERS.REYES.id, CHARACTERS.DIAZ.id],
     crewMembers: [
       "Director — James Wan",
       "1st AD — Priya Singh",
@@ -500,28 +461,35 @@ export const MOCK_SCHEDULE_ENTRIES: ScheduleEntry[] = [
       "Sound — Chris Nolan",
       "Props Master — Kelly Huang",
       "Rigging — Pat Callahan (skeleton)",
+      "Marine Coord — Luke Tanaka",
     ],
     redFlags: [
-      { id: id("rf", 8), type: "important", message: "Hanging skeleton rig — safety inspection before crew call. Hard hat zone during lighting.", color: "bg-red-500" },
+      { id: id("rf", 9), type: "important", message: "Hanging skeleton rig — safety inspection before crew call. Hard hat zone during lighting.", color: "bg-red-500" },
+      { id: id("rf", 10), type: "warning", message: "Tide window for dock: 14:30-18:30. Must wrap dock exteriors before 19:00.", color: "bg-amber-500" },
+      { id: id("rf", 11), type: "conflict", message: "Malkova wraps after Sc 9 — Grant continuity into dock requires matching costume.", color: "bg-red-600", actorId: CHARACTERS.GRANT.id },
     ],
-    notes: `Scene 9. Confrontation between Grant and Malkova. Raptor appears at end — VFX creature + practical sound cues. Costumes: ${COSTUMES.GRANT_FIELD} (continuity from Day 5), ${COSTUMES.MALKOVA_DIRTY}.`,
+    notes: `Scenes 9 & 10. AM: Visitor center standoff (Grant vs Malkova) — raptor VFX creature + practical sound cues. PM: Company move to Haleiwa Harbor for dock escape (Reyes + Diaz). Costumes: ${COSTUMES.GRANT_FIELD} (continuity from Day 3), ${COSTUMES.MALKOVA_DIRTY}, ${COSTUMES.REYES_TACTICAL}, ${COSTUMES.DIAZ_MEDIC}.`,
     createdAt: now,
     updatedAt: now,
   },
 
-  /* --- Day 7: Dock & Helipad --- */
+  /* ================================================================
+   *  Day 5 — EXTERIORS / DAY-SUNSET
+   *  Scenes 11 (Helipad Climax), 12 (Helicopter Epilogue)
+   *  Helipad action in PM, golden hour epilogue at sunset.
+   * ================================================================ */
   {
-    id: id("sched", 7),
-    title: "Day 7 — Supply Dock / Helipad Ext",
-    date: "2024-04-15",
+    id: id("sched", 5),
+    title: "Day 5 — Helipad Climax / Helicopter Epilogue (Ext Day-Sunset)",
+    date: "2024-04-14",
     phaseId: "principal",
-    startTime: "05:00",
-    endTime: "18:00",
-    location: "Haleiwa Harbor (dock) / North Shore Ridge (helipad)",
+    startTime: "12:00",
+    endTime: "20:00",
+    location: "North Shore Ridge — Helipad / Helicopter (air-to-air)",
     sceneType: "EXT",
-    sceneNotes: "AM: Dock — supply boat rigged and idling. PM: Helipad — helicopter on standby. T-Rex VFX plates shot with tracking markers. Flare gun practical burst x3 takes.",
-    props: [PROPS.MED_KIT, PROPS.EMBRYO_CASE, PROPS.FLARE_GUN, PROPS.RADIO, PROPS.SATELLITE],
-    actorIds: [CHARACTERS.GRANT.id, CHARACTERS.STONE.id, CHARACTERS.REYES.id, CHARACTERS.DIAZ.id],
+    sceneNotes: "PM: Helipad — helicopter on standby, T-Rex VFX plates with tracking markers, flare gun practical burst x3 takes. GOLDEN HOUR: Air-to-air helicopter shots for epilogue. Cryo-case insert. Grant and Stone coverage in cabin. Chase helicopter for wide island shots.",
+    props: [PROPS.EMBRYO_CASE, PROPS.FLARE_GUN, PROPS.RADIO, PROPS.SATELLITE],
+    actorIds: [CHARACTERS.GRANT.id, CHARACTERS.STONE.id],
     crewMembers: [
       "Director — James Wan",
       "1st AD — Priya Singh",
@@ -529,50 +497,23 @@ export const MOCK_SCHEDULE_ENTRIES: ScheduleEntry[] = [
       "Gaffer — Dan Kowalski",
       "VFX Sup — Maya Torres",
       "Stunt Coord — Ava Bennett",
-      "Marine Coord — Luke Tanaka",
       "Aviation — Sky Ops Hawaii",
       "SFX — Tommy Liu (flare practical)",
-    ],
-    redFlags: [
-      { id: id("rf", 9), type: "conflict", message: "Helicopter availability: 13:00-17:00 only. Schedule helipad scenes accordingly.", color: "bg-red-600", actorId: CHARACTERS.GRANT.id },
-      { id: id("rf", 10), type: "warning", message: "Tide window for dock: 05:30-10:30. Must wrap dock before 11:00.", color: "bg-amber-500" },
-    ],
-    notes: `Scenes 10 & 11. Dock escape in AM (tide-dependent), helipad climax in PM. Costumes: ${COSTUMES.GRANT_FIELD} (continuity), ${COSTUMES.STONE_JUNGLE} (continuity), ${COSTUMES.REYES_TACTICAL}, ${COSTUMES.DIAZ_MEDIC}. Flare gun has 3 practical charges — reset between takes.`,
-    createdAt: now,
-    updatedAt: now,
-  },
-
-  /* --- Day 8: Helicopter / Epilogue --- */
-  {
-    id: id("sched", 8),
-    title: "Day 8 — Helicopter Int / Epilogue",
-    date: "2024-04-16",
-    phaseId: "principal",
-    startTime: "15:00",
-    endTime: "20:00",
-    location: "North Shore Ridge / Helicopter (air-to-air)",
-    sceneType: "INT/EXT",
-    sceneNotes: "Golden hour shoot. Air-to-air helicopter shots. Cryo-case insert. Grant and Stone coverage in cabin. Chase helicopter for wide island shots.",
-    props: [PROPS.EMBRYO_CASE],
-    actorIds: [CHARACTERS.GRANT.id, CHARACTERS.STONE.id],
-    crewMembers: [
-      "Director — James Wan",
-      "1st AD — Priya Singh",
-      "DP — Roger Deakins",
-      "Aviation — Sky Ops Hawaii",
       "DIT — Nyla Johnson",
     ],
     redFlags: [
-      { id: id("rf", 11), type: "warning", message: "Golden hour window: 18:20-18:55. One-take opportunity for sunset silhouette.", color: "bg-amber-500" },
+      { id: id("rf", 12), type: "conflict", message: "Helicopter availability: 13:00-19:30 only. Must schedule helipad action before golden hour.", color: "bg-red-600", actorId: CHARACTERS.GRANT.id },
+      { id: id("rf", 13), type: "warning", message: "Golden hour window: 18:20-18:55. One-take opportunity for sunset silhouette epilogue.", color: "bg-amber-500" },
+      { id: id("rf", 14), type: "important", message: "Flare gun has 3 practical charges — reset 10 min between takes. VFX T-Rex plates needed before helicopter lifts.", color: "bg-blue-500" },
     ],
-    notes: `Scene 12 — epilogue. Minimal crew in helicopter. Late call for golden hour. That's a wrap on principal. Costumes: ${COSTUMES.GRANT_FIELD} (continuity), ${COSTUMES.STONE_JUNGLE} (continuity).`,
+    notes: `Scenes 11 & 12. Late call — helipad climax first (Grant + Stone sprint, T-Rex charges, flare gun). Transition to epilogue at golden hour (air-to-air). That's a wrap on principal photography. Costumes: ${COSTUMES.GRANT_FIELD} (continuity), ${COSTUMES.STONE_JUNGLE} (continuity). Flare gun 3 practical charges.`,
     createdAt: now,
     updatedAt: now,
   },
 
-  /* --- Day 9: Pickups --- */
+  /* --- Pickups (post-principal) --- */
   {
-    id: id("sched", 9),
+    id: id("sched", 6),
     title: "Pickup — Lab Inserts / Hatchery CU",
     date: "2024-04-22",
     phaseId: "pickups",
@@ -595,9 +536,9 @@ export const MOCK_SCHEDULE_ENTRIES: ScheduleEntry[] = [
     updatedAt: now,
   },
 
-  /* --- Day 10: Second Unit VFX --- */
+  /* --- Second Unit VFX (post-principal) --- */
   {
-    id: id("sched", 10),
+    id: id("sched", 7),
     title: "2nd Unit — VFX Plates (Jungle/Rex)",
     date: "2024-04-25",
     phaseId: "second-unit",
@@ -621,20 +562,25 @@ export const MOCK_SCHEDULE_ENTRIES: ScheduleEntry[] = [
   },
 ]
 
-/** Stripboard scenes — one per script scene, tied to shoot days */
+/** Stripboard scenes — one per script scene, tied to the 5 shoot days */
 export const MOCK_SCENES: Scene[] = [
+  /* — Day 1: Interior Night — Scenes 1, 2, 6 — */
   { id: id("scene", 1),  sceneNumber: "1",  pages: "1 6/8", intExt: "INT",     location: LOCATIONS.HATCHERY,     dayNight: "Night", cast: [CHARACTERS.GRANT.name, CHARACTERS.STONE.name],                                                description: "Life finds a way — raptor hatches",      shootDayId: id("sched", 1), order: 1, createdAt: now, updatedAt: now },
   { id: id("scene", 2),  sceneNumber: "2",  pages: "1 4/8", intExt: "INT",     location: LOCATIONS.CONTROL,      dayNight: "Night", cast: [CHARACTERS.PARK.name, CHARACTERS.MALKOVA.name],                                               description: "Fences go down — island blackout",       shootDayId: id("sched", 1), order: 2, createdAt: now, updatedAt: now },
+  { id: id("scene", 6),  sceneNumber: "6",  pages: "1 2/8", intExt: "INT",     location: LOCATIONS.TUNNELS,      dayNight: "Night", cast: [CHARACTERS.COLE.name, CHARACTERS.PARK.name],                                                  description: "Cole restores fence — tunnel terror",    shootDayId: id("sched", 1), order: 3, createdAt: now, updatedAt: now },
+  /* — Day 2: Exterior Night — Scenes 3, 4, 5 — */
   { id: id("scene", 3),  sceneNumber: "3",  pages: "1 4/8", intExt: "EXT",     location: LOCATIONS.JUNGLE,       dayNight: "Night", cast: [CHARACTERS.REYES.name, CHARACTERS.WEBB.name],                                                 description: "Jungle ambush — first raptor encounter", shootDayId: id("sched", 2), order: 1, createdAt: now, updatedAt: now },
-  { id: id("scene", 4),  sceneNumber: "4",  pages: "1 2/8", intExt: "EXT",     location: LOCATIONS.COMPOUND,     dayNight: "Night", cast: [CHARACTERS.GRANT.name, CHARACTERS.COLE.name, CHARACTERS.DIAZ.name],                          description: "Compound lockdown protocol",              shootDayId: id("sched", 3), order: 1, createdAt: now, updatedAt: now },
-  { id: id("scene", 5),  sceneNumber: "5",  pages: "1",     intExt: "EXT",     location: LOCATIONS.RAPTOR_PEN,   dayNight: "Night", cast: [CHARACTERS.GRANT.name, CHARACTERS.STONE.name],                                                description: "Stone's dilemma — track vs. protect",    shootDayId: id("sched", 3), order: 2, createdAt: now, updatedAt: now },
-  { id: id("scene", 6),  sceneNumber: "6",  pages: "1 2/8", intExt: "INT",     location: LOCATIONS.TUNNELS,      dayNight: "Night", cast: [CHARACTERS.COLE.name, CHARACTERS.PARK.name],                                                  description: "Cole restores fence — tunnel terror",    shootDayId: id("sched", 4), order: 1, createdAt: now, updatedAt: now },
-  { id: id("scene", 7),  sceneNumber: "7",  pages: "7/8",   intExt: "EXT",     location: LOCATIONS.RIVER,        dayNight: "Day",   cast: [CHARACTERS.REYES.name, CHARACTERS.WEBB.name],                                                 description: "Evacuating base camp",                   shootDayId: id("sched", 5), order: 1, createdAt: now, updatedAt: now },
-  { id: id("scene", 8),  sceneNumber: "8",  pages: "6/8",   intExt: "EXT",     location: LOCATIONS.T_REX_ENCL,   dayNight: "Day",   cast: [CHARACTERS.GRANT.name, CHARACTERS.STONE.name],                                                description: "The rex is loose — race to base camp",   shootDayId: id("sched", 5), order: 2, createdAt: now, updatedAt: now },
-  { id: id("scene", 9),  sceneNumber: "9",  pages: "1 4/8", intExt: "INT",     location: LOCATIONS.VISITOR_CTR,  dayNight: "Day",   cast: [CHARACTERS.GRANT.name, CHARACTERS.MALKOVA.name],                                              description: "Malkova's betrayal — visitor center",    shootDayId: id("sched", 6), order: 1, createdAt: now, updatedAt: now },
-  { id: id("scene", 10), sceneNumber: "10", pages: "7/8",   intExt: "EXT",     location: LOCATIONS.DOCK,         dayNight: "Day",   cast: [CHARACTERS.REYES.name, CHARACTERS.DIAZ.name],                                                 description: "Race to the dock — tide turning",        shootDayId: id("sched", 7), order: 1, createdAt: now, updatedAt: now },
-  { id: id("scene", 11), sceneNumber: "11", pages: "1 2/8", intExt: "EXT",     location: LOCATIONS.HELIPAD,      dayNight: "Day",   cast: [CHARACTERS.GRANT.name, CHARACTERS.STONE.name],                                                description: "Helipad climax — T-Rex charges",         shootDayId: id("sched", 7), order: 2, createdAt: now, updatedAt: now },
-  { id: id("scene", 12), sceneNumber: "12", pages: "1",     intExt: "INT/EXT", location: "OPEN OCEAN - HELICOPTER", dayNight: "Day", cast: [CHARACTERS.GRANT.name, CHARACTERS.STONE.name],                                                description: "Epilogue — what survives",               shootDayId: id("sched", 8), order: 1, createdAt: now, updatedAt: now },
+  { id: id("scene", 4),  sceneNumber: "4",  pages: "1 2/8", intExt: "EXT",     location: LOCATIONS.COMPOUND,     dayNight: "Night", cast: [CHARACTERS.GRANT.name, CHARACTERS.COLE.name, CHARACTERS.DIAZ.name],                          description: "Compound lockdown protocol",              shootDayId: id("sched", 2), order: 2, createdAt: now, updatedAt: now },
+  { id: id("scene", 5),  sceneNumber: "5",  pages: "1",     intExt: "EXT",     location: LOCATIONS.RAPTOR_PEN,   dayNight: "Night", cast: [CHARACTERS.GRANT.name, CHARACTERS.STONE.name],                                                description: "Stone's dilemma — track vs. protect",    shootDayId: id("sched", 2), order: 3, createdAt: now, updatedAt: now },
+  /* — Day 3: Exterior Dawn/Day — Scenes 7, 8 — */
+  { id: id("scene", 7),  sceneNumber: "7",  pages: "7/8",   intExt: "EXT",     location: LOCATIONS.RIVER,        dayNight: "Day",   cast: [CHARACTERS.REYES.name, CHARACTERS.WEBB.name],                                                 description: "Evacuating base camp",                   shootDayId: id("sched", 3), order: 1, createdAt: now, updatedAt: now },
+  { id: id("scene", 8),  sceneNumber: "8",  pages: "6/8",   intExt: "EXT",     location: LOCATIONS.T_REX_ENCL,   dayNight: "Day",   cast: [CHARACTERS.GRANT.name, CHARACTERS.STONE.name],                                                description: "The rex is loose — race to base camp",   shootDayId: id("sched", 3), order: 2, createdAt: now, updatedAt: now },
+  /* — Day 4: Int/Ext Day — Scenes 9, 10 — */
+  { id: id("scene", 9),  sceneNumber: "9",  pages: "1 4/8", intExt: "INT",     location: LOCATIONS.VISITOR_CTR,  dayNight: "Day",   cast: [CHARACTERS.GRANT.name, CHARACTERS.MALKOVA.name],                                              description: "Malkova's betrayal — visitor center",    shootDayId: id("sched", 4), order: 1, createdAt: now, updatedAt: now },
+  { id: id("scene", 10), sceneNumber: "10", pages: "7/8",   intExt: "EXT",     location: LOCATIONS.DOCK,         dayNight: "Day",   cast: [CHARACTERS.REYES.name, CHARACTERS.DIAZ.name],                                                 description: "Race to the dock — tide turning",        shootDayId: id("sched", 4), order: 2, createdAt: now, updatedAt: now },
+  /* — Day 5: Exterior Day-Sunset — Scenes 11, 12 — */
+  { id: id("scene", 11), sceneNumber: "11", pages: "1 2/8", intExt: "EXT",     location: LOCATIONS.HELIPAD,      dayNight: "Day",   cast: [CHARACTERS.GRANT.name, CHARACTERS.STONE.name],                                                description: "Helipad climax — T-Rex charges",         shootDayId: id("sched", 5), order: 1, createdAt: now, updatedAt: now },
+  { id: id("scene", 12), sceneNumber: "12", pages: "1",     intExt: "INT/EXT", location: "OPEN OCEAN - HELICOPTER", dayNight: "Day", cast: [CHARACTERS.GRANT.name, CHARACTERS.STONE.name],                                                description: "Epilogue — what survives",               shootDayId: id("sched", 5), order: 2, createdAt: now, updatedAt: now },
 ]
 
 /* ================================================================== */
