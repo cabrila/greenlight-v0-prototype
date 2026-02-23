@@ -30,6 +30,7 @@ import {
   ShoppingBag,
   Wrench,
   ArrowRight,
+  ShieldAlert,
 } from "lucide-react"
 import { useCasting } from "@/components/casting/CastingContext"
 import { openModal } from "./ModalManager"
@@ -184,6 +185,7 @@ function AddItemModal({ onClose, onAdd, scenes, characters, characterActorMap }:
   const [selectedSceneIds, setSelectedSceneIds] = useState<string[]>([])
   const [selectedCharacterId, setSelectedCharacterId] = useState<string | null>(null)
   const [sceneSearch, setSceneSearch] = useState("")
+  const [requiresArmorySupervision, setRequiresArmorySupervision] = useState(false)
   const [availSlots, setAvailSlots] = useState<{ id: string; day: string; startTime: string; endTime: string }[]>([
     { id: uid(), day: "", startTime: "09:00", endTime: "17:00" },
   ])
@@ -218,6 +220,7 @@ function AddItemModal({ onClose, onAdd, scenes, characters, characterActorMap }:
       status: "available",
       sceneIds: selectedSceneIds,
       characterId: selectedCharacterId,
+      requiresArmorySupervision,
     }
     onAdd(newItem)
     onClose()
@@ -368,6 +371,26 @@ function AddItemModal({ onClose, onAdd, scenes, characters, characterActorMap }:
             <label className="absolute left-4 top-2 text-xs text-gray-500 transition-all pointer-events-none">Notes</label>
           </div>
 
+          {/* Armory Supervision */}
+          <div className={`flex items-start gap-3 p-4 rounded-xl border transition-colors ${requiresArmorySupervision ? "bg-red-50 border-red-200" : "bg-white border-gray-200"}`}>
+            <button
+              type="button"
+              onClick={() => setRequiresArmorySupervision(!requiresArmorySupervision)}
+              className={`mt-0.5 w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-colors ${requiresArmorySupervision ? "bg-red-600 border-red-600" : "border-gray-300 hover:border-gray-400"}`}
+            >
+              {requiresArmorySupervision && <Check className="w-3 h-3 text-white" />}
+            </button>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <ShieldAlert className={`w-4 h-4 shrink-0 ${requiresArmorySupervision ? "text-red-600" : "text-gray-400"}`} />
+                <span className={`text-sm font-semibold ${requiresArmorySupervision ? "text-red-800" : "text-gray-900"}`}>Requires Certified Armory Supervision</span>
+              </div>
+              <p className={`text-xs mt-1 ${requiresArmorySupervision ? "text-red-600" : "text-gray-500"}`}>
+                Check this if the item is a weapon, replica firearm, or dangerous prop that requires a certified armorer on set during use.
+              </p>
+            </div>
+          </div>
+
           {/* Budgeting */}
           <div>
             <h3 className="text-base font-bold text-gray-900">Budgeting / Accounting</h3>
@@ -438,6 +461,7 @@ function EditItemModal({ item, onClose, onSave, scenes, characters, characterAct
   const [selectedSceneIds, setSelectedSceneIds] = useState<string[]>(item.sceneIds || [])
   const [selectedCharacterId, setSelectedCharacterId] = useState<string | null>(item.characterId ?? null)
   const [sceneSearch, setSceneSearch] = useState("")
+  const [requiresArmorySupervision, setRequiresArmorySupervision] = useState(!!item.requiresArmorySupervision)
   const [availSlots, setAvailSlots] = useState<{ id: string; day: string; startTime: string; endTime: string }[]>(
     item.availability.length > 0 ? item.availability.map((a) => ({ id: "id" in a ? (a as any).id : uid(), day: a.day, startTime: a.startTime, endTime: a.endTime })) : [{ id: uid(), day: "", startTime: "09:00", endTime: "17:00" }]
   )
@@ -464,6 +488,7 @@ function EditItemModal({ item, onClose, onSave, scenes, characters, characterAct
       availability: availSlots.filter((s) => s.day),
       sceneIds: selectedSceneIds,
       characterId: selectedCharacterId,
+      requiresArmorySupervision,
     } as any)
     onClose()
   }
@@ -607,6 +632,26 @@ function EditItemModal({ item, onClose, onSave, scenes, characters, characterAct
                   </button>
                 )
               })}
+            </div>
+          </div>
+
+          {/* Armory Supervision */}
+          <div className={`flex items-start gap-3 p-4 rounded-xl border transition-colors ${requiresArmorySupervision ? "bg-red-50 border-red-200" : "bg-white border-gray-200"}`}>
+            <button
+              type="button"
+              onClick={() => setRequiresArmorySupervision(!requiresArmorySupervision)}
+              className={`mt-0.5 w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-colors ${requiresArmorySupervision ? "bg-red-600 border-red-600" : "border-gray-300 hover:border-gray-400"}`}
+            >
+              {requiresArmorySupervision && <Check className="w-3 h-3 text-white" />}
+            </button>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <ShieldAlert className={`w-4 h-4 shrink-0 ${requiresArmorySupervision ? "text-red-600" : "text-gray-400"}`} />
+                <span className={`text-sm font-semibold ${requiresArmorySupervision ? "text-red-800" : "text-gray-900"}`}>Requires Certified Armory Supervision</span>
+              </div>
+              <p className={`text-xs mt-1 ${requiresArmorySupervision ? "text-red-600" : "text-gray-500"}`}>
+                Check this if the item is a weapon, replica firearm, or dangerous prop that requires a certified armorer on set during use.
+              </p>
             </div>
           </div>
 
@@ -865,6 +910,12 @@ function InventoryCard({ item, isInProject, onToggleAdd, onEdit, onImageReplace,
           {(!item.sceneIds || item.sceneIds.length === 0) && !item.characterId && (
             <span className="text-[10px] text-gray-300 italic">No scene or character assigned</span>
           )}
+          {item.requiresArmorySupervision && (
+            <span className="inline-flex items-center gap-1 px-2 py-1 bg-red-50 text-red-700 border border-red-200 rounded-lg text-[10px] font-bold" title="Requires Certified Armory Supervision">
+              <ShieldAlert className="w-3 h-3" />
+              Armory Supervision
+            </span>
+          )}
         </div>
       </div>
 
@@ -1004,6 +1055,12 @@ function ProjectPropCard({ item, onVote, onAddComment, onRemove, onAddToCanvas, 
           {(!item.sceneIds || item.sceneIds.length === 0) && !item.characterId && (
             <span className="text-[10px] text-gray-300 italic">No scene or character assigned</span>
           )}
+          {item.requiresArmorySupervision && (
+            <span className="inline-flex items-center gap-1 px-2 py-1 bg-red-50 text-red-700 border border-red-200 rounded-lg text-[10px] font-bold" title="Requires Certified Armory Supervision">
+              <ShieldAlert className="w-3 h-3" />
+              Armory Supervision
+            </span>
+          )}
         </div>
       </div>
 
@@ -1054,6 +1111,12 @@ function InventoryListRow({ item, isInProject, onToggleAdd, onEdit, onDelete, ha
             ))
           })()}
           {item.sceneIds && item.sceneIds.length > 2 && <span className="text-[9px] text-gray-400">+{item.sceneIds.length - 2}</span>}
+          {item.requiresArmorySupervision && (
+            <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-red-50 text-red-700 border border-red-200 rounded text-[9px] font-bold" title="Requires Certified Armory Supervision">
+              <ShieldAlert className="w-2.5 h-2.5" />
+              Armory
+            </span>
+          )}
         </div>
       </div>
       <div className="hidden sm:block text-xs text-gray-500 w-16 text-center">Qty: {item.quantity}</div>
@@ -1106,6 +1169,12 @@ function ProjectListRow({ item, onVote, onAddComment, onRemove, onAddToCanvas, o
               ))
             })()}
             {item.sceneIds && item.sceneIds.length > 2 && <span className="text-[9px] text-gray-400">+{item.sceneIds.length - 2}</span>}
+            {item.requiresArmorySupervision && (
+              <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-red-50 text-red-700 border border-red-200 rounded text-[9px] font-bold" title="Requires Certified Armory Supervision">
+                <ShieldAlert className="w-2.5 h-2.5" />
+                Armory
+              </span>
+            )}
           </div>
         </div>
         <div className="flex items-center gap-1.5">
@@ -2229,6 +2298,12 @@ function PropsPurchaseTab({
                                 )}
                               </div>
                             )}
+                            {item.requiresArmorySupervision && (
+                              <span className="inline-flex items-center gap-0.5 mt-1.5 px-1.5 py-0.5 bg-red-50 text-red-700 border border-red-200 rounded text-[9px] font-bold" title="Requires Certified Armory Supervision">
+                                <ShieldAlert className="w-2.5 h-2.5" />
+                                Armory Supervision Required
+                              </span>
+                            )}
                           </div>
 
                           <select
@@ -2290,6 +2365,7 @@ function PropsPurchaseFormModal({
   const [priority, setPriority] = useState<PropPurchaseRequest["priority"]>("medium")
   const [charId, setCharId] = useState("")
   const [selectedSceneIds, setSelectedSceneIds] = useState<string[]>([])
+  const [requiresArmorySupervision, setRequiresArmorySupervision] = useState(false)
 
   const sortedScenes = useMemo(
     () =>
@@ -2315,6 +2391,7 @@ function PropsPurchaseFormModal({
       priority,
       characterId: charId || undefined,
       sceneIds: selectedSceneIds.length > 0 ? selectedSceneIds : undefined,
+      requiresArmorySupervision,
     })
   }
 
@@ -2491,6 +2568,26 @@ function PropsPurchaseFormModal({
                 </div>
               </div>
             )}
+
+            {/* Armory Supervision */}
+            <div className={`flex items-start gap-3 p-3 rounded-xl border transition-colors ${requiresArmorySupervision ? "bg-red-50 border-red-200" : "bg-white border-gray-200"}`}>
+              <button
+                type="button"
+                onClick={() => setRequiresArmorySupervision(!requiresArmorySupervision)}
+                className={`mt-0.5 w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-colors ${requiresArmorySupervision ? "bg-red-600 border-red-600" : "border-gray-300 hover:border-gray-400"}`}
+              >
+                {requiresArmorySupervision && <Check className="w-3 h-3 text-white" />}
+              </button>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <ShieldAlert className={`w-4 h-4 shrink-0 ${requiresArmorySupervision ? "text-red-600" : "text-gray-400"}`} />
+                  <span className={`text-xs font-semibold ${requiresArmorySupervision ? "text-red-800" : "text-gray-900"}`}>Requires Certified Armory Supervision</span>
+                </div>
+                <p className={`text-[10px] mt-0.5 ${requiresArmorySupervision ? "text-red-600" : "text-gray-500"}`}>
+                  Weapon, replica firearm, or dangerous prop requiring a certified armorer on set.
+                </p>
+              </div>
+            </div>
 
             {/* Design Notes */}
             <div>

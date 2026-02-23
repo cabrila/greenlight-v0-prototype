@@ -314,6 +314,8 @@ export interface ProjectProp {
   sceneIds?: string[]
   /** ID of the character this prop is assigned to */
   characterId?: string | null
+  /** Whether this prop requires certified armory supervision */
+  requiresArmorySupervision?: boolean
 }
 
 /* ------------------------------------------------------------------ */
@@ -507,6 +509,8 @@ export interface ProjectCostumes {
   characterId?: string
   sceneIds?: string[]
   priority: "low" | "medium" | "high" | "urgent"
+  /** Whether this prop requires certified armory supervision */
+  requiresArmorySupervision?: boolean
   }
 
   /** An item in the global prop inventory (the "All" tab). */
@@ -530,6 +534,8 @@ export interface ProjectCostumes {
   sceneIds?: string[]
   /** ID of the character this prop is assigned to */
   characterId?: string | null
+  /** Whether this prop requires certified armory supervision */
+  requiresArmorySupervision?: boolean
 }
 
 /* ------------------------------------------------------------------ */
