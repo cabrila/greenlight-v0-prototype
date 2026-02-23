@@ -25,6 +25,9 @@ import {
   Pencil,
   Film,
   User,
+  LayoutGrid,
+  AlertTriangle,
+  Palette,
 } from "lucide-react"
 import { useCasting } from "@/components/casting/CastingContext"
 import { openModal } from "./ModalManager"
@@ -1201,10 +1204,13 @@ export default function PropsModal({ onClose }: PropsModalProps) {
   )
 
   /* ---- UI state ---- */
+  type MainTab = "inventory" | "project" | "crossplot"
+  const [mainTab, setMainTab] = useState<MainTab>("inventory")
   const [searchTerm, setSearchTerm] = useState("")
   const [activeTab, setActiveTab] = useState<"all" | "project">("all")
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
   const [categoryFilter, setCategoryFilter] = useState("")
+  const [charFilter, setCharFilter] = useState<string | null>(null)
   const [showAddModal, setShowAddModal] = useState(false)
   const [showFilters, setShowFilters] = useState(false)
   const [editingInventoryItem, setEditingInventoryItem] = useState<InventoryItem | null>(null)
@@ -1225,8 +1231,10 @@ export default function PropsModal({ onClose }: PropsModalProps) {
       items = items.filter((p) => p.name.toLowerCase().includes(q) || p.brand.toLowerCase().includes(q) || p.category.toLowerCase().includes(q))
     }
     if (categoryFilter) items = items.filter((p) => p.category === categoryFilter)
+    if (charFilter === "__unassigned__") items = items.filter((p) => !p.characterId)
+    else if (charFilter) items = items.filter((p) => p.characterId === charFilter)
     return items
-  }, [inventory, searchTerm, categoryFilter])
+  }, [inventory, searchTerm, categoryFilter, charFilter])
 
   const filteredProjectProps = useMemo(() => {
     let items = projectProps
@@ -1235,8 +1243,10 @@ export default function PropsModal({ onClose }: PropsModalProps) {
       items = items.filter((p) => p.name.toLowerCase().includes(q) || p.brand.toLowerCase().includes(q) || p.category.toLowerCase().includes(q))
     }
     if (categoryFilter) items = items.filter((p) => p.category === categoryFilter)
+    if (charFilter === "__unassigned__") items = items.filter((p) => !p.characterId)
+    else if (charFilter) items = items.filter((p) => p.characterId === charFilter)
     return items
-  }, [projectProps, searchTerm, categoryFilter])
+  }, [projectProps, searchTerm, categoryFilter, charFilter])
 
   const availableCategories = useMemo(() => {
     const cats = new Set(inventory.map((p) => p.category))
@@ -1296,7 +1306,7 @@ export default function PropsModal({ onClose }: PropsModalProps) {
     syncProjectProps((prev) => prev.filter((p) => p.id !== id))
   }
 
-  const handleAddToCanvas = (item: ProjectProp) => {
+  const handleAddToCanvas = (item: InventoryItem | ProjectProp) => {
     onClose()
     setTimeout(() => openModal("canvas"), 150)
   }
@@ -1355,13 +1365,21 @@ export default function PropsModal({ onClose }: PropsModalProps) {
 
   const isProjectTab = activeTab === "project"
 
+  const TABS: { key: MainTab; label: string; icon: React.ReactNode }[] = [
+    { key: "inventory", label: "Inventory", icon: <Package className="w-4 h-4" /> },
+    { key: "project", label: "Project Props", icon: <Palette className="w-4 h-4" /> },
+    { key: "crossplot", label: "Cross-Plot", icon: <LayoutGrid className="w-4 h-4" /> },
+  ]
+
   return (
-    <div className="fixed inset-0 bg-gray-50 flex flex-col z-50">
-      {/* Top Bar */}
-      <header className="flex items-center justify-between px-5 py-3 bg-white border-b border-gray-200 shrink-0">
+    <div className="fixed inset-0 bg-gray-100 flex flex-col z-50">
+      {/* ---- Header ---- */}
+      <header className="flex items-center justify-between px-6 py-3 bg-white border-b border-gray-200 shrink-0">
         <div className="flex items-center gap-4">
           <img src="/images/gogreenlight-logo.png" alt="GoGreenlight" className="h-8 w-auto" />
-          <div className="inline-flex items-center bg-emerald-600 text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded">Props</div>
+          <div className="inline-flex items-center bg-emerald-600 text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded">
+            Props
+          </div>
           {currentProject ? (
             <span className="hidden sm:inline text-sm text-gray-500">{currentProject.name}</span>
           ) : (
@@ -1373,103 +1391,300 @@ export default function PropsModal({ onClose }: PropsModalProps) {
         </button>
       </header>
 
-      {/* Toolbar */}
-      <div className="flex flex-wrap items-center gap-3 px-5 py-3 bg-white border-b border-gray-200 shrink-0">
-        <div className="flex items-center bg-gray-100 rounded-lg p-0.5">
-          <button onClick={() => setActiveTab("all")} className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${activeTab === "all" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}>All Items</button>
-          <button onClick={() => setActiveTab("project")} className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors flex items-center gap-1.5 ${activeTab === "project" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}>
-            My Project
-            {projectProps.length > 0 && <span className="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-1.5 py-0.5 rounded-full">{projectProps.length}</span>}
+      {/* ---- Tab Bar ---- */}
+      <div className="flex items-center gap-2 px-6 py-2 bg-white border-b border-gray-200 shrink-0 overflow-x-auto">
+        {TABS.map((t) => (
+          <button
+            key={t.key}
+            onClick={() => setMainTab(t.key)}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
+              mainTab === t.key
+                ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                : "text-gray-600 hover:bg-gray-100 border border-transparent"
+            }`}
+          >
+            {t.icon}
+            {t.label}
+            {t.key === "project" && projectProps.length > 0 && (
+              <span className="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-1.5 py-0.5 rounded-full">{projectProps.length}</span>
+            )}
           </button>
-        </div>
-
-        <div className="w-px h-6 bg-gray-200 hidden sm:block" />
-
-        <div className="flex items-center gap-0.5 bg-gray-100 rounded-lg p-0.5">
-          <button onClick={() => setViewMode("grid")} className={`p-1.5 rounded-md transition-colors ${viewMode === "grid" ? "bg-white text-gray-900 shadow-sm" : "text-gray-400 hover:text-gray-600"}`} title="Grid view"><Grid3X3 className="w-4 h-4" /></button>
-          <button onClick={() => setViewMode("list")} className={`p-1.5 rounded-md transition-colors ${viewMode === "list" ? "bg-white text-gray-900 shadow-sm" : "text-gray-400 hover:text-gray-600"}`} title="List view"><List className="w-4 h-4" /></button>
-        </div>
-
-        <button onClick={() => setShowFilters(!showFilters)} className={`p-1.5 rounded-lg border transition-colors ${showFilters ? "border-emerald-300 bg-emerald-50 text-emerald-700" : "border-gray-200 text-gray-400 hover:text-gray-600 hover:bg-gray-50"}`} title="Filters">
-          <SlidersHorizontal className="w-4 h-4" />
-        </button>
-
-        <div className="relative flex-1 min-w-[160px] max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Search..." className="w-full pl-9 pr-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 placeholder-gray-400 text-gray-900" />
-        </div>
-
-        <div className="flex items-center gap-2 ml-auto">
-          <button onClick={() => setShowAddModal(true)} className="flex items-center gap-1.5 px-4 py-2 border border-gray-300 rounded-xl text-sm font-medium text-gray-700 hover:bg-white hover:shadow-sm transition-all">
-            <Plus className="w-4 h-4" /> Add
-          </button>
-        </div>
+        ))}
       </div>
 
-      {/* Category Filter */}
-      {showFilters && (
-        <div className="flex items-center gap-2 px-5 py-2.5 bg-white border-b border-gray-200 shrink-0 overflow-x-auto">
-          <span className="text-xs text-gray-500 shrink-0">Category:</span>
-          <button onClick={() => setCategoryFilter("")} className={`px-3 py-1 rounded-full text-xs font-medium transition-colors shrink-0 ${categoryFilter === "" ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}>All</button>
-          {availableCategories.map((cat) => (
-            <button key={cat} onClick={() => setCategoryFilter(cat === categoryFilter ? "" : cat)} className={`px-3 py-1 rounded-full text-xs font-medium transition-colors shrink-0 ${categoryFilter === cat ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}>{cat}</button>
-          ))}
-        </div>
-      )}
+      {/* ---- Content Area ---- */}
+      <div className="flex-1 overflow-hidden">
+        {!projectId ? (
+          <div className="flex flex-col items-center justify-center h-full text-center p-8">
+            <Package className="w-12 h-12 text-gray-300 mb-3" />
+            <p className="text-gray-500 text-sm font-medium">No project selected</p>
+            <p className="text-gray-400 text-xs mt-1">Create or open a project first to manage props</p>
+          </div>
+        ) : mainTab === "crossplot" ? (
+          <PropsCrossPlotTab inventory={inventory} scenes={scenes} characters={characters} characterActorMap={characterActorMap} />
+        ) : (
+          /* Inventory / Project tab with character panel */
+          <div className="h-full flex flex-col">
+            {/* Toolbar */}
+            <div className="flex flex-wrap items-center gap-3 px-6 py-3 border-b border-gray-200 bg-white shrink-0">
+              {/* Sub-tab toggle (inventory vs project) */}
+              {mainTab === "inventory" && (
+                <div className="flex items-center bg-gray-100 rounded-lg p-0.5">
+                  <button onClick={() => setActiveTab("all")} className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${activeTab === "all" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}>All Items</button>
+                  <button onClick={() => setActiveTab("project")} className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors flex items-center gap-1.5 ${activeTab === "project" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}>
+                    In Project
+                    {projectProps.length > 0 && <span className="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-1.5 py-0.5 rounded-full">{projectProps.length}</span>}
+                  </button>
+                </div>
+              )}
 
-      {/* Content */}
-      <div className="flex-1 overflow-y-auto p-5">
-        {isProjectTab ? (
-          /* ----- My Project Tab ----- */
-          !projectId ? (
-            <div className="flex flex-col items-center justify-center h-full text-center">
-              <Package className="w-12 h-12 text-gray-300 mb-3" />
-              <p className="text-gray-500 text-sm font-medium">No project selected</p>
-              <p className="text-gray-400 text-xs mt-1">Create or open a project first to manage props</p>
-            </div>
-          ) : filteredProjectProps.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-center">
-              <Package className="w-12 h-12 text-gray-300 mb-3" />
-              <p className="text-gray-500 text-sm font-medium">No props added to this project yet</p>
-              <p className="text-gray-400 text-xs mt-1">Browse the All Items tab and add props to your project</p>
-              <button onClick={() => setActiveTab("all")} className="mt-4 px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 transition-colors">
-                Browse All Items
+              {/* View toggle */}
+              <div className="flex items-center gap-1 border border-gray-200 rounded-lg p-0.5">
+                <button onClick={() => setViewMode("grid")} className={`p-1.5 rounded-md transition-colors ${viewMode === "grid" ? "bg-gray-200 text-gray-800" : "text-gray-400 hover:text-gray-600"}`} title="Grid view">
+                  <Grid3X3 className="w-4 h-4" />
+                </button>
+                <button onClick={() => setViewMode("list")} className={`p-1.5 rounded-md transition-colors ${viewMode === "list" ? "bg-gray-200 text-gray-800" : "text-gray-400 hover:text-gray-600"}`} title="List view">
+                  <List className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Search */}
+              <div className="relative flex-1 min-w-[160px] max-w-xs">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Search props..."
+                  className="w-full pl-8 pr-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-300 bg-white"
+                />
+              </div>
+
+              {/* Category filter */}
+              <select
+                value={categoryFilter}
+                onChange={(e) => setCategoryFilter(e.target.value)}
+                className="text-xs border border-gray-200 rounded-lg px-2 py-1.5 bg-white text-gray-700 focus:outline-none focus:ring-1 focus:ring-emerald-300"
+              >
+                <option value="">All Categories</option>
+                {availableCategories.map((cat) => (
+                  <option key={cat} value={cat}>{cat}</option>
+                ))}
+              </select>
+
+              {/* Active filter badge */}
+              {(categoryFilter || charFilter) && (
+                <button
+                  onClick={() => { setCategoryFilter(""); setCharFilter(null) }}
+                  className="flex items-center gap-1 px-2 py-1 text-[10px] font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-full hover:bg-emerald-100 transition-colors"
+                >
+                  Clear filters
+                  <X className="w-3 h-3" />
+                </button>
+              )}
+
+              <button onClick={() => setShowAddModal(true)} className="ml-auto flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 transition-colors shrink-0">
+                <Plus className="w-4 h-4" /> Add Item
               </button>
             </div>
-          ) : viewMode === "grid" ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredProjectProps.map((item) => (
-                <ProjectPropCard key={item.id} item={item} onVote={handleVote} onAddComment={handleAddComment} onRemove={handleRemoveFromProject} onAddToCanvas={handleAddToCanvas} onEdit={(i) => setEditingProjectProp(i)} onDelete={handleRequestDeleteProject} currentUserId={currentUserId} scenes={scenes} characters={characters} />
-              ))}
+
+            {/* Two-panel: Left = Characters, Right = Props */}
+            <div className="flex-1 flex overflow-hidden">
+              {/* Character panel */}
+              <div className="w-64 shrink-0 border-r border-gray-200 bg-white overflow-y-auto p-4">
+                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Characters</h3>
+
+                {/* "All" option */}
+                <button
+                  onClick={() => setCharFilter(null)}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl mb-2 transition-all text-left ${
+                    charFilter === null
+                      ? "bg-emerald-50 border-2 border-emerald-400 shadow-sm"
+                      : "border border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+                  }`}
+                >
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                    charFilter === null ? "bg-emerald-500 text-white" : "bg-gray-200 text-gray-500"
+                  }`}>
+                    <Package className="w-4 h-4" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className={`text-xs font-semibold truncate ${charFilter === null ? "text-emerald-800" : "text-gray-900"}`}>All Props</p>
+                    <p className="text-[10px] text-gray-500">{inventory.length} items total</p>
+                  </div>
+                </button>
+
+                {/* Unassigned */}
+                {(() => {
+                  const unassignedCount = inventory.filter((p) => !p.characterId).length
+                  return (
+                    <button
+                      onClick={() => setCharFilter("__unassigned__")}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl mb-2 transition-all text-left ${
+                        charFilter === "__unassigned__"
+                          ? "bg-gray-200 border-2 border-gray-400 shadow-sm"
+                          : "border border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+                      }`}
+                    >
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                        charFilter === "__unassigned__" ? "bg-gray-500 text-white" : "bg-gray-100 text-gray-400"
+                      }`}>
+                        <Package className="w-4 h-4" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className={`text-xs font-semibold truncate ${charFilter === "__unassigned__" ? "text-gray-800" : "text-gray-700"}`}>Unassigned</p>
+                        <p className="text-[10px] text-gray-500">{unassignedCount} items</p>
+                      </div>
+                    </button>
+                  )
+                })()}
+
+                {characterActorMap.length === 0 ? (
+                  <p className="text-xs text-gray-400 mt-2">No characters in this project</p>
+                ) : (
+                  <div className="space-y-1.5">
+                    {characterActorMap.map(({ character, castActor }) => {
+                      const isSelected = charFilter === character.id
+                      const charPropCount = inventory.filter((p) => p.characterId === character.id).length
+                      const charSceneCount = new Set(
+                        inventory.filter((p) => p.characterId === character.id).flatMap((p) => p.sceneIds || [])
+                      ).size
+                      return (
+                        <button
+                          key={character.id}
+                          onClick={() => setCharFilter(isSelected ? null : character.id)}
+                          className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl transition-all text-left ${
+                            isSelected
+                              ? "bg-emerald-50 border-2 border-emerald-400 shadow-sm"
+                              : "border border-gray-200 hover:border-emerald-200 hover:bg-gray-50"
+                          }`}
+                        >
+                          {castActor?.headshots?.[0] ? (
+                            <img src={castActor.headshots[0]} alt="" className={`w-9 h-11 object-cover rounded-lg shrink-0 ${isSelected ? "ring-2 ring-emerald-300" : ""}`} />
+                          ) : (
+                            <div className={`w-9 h-11 rounded-lg flex items-center justify-center shrink-0 ${isSelected ? "bg-emerald-100" : "bg-gray-100"}`}>
+                              <User className={`w-4 h-4 ${isSelected ? "text-emerald-400" : "text-gray-400"}`} />
+                            </div>
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <p className={`text-xs font-semibold truncate ${isSelected ? "text-emerald-800" : "text-gray-900"}`}>{character.name}</p>
+                            {castActor ? (
+                              <p className="text-[10px] text-gray-500 truncate">{castActor.name}</p>
+                            ) : (
+                              <span className="inline-flex items-center gap-1 text-[10px] text-amber-600 font-medium">
+                                <AlertTriangle className="w-3 h-3" />
+                                Not yet cast
+                              </span>
+                            )}
+                            <div className="flex items-center gap-2 mt-0.5">
+                              <span className="text-[9px] text-gray-400">{charPropCount} props</span>
+                              <span className="text-[9px] text-gray-300">&middot;</span>
+                              <span className="text-[9px] text-gray-400">{charSceneCount} scenes</span>
+                            </div>
+                          </div>
+                          {isSelected && (
+                            <div className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
+                          )}
+                        </button>
+                      )
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {/* Props content area */}
+              <div className="flex-1 overflow-y-auto p-6">
+                {/* Active character filter banner */}
+                {charFilter && charFilter !== "__unassigned__" && (() => {
+                  const pair = characterActorMap.find(({ character }) => character.id === charFilter)
+                  return pair ? (
+                    <div className="flex items-center gap-2 mb-4 bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-2.5">
+                      {pair.castActor?.headshots?.[0] ? (
+                        <img src={pair.castActor.headshots[0]} alt="" className="w-6 h-8 rounded object-cover" />
+                      ) : (
+                        <div className="w-6 h-8 rounded bg-emerald-200 flex items-center justify-center"><User className="w-3 h-3 text-emerald-400" /></div>
+                      )}
+                      <div className="flex-1">
+                        <p className="text-xs font-semibold text-emerald-800">
+                          Showing props for {pair.character.name}
+                          {pair.castActor ? ` (${pair.castActor.name})` : ""}
+                        </p>
+                        <p className="text-[10px] text-emerald-600">
+                          {(mainTab === "project" ? filteredProjectProps : filteredInventory).length} items
+                        </p>
+                      </div>
+                      <button onClick={() => setCharFilter(null)} className="p-1 text-emerald-400 hover:text-emerald-600 rounded-md hover:bg-emerald-100 transition-colors">
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ) : null
+                })()}
+
+                {/* Result count */}
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-xs text-gray-500">
+                    <span className="font-semibold text-gray-700">
+                      {(mainTab === "project" || (mainTab === "inventory" && isProjectTab) ? filteredProjectProps : filteredInventory).length}
+                    </span>{" "}
+                    item{(mainTab === "project" || (mainTab === "inventory" && isProjectTab) ? filteredProjectProps : filteredInventory).length !== 1 ? "s" : ""}
+                    {charFilter && charFilter !== "__unassigned__" ? " for this character" : ""}
+                  </p>
+                </div>
+
+                {mainTab === "project" ? (
+                  /* ---- Project Props ---- */
+                  filteredProjectProps.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center h-64 text-center">
+                      <Package className="w-12 h-12 text-gray-300 mb-3" />
+                      <p className="text-gray-500 text-sm font-medium">No props in project{charFilter ? " for this character" : ""}</p>
+                      <p className="text-gray-400 text-xs mt-1">Browse the Inventory tab and add props to your project</p>
+                      <button onClick={() => setMainTab("inventory")} className="mt-4 px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 transition-colors">
+                        Browse Inventory
+                      </button>
+                    </div>
+                  ) : viewMode === "grid" ? (
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                      {filteredProjectProps.map((item) => (
+                        <ProjectPropCard key={item.id} item={item} onVote={handleVote} onAddComment={handleAddComment} onRemove={handleRemoveFromProject} onAddToCanvas={handleAddToCanvas} onEdit={(i) => setEditingProjectProp(i)} onDelete={handleRequestDeleteProject} currentUserId={currentUserId} scenes={scenes} characters={characters} />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+                      {filteredProjectProps.map((item) => (
+                        <ProjectListRow key={item.id} item={item} onVote={handleVote} onAddComment={handleAddComment} onRemove={handleRemoveFromProject} onAddToCanvas={handleAddToCanvas} onEdit={(i) => setEditingProjectProp(i)} onDelete={handleRequestDeleteProject} currentUserId={currentUserId} scenes={scenes} characters={characters} />
+                      ))}
+                    </div>
+                  )
+                ) : (
+                  /* ---- Inventory tab content ---- */
+                  (() => {
+                    const items = isProjectTab ? filteredProjectProps : filteredInventory
+                    return items.length === 0 ? (
+                      <div className="flex flex-col items-center justify-center h-64 text-center">
+                        <Package className="w-12 h-12 text-gray-300 mb-3" />
+                        <p className="text-gray-500 text-sm font-medium">{charFilter ? "No props for this character" : "No props found"}</p>
+                        <p className="text-gray-400 text-xs mt-1">{charFilter ? "Assign props to this character via Edit" : "Try adjusting your search or filters"}</p>
+                        {!charFilter && (
+                          <button onClick={() => setShowAddModal(true)} className="mt-4 px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 transition-colors">Add First Item</button>
+                        )}
+                      </div>
+                    ) : viewMode === "grid" ? (
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                        {(isProjectTab ? filteredProjectProps.map((pp) => inventory.find((i) => i.id === pp.id) || pp as unknown as InventoryItem) : filteredInventory).map((item) => (
+                          <InventoryCard key={item.id} item={item} isInProject={projectPropIds.has(item.id)} onToggleAdd={handleToggleAdd} onEdit={(i) => setEditingInventoryItem(i)} onImageReplace={handleImageReplace} onDelete={handleRequestDeleteInventory} onAddToCanvas={handleAddToCanvas} hasProject={!!projectId} onVote={handleVote} onAddComment={handleAddComment} currentUserId={currentUserId} votes={projectProps.find((p) => p.id === item.id)?.votes} comments={projectProps.find((p) => p.id === item.id)?.comments} scenes={scenes} characters={characters} />
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+                        {(isProjectTab ? filteredProjectProps.map((pp) => inventory.find((i) => i.id === pp.id) || pp as unknown as InventoryItem) : filteredInventory).map((item) => (
+                          <InventoryListRow key={item.id} item={item} isInProject={projectPropIds.has(item.id)} onToggleAdd={handleToggleAdd} onEdit={(i) => setEditingInventoryItem(i)} onDelete={handleRequestDeleteInventory} hasProject={!!projectId} scenes={scenes} characters={characters} />
+                        ))}
+                      </div>
+                    )
+                  })()
+                )}
+              </div>
             </div>
-          ) : (
-            <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-              {filteredProjectProps.map((item) => (
-                <ProjectListRow key={item.id} item={item} onVote={handleVote} onAddComment={handleAddComment} onRemove={handleRemoveFromProject} onAddToCanvas={handleAddToCanvas} onEdit={(i) => setEditingProjectProp(i)} onDelete={handleRequestDeleteProject} currentUserId={currentUserId} scenes={scenes} characters={characters} />
-              ))}
-            </div>
-          )
-        ) : (
-          /* ----- All Items Tab ----- */
-          filteredInventory.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-center">
-              <Package className="w-12 h-12 text-gray-300 mb-3" />
-              <p className="text-gray-500 text-sm font-medium">No props found</p>
-              <p className="text-gray-400 text-xs mt-1">Try adjusting your search or filters</p>
-            </div>
-          ) : viewMode === "grid" ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredInventory.map((item) => (
-                <InventoryCard key={item.id} item={item} isInProject={projectPropIds.has(item.id)} onToggleAdd={handleToggleAdd} onEdit={(i) => setEditingInventoryItem(i)} onImageReplace={handleImageReplace} onDelete={handleRequestDeleteInventory} onAddToCanvas={handleAddToCanvas} hasProject={!!projectId} onVote={handleVote} onAddComment={handleAddComment} currentUserId={currentUserId} votes={projectProps.find((p) => p.id === item.id)?.votes} comments={projectProps.find((p) => p.id === item.id)?.comments} scenes={scenes} characters={characters} />
-              ))}
-            </div>
-          ) : (
-            <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-              {filteredInventory.map((item) => (
-                <InventoryListRow key={item.id} item={item} isInProject={projectPropIds.has(item.id)} onToggleAdd={handleToggleAdd} onEdit={(i) => setEditingInventoryItem(i)} onDelete={handleRequestDeleteInventory} hasProject={!!projectId} scenes={scenes} characters={characters} />
-              ))}
-            </div>
-          )
+          </div>
         )}
       </div>
 
@@ -1509,6 +1724,173 @@ export default function PropsModal({ onClose }: PropsModalProps) {
           </div>
         </div>
       )}
+    </div>
+  )
+}
+
+/* ================================================================== */
+/*  CROSS-PLOT TAB                                                     */
+/* ================================================================== */
+
+function PropsCrossPlotTab({
+  inventory,
+  scenes,
+  characters,
+  characterActorMap,
+}: {
+  inventory: InventoryItem[]
+  scenes: Scene[]
+  characters: Character[]
+  characterActorMap: { character: Character; castActor: Actor | null }[]
+}) {
+  const [selectedCharacterId, setSelectedCharacterId] = useState<string | null>(null)
+
+  const displayChars = selectedCharacterId ? characters.filter((c) => c.id === selectedCharacterId) : characters
+  const sortedScenes = useMemo(
+    () =>
+      [...scenes].sort((a, b) => {
+        const numA = parseInt(a.sceneNumber.replace(/\D/g, ""), 10) || 0
+        const numB = parseInt(b.sceneNumber.replace(/\D/g, ""), 10) || 0
+        return numA - numB
+      }),
+    [scenes],
+  )
+
+  /* Build matrix: scene -> character -> props[] */
+  const matrix = useMemo(() => {
+    const m: Record<string, Record<string, InventoryItem[]>> = {}
+    for (const sc of sortedScenes) {
+      m[sc.id] = {}
+      for (const ch of displayChars) {
+        m[sc.id][ch.id] = inventory.filter(
+          (p) => p.characterId === ch.id && p.sceneIds?.includes(sc.id),
+        )
+      }
+    }
+    return m
+  }, [sortedScenes, displayChars, inventory])
+
+  /* Detect continuity issues: same character has different props between consecutive scenes */
+  const continuityFlags = useMemo(() => {
+    const flags = new Set<string>()
+    for (let i = 1; i < sortedScenes.length; i++) {
+      for (const ch of displayChars) {
+        const prev = matrix[sortedScenes[i - 1].id]?.[ch.id] || []
+        const curr = matrix[sortedScenes[i].id]?.[ch.id] || []
+        if (prev.length === 0 || curr.length === 0) continue
+        const prevIds = new Set(prev.map((p) => p.id))
+        const currIds = new Set(curr.map((p) => p.id))
+        const added = curr.filter((p) => !prevIds.has(p.id))
+        const removed = prev.filter((p) => !currIds.has(p.id))
+        if (added.length > 0 || removed.length > 0) {
+          flags.add(`${sortedScenes[i].id}-${ch.id}`)
+        }
+      }
+    }
+    return flags
+  }, [sortedScenes, displayChars, matrix])
+
+  if (sortedScenes.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full text-center p-8">
+        <LayoutGrid className="w-12 h-12 text-gray-300 mb-3" />
+        <p className="text-gray-500 text-sm font-medium">No scene data yet</p>
+        <p className="text-gray-400 text-xs mt-1">Assign scenes to props in the Inventory tab to populate the cross-plot</p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="h-full flex flex-col">
+      {/* Character filter */}
+      <div className="flex items-center gap-3 px-6 py-3 bg-white border-b border-gray-200 shrink-0">
+        <span className="text-xs text-gray-500">Character:</span>
+        <select
+          value={selectedCharacterId ?? ""}
+          onChange={(e) => setSelectedCharacterId(e.target.value || null)}
+          className="text-sm border border-gray-200 rounded-lg px-2 py-1.5 bg-white"
+        >
+          <option value="">All Characters</option>
+          {characters.map((ch) => (
+            <option key={ch.id} value={ch.id}>{ch.name}</option>
+          ))}
+        </select>
+        {continuityFlags.size > 0 && (
+          <div className="ml-auto flex items-center gap-1.5 text-xs text-amber-600 font-medium">
+            <AlertTriangle className="w-4 h-4" />
+            {continuityFlags.size} potential continuity issue{continuityFlags.size !== 1 ? "s" : ""}
+          </div>
+        )}
+      </div>
+
+      {/* Cross-plot table */}
+      <div className="flex-1 overflow-auto p-6">
+        <div className="min-w-max">
+          <table className="border-collapse w-full">
+            <thead>
+              <tr>
+                <th className="sticky left-0 z-10 bg-gray-100 px-4 py-2 text-xs font-semibold text-gray-500 uppercase border-b border-r border-gray-300 min-w-[140px]">
+                  Scene
+                </th>
+                {displayChars.map((ch) => {
+                  const pair = characterActorMap.find((c) => c.character.id === ch.id)
+                  return (
+                    <th key={ch.id} className="px-4 py-2 border-b border-gray-300 min-w-[180px] bg-gray-100">
+                      <p className="text-xs font-semibold text-gray-900">{ch.name}</p>
+                      {pair?.castActor && <p className="text-[10px] text-gray-500 font-normal">{pair.castActor.name}</p>}
+                    </th>
+                  )
+                })}
+              </tr>
+            </thead>
+            <tbody>
+              {sortedScenes.map((scene) => (
+                <tr key={scene.id} className="hover:bg-gray-50">
+                  <td className="sticky left-0 z-10 bg-white px-4 py-2 text-xs border-b border-r border-gray-200">
+                    <div className="font-medium text-gray-700">Sc {scene.sceneNumber}</div>
+                    <div className="text-[10px] text-gray-400">{scene.intExt}. {scene.location}</div>
+                  </td>
+                  {displayChars.map((ch) => {
+                    const props = matrix[scene.id]?.[ch.id] || []
+                    const isFlag = continuityFlags.has(`${scene.id}-${ch.id}`)
+                    return (
+                      <td key={ch.id} className={`px-3 py-2 border-b border-gray-200 align-top ${isFlag ? "bg-amber-50" : ""}`}>
+                        {props.length > 0 ? (
+                          <div className="space-y-1">
+                            {props.map((p) => (
+                              <div
+                                key={p.id}
+                                className={`flex items-center gap-2 rounded-lg px-2 py-1.5 text-xs ${
+                                  isFlag
+                                    ? "border-2 border-amber-400 bg-amber-100"
+                                    : "bg-emerald-50 border border-emerald-200"
+                                }`}
+                              >
+                                <img src={p.imageUrl} alt="" className="w-6 h-6 rounded object-cover shrink-0" />
+                                <div className="min-w-0">
+                                  <p className="font-medium text-gray-900 truncate text-[11px]">{p.name}</p>
+                                  <p className="text-gray-500 text-[9px]">{p.category}</p>
+                                </div>
+                              </div>
+                            ))}
+                            {isFlag && (
+                              <span className="inline-flex items-center gap-0.5 mt-0.5 text-[9px] font-bold text-amber-700">
+                                <AlertTriangle className="w-3 h-3" /> Prop Change
+                              </span>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-gray-300 text-xs">--</span>
+                        )}
+                      </td>
+                    )
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   )
 }
