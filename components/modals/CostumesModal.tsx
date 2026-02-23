@@ -745,6 +745,32 @@ export default function CostumesModal({ onClose }: { onClose: () => void }) {
             currentUserId={currentUserId}
             onImageReplace={handleCostumeImageReplace}
           />
+        ) : mainTab === "makeup" ? (
+          <MakeupTab
+            inventory={filteredMakeupInventory}
+            allInventory={makeupInventory}
+            searchTerm={makeupSearchTerm}
+            onSearchChange={setMakeupSearchTerm}
+            viewMode={makeupViewMode}
+            onViewModeChange={setMakeupViewMode}
+            filterTag={makeupFilterTag}
+            onFilterTagChange={setMakeupFilterTag}
+            filterStatus={makeupFilterStatus}
+            onFilterStatusChange={setMakeupFilterStatus}
+            sortBy={makeupSortBy}
+            onSortByChange={setMakeupSortBy}
+            onAdd={() => setShowAddItem(true)}
+            onEdit={setEditingItem}
+            onDelete={(id) => setConfirmDeleteId(id)}
+            characterActorMap={characterActorMap}
+            charFilter={makeupCharFilter}
+            onCharFilterChange={setMakeupCharFilter}
+            looks={costumes.looks}
+            onVote={handleCostumeVote}
+            onAddComment={handleCostumeAddComment}
+            currentUserId={currentUserId}
+            onImageReplace={handleCostumeImageReplace}
+          />
         ) : mainTab === "looks" ? (
           <LooksTab
             looks={costumes.looks}
@@ -1145,6 +1171,299 @@ function WardrobeTab({
               <p className="text-gray-400 text-xs mt-1">{wardrobeCharFilter ? "Create a Look to assign inventory items" : "Add costume pieces, HMU consumables, or durables"}</p>
               {!wardrobeCharFilter && (
                 <button onClick={onAdd} className="mt-4 px-4 py-2 bg-rose-600 text-white text-sm font-medium rounded-lg hover:bg-rose-700 transition-colors">Add First Item</button>
+              )}
+            </div>
+          ) : viewMode === "grid" ? (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+              {inventory.map((item) => (
+                <InventoryCard key={item.id} item={item} onEdit={onEdit} onDelete={onDelete} onAddToCanvas={() => {}} onVote={onVote} onAddComment={onAddComment} currentUserId={currentUserId} onImageReplace={onImageReplace} />
+              ))}
+            </div>
+          ) : (
+            <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+              <div className="grid grid-cols-[auto_1fr_auto_auto_auto_auto] gap-x-4 px-4 py-2 bg-gray-50 border-b border-gray-200 text-[10px] font-semibold text-gray-500 uppercase tracking-wider">
+                <span>Image</span>
+                <span>Name / Details</span>
+                <span>Tags</span>
+                <span>Status</span>
+                <span>Price</span>
+                <span>Actions</span>
+              </div>
+              <div className="divide-y divide-gray-100">
+                {inventory.map((item) => (
+                  <InventoryListRow key={item.id} item={item} onEdit={onEdit} onDelete={onDelete} />
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* ================================================================== */
+/*  Makeup Tab                                                         */
+/* ================================================================== */
+
+function MakeupTab({
+  inventory,
+  allInventory,
+  searchTerm,
+  onSearchChange,
+  viewMode,
+  onViewModeChange,
+  filterTag,
+  onFilterTagChange,
+  filterStatus,
+  onFilterStatusChange,
+  sortBy,
+  onSortByChange,
+  onAdd,
+  onEdit,
+  onDelete,
+  characterActorMap,
+  charFilter,
+  onCharFilterChange,
+  looks,
+  onVote,
+  onAddComment,
+  currentUserId,
+  onImageReplace,
+}: {
+  inventory: CostumeInventoryItem[]
+  allInventory: CostumeInventoryItem[]
+  searchTerm: string
+  onSearchChange: (s: string) => void
+  viewMode: "grid" | "list"
+  onViewModeChange: (m: "grid" | "list") => void
+  filterTag: string | null
+  onFilterTagChange: (t: string | null) => void
+  filterStatus: CostumeItemStatus | "all"
+  onFilterStatusChange: (s: CostumeItemStatus | "all") => void
+  sortBy: "name" | "status" | "type" | "brand"
+  onSortByChange: (s: "name" | "status" | "type" | "brand") => void
+  onAdd: () => void
+  onEdit: (item: CostumeInventoryItem) => void
+  onDelete: (id: string) => void
+  characterActorMap: { character: Character; castActor: Actor | null }[]
+  charFilter: string | null
+  onCharFilterChange: (id: string | null) => void
+  looks: CostumeLook[]
+  onVote?: (id: string, vote: VoteValue) => void
+  onAddComment?: (id: string, text: string) => void
+  currentUserId?: string
+  onImageReplace?: (id: string, url: string) => void
+}) {
+  const activeFilterCount = [filterTag, filterStatus !== "all" ? filterStatus : null].filter(Boolean).length
+
+  return (
+    <div className="h-full flex flex-col">
+      {/* Toolbar */}
+      <div className="flex flex-wrap items-center gap-3 px-6 py-3 border-b border-gray-200 bg-white shrink-0">
+        {/* View toggle */}
+        <div className="flex items-center gap-1 border border-gray-200 rounded-lg p-0.5">
+          <button onClick={() => onViewModeChange("grid")} className={`p-1.5 rounded-md transition-colors ${viewMode === "grid" ? "bg-gray-200 text-gray-800" : "text-gray-400 hover:text-gray-600"}`} title="Grid view">
+            <Grid3X3 className="w-4 h-4" />
+          </button>
+          <button onClick={() => onViewModeChange("list")} className={`p-1.5 rounded-md transition-colors ${viewMode === "list" ? "bg-gray-200 text-gray-800" : "text-gray-400 hover:text-gray-600"}`} title="List view">
+            <List className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Search */}
+        <div className="relative flex-1 min-w-[160px] max-w-xs">
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <input
+            value={searchTerm}
+            onChange={(e) => onSearchChange(e.target.value)}
+            placeholder="Search makeup & HMU..."
+            className="w-full pl-8 pr-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-amber-300 bg-white"
+          />
+        </div>
+
+        {/* Status filter */}
+        <select
+          value={filterStatus}
+          onChange={(e) => onFilterStatusChange(e.target.value as CostumeItemStatus | "all")}
+          className="text-xs border border-gray-200 rounded-lg px-2 py-1.5 bg-white text-gray-700 focus:outline-none focus:ring-1 focus:ring-amber-300"
+        >
+          <option value="all">All Statuses</option>
+          {Object.entries(STATUS_COLORS).map(([k, v]) => (
+            <option key={k} value={k}>{v.label}</option>
+          ))}
+        </select>
+
+        {/* Sort */}
+        <select
+          value={sortBy}
+          onChange={(e) => onSortByChange(e.target.value as typeof sortBy)}
+          className="text-xs border border-gray-200 rounded-lg px-2 py-1.5 bg-white text-gray-700 focus:outline-none focus:ring-1 focus:ring-amber-300"
+        >
+          <option value="name">Sort: Name</option>
+          <option value="status">Sort: Status</option>
+          <option value="type">Sort: Type</option>
+          <option value="brand">Sort: Brand</option>
+        </select>
+
+        {/* Active filter count badge */}
+        {activeFilterCount > 0 && (
+          <button
+            onClick={() => { onFilterTagChange(null); onFilterStatusChange("all") }}
+            className="flex items-center gap-1 px-2 py-1 text-[10px] font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-full hover:bg-amber-100 transition-colors"
+          >
+            {activeFilterCount} filter{activeFilterCount > 1 ? "s" : ""} active
+            <X className="w-3 h-3" />
+          </button>
+        )}
+
+        <button onClick={onAdd} className="ml-auto flex items-center gap-1.5 px-3 py-1.5 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 transition-colors shrink-0">
+          <Plus className="w-4 h-4" /> Add Item
+        </button>
+      </div>
+
+      {/* Makeup tags row */}
+      <div className="flex items-center gap-1.5 px-6 py-2 border-b border-gray-100 bg-gray-50/50 shrink-0 overflow-x-auto">
+        <span className="text-[10px] text-gray-500 font-medium shrink-0 mr-1">Tags:</span>
+        <button
+          onClick={() => onFilterTagChange(null)}
+          className={`px-2.5 py-1 text-[10px] font-medium rounded-full whitespace-nowrap transition-colors ${
+            !filterTag ? "bg-amber-100 text-amber-700 border border-amber-200" : "bg-white text-gray-500 border border-gray-200 hover:bg-gray-100"
+          }`}
+        >
+          All
+        </button>
+        {MAKEUP_TAGS.map((tag) => (
+          <button
+            key={tag}
+            onClick={() => onFilterTagChange(filterTag === tag ? null : tag)}
+            className={`px-2.5 py-1 text-[10px] font-medium rounded-full whitespace-nowrap transition-colors ${
+              filterTag === tag ? "bg-amber-100 text-amber-700 border border-amber-200" : "bg-white text-gray-500 border border-gray-200 hover:bg-gray-100"
+            }`}
+          >
+            {tag}
+          </button>
+        ))}
+      </div>
+
+      {/* Two-panel: Left = Cast cards, Right = Inventory */}
+      <div className="flex-1 flex overflow-hidden">
+        {/* Cast panel */}
+        <div className="w-64 shrink-0 border-r border-gray-200 bg-white overflow-y-auto p-4">
+          <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Characters</h3>
+
+          {/* "All" option */}
+          <button
+            onClick={() => onCharFilterChange(null)}
+            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl mb-2 transition-all text-left ${
+              charFilter === null
+                ? "bg-amber-50 border-2 border-amber-400 shadow-sm"
+                : "border border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+            }`}
+          >
+            <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+              charFilter === null ? "bg-amber-500 text-white" : "bg-gray-200 text-gray-500"
+            }`}>
+              <Scissors className="w-4 h-4" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className={`text-xs font-semibold truncate ${charFilter === null ? "text-amber-800" : "text-gray-900"}`}>All Makeup</p>
+              <p className="text-[10px] text-gray-500">{allInventory.length} items total</p>
+            </div>
+          </button>
+
+          {characterActorMap.length === 0 ? (
+            <p className="text-xs text-gray-400 mt-2">No characters in this project</p>
+          ) : (
+            <div className="space-y-1.5">
+              {characterActorMap.map(({ character, castActor }) => {
+                const isSelected = charFilter === character.id
+                const charLookCount = looks.filter((l) => l.characterId === character.id).length
+                const charItemIds = new Set(looks.filter((l) => l.characterId === character.id).flatMap((l) => l.itemIds))
+                const makeupItemCount = [...charItemIds].filter((id) => allInventory.some((i) => i.id === id)).length
+                return (
+                  <button
+                    key={character.id}
+                    onClick={() => onCharFilterChange(isSelected ? null : character.id)}
+                    className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl transition-all text-left ${
+                      isSelected
+                        ? "bg-amber-50 border-2 border-amber-400 shadow-sm"
+                        : "border border-gray-200 hover:border-amber-200 hover:bg-gray-50"
+                    }`}
+                  >
+                    {castActor?.headshots?.[0] ? (
+                      <img src={castActor.headshots[0]} alt="" className={`w-9 h-11 object-cover rounded-lg shrink-0 ${isSelected ? "ring-2 ring-amber-300" : ""}`} />
+                    ) : (
+                      <div className={`w-9 h-11 rounded-lg flex items-center justify-center shrink-0 ${isSelected ? "bg-amber-100" : "bg-gray-100"}`}>
+                        <User className={`w-4 h-4 ${isSelected ? "text-amber-400" : "text-gray-400"}`} />
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className={`text-xs font-semibold truncate ${isSelected ? "text-amber-800" : "text-gray-900"}`}>{character.name}</p>
+                      {castActor ? (
+                        <p className="text-[10px] text-gray-500 truncate">{castActor.name}</p>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 text-[10px] text-amber-600 font-medium">
+                          <AlertTriangle className="w-3 h-3" />
+                          Not yet cast
+                        </span>
+                      )}
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <span className="text-[9px] text-gray-400">{makeupItemCount} items</span>
+                        <span className="text-[9px] text-gray-300">&middot;</span>
+                        <span className="text-[9px] text-gray-400">{charLookCount} looks</span>
+                      </div>
+                    </div>
+                    {isSelected && (
+                      <div className="w-2 h-2 rounded-full bg-amber-500 shrink-0" />
+                    )}
+                  </button>
+                )
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* Inventory grid/list */}
+        <div className="flex-1 overflow-y-auto p-6">
+          {/* Active character filter banner */}
+          {charFilter && (() => {
+            const pair = characterActorMap.find(({ character }) => character.id === charFilter)
+            return pair ? (
+              <div className="flex items-center gap-2 mb-4 bg-amber-50 border border-amber-200 rounded-xl px-4 py-2.5">
+                {pair.castActor?.headshots?.[0] ? (
+                  <img src={pair.castActor.headshots[0]} alt="" className="w-6 h-8 rounded object-cover" />
+                ) : (
+                  <div className="w-6 h-8 rounded bg-amber-200 flex items-center justify-center"><User className="w-3 h-3 text-amber-400" /></div>
+                )}
+                <div className="flex-1">
+                  <p className="text-xs font-semibold text-amber-800">
+                    Showing makeup for {pair.character.name}
+                    {pair.castActor ? ` (${pair.castActor.name})` : ""}
+                  </p>
+                  <p className="text-[10px] text-amber-600">{inventory.length} items across {looks.filter((l) => l.characterId === pair.character.id).length} looks</p>
+                </div>
+                <button onClick={() => onCharFilterChange(null)} className="p-1 text-amber-400 hover:text-amber-600 rounded-md hover:bg-amber-100 transition-colors">
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            ) : null
+          })()}
+
+          {/* Result count */}
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-xs text-gray-500">
+              <span className="font-semibold text-gray-700">{inventory.length}</span> item{inventory.length !== 1 ? "s" : ""}{charFilter ? " for this character" : " in makeup"}
+            </p>
+          </div>
+
+          {inventory.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-64 text-center">
+              <Scissors className="w-12 h-12 text-gray-300 mb-3" />
+              <p className="text-gray-500 text-sm font-medium">{charFilter ? "No makeup items assigned to this character" : "No items in makeup inventory"}</p>
+              <p className="text-gray-400 text-xs mt-1">{charFilter ? "Create a Look to assign makeup items" : "Add wigs, prosthetics, cosmetics, and SFX supplies"}</p>
+              {!charFilter && (
+                <button onClick={onAdd} className="mt-4 px-4 py-2 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 transition-colors">Add First Item</button>
               )}
             </div>
           ) : viewMode === "grid" ? (
@@ -1866,6 +2185,23 @@ function AddItemModal({
           {/* Vibe tags */}
           <div className="mb-4">
             <p className="text-xs font-medium text-gray-700 mb-2">Vibe Tags</p>
+            {type !== "costume-piece" && (
+              <>
+                <p className="text-[10px] text-amber-600 font-medium mb-1.5">Makeup & HMU</p>
+                <div className="flex flex-wrap gap-1.5 mb-2">
+                  {MAKEUP_TAGS.map((tag) => (
+                    <button
+                      key={tag}
+                      onClick={() => setVibeTags((prev) => prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag])}
+                      className={`px-2 py-1 text-[10px] font-medium rounded-full transition-colors ${vibeTags.includes(tag) ? "bg-amber-100 text-amber-700 border border-amber-300" : "bg-gray-100 text-gray-500 border border-transparent hover:bg-gray-200"}`}
+                    >
+                      {tag}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+            <p className="text-[10px] text-rose-600 font-medium mb-1.5">Wardrobe</p>
             <div className="flex flex-wrap gap-1.5">
               {VIBE_TAGS.map((tag) => (
                 <button
@@ -1968,7 +2304,7 @@ function LookBuilderModal({
         <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between shrink-0">
           <div>
             <h2 className="text-lg font-bold text-gray-900">{initial ? "Edit Look" : "New Look"}</h2>
-            <p className="text-xs text-gray-500">Combine wardrobe items into a character look</p>
+            <p className="text-xs text-gray-500">Combine wardrobe and makeup items into a character look</p>
           </div>
           <button onClick={onClose} className="p-1.5 rounded-full hover:bg-gray-100 text-gray-500 transition-colors"><X className="w-5 h-5" /></button>
         </div>
@@ -2031,35 +2367,100 @@ function LookBuilderModal({
                 <input value={searchInv} onChange={(e) => setSearchInv(e.target.value)} placeholder="Search inventory..." className="w-full pl-7 pr-2 py-1 text-xs border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-rose-300" />
               </div>
             </div>
-            <div className="grid grid-cols-4 md:grid-cols-5 gap-2 max-h-52 overflow-y-auto">
-              {filteredInv.map((item) => {
-                const isSelected = selectedItemIds.includes(item.id)
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => toggleItem(item.id)}
-                    className={`rounded-lg border-2 overflow-hidden transition-all text-left ${isSelected ? "border-rose-500 ring-2 ring-rose-200" : "border-gray-200 hover:border-gray-300"}`}
-                  >
-                    <div className="aspect-[3/4] bg-gray-100 relative">
-                      {item.imageUrl ? (
-                        <img src={item.imageUrl} alt="" className="w-full h-full object-cover" crossOrigin="anonymous" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center"><Shirt className="w-5 h-5 text-gray-300" /></div>
-                      )}
-                      {isSelected && (
-                        <div className="absolute top-1 right-1 w-5 h-5 rounded-full bg-rose-500 flex items-center justify-center">
-                          <Check className="w-3 h-3 text-white" />
-                        </div>
-                      )}
+
+            {/* Wardrobe items */}
+            {(() => {
+              const wardrobeItems = filteredInv.filter((i) => i.type === "costume-piece")
+              const makeupItems = filteredInv.filter((i) => i.type === "hmu-consumable" || i.type === "durable")
+              return (
+                <div className="space-y-4 max-h-64 overflow-y-auto">
+                  {/* Wardrobe section */}
+                  <div>
+                    <div className="flex items-center gap-1.5 mb-2">
+                      <Shirt className="w-3.5 h-3.5 text-rose-500" />
+                      <p className="text-[11px] font-semibold text-rose-700 uppercase tracking-wider">Wardrobe</p>
+                      <span className="text-[10px] text-gray-400 ml-1">{wardrobeItems.length} items</span>
                     </div>
-                    <p className="text-[10px] font-medium text-gray-800 p-1.5 truncate">{item.name}</p>
-                  </button>
-                )
-              })}
-              {filteredInv.length === 0 && (
-                <p className="col-span-full text-center text-xs text-gray-400 py-8">No items found. Add items in the Wardrobe tab first.</p>
-              )}
-            </div>
+                    {wardrobeItems.length > 0 ? (
+                      <div className="grid grid-cols-4 md:grid-cols-5 gap-2">
+                        {wardrobeItems.map((item) => {
+                          const isSelected = selectedItemIds.includes(item.id)
+                          return (
+                            <button
+                              key={item.id}
+                              onClick={() => toggleItem(item.id)}
+                              className={`rounded-lg border-2 overflow-hidden transition-all text-left ${isSelected ? "border-rose-500 ring-2 ring-rose-200" : "border-gray-200 hover:border-gray-300"}`}
+                            >
+                              <div className="aspect-[3/4] bg-gray-100 relative">
+                                {item.imageUrl ? (
+                                  <img src={item.imageUrl} alt="" className="w-full h-full object-cover" crossOrigin="anonymous" />
+                                ) : (
+                                  <div className="w-full h-full flex items-center justify-center"><Shirt className="w-5 h-5 text-gray-300" /></div>
+                                )}
+                                {isSelected && (
+                                  <div className="absolute top-1 right-1 w-5 h-5 rounded-full bg-rose-500 flex items-center justify-center">
+                                    <Check className="w-3 h-3 text-white" />
+                                  </div>
+                                )}
+                              </div>
+                              <p className="text-[10px] font-medium text-gray-800 p-1.5 truncate">{item.name}</p>
+                            </button>
+                          )
+                        })}
+                      </div>
+                    ) : (
+                      <p className="text-[10px] text-gray-400 py-3 text-center">No wardrobe items found</p>
+                    )}
+                  </div>
+
+                  {/* Divider */}
+                  <div className="border-t border-gray-200" />
+
+                  {/* Makeup section */}
+                  <div>
+                    <div className="flex items-center gap-1.5 mb-2">
+                      <Scissors className="w-3.5 h-3.5 text-amber-500" />
+                      <p className="text-[11px] font-semibold text-amber-700 uppercase tracking-wider">Makeup & HMU</p>
+                      <span className="text-[10px] text-gray-400 ml-1">{makeupItems.length} items</span>
+                    </div>
+                    {makeupItems.length > 0 ? (
+                      <div className="grid grid-cols-4 md:grid-cols-5 gap-2">
+                        {makeupItems.map((item) => {
+                          const isSelected = selectedItemIds.includes(item.id)
+                          return (
+                            <button
+                              key={item.id}
+                              onClick={() => toggleItem(item.id)}
+                              className={`rounded-lg border-2 overflow-hidden transition-all text-left ${isSelected ? "border-amber-500 ring-2 ring-amber-200" : "border-gray-200 hover:border-gray-300"}`}
+                            >
+                              <div className="aspect-[3/4] bg-gray-100 relative">
+                                {item.imageUrl ? (
+                                  <img src={item.imageUrl} alt="" className="w-full h-full object-cover" crossOrigin="anonymous" />
+                                ) : (
+                                  <div className="w-full h-full flex items-center justify-center"><Scissors className="w-5 h-5 text-gray-300" /></div>
+                                )}
+                                {isSelected && (
+                                  <div className="absolute top-1 right-1 w-5 h-5 rounded-full bg-amber-500 flex items-center justify-center">
+                                    <Check className="w-3 h-3 text-white" />
+                                  </div>
+                                )}
+                              </div>
+                              <p className="text-[10px] font-medium text-gray-800 p-1.5 truncate">{item.name}</p>
+                            </button>
+                          )
+                        })}
+                      </div>
+                    ) : (
+                      <p className="text-[10px] text-gray-400 py-3 text-center">No makeup items found</p>
+                    )}
+                  </div>
+
+                  {filteredInv.length === 0 && (
+                    <p className="text-center text-xs text-gray-400 py-8">No items found. Add items in the Wardrobe or Makeup tabs first.</p>
+                  )}
+                </div>
+              )
+            })()}
           </div>
         </div>
 
