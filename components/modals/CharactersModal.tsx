@@ -149,15 +149,13 @@ function CharacterCardInner({
           isSelected ? "border-success-500 ring-2 ring-success-500/20 shadow-sm" : "border-slate-200 hover:border-success-300"
         }`}
       >
-        {/* Thumbnail */}
-        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-slate-100 to-slate-200 overflow-hidden flex-shrink-0">
-          {heroImg ? (
-            <img src={heroImg} alt={character.name} className="w-full h-full object-cover" crossOrigin="anonymous" />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-sm font-bold text-slate-400">
-              {character.name.charAt(0)}
-            </div>
-          )}
+        {/* Actor count */}
+        <div className={`w-10 h-10 rounded-lg flex-shrink-0 flex items-center justify-center ${
+          allActors.length > 0 ? "bg-success-50 text-success-700" : "bg-slate-100 text-slate-400"
+        }`}>
+          <div className="flex flex-col items-center leading-none">
+            <span className="text-sm font-bold">{allActors.length}</span>
+          </div>
         </div>
         {/* Info */}
         <div className="flex-1 min-w-0">
@@ -185,31 +183,23 @@ function CharacterCardInner({
           isSelected ? "border-success-500 ring-2 ring-success-500/20 shadow-sm" : "border-slate-200 hover:border-success-300"
         }`}
       >
-        {/* Compact image */}
-        <div className="relative aspect-[3/2] bg-gradient-to-br from-slate-100 to-slate-200 overflow-hidden">
-          {heroImg ? (
-            <img src={heroImg} alt={character.name} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" crossOrigin="anonymous" />
-          ) : allActors.length > 0 ? (
-            <div className="absolute inset-0 flex items-center justify-center gap-1">
-              {allActors.slice(0, 3).map((a) => (
-                <div key={a.id} className="w-7 h-7 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-500">{a.name.charAt(0)}</div>
-              ))}
-              {allActors.length > 3 && <div className="w-7 h-7 rounded-full bg-slate-300 flex items-center justify-center text-[10px] font-bold text-slate-600">+{allActors.length - 3}</div>}
-            </div>
-          ) : (
-            <div className="absolute inset-0 flex items-center justify-center text-slate-400"><ImageIcon className="w-8 h-8 opacity-40" /></div>
-          )}
+        {/* Actor counter */}
+        <div className={`relative flex items-center justify-center py-5 ${
+          allActors.length > 0 ? "bg-success-50/60" : "bg-slate-50"
+        }`}>
+          <div className="flex flex-col items-center gap-0.5">
+            <span className={`text-2xl font-bold leading-none ${
+              allActors.length > 0 ? "text-success-700" : "text-slate-300"
+            }`}>{allActors.length}</span>
+            <span className={`text-[10px] font-medium ${
+              allActors.length > 0 ? "text-success-600/70" : "text-slate-400"
+            }`}>actor{allActors.length !== 1 ? "s" : ""}</span>
+          </div>
           {/* Status badges */}
           <div className="absolute top-2 left-2 flex items-center gap-1 z-10">
             {isSelected && <div className="px-1.5 py-0.5 bg-success-500 text-white text-[10px] font-semibold rounded-md shadow-sm">Current</div>}
             {castingStatus.hasGreenlit && <div className="px-1.5 py-0.5 bg-success-100 text-success-700 text-[10px] font-semibold rounded-md shadow-sm flex items-center gap-0.5"><CircleCheckBig className="w-2.5 h-2.5" />Cast</div>}
           </div>
-          {/* Overlay actor count */}
-          {allActors.length > 0 && (
-            <div className="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 bg-slate-900/60 backdrop-blur-sm text-white text-[10px] font-semibold rounded-md">
-              {allActors.length}
-            </div>
-          )}
         </div>
         {/* Compact info */}
         <div className="px-3 py-2.5">
