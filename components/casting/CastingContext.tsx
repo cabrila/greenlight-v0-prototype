@@ -279,6 +279,7 @@ function validateAndCompleteState(state: any): CastingState {
           props: Array.isArray(project.props) ? project.props : [],
           locations: Array.isArray(project.locations) ? project.locations : [],
           propInventory: Array.isArray(project.propInventory) ? project.propInventory : [],
+          propPurchaseRequests: Array.isArray(project.propPurchaseRequests) ? project.propPurchaseRequests : [],
           locationInventory: Array.isArray(project.locationInventory) ? project.locationInventory : [],
           // Ensure costumes data is structurally valid
           costumes: project.costumes && typeof project.costumes === "object" ? {

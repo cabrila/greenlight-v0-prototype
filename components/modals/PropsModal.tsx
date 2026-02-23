@@ -67,10 +67,10 @@ function generateMockInventory(characters: Character[], scenes: Scene[]): Invent
   const charId = (idx: number) => characters[idx]?.id ?? null
   const scnIds = (...indices: number[]) => indices.filter((i) => scenes[i]).map((i) => scenes[i].id)
   return [
-    { id: "p1", name: "Medieval Broadsword", model: "Steel Replica", category: "Action Props", brand: "Regal Arms", serialNumber: "MBS-00192", skuBarcode: "7891234560", notes: "", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Bought", unitPrice: "$450", quantity: 3, bookedTo: null, availability: [], status: "available", sceneIds: scnIds(0, 2), characterId: charId(0) },
+    { id: "p1", name: "Medieval Broadsword", model: "Steel Replica", category: "Action Props", brand: "Regal Arms", serialNumber: "MBS-00192", skuBarcode: "7891234560", notes: "Live steel edge - requires armorer present during all choreographed sequences", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Bought", unitPrice: "$450", quantity: 3, bookedTo: null, availability: [], status: "available", sceneIds: scnIds(0, 2), characterId: charId(0), requiresArmorySupervision: true },
     { id: "p2", name: "Victorian Chandelier", model: "Grand 48", category: "Decorations", brand: "Heritage Lights", serialNumber: "VCH-90234", skuBarcode: "7891234561", notes: "", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Rental", unitPrice: "$2,500", quantity: 2, bookedTo: null, availability: [], status: "available", sceneIds: scnIds(1), characterId: null },
     { id: "p3", name: "Antique Telephone", model: "Rotary 1950s", category: "Household Items", brand: "Retro Props Co.", serialNumber: "ATP-44210", skuBarcode: "7891234562", notes: "Dial is functional, bell rings", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Bought", unitPrice: "$320", quantity: 4, bookedTo: null, availability: [], status: "available", sceneIds: scnIds(0, 1, 3), characterId: charId(1) },
-    { id: "p4", name: "Plasma Rifle", model: "PR-7X", category: "Sci-Fi", brand: "FutureForge", serialNumber: "PLR-11002", skuBarcode: "7891234563", notes: "", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Rental", unitPrice: "$1,800", quantity: 1, bookedTo: "Jurassic Park - Remake", availability: [], status: "in-use", sceneIds: scnIds(2, 4), characterId: charId(0) },
+    { id: "p4", name: "Plasma Rifle", model: "PR-7X", category: "Sci-Fi", brand: "FutureForge", serialNumber: "PLR-11002", skuBarcode: "7891234563", notes: "Modified airsoft mechanism with muzzle flash FX - classified as firearm replica", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Rental", unitPrice: "$1,800", quantity: 1, bookedTo: "Jurassic Park - Remake", availability: [], status: "in-use", sceneIds: scnIds(2, 4), characterId: charId(0), requiresArmorySupervision: true },
     { id: "p5", name: "Crystal Ball", model: "12\" Illuminated", category: "Fantasy", brand: "Mystic Props", serialNumber: "CRB-78301", skuBarcode: "7891234564", notes: "LED base included", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Bought", unitPrice: "$280", quantity: 2, bookedTo: null, availability: [], status: "available", sceneIds: scnIds(3), characterId: charId(2) },
     { id: "p6", name: "Framed Oil Painting", model: "Large Landscape", category: "Images", brand: "Art House Props", serialNumber: "FOP-460D0G", skuBarcode: "1234567890", notes: "Canvas reproduction, gilt frame", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Rental", unitPrice: "$600", quantity: 1, bookedTo: null, availability: [], status: "available", sceneIds: [], characterId: null },
     { id: "p7", name: "Wooden Treasure Chest", model: "Pirate Style", category: "Fantasy", brand: "Old World Props", serialNumber: "WTC-20102", skuBarcode: "7891234566", notes: "", imageUrl: "/placeholder.svg?height=120&width=160", purchaseType: "Bought", unitPrice: "$180", quantity: 5, bookedTo: null, availability: [], status: "available", sceneIds: scnIds(0, 4), characterId: null },
@@ -1254,15 +1254,16 @@ export default function PropsModal({ onClose }: PropsModalProps) {
     [projectId, dispatch],
   )
 
-  /* Auto-seed mock data if project has no prop inventory yet */
+  /* Auto-seed mock data if project has no prop inventory yet, or if it lacks the armory field (stale seed) */
+  const needsReseed = inventory.length === 0 || (inventory.length > 0 && !inventory.some((i) => "requiresArmorySupervision" in i))
   const hasSeeded = useRef(false)
   useEffect(() => {
-    if (!hasSeeded.current && projectId && inventory.length === 0) {
+    if (!hasSeeded.current && projectId && needsReseed) {
       hasSeeded.current = true
       const mockData = generateMockInventory(characters, scenes)
       dispatch({ type: "SET_PROJECT_PROP_INVENTORY", payload: { projectId, inventory: mockData } })
     }
-  }, [projectId, inventory.length, dispatch, characters, scenes])
+  }, [projectId, needsReseed, dispatch, characters, scenes])
 
   /* ---- Project props (from context, persisted) ---- */
   const projectProps: ProjectProp[] = currentProject?.props || []
