@@ -288,7 +288,8 @@ export default function ModalManager() {
       modal.type === "props" ||
       modal.type === "locations" ||
       modal.type === "costumes" ||
-      modal.type === "script"
+      modal.type === "script" ||
+      modal.type === "schedule"
     ) {
       return <div key={`modal-${index}`}>{modalContent}</div>
     }

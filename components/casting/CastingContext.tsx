@@ -363,12 +363,10 @@ function validateAndCompleteState(state: any): CastingState {
     // Ensure tabDisplayNames exists
     tabDisplayNames: state.tabDisplayNames || {},
 
-    // Ensure scheduleEntries exists
-    scheduleEntries: Array.isArray(state.scheduleEntries) ? state.scheduleEntries : [],
-    // Ensure scenes exists
-    scenes: Array.isArray(state.scenes) ? state.scenes : [],
-    // Ensure productionPhases exists
-    productionPhases: Array.isArray(state.productionPhases) ? state.productionPhases : initialState.productionPhases,
+    // Always use fresh mock schedule/scenes/phases so updates to mock data are reflected
+    scheduleEntries: MOCK_SCHEDULE_ENTRIES,
+    scenes: MOCK_SCENES,
+    productionPhases: MOCK_PRODUCTION_PHASES,
 
     // Ensure filters exists
     filters: state.filters || initialState.filters,

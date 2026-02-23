@@ -680,6 +680,12 @@ export default function ScheduleModal({ onClose }: ScheduleModalProps) {
                                       onChange={(e) => handleUpdateEntry(entry.id, { startTime: e.target.value })}
                                       className="px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-emerald-500"
                                     />
+                                    {entry.endTime && (
+                                      <>
+                                        <span className="text-gray-400">-</span>
+                                        <span className="text-sm font-medium">{entry.endTime}</span>
+                                      </>
+                                    )}
                                   </div>
                                   {entry.location && (
                                     <div className="flex items-center gap-1">
@@ -732,6 +738,20 @@ export default function ScheduleModal({ onClose }: ScheduleModalProps) {
                             </div>
                           </div>
 
+                          {/* Red Flags / Alerts */}
+                          {conflicts.length > 0 && (
+                            <div className="px-6 py-3 bg-red-50 border-b border-red-200">
+                              <div className="space-y-1.5">
+                                {conflicts.map((flag) => (
+                                  <div key={flag.id} className="flex items-start gap-2 text-sm">
+                                    <AlertTriangle className="w-4 h-4 mt-0.5 flex-shrink-0 text-red-500" />
+                                    <span className="text-red-800">{flag.message}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
                           {/* Scene Details */}
                           {(entry.sceneNotes || (entry.props && entry.props.length > 0)) && (
                             <div className="px-6 py-3 bg-gray-50 border-b border-gray-200">
@@ -754,6 +774,12 @@ export default function ScheduleModal({ onClose }: ScheduleModalProps) {
                                       </span>
                                     ))}
                                   </div>
+                                </div>
+                              )}
+                              {entry.notes && (
+                                <div className="flex items-start gap-2 text-sm text-gray-600 mt-2 pt-2 border-t border-gray-200">
+                                  <Calendar className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                                  <span className="italic">{entry.notes}</span>
                                 </div>
                               )}
                             </div>
@@ -783,24 +809,50 @@ export default function ScheduleModal({ onClose }: ScheduleModalProps) {
                                   return (
                                     <div
                                       key={scene.id}
-                                      className={`flex items-center gap-3 p-3 rounded-lg border-2 ${getSceneBadgeColor()}`}
+                                      className={`p-3 rounded-lg border-2 ${getSceneBadgeColor()}`}
                                     >
-                                      <div className="flex items-center gap-2 min-w-[120px]">
-                                        <span className="font-bold text-sm">Scene {scene.sceneNumber}</span>
-                                        <span className="text-xs opacity-75">({scene.pages} pgs)</span>
+                                      <div className="flex items-center gap-3">
+                                        <div className="flex items-center gap-2 min-w-[120px]">
+                                          <span className="font-bold text-sm">Scene {scene.sceneNumber}</span>
+                                          <span className="text-xs opacity-75">({scene.pages} pgs)</span>
+                                        </div>
+                                        <div className="flex items-center gap-2 min-w-[80px]">
+                                          <span className="text-xs font-semibold">{scene.intExt}</span>
+                                          <span className="text-xs opacity-75">{'\u2022'}</span>
+                                          <span className="text-xs">{scene.dayNight}</span>
+                                        </div>
+                                        <div className="flex-1 text-sm truncate">{scene.location}</div>
+                                        {scene.cast.length > 0 && (
+                                          <div className="text-xs opacity-75">{scene.cast.length} cast</div>
+                                        )}
                                       </div>
-                                      <div className="flex items-center gap-2 min-w-[80px]">
-                                        <span className="text-xs font-semibold">{scene.intExt}</span>
-                                        <span className="text-xs opacity-75">•</span>
-                                        <span className="text-xs">{scene.dayNight}</span>
-                                      </div>
-                                      <div className="flex-1 text-sm truncate">{scene.location}</div>
-                                      {scene.cast.length > 0 && (
-                                        <div className="text-xs opacity-75">{scene.cast.length} cast</div>
+                                      {(scene.description || scene.cast.length > 0) && (
+                                        <div className="mt-1.5 flex items-center gap-3">
+                                          {scene.description && (
+                                            <span className="text-xs italic opacity-80 flex-1 truncate">{scene.description}</span>
+                                          )}
+                                          {scene.cast.length > 0 && (
+                                            <span className="text-xs opacity-70 flex-shrink-0">{scene.cast.join(", ")}</span>
+                                          )}
+                                        </div>
                                       )}
                                     </div>
                                   )
                                 })}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Crew Members */}
+                          {entry.crewMembers && entry.crewMembers.length > 0 && (
+                            <div className="px-6 py-3 border-b border-gray-200">
+                              <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Crew ({entry.crewMembers.length})</h4>
+                              <div className="flex flex-wrap gap-1.5">
+                                {entry.crewMembers.map((crew, i) => (
+                                  <span key={i} className="px-2 py-0.5 bg-gray-100 border border-gray-200 rounded text-xs text-gray-600">
+                                    {crew}
+                                  </span>
+                                ))}
                               </div>
                             </div>
                           )}
