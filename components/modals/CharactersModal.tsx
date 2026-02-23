@@ -183,22 +183,69 @@ function CharacterCardInner({
           isSelected ? "border-success-500 ring-2 ring-success-500/20 shadow-sm" : "border-slate-200 hover:border-success-300"
         }`}
       >
-        {/* Actor counter */}
-        <div className={`relative flex items-center justify-center py-5 ${
-          allActors.length > 0 ? "bg-success-50/60" : "bg-slate-50"
+        {/* Actor counter + thumbnails */}
+        <div className={`relative px-3 py-3.5 ${
+          allActors.length > 0 ? "bg-success-50/40" : "bg-slate-50"
         }`}>
-          <div className="flex flex-col items-center gap-0.5">
-            <span className={`text-2xl font-bold leading-none ${
-              allActors.length > 0 ? "text-success-700" : "text-slate-300"
-            }`}>{allActors.length}</span>
-            <span className={`text-[10px] font-medium ${
-              allActors.length > 0 ? "text-success-600/70" : "text-slate-400"
-            }`}>actor{allActors.length !== 1 ? "s" : ""}</span>
-          </div>
           {/* Status badges */}
           <div className="absolute top-2 left-2 flex items-center gap-1 z-10">
             {isSelected && <div className="px-1.5 py-0.5 bg-success-500 text-white text-[10px] font-semibold rounded-md shadow-sm">Current</div>}
             {castingStatus.hasGreenlit && <div className="px-1.5 py-0.5 bg-success-100 text-success-700 text-[10px] font-semibold rounded-md shadow-sm flex items-center gap-0.5"><CircleCheckBig className="w-2.5 h-2.5" />Cast</div>}
+          </div>
+          <div className="flex items-center gap-2.5 mt-3">
+            {/* Count badge */}
+            <div className={`flex flex-col items-center justify-center w-11 h-11 rounded-lg flex-shrink-0 ${
+              allActors.length > 0 ? "bg-success-100/80 text-success-700" : "bg-slate-100 text-slate-400"
+            }`}>
+              <span className="text-lg font-bold leading-none">{allActors.length}</span>
+              <span className="text-[8px] font-medium mt-0.5 opacity-70">actor{allActors.length !== 1 ? "s" : ""}</span>
+            </div>
+            {/* Thumbnail row */}
+            {actorsWithPhotos.length > 0 ? (
+              <div className="flex items-center flex-1 min-w-0">
+                {actorsWithPhotos.slice(0, 4).map((actor, i) => (
+                  <div
+                    key={actor.id}
+                    className="w-8 h-8 rounded-full border-2 border-white overflow-hidden bg-slate-200 flex-shrink-0 shadow-sm"
+                    style={{ marginLeft: i > 0 ? "-6px" : "0", zIndex: 4 - i }}
+                    title={actor.name}
+                  >
+                    <img src={actor.headshots[0]} alt={actor.name} className="w-full h-full object-cover" crossOrigin="anonymous" />
+                  </div>
+                ))}
+                {actorsWithPhotos.length > 4 && (
+                  <div
+                    className="w-8 h-8 rounded-full border-2 border-white bg-slate-700/70 flex items-center justify-center text-[9px] font-bold text-white flex-shrink-0 shadow-sm"
+                    style={{ marginLeft: "-6px", zIndex: 0 }}
+                  >
+                    +{actorsWithPhotos.length - 4}
+                  </div>
+                )}
+              </div>
+            ) : allActors.length > 0 ? (
+              <div className="flex items-center flex-1 min-w-0">
+                {allActors.slice(0, 4).map((actor, i) => (
+                  <div
+                    key={actor.id}
+                    className="w-8 h-8 rounded-full border-2 border-white bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-500 flex-shrink-0 shadow-sm"
+                    style={{ marginLeft: i > 0 ? "-6px" : "0", zIndex: 4 - i }}
+                    title={actor.name}
+                  >
+                    {actor.name.charAt(0)}
+                  </div>
+                ))}
+                {allActors.length > 4 && (
+                  <div
+                    className="w-8 h-8 rounded-full border-2 border-white bg-slate-300 flex items-center justify-center text-[9px] font-bold text-slate-600 flex-shrink-0 shadow-sm"
+                    style={{ marginLeft: "-6px", zIndex: 0 }}
+                  >
+                    +{allActors.length - 4}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <span className="text-[11px] text-slate-400 font-medium">No actors yet</span>
+            )}
           </div>
         </div>
         {/* Compact info */}
@@ -207,10 +254,11 @@ function CharacterCardInner({
             <h3 className="text-sm font-semibold text-slate-900 truncate">{character.name}</h3>
             <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-success-500 transition-colors flex-shrink-0" />
           </div>
-          <div className="flex items-center gap-1.5 mt-1">
-            <span className="text-[11px] text-slate-500">{allActors.length} actor{allActors.length !== 1 ? "s" : ""}</span>
-            {greenlitActors.length > 0 && <span className="text-[11px] text-success-600 font-medium flex items-center gap-0.5"><CircleCheckBig className="w-3 h-3" />{greenlitActors.length}</span>}
-          </div>
+          {greenlitActors.length > 0 && (
+            <div className="flex items-center gap-1 mt-1">
+              <span className="text-[11px] text-success-600 font-medium flex items-center gap-0.5"><CircleCheckBig className="w-3 h-3" />{greenlitActors.length} greenlit</span>
+            </div>
+          )}
         </div>
       </div>
     )
