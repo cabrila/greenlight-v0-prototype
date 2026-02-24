@@ -686,7 +686,7 @@ export interface Status {
 
 export interface Notification {
   id: string
-  type: "system" | "user" | "vote"
+  type: "system" | "user" | "vote" | "sent"
   title: string
   message: string
   timestamp: number
@@ -696,6 +696,8 @@ export interface Notification {
   characterId?: string
   userId?: string
   metadata?: any
+  /** For sent notifications -- names of recipients */
+  recipients?: string[]
 }
 
 export interface TabDefinition {
