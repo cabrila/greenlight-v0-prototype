@@ -672,13 +672,13 @@ export default function ContactActorModal({ onClose, actorIds, characterId }: Co
         </div>
 
         {/* ── Body ───────────────────────────────────────────────── */}
-        <div className="flex-1 overflow-hidden">
+        <div className="flex-1 min-h-0 overflow-hidden">
           {viewTab === "compose" && (
             <div className="flex h-full">
               {/* Left sidebar: Recipients + Templates */}
-              <div className="w-72 border-r border-gray-200 overflow-y-auto shrink-0 bg-gray-50/50">
+              <div className="w-72 border-r border-gray-200 shrink-0 bg-gray-50/50 flex flex-col overflow-hidden">
                 {/* Recipients */}
-                <div className="p-4 border-b border-gray-100">
+                <div className="p-4 border-b border-gray-100 shrink-0">
                   <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2.5">
                     Recipients ({selectedActors.length})
                   </h3>
@@ -698,7 +698,7 @@ export default function ContactActorModal({ onClose, actorIds, characterId }: Co
                 </div>
 
                 {/* Templates */}
-                <div className="p-4">
+                <div className="flex-1 overflow-y-auto p-4">
                   <div className="flex items-center justify-between mb-2.5">
                     <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Templates</h3>
                     <button
@@ -743,7 +743,7 @@ export default function ContactActorModal({ onClose, actorIds, characterId }: Co
               </div>
 
               {/* Right panel: Compose */}
-              <div className="flex-1 flex flex-col min-w-0">
+              <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
                 {selectedTemplate ? (
                   <>
                     {/* Success banner */}
@@ -804,7 +804,7 @@ export default function ContactActorModal({ onClose, actorIds, characterId }: Co
                     )}
 
                     {/* Email body */}
-                    <div className="flex-1 p-5 overflow-y-auto">
+                    <div className="flex-1 min-h-0 p-5 overflow-y-auto">
                       {isEditing ? (
                         <textarea
                           value={emailContent}
@@ -868,9 +868,9 @@ export default function ContactActorModal({ onClose, actorIds, characterId }: Co
           {viewTab === "history" && (
             <div className="flex h-full">
               {/* Filters sidebar */}
-              <div className="w-56 border-r border-gray-200 shrink-0 bg-gray-50/50 flex flex-col">
+              <div className="w-56 border-r border-gray-200 shrink-0 bg-gray-50/50 flex flex-col overflow-hidden">
                 {/* Stats */}
-                <div className="p-4 border-b border-gray-100">
+                <div className="p-4 border-b border-gray-100 shrink-0">
                   <div className="grid grid-cols-2 gap-2">
                     <div className="bg-white rounded-xl p-2.5 border border-gray-100 text-center">
                       <p className="text-lg font-bold text-gray-900">{totalMessageCount}</p>
@@ -884,7 +884,7 @@ export default function ContactActorModal({ onClose, actorIds, characterId }: Co
                 </div>
 
                 {/* Search */}
-                <div className="px-4 py-3 border-b border-gray-100">
+                <div className="px-4 py-3 border-b border-gray-100 shrink-0">
                   <div className="relative">
                     <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
                     <input
@@ -930,7 +930,7 @@ export default function ContactActorModal({ onClose, actorIds, characterId }: Co
               </div>
 
               {/* Message threads */}
-              <div className="flex-1 overflow-y-auto" ref={historyScrollRef}>
+              <div className="flex-1 min-h-0 overflow-y-auto" ref={historyScrollRef}>
                 {threadedMessages.length === 0 ? (
                   <div className="flex flex-col items-center justify-center h-full text-center px-8">
                     <Inbox className="w-12 h-12 text-gray-300 mb-3" />
@@ -1104,8 +1104,8 @@ export default function ContactActorModal({ onClose, actorIds, characterId }: Co
           {viewTab === "templates" && (
             <div className="flex h-full">
               {/* Left: template list */}
-              <div className="w-72 border-r border-gray-200 shrink-0 bg-gray-50/50 flex flex-col">
-                <div className="p-4 border-b border-gray-100">
+              <div className="w-72 border-r border-gray-200 shrink-0 bg-gray-50/50 flex flex-col overflow-hidden">
+                <div className="p-4 border-b border-gray-100 shrink-0">
                   <button
                     onClick={handleNewTemplate}
                     className="w-full flex items-center justify-center gap-1.5 px-4 py-2.5 bg-blue-600 text-white text-xs font-semibold rounded-xl hover:bg-blue-700 transition-colors"
@@ -1230,7 +1230,7 @@ export default function ContactActorModal({ onClose, actorIds, characterId }: Co
               </div>
 
               {/* Right: template editor or empty state */}
-              <div className="flex-1 flex flex-col min-w-0">
+              <div className="flex-1 flex flex-col min-w-0 min-h-0 overflow-hidden">
                 {templateEditorOpen ? (
                   <>
                     {/* Editor header */}
@@ -1252,7 +1252,7 @@ export default function ContactActorModal({ onClose, actorIds, characterId }: Co
                     </div>
 
                     {/* Editor form */}
-                    <div className="flex-1 overflow-y-auto p-6 space-y-4">
+                    <div className="flex-1 min-h-0 overflow-y-auto p-6 space-y-4">
                       {/* Name + Category row */}
                       <div className="grid grid-cols-[1fr_auto] gap-3">
                         <div>
