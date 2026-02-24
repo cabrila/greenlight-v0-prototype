@@ -1163,6 +1163,19 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
 
       const contactStatus = getContactStatusFromTemplate(contactType, templateName)
 
+      // Build message history entry from the email that was sent
+      const emailSubject = action.payload.emailSubject || `${templateName} - ${contactType}`
+      const emailBody = action.payload.emailBody || ""
+      const senderName = state.currentUser?.name || "Casting Team"
+      const senderRole = state.currentUser?.role || "Casting Director"
+      const charName = (() => {
+        for (const p of state.projects) {
+          const ch = p.characters.find((c) => c.id === characterId)
+          if (ch) return ch.name
+        }
+        return undefined
+      })()
+
       newState = {
         ...state,
         projects: state.projects.map((project) => ({
@@ -1179,11 +1192,26 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
                     (status: any) => !(status.category === "contact" && status.label === contactStatus.label),
                   )
 
+                  // Append to messageHistory
+                  const existingMessages = actor.messageHistory || []
+                  const newMessage = {
+                    id: `msg-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+                    direction: "outgoing" as const,
+                    senderName,
+                    senderRole,
+                    subject: emailSubject.replace(/\{\{.*?\}\}/g, "").trim() || templateName,
+                    body: emailBody,
+                    timestamp,
+                    templateUsed: templateName,
+                    characterName: charName,
+                  }
+
                   return {
                     ...actor,
                     statuses: [...filteredStatuses, contactStatus],
                     lastContactDate: timestamp,
                     lastContactType: contactType,
+                    messageHistory: [...existingMessages, newMessage],
                   }
                 }
                 return actor

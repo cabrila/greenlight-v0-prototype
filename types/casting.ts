@@ -77,6 +77,23 @@ export interface Actor {
     duration?: number
     videoPassword?: string
   }>
+  /** Communication history for this actor */
+  messageHistory?: MessageHistoryItem[]
+}
+
+export interface MessageHistoryItem {
+  id: string
+  /** "outgoing" = sent by production team, "incoming" = reply from actor/agent */
+  direction: "outgoing" | "incoming"
+  senderName: string
+  senderRole?: string
+  subject: string
+  body: string
+  timestamp: number
+  templateUsed?: string
+  /** Which character role this message relates to */
+  characterName?: string
+  read?: boolean
 }
 
 export interface TabNotification {
@@ -132,8 +149,8 @@ export type CastingAction =
   | { type: "SET_PLAYER_HEADSHOT"; payload: number }
   | { type: "CAST_VOTE"; payload: { actorId: string; characterId: string; vote: string; userId: string } }
   | {
-      type: "ADD_CONTACT_STATUS"
-      payload: { actorIds: string[]; characterId: string; contactType: string; templateName: string; timestamp: number }
+    type: "ADD_CONTACT_STATUS"
+    payload: { actorIds: string[]; characterId: string; contactType: string; templateName: string; timestamp: number; emailSubject?: string; emailBody?: string }
     }
   | { type: "ADD_ACTOR"; payload: { actor: Actor; characterId: string } }
   | { type: "ADD_CHARACTER"; payload: { character: Character; projectId: string } }
