@@ -666,10 +666,7 @@ export default function ContactActorModal({ onClose, actorIds, characterId }: Co
 
         {/* ── Body ───────────────────────────────────────────────── */}
         <div className="flex-1 overflow-hidden">
-          {viewTab === "compose" ? (
-            /* =========================================================
-               COMPOSE TAB
-               ========================================================= */
+          {viewTab === "compose" && (
             <div className="flex h-full">
               {/* Left sidebar: Recipients + Templates */}
               <div className="w-72 border-r border-gray-200 overflow-y-auto shrink-0 bg-gray-50/50">
@@ -860,10 +857,8 @@ export default function ContactActorModal({ onClose, actorIds, characterId }: Co
                 )}
               </div>
             </div>
-          ) : (
-            /* =========================================================
-               HISTORY TAB
-               ========================================================= */
+          )}
+          {viewTab === "history" && (
             <div className="flex h-full">
               {/* Filters sidebar */}
               <div className="w-56 border-r border-gray-200 shrink-0 bg-gray-50/50 flex flex-col">
@@ -1098,10 +1093,8 @@ export default function ContactActorModal({ onClose, actorIds, characterId }: Co
                 )}
               </div>
             </div>
-          ) : (
-            /* =========================================================
-               TEMPLATES TAB
-               ========================================================= */
+          )}
+          {viewTab === "templates" && (
             <div className="flex h-full">
               {/* Left: template list */}
               <div className="w-72 border-r border-gray-200 shrink-0 bg-gray-50/50 flex flex-col">
@@ -1288,7 +1281,7 @@ export default function ContactActorModal({ onClose, actorIds, characterId }: Co
                           type="text"
                           value={templateForm.subject}
                           onChange={(e) => setTemplateForm({ ...templateForm, subject: e.target.value })}
-                          placeholder="e.g. {{CHARACTER_NAME}} - Chemistry Read for {{PROJECT_NAME}}"
+                          placeholder={"e.g. {{CHARACTER_NAME}} - Chemistry Read for {{PROJECT_NAME}}"}
                           className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-1 focus:ring-blue-400"
                         />
                       </div>
