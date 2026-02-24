@@ -45,6 +45,13 @@ interface EmailTemplate {
 
 const EMAIL_TEMPLATES: EmailTemplate[] = [
   {
+    id: "empty-mail",
+    name: "Empty Mail",
+    subject: "",
+    category: "general",
+    content: "",
+  },
+  {
     id: "invitation-audition",
     name: "Invitation to Audition",
     subject: "Audition Invitation - {{CHARACTER_NAME}} in {{PROJECT_NAME}}",
