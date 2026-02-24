@@ -827,10 +827,10 @@ function InventoryCard({ item, isInProject, onToggleAdd, onEdit, onImageReplace,
 
   return (
     <div className={`bg-white rounded-xl border transition-all duration-200 overflow-hidden group ${isInProject ? "border-emerald-300 ring-1 ring-emerald-200" : isBooked ? "border-orange-200 bg-orange-50/30" : "border-gray-200 hover:border-gray-300 hover:shadow-sm"}`}>
-      <div className="flex p-4 gap-4">
+      <div className="flex items-stretch">
         {/* Image area -- drag target */}
         <div
-          className={`w-28 h-20 shrink-0 rounded-lg bg-gray-100 overflow-hidden flex items-center justify-center relative transition-all ${isDragOver ? "ring-2 ring-emerald-500 ring-offset-1" : ""}`}
+          className={`w-24 sm:w-32 shrink-0 bg-gray-100 overflow-hidden flex items-center justify-center relative transition-all ${isDragOver ? "ring-2 ring-emerald-500 ring-inset" : ""}`}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
@@ -843,109 +843,124 @@ function InventoryCard({ item, isInProject, onToggleAdd, onEdit, onImageReplace,
           )}
         </div>
 
-        {/* Info */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-2">
-            <h3 className="text-sm font-semibold text-gray-900 truncate">{item.name}</h3>
-            <div className="relative" ref={menuRef}>
-              <button onClick={() => setMenuOpen(!menuOpen)} className="p-1 text-gray-400 hover:text-gray-600 rounded transition-colors">
-                <MoreVertical className="w-4 h-4" />
-              </button>
-              {menuOpen && (
-                <div className="absolute right-0 top-6 bg-white border border-gray-200 rounded-lg shadow-lg py-1 min-w-[140px] z-10">
-                  <button onClick={() => { onEdit(item); setMenuOpen(false) }} className="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2">
-                    <Pencil className="w-3.5 h-3.5" /> Edit details
-                  </button>
-                  <button onClick={() => { onAddToCanvas(item); setMenuOpen(false) }} className="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2">
-                    <Layout className="w-3.5 h-3.5" /> Add to Canvas
-                  </button>
-                  <button onClick={() => { onToggleAdd(item.id); setMenuOpen(false) }} className="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50">
-                    {isInProject ? "Remove from project" : "Add to project"}
-                  </button>
-                  <div className="my-1 border-t border-gray-100" />
-                  <button onClick={() => { onDelete(item.id); setMenuOpen(false) }} className="w-full text-left px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2">
-                    <Trash2 className="w-3.5 h-3.5" /> Delete item
-                  </button>
+        {/* Content area */}
+        <div className="flex-1 min-w-0 flex flex-col sm:flex-row">
+          {/* Primary info */}
+          <div className="flex-1 min-w-0 p-3 sm:p-4">
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0">
+                <h3 className="text-sm font-semibold text-gray-900 truncate">{item.name}</h3>
+                <div className="flex items-center gap-2 mt-0.5 text-[11px] text-gray-500">
+                  <span className="font-medium text-gray-700">{item.category}</span>
+                  <span className="text-gray-300">{"\u2022"}</span>
+                  <span>{item.brand}</span>
+                  <span className="text-gray-300">{"\u2022"}</span>
+                  <span>Qty {item.quantity}</span>
+                  {item.unitPrice && (
+                    <>
+                      <span className="text-gray-300">{"\u2022"}</span>
+                      <span className="font-medium text-gray-600">{item.unitPrice}</span>
+                    </>
+                  )}
                 </div>
+              </div>
+              <div className="flex items-center gap-1 shrink-0">
+                <StatusBadge status={item.status} />
+                <div className="relative" ref={menuRef}>
+                  <button onClick={() => setMenuOpen(!menuOpen)} className="p-1 text-gray-400 hover:text-gray-600 rounded transition-colors">
+                    <MoreVertical className="w-4 h-4" />
+                  </button>
+                  {menuOpen && (
+                    <div className="absolute right-0 top-6 bg-white border border-gray-200 rounded-lg shadow-lg py-1 min-w-[140px] z-10">
+                      <button onClick={() => { onEdit(item); setMenuOpen(false) }} className="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2">
+                        <Pencil className="w-3.5 h-3.5" /> Edit details
+                      </button>
+                      <button onClick={() => { onAddToCanvas(item); setMenuOpen(false) }} className="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2">
+                        <Layout className="w-3.5 h-3.5" /> Add to Canvas
+                      </button>
+                      <button onClick={() => { onToggleAdd(item.id); setMenuOpen(false) }} className="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50">
+                        {isInProject ? "Remove from project" : "Add to project"}
+                      </button>
+                      <div className="my-1 border-t border-gray-100" />
+                      <button onClick={() => { onDelete(item.id); setMenuOpen(false) }} className="w-full text-left px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2">
+                        <Trash2 className="w-3.5 h-3.5" /> Delete item
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Badges row */}
+            <div className="flex flex-wrap items-center gap-1.5 mt-2">
+              {item.characterId && (() => {
+                const char = characters?.find((c) => c.id === item.characterId)
+                return char ? (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-100 text-gray-700 rounded text-[10px] font-medium">
+                    <User className="w-3 h-3 text-gray-500" />
+                    {char.name}
+                  </span>
+                ) : null
+              })()}
+              {item.sceneIds && item.sceneIds.length > 0 && (() => {
+                const resolved = item.sceneIds.map((sid) => scenes?.find((s) => s.id === sid)).filter(Boolean) as Scene[]
+                if (resolved.length === 0) return null
+                const show = resolved.slice(0, 3)
+                const extra = resolved.length - 3
+                return (
+                  <>
+                    {show.map((sc) => (
+                      <span key={sc.id} className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded text-[10px] font-semibold" title={`${sc.intExt}. ${sc.location} - ${sc.dayNight}`}>
+                        <Film className="w-3 h-3" />
+                        Sc {sc.sceneNumber}
+                      </span>
+                    ))}
+                    {extra > 0 && <span className="text-[10px] text-gray-400 font-medium">+{extra} more</span>}
+                  </>
+                )
+              })()}
+              {item.requiresArmorySupervision && (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-red-50 text-red-700 border border-red-200 rounded text-[10px] font-bold" title="Requires Certified Armory Supervision">
+                  <ShieldAlert className="w-3 h-3" />
+                  Armory
+                </span>
+              )}
+              {isBooked && (
+                <span className="inline-flex items-center gap-1 text-[10px] font-medium text-orange-700 bg-orange-100 px-2 py-0.5 rounded-full">
+                  <Clock className="w-3 h-3" /> {item.bookedTo}
+                </span>
               )}
             </div>
           </div>
-          <div className="mt-1 space-y-0.5">
-            <p className="text-xs text-gray-500">Category <span className="font-medium text-gray-700">{item.category}</span></p>
-            <p className="text-xs text-gray-500">Brand <span className="font-medium text-gray-700">{item.brand}</span></p>
-            <p className="text-xs text-gray-500">Quantity <span className="font-semibold text-gray-900">{item.quantity}</span></p>
+
+          {/* Actions column */}
+          <div className="flex sm:flex-col items-center justify-between sm:justify-center gap-2 px-3 pb-3 sm:pb-0 sm:pr-4 sm:border-l sm:border-gray-100 shrink-0">
+            {isBooked ? (
+              <span className="inline-flex items-center gap-1 text-[10px] font-medium text-orange-700 bg-orange-100 px-2 py-1 rounded-lg">
+                <Clock className="w-3 h-3" /> Booked
+              </span>
+            ) : isInProject ? (
+              <span className="inline-flex items-center gap-1 text-[10px] font-medium text-emerald-700 bg-emerald-100 px-2.5 py-1 rounded-lg">
+                <Check className="w-3 h-3" /> In Project
+              </span>
+            ) : (
+              <button
+                onClick={() => onToggleAdd(item.id)}
+                disabled={!hasProject}
+                title={!hasProject ? "Create or open a project first" : "Add to project"}
+                className="inline-flex items-center gap-1 text-[10px] font-medium text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                <Plus className="w-3 h-3" /> Add
+              </button>
+            )}
+            <button onClick={() => onAddToCanvas(item)} className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors" title="Add to Canvas">
+              <Layout className="w-3.5 h-3.5" />
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Scene & Character badges */}
-      <div className="px-4 pb-2">
-        <div className="flex flex-wrap items-center gap-1.5">
-          {item.characterId && (() => {
-            const char = characters?.find((c) => c.id === item.characterId)
-            return char ? (
-              <span className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 text-gray-700 rounded-lg text-[10px] font-medium">
-                <User className="w-3 h-3 text-gray-500" />
-                {char.name}
-              </span>
-            ) : null
-          })()}
-          {item.sceneIds && item.sceneIds.length > 0 && (() => {
-            const resolved = item.sceneIds.map((sid) => scenes?.find((s) => s.id === sid)).filter(Boolean) as Scene[]
-            if (resolved.length === 0) return null
-            const show = resolved.slice(0, 3)
-            const extra = resolved.length - 3
-            return (
-              <>
-                {show.map((sc) => (
-                  <span key={sc.id} className="inline-flex items-center gap-1 px-2 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg text-[10px] font-semibold" title={`${sc.intExt}. ${sc.location} - ${sc.dayNight}`}>
-                    <Film className="w-3 h-3" />
-                    Sc {sc.sceneNumber}
-                  </span>
-                ))}
-                {extra > 0 && <span className="text-[10px] text-gray-400 font-medium">+{extra} more</span>}
-              </>
-            )
-          })()}
-          {(!item.sceneIds || item.sceneIds.length === 0) && !item.characterId && (
-            <span className="text-[10px] text-gray-300 italic">No scene or character assigned</span>
-          )}
-          {item.requiresArmorySupervision && (
-            <span className="inline-flex items-center gap-1 px-2 py-1 bg-red-50 text-red-700 border border-red-200 rounded-lg text-[10px] font-bold" title="Requires Certified Armory Supervision">
-              <ShieldAlert className="w-3 h-3" />
-              Armory Supervision
-            </span>
-          )}
-        </div>
-      </div>
-
-      {/* Footer */}
-      <div className="px-4 pb-3 flex items-center justify-between">
-        {isBooked ? (
-          <span className="inline-flex items-center gap-1 text-[10px] font-medium text-orange-700 bg-orange-100 px-2 py-0.5 rounded-full">
-            <Clock className="w-3 h-3" /> Booked: {item.bookedTo}
-          </span>
-        ) : isInProject ? (
-          <span className="inline-flex items-center gap-1 text-[10px] font-medium text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">
-            <Check className="w-3 h-3" /> In Project
-          </span>
-        ) : (
-          <button
-            onClick={() => onToggleAdd(item.id)}
-            disabled={!hasProject}
-            title={!hasProject ? "Create or open a project first" : "Add to project"}
-            className="inline-flex items-center gap-1 text-[10px] font-medium text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-          >
-            <Plus className="w-3 h-3" /> Add to project
-          </button>
-        )}
-        <div className="flex items-center gap-2">
-          <StatusBadge status={item.status} />
-          <span className="text-[10px] text-gray-400 font-medium">{item.unitPrice}</span>
-        </div>
-      </div>
-
-      {/* Response buttons + note when in project */}
+      {/* Vote/Comment row when in project */}
       {isInProject && onVote && onAddComment && (() => {
         const itemVotes = votes || []
         const itemComments = comments || []
@@ -954,8 +969,8 @@ function InventoryCard({ item, isInProject, onToggleAdd, onEdit, onImageReplace,
         const noCt = itemVotes.filter((v) => v.vote === "no").length
         const maybeCt = itemVotes.filter((v) => v.vote === "maybe").length
         return (
-          <>
-            <div className="px-4 pb-2 flex items-center gap-1.5 border-t border-gray-100 pt-2">
+          <div className="border-t border-gray-100">
+            <div className="px-4 py-2 flex items-center gap-1.5">
               <VoteButton label="Yes" isActive={userVote === "yes"} count={yesCt} onClick={() => onVote(item.id, "yes")} />
               <VoteButton label="Maybe" isActive={userVote === "maybe"} count={maybeCt} onClick={() => onVote(item.id, "maybe")} />
               <VoteButton label="No" isActive={userVote === "no"} count={noCt} onClick={() => onVote(item.id, "no")} />
@@ -963,7 +978,7 @@ function InventoryCard({ item, isInProject, onToggleAdd, onEdit, onImageReplace,
             <div className="px-4 pb-3">
               <CommentSection comments={itemComments} onAddComment={(text) => onAddComment(item.id, text)} />
             </div>
-          </>
+          </div>
         )
       })()}
     </div>
@@ -985,102 +1000,106 @@ function ProjectPropCard({ item, onVote, onAddComment, onRemove, onAddToCanvas, 
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 hover:border-gray-300 transition-all duration-200 overflow-hidden hover:shadow-sm">
-      <div className="flex p-4 gap-4">
-        <div className="w-28 h-20 shrink-0 rounded-lg bg-gray-100 overflow-hidden flex items-center justify-center">
+      <div className="flex items-stretch">
+        {/* Image */}
+        <div className="w-24 sm:w-32 shrink-0 bg-gray-100 overflow-hidden flex items-center justify-center">
           <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
         </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-2">
-            <h3 className="text-sm font-semibold text-gray-900 truncate">{item.name}</h3>
-            <div className="relative" ref={menuRef}>
-              <button onClick={() => setMenuOpen(!menuOpen)} className="p-1 text-gray-400 hover:text-gray-600 rounded transition-colors">
-                <MoreVertical className="w-4 h-4" />
-              </button>
-              {menuOpen && (
-                <div className="absolute right-0 top-6 bg-white border border-gray-200 rounded-lg shadow-lg py-1 min-w-[140px] z-10">
-                  <button onClick={() => { onEdit(item); setMenuOpen(false) }} className="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2">
-                    <Pencil className="w-3.5 h-3.5" /> Edit details
-                  </button>
-                  <button onClick={() => { onAddToCanvas(item); setMenuOpen(false) }} className="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2">
-                    <Layout className="w-3.5 h-3.5" /> Add to Canvas
-                  </button>
-                  <button onClick={() => { onRemove(item.id); setMenuOpen(false) }} className="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2">
-                    <X className="w-3.5 h-3.5" /> Remove from project
-                  </button>
-                  <div className="my-1 border-t border-gray-100" />
-                  <button onClick={() => { onDelete(item.id); setMenuOpen(false) }} className="w-full text-left px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2">
-                    <Trash2 className="w-3.5 h-3.5" /> Delete item
-                  </button>
+
+        {/* Content area */}
+        <div className="flex-1 min-w-0 flex flex-col sm:flex-row">
+          {/* Primary info */}
+          <div className="flex-1 min-w-0 p-3 sm:p-4">
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0">
+                <h3 className="text-sm font-semibold text-gray-900 truncate">{item.name}</h3>
+                <div className="flex items-center gap-2 mt-0.5 text-[11px] text-gray-500">
+                  <span className="font-medium text-gray-700">{item.category}</span>
+                  <span className="text-gray-300">{"\u2022"}</span>
+                  <span>{item.brand}</span>
+                  <span className="text-gray-300">{"\u2022"}</span>
+                  <span>Qty {item.quantity}</span>
                 </div>
+              </div>
+              <div className="relative shrink-0" ref={menuRef}>
+                <button onClick={() => setMenuOpen(!menuOpen)} className="p-1 text-gray-400 hover:text-gray-600 rounded transition-colors">
+                  <MoreVertical className="w-4 h-4" />
+                </button>
+                {menuOpen && (
+                  <div className="absolute right-0 top-6 bg-white border border-gray-200 rounded-lg shadow-lg py-1 min-w-[140px] z-10">
+                    <button onClick={() => { onEdit(item); setMenuOpen(false) }} className="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2">
+                      <Pencil className="w-3.5 h-3.5" /> Edit details
+                    </button>
+                    <button onClick={() => { onAddToCanvas(item); setMenuOpen(false) }} className="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2">
+                      <Layout className="w-3.5 h-3.5" /> Add to Canvas
+                    </button>
+                    <button onClick={() => { onRemove(item.id); setMenuOpen(false) }} className="w-full text-left px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2">
+                      <X className="w-3.5 h-3.5" /> Remove from project
+                    </button>
+                    <div className="my-1 border-t border-gray-100" />
+                    <button onClick={() => { onDelete(item.id); setMenuOpen(false) }} className="w-full text-left px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2">
+                      <Trash2 className="w-3.5 h-3.5" /> Delete item
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Badges row */}
+            <div className="flex flex-wrap items-center gap-1.5 mt-2">
+              {item.characterId && (() => {
+                const char = characters?.find((c) => c.id === item.characterId)
+                return char ? (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-100 text-gray-700 rounded text-[10px] font-medium">
+                    <User className="w-3 h-3 text-gray-500" />
+                    {char.name}
+                  </span>
+                ) : null
+              })()}
+              {item.sceneIds && item.sceneIds.length > 0 && (() => {
+                const resolved = item.sceneIds.map((sid) => scenes?.find((s) => s.id === sid)).filter(Boolean) as Scene[]
+                if (resolved.length === 0) return null
+                const show = resolved.slice(0, 3)
+                const extra = resolved.length - 3
+                return (
+                  <>
+                    {show.map((sc) => (
+                      <span key={sc.id} className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded text-[10px] font-semibold" title={`${sc.intExt}. ${sc.location} - ${sc.dayNight}`}>
+                        <Film className="w-3 h-3" />
+                        Sc {sc.sceneNumber}
+                      </span>
+                    ))}
+                    {extra > 0 && <span className="text-[10px] text-gray-400 font-medium">+{extra} more</span>}
+                  </>
+                )
+              })()}
+              {item.requiresArmorySupervision && (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-red-50 text-red-700 border border-red-200 rounded text-[10px] font-bold" title="Requires Certified Armory Supervision">
+                  <ShieldAlert className="w-3 h-3" />
+                  Armory
+                </span>
               )}
             </div>
           </div>
-          <div className="mt-1 space-y-0.5">
-            <p className="text-xs text-gray-500">Category <span className="font-medium text-gray-700">{item.category}</span></p>
-            <p className="text-xs text-gray-500">Brand <span className="font-medium text-gray-700">{item.brand}</span></p>
-            <p className="text-xs text-gray-500">Quantity <span className="font-semibold text-gray-900">{item.quantity}</span></p>
+
+          {/* Vote + Canvas column */}
+          <div className="flex sm:flex-col items-center gap-1.5 px-3 pb-3 sm:pb-0 sm:pr-4 sm:py-3 sm:border-l sm:border-gray-100 shrink-0">
+            <VoteButton label="Yes" isActive={userVote === "yes"} count={yesCt} onClick={() => onVote(item.id, "yes")} />
+            <VoteButton label="Maybe" isActive={userVote === "maybe"} count={maybeCt} onClick={() => onVote(item.id, "maybe")} />
+            <VoteButton label="No" isActive={userVote === "no"} count={noCt} onClick={() => onVote(item.id, "no")} />
+            <button onClick={() => onAddToCanvas(item)} className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors" title="Add to Canvas">
+              <Layout className="w-3.5 h-3.5" />
+            </button>
           </div>
-        </div>
-      </div>
-
-      {/* Scene & Character badges */}
-      <div className="px-4 pb-2">
-        <div className="flex flex-wrap items-center gap-1.5">
-          {item.characterId && (() => {
-            const char = characters?.find((c) => c.id === item.characterId)
-            return char ? (
-              <span className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 text-gray-700 rounded-lg text-[10px] font-medium">
-                <User className="w-3 h-3 text-gray-500" />
-                {char.name}
-              </span>
-            ) : null
-          })()}
-          {item.sceneIds && item.sceneIds.length > 0 && (() => {
-            const resolved = item.sceneIds.map((sid) => scenes?.find((s) => s.id === sid)).filter(Boolean) as Scene[]
-            if (resolved.length === 0) return null
-            const show = resolved.slice(0, 3)
-            const extra = resolved.length - 3
-            return (
-              <>
-                {show.map((sc) => (
-                  <span key={sc.id} className="inline-flex items-center gap-1 px-2 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg text-[10px] font-semibold" title={`${sc.intExt}. ${sc.location} - ${sc.dayNight}`}>
-                    <Film className="w-3 h-3" />
-                    Sc {sc.sceneNumber}
-                  </span>
-                ))}
-                {extra > 0 && <span className="text-[10px] text-gray-400 font-medium">+{extra} more</span>}
-              </>
-            )
-          })()}
-          {(!item.sceneIds || item.sceneIds.length === 0) && !item.characterId && (
-            <span className="text-[10px] text-gray-300 italic">No scene or character assigned</span>
-          )}
-          {item.requiresArmorySupervision && (
-            <span className="inline-flex items-center gap-1 px-2 py-1 bg-red-50 text-red-700 border border-red-200 rounded-lg text-[10px] font-bold" title="Requires Certified Armory Supervision">
-              <ShieldAlert className="w-3 h-3" />
-              Armory Supervision
-            </span>
-          )}
-        </div>
-      </div>
-
-      {/* Vote row */}
-      <div className="px-4 pb-2 flex items-center gap-1.5">
-        <VoteButton label="Yes" isActive={userVote === "yes"} count={yesCt} onClick={() => onVote(item.id, "yes")} />
-        <VoteButton label="Maybe" isActive={userVote === "maybe"} count={maybeCt} onClick={() => onVote(item.id, "maybe")} />
-        <VoteButton label="No" isActive={userVote === "no"} count={noCt} onClick={() => onVote(item.id, "no")} />
-        <div className="ml-auto">
-          <button onClick={() => onAddToCanvas(item)} className="flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors" title="Add to Canvas">
-            <Layout className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Canvas</span>
-          </button>
         </div>
       </div>
 
       {/* Comments */}
-      <div className="px-4 pb-3">
-        <CommentSection comments={item.comments} onAddComment={(text) => onAddComment(item.id, text)} />
-      </div>
+      {item.comments.length > 0 && (
+        <div className="border-t border-gray-100 px-4 py-2.5">
+          <CommentSection comments={item.comments} onAddComment={(text) => onAddComment(item.id, text)} />
+        </div>
+      )}
     </div>
   )
 }
@@ -1744,7 +1763,7 @@ export default function PropsModal({ onClose }: PropsModalProps) {
                       </button>
                     </div>
                   ) : viewMode === "grid" ? (
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
                       {filteredProjectProps.map((item) => (
                         <ProjectPropCard key={item.id} item={item} onVote={handleVote} onAddComment={handleAddComment} onRemove={handleRemoveFromProject} onAddToCanvas={handleAddToCanvas} onEdit={(i) => setEditingProjectProp(i)} onDelete={handleRequestDeleteProject} currentUserId={currentUserId} scenes={scenes} characters={characters} />
                       ))}
@@ -1770,7 +1789,7 @@ export default function PropsModal({ onClose }: PropsModalProps) {
                         )}
                       </div>
                     ) : viewMode === "grid" ? (
-                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
                         {(isProjectTab ? filteredProjectProps.map((pp) => inventory.find((i) => i.id === pp.id) || pp as unknown as InventoryItem) : filteredInventory).map((item) => (
                           <InventoryCard key={item.id} item={item} isInProject={projectPropIds.has(item.id)} onToggleAdd={handleToggleAdd} onEdit={(i) => setEditingInventoryItem(i)} onImageReplace={handleImageReplace} onDelete={handleRequestDeleteInventory} onAddToCanvas={handleAddToCanvas} hasProject={!!projectId} onVote={handleVote} onAddComment={handleAddComment} currentUserId={currentUserId} votes={projectProps.find((p) => p.id === item.id)?.votes} comments={projectProps.find((p) => p.id === item.id)?.comments} scenes={scenes} characters={characters} />
                         ))}
