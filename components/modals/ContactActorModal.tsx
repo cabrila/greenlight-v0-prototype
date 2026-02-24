@@ -18,6 +18,14 @@ import {
   MessageSquare,
   FileText,
   Search,
+  Plus,
+  Save,
+  Trash2,
+  Copy,
+  Layers,
+  Check,
+  Pencil,
+  RotateCcw,
 } from "lucide-react"
 import type { Actor, MessageHistoryItem } from "@/types/casting"
 
@@ -204,8 +212,97 @@ export default function ContactActorModal({ onClose, actorIds, characterId }: Co
   const { state, dispatch } = useCasting()
 
   // -- view state --
-  type ViewTab = "compose" | "history"
+  type ViewTab = "compose" | "history" | "templates"
   const [viewTab, setViewTab] = useState<ViewTab>("compose")
+
+  // -- custom templates state --
+  const [customTemplates, setCustomTemplates] = useState<EmailTemplate[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem("greenlight_custom_templates")
+        if (stored) return JSON.parse(stored)
+      } catch {}
+    }
+    return []
+  })
+  const [templateEditorOpen, setTemplateEditorOpen] = useState(false)
+  const [editingTemplateId, setEditingTemplateId] = useState<string | null>(null)
+  const [templateForm, setTemplateForm] = useState({
+    name: "",
+    subject: "",
+    content: "",
+    category: "general" as EmailTemplate["category"],
+  })
+  const [templateSaved, setTemplateSaved] = useState(false)
+
+  const allTemplates = useMemo(() => [...EMAIL_TEMPLATES, ...customTemplates], [customTemplates])
+
+  const saveCustomTemplates = (templates: EmailTemplate[]) => {
+    setCustomTemplates(templates)
+    if (typeof window !== "undefined") {
+      localStorage.setItem("greenlight_custom_templates", JSON.stringify(templates))
+    }
+  }
+
+  const handleSaveTemplate = () => {
+    if (!templateForm.name.trim() || !templateForm.subject.trim()) return
+    if (editingTemplateId) {
+      const updated = customTemplates.map((t) =>
+        t.id === editingTemplateId ? { ...t, ...templateForm } : t,
+      )
+      saveCustomTemplates(updated)
+    } else {
+      const newTemplate: EmailTemplate = {
+        id: `custom-${Date.now()}`,
+        ...templateForm,
+      }
+      saveCustomTemplates([...customTemplates, newTemplate])
+    }
+    setTemplateEditorOpen(false)
+    setEditingTemplateId(null)
+    setTemplateForm({ name: "", subject: "", content: "", category: "general" })
+    setTemplateSaved(true)
+    setTimeout(() => setTemplateSaved(false), 2500)
+  }
+
+  const handleEditTemplate = (template: EmailTemplate) => {
+    setEditingTemplateId(template.id)
+    setTemplateForm({
+      name: template.name,
+      subject: template.subject,
+      content: template.content,
+      category: template.category,
+    })
+    setTemplateEditorOpen(true)
+  }
+
+  const handleDeleteTemplate = (id: string) => {
+    saveCustomTemplates(customTemplates.filter((t) => t.id !== id))
+  }
+
+  const handleDuplicateBuiltIn = (template: EmailTemplate) => {
+    const copy: EmailTemplate = {
+      id: `custom-${Date.now()}`,
+      name: `${template.name} (Copy)`,
+      subject: template.subject,
+      content: template.content,
+      category: template.category,
+    }
+    saveCustomTemplates([...customTemplates, copy])
+    setTemplateSaved(true)
+    setTimeout(() => setTemplateSaved(false), 2500)
+  }
+
+  const handleNewTemplate = () => {
+    setEditingTemplateId(null)
+    setTemplateForm({ name: "", subject: "", content: "", category: "general" })
+    setTemplateEditorOpen(true)
+  }
+
+  const handleUseTemplate = (template: EmailTemplate) => {
+    handleTemplateSelect(template)
+    setViewTab("compose")
+  }
 
   // -- compose state --
   const [selectedTemplate, setSelectedTemplate] = useState<EmailTemplate | null>(null)
@@ -521,7 +618,7 @@ export default function ContactActorModal({ onClose, actorIds, characterId }: Co
           <div className="flex items-center gap-1 bg-gray-100 rounded-xl p-1">
             <button
               onClick={() => setViewTab("compose")}
-              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
                 viewTab === "compose" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"
               }`}
             >
@@ -530,7 +627,7 @@ export default function ContactActorModal({ onClose, actorIds, characterId }: Co
             </button>
             <button
               onClick={() => setViewTab("history")}
-              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
                 viewTab === "history" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"
               }`}
             >
@@ -541,6 +638,22 @@ export default function ContactActorModal({ onClose, actorIds, characterId }: Co
                   viewTab === "history" ? "bg-blue-100 text-blue-700" : "bg-gray-200 text-gray-600"
                 }`}>
                   {totalMessageCount}
+                </span>
+              )}
+            </button>
+            <button
+              onClick={() => setViewTab("templates")}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                viewTab === "templates" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              <Layers className="w-3.5 h-3.5" />
+              Templates
+              {customTemplates.length > 0 && (
+                <span className={`ml-0.5 px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
+                  viewTab === "templates" ? "bg-emerald-100 text-emerald-700" : "bg-gray-200 text-gray-600"
+                }`}>
+                  {customTemplates.length}
                 </span>
               )}
             </button>
@@ -582,27 +695,45 @@ export default function ContactActorModal({ onClose, actorIds, characterId }: Co
 
                 {/* Templates */}
                 <div className="p-4">
-                  <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2.5">Templates</h3>
+                  <div className="flex items-center justify-between mb-2.5">
+                    <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Templates</h3>
+                    <button
+                      onClick={() => setViewTab("templates")}
+                      className="text-[10px] text-blue-600 font-medium hover:underline"
+                    >
+                      Manage
+                    </button>
+                  </div>
                   <div className="space-y-1.5">
-                    {EMAIL_TEMPLATES.map((template) => (
-                      <button
-                        key={template.id}
-                        onClick={() => handleTemplateSelect(template)}
-                        className={`w-full text-left p-2.5 rounded-xl border transition-colors ${
-                          selectedTemplate?.id === template.id
-                            ? "border-blue-400 bg-blue-50 ring-1 ring-blue-200"
-                            : "border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50"
-                        }`}
-                      >
-                        <div className="flex items-center justify-between mb-0.5">
-                          <span className="text-xs font-semibold text-gray-900">{template.name}</span>
-                          <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase ${getCategoryColor(template.category)}`}>
-                            {template.category}
-                          </span>
-                        </div>
-                        <p className="text-[10px] text-gray-500 line-clamp-1">{template.subject}</p>
-                      </button>
-                    ))}
+                    {allTemplates.map((template) => {
+                      const isCustom = template.id.startsWith("custom-")
+                      return (
+                        <button
+                          key={template.id}
+                          onClick={() => handleTemplateSelect(template)}
+                          className={`w-full text-left p-2.5 rounded-xl border transition-colors ${
+                            selectedTemplate?.id === template.id
+                              ? "border-blue-400 bg-blue-50 ring-1 ring-blue-200"
+                              : "border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between mb-0.5">
+                            <span className="text-xs font-semibold text-gray-900 truncate">{template.name}</span>
+                            <div className="flex items-center gap-1 shrink-0">
+                              {isCustom && (
+                                <span className="px-1 py-0.5 rounded text-[8px] font-bold uppercase bg-emerald-50 text-emerald-600 border border-emerald-200">
+                                  Custom
+                                </span>
+                              )}
+                              <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase ${getCategoryColor(template.category)}`}>
+                                {template.category}
+                              </span>
+                            </div>
+                          </div>
+                          <p className="text-[10px] text-gray-500 line-clamp-1">{template.subject}</p>
+                        </button>
+                      )
+                    })}
                   </div>
                 </div>
               </div>
@@ -963,6 +1094,291 @@ export default function ContactActorModal({ onClose, actorIds, characterId }: Co
                         </div>
                       )
                     })}
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : (
+            /* =========================================================
+               TEMPLATES TAB
+               ========================================================= */
+            <div className="flex h-full">
+              {/* Left: template list */}
+              <div className="w-72 border-r border-gray-200 shrink-0 bg-gray-50/50 flex flex-col">
+                <div className="p-4 border-b border-gray-100">
+                  <button
+                    onClick={handleNewTemplate}
+                    className="w-full flex items-center justify-center gap-1.5 px-4 py-2.5 bg-blue-600 text-white text-xs font-semibold rounded-xl hover:bg-blue-700 transition-colors"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    New Template
+                  </button>
+                </div>
+
+                {/* Success toast */}
+                {templateSaved && (
+                  <div className="mx-4 mt-3 px-3 py-2 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center gap-2 text-emerald-800 text-xs font-medium">
+                    <Check className="w-3.5 h-3.5" />
+                    Template saved
+                  </div>
+                )}
+
+                <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                  {/* Built-in templates */}
+                  <div>
+                    <h4 className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2">
+                      Built-in Templates ({EMAIL_TEMPLATES.length})
+                    </h4>
+                    <div className="space-y-1.5">
+                      {EMAIL_TEMPLATES.map((template) => (
+                        <div
+                          key={template.id}
+                          className="p-2.5 bg-white rounded-xl border border-gray-200 hover:border-gray-300 transition-colors"
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="min-w-0 flex-1">
+                              <p className="text-xs font-semibold text-gray-900 truncate">{template.name}</p>
+                              <p className="text-[10px] text-gray-500 mt-0.5 line-clamp-1">{template.subject}</p>
+                            </div>
+                            <span className={`shrink-0 px-1.5 py-0.5 rounded text-[9px] font-bold uppercase ${getCategoryColor(template.category)}`}>
+                              {template.category}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-1 mt-2">
+                            <button
+                              onClick={() => handleUseTemplate(template)}
+                              className="flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-lg text-[10px] font-medium transition-colors"
+                            >
+                              <Send className="w-2.5 h-2.5" /> Use
+                            </button>
+                            <button
+                              onClick={() => handleDuplicateBuiltIn(template)}
+                              className="flex items-center gap-1 px-2 py-1 bg-gray-50 text-gray-600 hover:bg-gray-100 rounded-lg text-[10px] font-medium transition-colors"
+                            >
+                              <Copy className="w-2.5 h-2.5" /> Duplicate
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Custom templates */}
+                  <div>
+                    <h4 className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2">
+                      My Custom Templates ({customTemplates.length})
+                    </h4>
+                    {customTemplates.length === 0 ? (
+                      <div className="text-center py-6">
+                        <Layers className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+                        <p className="text-[10px] text-gray-400">No custom templates yet</p>
+                        <p className="text-[10px] text-gray-400 mt-0.5">
+                          Create one or duplicate a built-in template
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-1.5">
+                        {customTemplates.map((template) => (
+                          <div
+                            key={template.id}
+                            className={`p-2.5 rounded-xl border transition-colors ${
+                              editingTemplateId === template.id
+                                ? "border-blue-400 bg-blue-50 ring-1 ring-blue-200"
+                                : "bg-white border-gray-200 hover:border-gray-300"
+                            }`}
+                          >
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="min-w-0 flex-1">
+                                <div className="flex items-center gap-1.5">
+                                  <p className="text-xs font-semibold text-gray-900 truncate">{template.name}</p>
+                                  <span className="px-1 py-0.5 rounded text-[8px] font-bold uppercase bg-emerald-50 text-emerald-600 border border-emerald-200 shrink-0">
+                                    Custom
+                                  </span>
+                                </div>
+                                <p className="text-[10px] text-gray-500 mt-0.5 line-clamp-1">{template.subject}</p>
+                              </div>
+                              <span className={`shrink-0 px-1.5 py-0.5 rounded text-[9px] font-bold uppercase ${getCategoryColor(template.category)}`}>
+                                {template.category}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-1 mt-2">
+                              <button
+                                onClick={() => handleUseTemplate(template)}
+                                className="flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-lg text-[10px] font-medium transition-colors"
+                              >
+                                <Send className="w-2.5 h-2.5" /> Use
+                              </button>
+                              <button
+                                onClick={() => handleEditTemplate(template)}
+                                className="flex items-center gap-1 px-2 py-1 bg-gray-50 text-gray-600 hover:bg-gray-100 rounded-lg text-[10px] font-medium transition-colors"
+                              >
+                                <Pencil className="w-2.5 h-2.5" /> Edit
+                              </button>
+                              <button
+                                onClick={() => handleDeleteTemplate(template.id)}
+                                className="flex items-center gap-1 px-2 py-1 bg-gray-50 text-red-500 hover:bg-red-50 rounded-lg text-[10px] font-medium transition-colors"
+                              >
+                                <Trash2 className="w-2.5 h-2.5" />
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Right: template editor or empty state */}
+              <div className="flex-1 flex flex-col min-w-0">
+                {templateEditorOpen ? (
+                  <>
+                    {/* Editor header */}
+                    <div className="px-6 py-4 border-b border-gray-100 shrink-0 flex items-center justify-between">
+                      <div>
+                        <h3 className="text-sm font-bold text-gray-900">
+                          {editingTemplateId ? "Edit Template" : "Create New Template"}
+                        </h3>
+                        <p className="text-xs text-gray-500 mt-0.5">
+                          {editingTemplateId ? "Modify your saved template" : "Build a reusable message template"}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => { setTemplateEditorOpen(false); setEditingTemplateId(null) }}
+                        className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+
+                    {/* Editor form */}
+                    <div className="flex-1 overflow-y-auto p-6 space-y-4">
+                      {/* Name + Category row */}
+                      <div className="grid grid-cols-[1fr_auto] gap-3">
+                        <div>
+                          <label className="block text-xs font-medium text-gray-600 mb-1.5">Template Name *</label>
+                          <input
+                            type="text"
+                            value={templateForm.name}
+                            onChange={(e) => setTemplateForm({ ...templateForm, name: e.target.value })}
+                            placeholder="e.g. Chemistry Read Invitation"
+                            className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-1 focus:ring-blue-400"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-gray-600 mb-1.5">Category</label>
+                          <select
+                            value={templateForm.category}
+                            onChange={(e) => setTemplateForm({ ...templateForm, category: e.target.value as EmailTemplate["category"] })}
+                            className="px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-1 focus:ring-blue-400 appearance-none cursor-pointer pr-8"
+                          >
+                            <option value="audition">Audition</option>
+                            <option value="callback">Callback</option>
+                            <option value="rejection">Rejection</option>
+                            <option value="offer">Offer</option>
+                            <option value="general">General</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      {/* Subject */}
+                      <div>
+                        <label className="block text-xs font-medium text-gray-600 mb-1.5">Subject Line *</label>
+                        <input
+                          type="text"
+                          value={templateForm.subject}
+                          onChange={(e) => setTemplateForm({ ...templateForm, subject: e.target.value })}
+                          placeholder="e.g. {{CHARACTER_NAME}} - Chemistry Read for {{PROJECT_NAME}}"
+                          className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-1 focus:ring-blue-400"
+                        />
+                      </div>
+
+                      {/* Available variables hint */}
+                      <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl">
+                        <p className="text-[10px] font-semibold text-amber-800 uppercase tracking-wide mb-1.5">Available Variables</p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {[
+                            "{{ACTOR_NAME}}", "{{CHARACTER_NAME}}", "{{PROJECT_NAME}}",
+                            "{{SENDER_NAME}}", "{{SENDER_TITLE}}", "{{PRODUCTION_COMPANY}}",
+                            "{{AUDITION_DATE}}", "{{AUDITION_TIME}}", "{{AUDITION_LOCATION}}",
+                            "{{CUSTOM_MESSAGE}}",
+                          ].map((v) => (
+                            <button
+                              key={v}
+                              type="button"
+                              onClick={() => setTemplateForm({ ...templateForm, content: templateForm.content + v })}
+                              className="px-1.5 py-0.5 bg-white border border-amber-300 rounded text-[10px] font-mono text-amber-700 hover:bg-amber-100 transition-colors cursor-pointer"
+                              title={`Click to insert ${v}`}
+                            >
+                              {v}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Content body */}
+                      <div>
+                        <label className="block text-xs font-medium text-gray-600 mb-1.5">Template Content</label>
+                        <textarea
+                          value={templateForm.content}
+                          onChange={(e) => setTemplateForm({ ...templateForm, content: e.target.value })}
+                          placeholder={"Dear {{ACTOR_NAME}},\n\nYour message here...\n\nBest regards,\n{{SENDER_NAME}}"}
+                          rows={12}
+                          className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-1 focus:ring-blue-400 font-mono resize-none leading-relaxed"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Editor footer */}
+                    <div className="px-6 py-4 border-t border-gray-200 bg-gray-50/70 flex items-center justify-between shrink-0">
+                      <div className="flex items-center gap-2">
+                        {editingTemplateId && (
+                          <button
+                            onClick={() => { setTemplateEditorOpen(false); setEditingTemplateId(null) }}
+                            className="flex items-center gap-1 px-3 py-2 text-xs font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-xl transition-colors"
+                          >
+                            <RotateCcw className="w-3 h-3" />
+                            Discard Changes
+                          </button>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => { setTemplateEditorOpen(false); setEditingTemplateId(null) }}
+                          className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          onClick={handleSaveTemplate}
+                          disabled={!templateForm.name.trim() || !templateForm.subject.trim()}
+                          className="flex items-center gap-1.5 px-5 py-2 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                        >
+                          <Save className="w-3.5 h-3.5" />
+                          {editingTemplateId ? "Save Changes" : "Save Template"}
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex-1 flex items-center justify-center">
+                    <div className="text-center max-w-xs">
+                      <div className="w-14 h-14 rounded-2xl bg-gray-100 flex items-center justify-center mx-auto mb-4">
+                        <Layers className="w-7 h-7 text-gray-400" />
+                      </div>
+                      <h3 className="text-base font-bold text-gray-900 mb-1">Template Manager</h3>
+                      <p className="text-xs text-gray-500 mb-5 leading-relaxed">
+                        Create custom message templates or duplicate built-in ones to streamline your communication workflow.
+                        Templates support variable placeholders that auto-fill with actor and project details.
+                      </p>
+                      <button
+                        onClick={handleNewTemplate}
+                        className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 transition-colors"
+                      >
+                        <Plus className="w-4 h-4" />
+                        Create New Template
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
