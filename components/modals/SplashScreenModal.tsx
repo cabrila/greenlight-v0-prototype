@@ -169,7 +169,7 @@ export default function SplashScreenModal({ onClose }: SplashScreenModalProps) {
       icon: Paintbrush,
       title: "Production Design",
       desc: "Centralize set designs, color palettes, mood boards, and visual references for your creative vision.",
-      modal: null,
+      modal: "productionDesign" as const,
       accentFrom: "from-orange-400/20",
       accentTo: "to-orange-400/5",
       iconBg: "bg-orange-400/20",

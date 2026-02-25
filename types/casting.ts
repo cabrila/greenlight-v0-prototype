@@ -821,3 +821,91 @@ export interface CanvasActor {
   characterName: string
   actor: Actor
 }
+
+/* ============================================================
+   Production Design Types
+   ============================================================ */
+
+export type SetStatusPhase =
+  | "concept"
+  | "design"
+  | "drafting"
+  | "approved"
+  | "construction"
+  | "dressing"
+  | "camera-ready"
+  | "wrapped"
+
+export type ConstructionPhase =
+  | "carpentry"
+  | "paint"
+  | "rigging"
+  | "set-dec"
+  | "on-camera"
+  | "strike"
+
+export interface BuildElement {
+  id: string
+  name: string
+  material: string
+  dimensions: string
+  quantity: number
+  notes?: string
+}
+
+export interface SetDecoration {
+  id: string
+  name: string
+  source: "inventory" | "rental" | "purchase" | "fabricated"
+  propId?: string
+  quantity: number
+  notes?: string
+}
+
+export interface LightingFixture {
+  id: string
+  name: string
+  type: "practical" | "motivated" | "ambient" | "effect"
+  wattage?: string
+  dimmable: boolean
+  notes?: string
+}
+
+export interface MoodBoardImage {
+  id: string
+  url: string
+  caption?: string
+  tags: string[]
+  addedAt: number
+}
+
+export interface ConstructionTask {
+  id: string
+  title: string
+  phase: ConstructionPhase
+  assignedTo?: string
+  priority: "low" | "medium" | "high" | "urgent"
+  dueDate?: number
+  completed: boolean
+  notes?: string
+  setId: string
+}
+
+export interface ProductionDesignSet {
+  id: string
+  name: string
+  description: string
+  status: SetStatusPhase
+  locationId?: string
+  sceneIds: string[]
+  buildElements: BuildElement[]
+  decorations: SetDecoration[]
+  lighting: LightingFixture[]
+  moodBoard: MoodBoardImage[]
+  estimatedBudget: string
+  actualBudget?: string
+  floorPlanUrl?: string
+  notes: string
+  createdAt: number
+  updatedAt: number
+}
