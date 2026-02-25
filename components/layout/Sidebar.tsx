@@ -320,6 +320,14 @@ export default function Sidebar() {
               </div>
 
               <button
+                onClick={() => openModal("splashScreen")}
+                className="w-full flex items-center space-x-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:text-emerald-600 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50"
+              >
+                <Home className="w-4 h-4" />
+                <span>Home</span>
+              </button>
+
+              <button
                 onClick={() => openModal("script")}
                 className="w-full flex items-center space-x-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:text-amber-600 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50"
               >
@@ -423,6 +431,14 @@ export default function Sidebar() {
                 title={`Project: ${currentProject?.name || "N/A"}`}
               >
                 <Folder className="w-5 h-5" />
+              </button>
+
+              <button
+                onClick={() => openModal("splashScreen")}
+                className="w-full flex justify-center p-3 text-slate-700 hover:text-emerald-600 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50"
+                title="Home"
+              >
+                <Home className="w-5 h-5" />
               </button>
 
               <button
