@@ -47,6 +47,7 @@ import {
   Copy,
   MoreVertical,
   Home,
+  Check,
 } from "lucide-react"
 import { useCasting } from "@/components/casting/CastingContext"
 import { openModal } from "./ModalManager"
@@ -483,6 +484,15 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
     setConfirmDelete(null)
   }
 
+  /* ---- INLINE LOCATION PICKER ---- */
+  const [showLocationPicker, setShowLocationPicker] = useState<string | null>(null)
+
+  const handleQuickLocationChange = useCallback((setId: string, locationId: string) => {
+    setSets((prev) => prev.map((s) =>
+      s.id === setId ? { ...s, locationId: locationId || undefined, updatedAt: Date.now() } : s
+    ))
+  }, [])
+
   /* ---- DRAG-AND-DROP IMAGE REPLACEMENT ---- */
   const [dragOverImageId, setDragOverImageId] = useState<string | null>(null)
 
@@ -647,9 +657,10 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
                 <DollarSign className="w-3.5 h-3.5 text-emerald-600" />
                 <span className="text-emerald-600">Actual</span>
                 <span className="font-semibold text-emerald-800">${budgetSummary.actual.toLocaleString()}</span>
-              </div>
-            )}
-          </div>
+                          </div>
+                          </>
+                        )}
+                      </div>
           <div className="w-px h-6 bg-gray-200 hidden lg:block" />
           <button onClick={() => openModal("locations")} className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-teal-700 bg-teal-50 hover:bg-teal-100 rounded-lg transition-colors border border-teal-200">
             <MapPin className="w-3.5 h-3.5" /> Locations
@@ -795,12 +806,75 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
 
                     {/* Meta row */}
                     <div className="flex items-center flex-wrap gap-2 mt-3">
-                      {selectedSet.locationId && (
-                        <button onClick={() => openModal("locations")} className="inline-flex items-center gap-1.5 text-xs text-teal-700 bg-teal-50 border border-teal-200 px-2.5 py-1 rounded-lg font-medium hover:bg-teal-100 transition-colors">
-                          <MapPin className="w-3 h-3" /> {resolveLocationName(selectedSet.locationId) || selectedSet.locationId}
-                          <ArrowRight className="w-2.5 h-2.5 opacity-50" />
+                      {/* Inline location picker */}
+                      <div className="relative group/loc">
+                        <button
+                          onClick={() => setShowLocationPicker(showLocationPicker === selectedSet.id ? null : selectedSet.id)}
+                          className={`inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-lg border transition-colors ${
+                            selectedSet.locationId
+                              ? "text-teal-700 bg-teal-50 border-teal-200 hover:bg-teal-100"
+                              : "text-gray-400 bg-gray-50 border-dashed border-gray-300 hover:border-teal-300 hover:text-teal-600 hover:bg-teal-50/50"
+                          }`}
+                        >
+                          <MapPin className="w-3 h-3" />
+                          {selectedSet.locationId ? (resolveLocationName(selectedSet.locationId) || selectedSet.locationId) : "Link location..."}
+                          <ChevronDown className="w-3 h-3 opacity-50" />
                         </button>
-                      )}
+                        {showLocationPicker === selectedSet.id && (
+                          <>
+                          <div className="fixed inset-0 z-20" onClick={() => setShowLocationPicker(null)} />
+                          <div className="absolute top-full left-0 mt-1.5 w-64 bg-white rounded-xl shadow-lg border border-gray-200 z-30 overflow-hidden">
+                            <div className="px-3 py-2 border-b border-gray-100 flex items-center justify-between">
+                              <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Link to Location</span>
+                              {selectedSet.locationId && (
+                                <button
+                                  onClick={() => { handleQuickLocationChange(selectedSet.id, ""); setShowLocationPicker(null) }}
+                                  className="text-[10px] text-red-500 hover:text-red-700 font-medium transition-colors"
+                                >
+                                  Remove Link
+                                </button>
+                              )}
+                            </div>
+                            <div className="max-h-48 overflow-y-auto py-1">
+                              {locations.length > 0 ? locations.map((loc: any) => (
+                                <button
+                                  key={loc.id}
+                                  onClick={() => { handleQuickLocationChange(selectedSet.id, loc.id); setShowLocationPicker(null) }}
+                                  className={`w-full flex items-center gap-2.5 px-3 py-2 text-left text-xs transition-colors ${
+                                    selectedSet.locationId === loc.id
+                                      ? "bg-teal-50 text-teal-800 font-semibold"
+                                      : "text-gray-700 hover:bg-gray-50"
+                                  }`}
+                                >
+                                  <MapPin className={`w-3.5 h-3.5 shrink-0 ${selectedSet.locationId === loc.id ? "text-teal-600" : "text-gray-400"}`} />
+                                  <div className="flex-1 min-w-0">
+                                    <span className="block truncate">{loc.name}</span>
+                                    {loc.address && <span className="block text-[10px] text-gray-400 truncate">{loc.address}</span>}
+                                  </div>
+                                  {selectedSet.locationId === loc.id && (
+                                    <Check className="w-3.5 h-3.5 text-teal-600 shrink-0" />
+                                  )}
+                                </button>
+                              )) : (
+                                <div className="px-3 py-4 text-center text-xs text-gray-400">
+                                  <MapPin className="w-5 h-5 mx-auto mb-1 opacity-30" />
+                                  <p>No locations defined yet</p>
+                                </div>
+                              )}
+                            </div>
+                            {selectedSet.locationId && (
+                              <div className="px-3 py-2 border-t border-gray-100">
+                                <button
+                                  onClick={() => { setShowLocationPicker(null); onClose(); setTimeout(() => openModal("locations"), 150) }}
+                                  className="w-full flex items-center justify-center gap-1.5 text-[10px] font-semibold text-teal-600 hover:text-teal-800 transition-colors"
+                                >
+                                  View in Locations <ArrowRight className="w-3 h-3" />
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
                       {selectedSet.sceneIds.map((sid) => (
                         <span key={sid} className="inline-flex items-center gap-1 text-xs text-blue-700 bg-blue-50 border border-blue-200 px-2 py-1 rounded-lg font-medium">
                           <Film className="w-3 h-3" /> {resolveSceneLabel(sid)}
@@ -1543,7 +1617,7 @@ function SetFormOverlay({ existingSet, locations, onSave, onClose }: {
           <FloatingTextarea label="Description" value={form.description} onChange={(v) => setForm({ ...form, description: v })} rows={3} />
           <div className="grid grid-cols-2 gap-3">
             <FloatingSelect label="Status" value={form.status} onChange={(v) => setForm({ ...form, status: v as SetStatusPhase })} options={STATUS_ORDER.map((s) => ({ value: s, label: STATUS_CONFIG[s].label }))} />
-            <FloatingSelect label="Location" value={form.locationId} onChange={(v) => setForm({ ...form, locationId: v })} options={locations.map((l: any) => ({ value: l.id, label: l.name }))} />
+            <FloatingSelect label="Location" value={form.locationId} onChange={(v) => setForm({ ...form, locationId: v })} options={[{ value: "", label: "None (unlinked)" }, ...locations.map((l: any) => ({ value: l.id, label: l.name + (l.address ? ` - ${l.address}` : "") }))]} />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <FloatingField label="Estimated Budget" value={form.estimatedBudget} onChange={(v) => setForm({ ...form, estimatedBudget: v })} placeholder="$50,000" />
