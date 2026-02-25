@@ -869,6 +869,8 @@ export interface LightingFixture {
   wattage?: string
   dimmable: boolean
   notes?: string
+  fixtureImage?: string
+  lightExampleImage?: string
 }
 
 export interface MoodBoardImage {

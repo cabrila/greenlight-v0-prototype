@@ -85,8 +85,8 @@ const MOCK_SETS: ProductionDesignSet[] = [
       { id: "sd-4", name: "Amber Specimen Display", source: "fabricated", quantity: 1, notes: "Hero prop, close-up ready" },
     ],
     lighting: [
-      { id: "lf-1", name: "Desert Sun Rig (18K HMI)", type: "motivated", wattage: "18,000W", dimmable: false, notes: "Primary key through diffusion" },
-      { id: "lf-2", name: "Tent Practicals (Lanterns)", type: "practical", wattage: "60W", dimmable: true },
+      { id: "lf-1", name: "Desert Sun Rig (18K HMI)", type: "motivated", wattage: "18,000W", dimmable: false, notes: "Primary key through diffusion", fixtureImage: "/placeholder.svg?height=120&width=120", lightExampleImage: "/placeholder.svg?height=120&width=120" },
+      { id: "lf-2", name: "Tent Practicals (Lanterns)", type: "practical", wattage: "60W", dimmable: true, fixtureImage: "/placeholder.svg?height=120&width=120" },
     ],
     moodBoard: [
       { id: "mb-1", url: "/placeholder.svg?height=300&width=400", caption: "Badlands rock formation reference", tags: ["terrain", "color"], addedAt: Date.now() - 14 * 86400000 },
@@ -533,6 +533,28 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
         addedAt: Date.now(),
       }
       setSets((prev) => prev.map((s) => s.id === setId ? { ...s, moodBoard: [...s.moodBoard, newImage], updatedAt: Date.now() } : s))
+    }
+    reader.readAsDataURL(file)
+  }, [])
+
+  /* ---- LIGHTING FIXTURE IMAGE DROP ---- */
+  const handleDropFixtureImage = useCallback((e: React.DragEvent, setId: string, fixtureId: string, field: "fixtureImage" | "lightExampleImage") => {
+    e.preventDefault()
+    e.stopPropagation()
+    setDragOverImageId(null)
+    const file = e.dataTransfer.files?.[0]
+    if (!file || !file.type.startsWith("image/")) return
+    const reader = new FileReader()
+    reader.onload = () => {
+      const dataUrl = reader.result as string
+      setSets((prev) => prev.map((s) => {
+        if (s.id !== setId) return s
+        return {
+          ...s,
+          lighting: s.lighting.map((lf) => lf.id === fixtureId ? { ...lf, [field]: dataUrl } : lf),
+          updatedAt: Date.now(),
+        }
+      }))
     }
     reader.readAsDataURL(file)
   }, [])
@@ -991,29 +1013,78 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
                       {/* Lighting */}
                       {setDetailTab === "lighting" && (
                         selectedSet.lighting.length > 0 ? (
-                          <div className="space-y-2">
+                          <div className="space-y-3">
                             {selectedSet.lighting.map((lf) => {
                               const style = LIGHT_TYPE_STYLE[lf.type] || LIGHT_TYPE_STYLE.ambient
                               return (
-                                <div key={lf.id} className="flex items-start gap-3 p-4 bg-white rounded-xl border border-gray-200 hover:shadow-sm transition-shadow group">
-                                  <div className={`w-9 h-9 rounded-lg ${style.bg} flex items-center justify-center shrink-0`}>
-                                    <Lightbulb className={`w-4 h-4 ${style.text}`} />
-                                  </div>
-                                  <div className="flex-1 min-w-0">
-                                    <div className="flex items-center justify-between gap-2">
-                                      <p className="text-sm font-semibold text-gray-900">{lf.name}</p>
-                                      <div className="flex items-center gap-1.5 shrink-0">
-                                        <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase border ${style.badge}`}>{lf.type}</span>
-                                        <button onClick={() => setEditingSubItem({ type: "lighting", setId: selectedSet.id, itemId: lf.id })} className="opacity-0 group-hover:opacity-100 p-1 rounded text-gray-400 hover:text-slate-600 hover:bg-slate-50 transition-all"><Pencil className="w-3 h-3" /></button>
-                                        <button onClick={() => setConfirmDelete({ type: "fixture", id: lf.id, name: lf.name })} className="opacity-0 group-hover:opacity-100 p-1 rounded text-gray-400 hover:text-red-600 hover:bg-red-50 transition-all"><Trash2 className="w-3 h-3" /></button>
+                                <div key={lf.id} className="bg-white rounded-xl border border-gray-200 hover:shadow-sm transition-shadow group overflow-hidden">
+                                  <div className="flex items-start gap-3 p-4">
+                                    <div className={`w-9 h-9 rounded-lg ${style.bg} flex items-center justify-center shrink-0`}>
+                                      <Lightbulb className={`w-4 h-4 ${style.text}`} />
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      <div className="flex items-center justify-between gap-2">
+                                        <p className="text-sm font-semibold text-gray-900">{lf.name}</p>
+                                        <div className="flex items-center gap-1.5 shrink-0">
+                                          <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase border ${style.badge}`}>{lf.type}</span>
+                                          <button onClick={() => setEditingSubItem({ type: "lighting", setId: selectedSet.id, itemId: lf.id })} className="opacity-0 group-hover:opacity-100 p-1 rounded text-gray-400 hover:text-slate-600 hover:bg-slate-50 transition-all"><Pencil className="w-3 h-3" /></button>
+                                          <button onClick={() => setConfirmDelete({ type: "fixture", id: lf.id, name: lf.name })} className="opacity-0 group-hover:opacity-100 p-1 rounded text-gray-400 hover:text-red-600 hover:bg-red-50 transition-all"><Trash2 className="w-3 h-3" /></button>
+                                        </div>
                                       </div>
+                                      <div className="flex items-center gap-2 mt-1 text-[11px] text-gray-500">
+                                        {lf.wattage && <span className="flex items-center gap-1"><Zap className="w-3 h-3" /> {lf.wattage}</span>}
+                                        {lf.wattage && <span className="text-gray-300">|</span>}
+                                        <span className={lf.dimmable ? "text-emerald-600 font-medium" : "text-gray-400"}>{lf.dimmable ? "Dimmable" : "Non-dimmable"}</span>
+                                      </div>
+                                      {lf.notes && <p className="text-[11px] text-gray-500 bg-gray-50 mt-2 px-2 py-1 rounded italic">{lf.notes}</p>}
                                     </div>
-                                    <div className="flex items-center gap-2 mt-1 text-[11px] text-gray-500">
-                                      {lf.wattage && <span className="flex items-center gap-1"><Zap className="w-3 h-3" /> {lf.wattage}</span>}
-                                      {lf.wattage && <span className="text-gray-300">|</span>}
-                                      <span className={lf.dimmable ? "text-emerald-600 font-medium" : "text-gray-400"}>{lf.dimmable ? "Dimmable" : "Non-dimmable"}</span>
-                                    </div>
-                                    {lf.notes && <p className="text-[11px] text-gray-500 bg-gray-50 mt-2 px-2 py-1 rounded italic">{lf.notes}</p>}
+                                  </div>
+                                  {/* Fixture + Light Example image slots */}
+                                  <div className="flex gap-2 px-4 pb-4">
+                                    {(["fixtureImage", "lightExampleImage"] as const).map((field) => {
+                                      const imgUrl = lf[field]
+                                      const label = field === "fixtureImage" ? "Fixture" : "Light Example"
+                                      const dragId = `detail-${lf.id}-${field}`
+                                      return (
+                                        <div
+                                          key={field}
+                                          className={`flex-1 rounded-lg border-2 overflow-hidden transition-all ${dragOverImageId === dragId ? "border-slate-400 ring-2 ring-slate-200 scale-[1.01]" : imgUrl ? "border-gray-200" : "border-dashed border-gray-200 hover:border-slate-300"}`}
+                                          onDragOver={(e) => { e.preventDefault(); setDragOverImageId(dragId) }}
+                                          onDragLeave={() => setDragOverImageId(null)}
+                                          onDrop={(e) => handleDropFixtureImage(e, selectedSet.id, lf.id, field)}
+                                        >
+                                          {imgUrl ? (
+                                            <div className="relative aspect-[3/2] bg-gray-100 group/img">
+                                              <img src={imgUrl} alt={label} className={`w-full h-full object-cover transition-opacity ${dragOverImageId === dragId ? "opacity-30" : ""}`} />
+                                              {dragOverImageId === dragId ? (
+                                                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                                                  <Upload className="w-5 h-5 text-slate-500 mb-0.5" />
+                                                  <span className="text-[9px] font-semibold text-slate-700">Drop to replace</span>
+                                                </div>
+                                              ) : (
+                                                <div className="absolute inset-0 bg-black/0 group-hover/img:bg-black/20 transition-colors" />
+                                              )}
+                                              <span className="absolute bottom-1 left-1.5 text-[8px] font-bold uppercase tracking-wide text-white bg-black/50 px-1.5 py-0.5 rounded">{label}</span>
+                                            </div>
+                                          ) : (
+                                            <div className={`aspect-[3/2] flex flex-col items-center justify-center transition-colors ${dragOverImageId === dragId ? "bg-slate-50" : "bg-gray-50/50 hover:bg-slate-50/30"}`}>
+                                              {dragOverImageId === dragId ? (
+                                                <>
+                                                  <Upload className="w-4 h-4 text-slate-400 mb-0.5" />
+                                                  <span className="text-[9px] font-semibold text-slate-600">Drop image</span>
+                                                </>
+                                              ) : (
+                                                <>
+                                                  <ImageIcon className="w-4 h-4 text-gray-300 mb-0.5" />
+                                                  <span className="text-[8px] text-gray-400 font-medium">{label}</span>
+                                                  <span className="text-[8px] text-gray-300">Drop image here</span>
+                                                </>
+                                              )}
+                                            </div>
+                                          )}
+                                        </div>
+                                      )
+                                    })}
                                   </div>
                                 </div>
                               )
@@ -1412,37 +1483,86 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
                       {s.lighting.map((lf) => {
                         const style = LIGHT_TYPE_STYLE[lf.type] || LIGHT_TYPE_STYLE.ambient
                         return (
-                          <div key={lf.id} className="flex items-start gap-3 p-4 bg-white rounded-xl border border-gray-200 hover:shadow-sm transition-shadow group">
-                            <div className={`w-10 h-10 rounded-xl ${style.bg} flex items-center justify-center shrink-0`}>
-                              <Lightbulb className={`w-5 h-5 ${style.text}`} />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center justify-between gap-2">
-                                <p className="text-sm font-semibold text-gray-900">{lf.name}</p>
-                                <div className="flex items-center gap-1.5 shrink-0">
-                                  <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase border ${style.badge}`}>{lf.type}</span>
-                                  <button
-                                    onClick={() => setEditingSubItem({ type: "lighting", setId: s.id, itemId: lf.id })}
-                                    className="opacity-0 group-hover:opacity-100 p-1 rounded text-gray-400 hover:text-slate-600 hover:bg-slate-50 transition-all"
-                                    title="Edit fixture"
-                                  >
-                                    <Pencil className="w-3 h-3" />
-                                  </button>
-                                  <button
-                                    onClick={() => setConfirmDelete({ type: "fixture", id: lf.id, name: lf.name, setId: s.id })}
-                                    className="opacity-0 group-hover:opacity-100 p-1 rounded text-gray-400 hover:text-red-600 hover:bg-red-50 transition-all"
-                                    title="Delete fixture"
-                                  >
-                                    <Trash2 className="w-3 h-3" />
-                                  </button>
+                          <div key={lf.id} className="bg-white rounded-xl border border-gray-200 hover:shadow-sm transition-shadow group overflow-hidden">
+                            <div className="flex items-start gap-3 p-4">
+                              <div className={`w-10 h-10 rounded-xl ${style.bg} flex items-center justify-center shrink-0`}>
+                                <Lightbulb className={`w-5 h-5 ${style.text}`} />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center justify-between gap-2">
+                                  <p className="text-sm font-semibold text-gray-900">{lf.name}</p>
+                                  <div className="flex items-center gap-1.5 shrink-0">
+                                    <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase border ${style.badge}`}>{lf.type}</span>
+                                    <button
+                                      onClick={() => setEditingSubItem({ type: "lighting", setId: s.id, itemId: lf.id })}
+                                      className="opacity-0 group-hover:opacity-100 p-1 rounded text-gray-400 hover:text-slate-600 hover:bg-slate-50 transition-all"
+                                      title="Edit fixture"
+                                    >
+                                      <Pencil className="w-3 h-3" />
+                                    </button>
+                                    <button
+                                      onClick={() => setConfirmDelete({ type: "fixture", id: lf.id, name: lf.name, setId: s.id })}
+                                      className="opacity-0 group-hover:opacity-100 p-1 rounded text-gray-400 hover:text-red-600 hover:bg-red-50 transition-all"
+                                      title="Delete fixture"
+                                    >
+                                      <Trash2 className="w-3 h-3" />
+                                    </button>
+                                  </div>
                                 </div>
+                                <div className="flex items-center gap-2 mt-1 text-[11px] text-gray-500">
+                                  {lf.wattage && <span className="flex items-center gap-1"><Zap className="w-3 h-3" /> {lf.wattage}</span>}
+                                  {lf.wattage && <span className="text-gray-300">|</span>}
+                                  <span className={lf.dimmable ? "text-emerald-600 font-medium" : "text-gray-400"}>{lf.dimmable ? "Dimmable" : "Non-dimmable"}</span>
+                                </div>
+                                {lf.notes && <p className="text-[11px] text-gray-500 bg-gray-50 mt-2 px-2 py-1 rounded italic">{lf.notes}</p>}
                               </div>
-                              <div className="flex items-center gap-2 mt-1 text-[11px] text-gray-500">
-                                {lf.wattage && <span className="flex items-center gap-1"><Zap className="w-3 h-3" /> {lf.wattage}</span>}
-                                {lf.wattage && <span className="text-gray-300">|</span>}
-                                <span className={lf.dimmable ? "text-emerald-600 font-medium" : "text-gray-400"}>{lf.dimmable ? "Dimmable" : "Non-dimmable"}</span>
-                              </div>
-                              {lf.notes && <p className="text-[11px] text-gray-500 bg-gray-50 mt-2 px-2 py-1 rounded italic">{lf.notes}</p>}
+                            </div>
+                            {/* Fixture + Light Example image slots */}
+                            <div className="flex gap-2 px-4 pb-4">
+                              {(["fixtureImage", "lightExampleImage"] as const).map((field) => {
+                                const imgUrl = lf[field]
+                                const label = field === "fixtureImage" ? "Fixture" : "Light Example"
+                                const dragId = `ov-${lf.id}-${field}`
+                                return (
+                                  <div
+                                    key={field}
+                                    className={`flex-1 rounded-lg border-2 overflow-hidden transition-all ${dragOverImageId === dragId ? "border-slate-400 ring-2 ring-slate-200 scale-[1.01]" : imgUrl ? "border-gray-200" : "border-dashed border-gray-200 hover:border-slate-300"}`}
+                                    onDragOver={(e) => { e.preventDefault(); setDragOverImageId(dragId) }}
+                                    onDragLeave={() => setDragOverImageId(null)}
+                                    onDrop={(e) => handleDropFixtureImage(e, s.id, lf.id, field)}
+                                  >
+                                    {imgUrl ? (
+                                      <div className="relative aspect-[3/2] bg-gray-100 group/img">
+                                        <img src={imgUrl} alt={label} className={`w-full h-full object-cover transition-opacity ${dragOverImageId === dragId ? "opacity-30" : ""}`} />
+                                        {dragOverImageId === dragId ? (
+                                          <div className="absolute inset-0 flex flex-col items-center justify-center">
+                                            <Upload className="w-5 h-5 text-slate-500 mb-0.5" />
+                                            <span className="text-[9px] font-semibold text-slate-700">Drop to replace</span>
+                                          </div>
+                                        ) : (
+                                          <div className="absolute inset-0 bg-black/0 group-hover/img:bg-black/20 transition-colors" />
+                                        )}
+                                        <span className="absolute bottom-1 left-1.5 text-[8px] font-bold uppercase tracking-wide text-white bg-black/50 px-1.5 py-0.5 rounded">{label}</span>
+                                      </div>
+                                    ) : (
+                                      <div className={`aspect-[3/2] flex flex-col items-center justify-center transition-colors ${dragOverImageId === dragId ? "bg-slate-50" : "bg-gray-50/50 hover:bg-slate-50/30"}`}>
+                                        {dragOverImageId === dragId ? (
+                                          <>
+                                            <Upload className="w-4 h-4 text-slate-400 mb-0.5" />
+                                            <span className="text-[9px] font-semibold text-slate-600">Drop image</span>
+                                          </>
+                                        ) : (
+                                          <>
+                                            <ImageIcon className="w-4 h-4 text-gray-300 mb-0.5" />
+                                            <span className="text-[8px] text-gray-400 font-medium">{label}</span>
+                                            <span className="text-[8px] text-gray-300">Drop image here</span>
+                                          </>
+                                        )}
+                                      </div>
+                                    )}
+                                  </div>
+                                )
+                              })}
                             </div>
                           </div>
                         )
