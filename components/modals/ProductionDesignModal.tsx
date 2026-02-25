@@ -47,7 +47,6 @@ import {
   Copy,
   MoreVertical,
   Home,
-  Check,
 } from "lucide-react"
 import { useCasting } from "@/components/casting/CastingContext"
 import { openModal } from "./ModalManager"
@@ -270,7 +269,7 @@ const SOURCE_BADGE: Record<string, string> = {
   inventory: "bg-emerald-50 text-emerald-700 border-emerald-200",
   rental: "bg-blue-50 text-blue-700 border-blue-200",
   purchase: "bg-amber-50 text-amber-700 border-amber-200",
-  fabricated: "bg-violet-50 text-violet-700 border-violet-200",
+  fabricated: "bg-slate-50 text-slate-700 border-slate-200",
 }
 
 const LIGHT_TYPE_STYLE: Record<string, { bg: string; text: string; badge: string }> = {
@@ -297,7 +296,7 @@ function FloatingField({ label, value, onChange, placeholder, required }: { labe
         type="text"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full px-4 pt-6 pb-2 bg-white border border-gray-300 rounded-xl text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 peer placeholder-transparent"
+        className="w-full px-4 pt-6 pb-2 bg-white border border-gray-300 rounded-xl text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-slate-500 peer placeholder-transparent"
         placeholder={placeholder || label}
       />
       <label className="absolute left-4 top-2 text-xs text-gray-500 transition-all pointer-events-none">
@@ -314,7 +313,7 @@ function FloatingTextarea({ label, value, onChange, rows }: { label: string; val
         value={value}
         onChange={(e) => onChange(e.target.value)}
         rows={rows || 3}
-        className="w-full px-4 pt-6 pb-2 bg-white border border-gray-300 rounded-xl text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 resize-none leading-relaxed"
+        className="w-full px-4 pt-6 pb-2 bg-white border border-gray-300 rounded-xl text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-slate-500 resize-none leading-relaxed"
       />
       <label className="absolute left-4 top-2 text-xs text-gray-500 pointer-events-none">{label}</label>
     </div>
@@ -327,7 +326,7 @@ function FloatingSelect({ label, value, onChange, options }: { label: string; va
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full px-4 pt-6 pb-2 bg-white border border-gray-300 rounded-xl text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 appearance-none"
+        className="w-full px-4 pt-6 pb-2 bg-white border border-gray-300 rounded-xl text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-slate-500 appearance-none"
       >
         <option value="">Select...</option>
         {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
@@ -346,7 +345,7 @@ function FloatingNumber({ label, value, onChange, min }: { label: string; value:
         value={value}
         min={min || 0}
         onChange={(e) => onChange(parseInt(e.target.value) || 0)}
-        className="w-full px-4 pt-6 pb-2 bg-white border border-gray-300 rounded-xl text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+        className="w-full px-4 pt-6 pb-2 bg-white border border-gray-300 rounded-xl text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-slate-500"
       />
       <label className="absolute left-4 top-2 text-xs text-gray-500 pointer-events-none">{label}</label>
     </div>
@@ -597,7 +596,7 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
           <button onClick={() => { onClose(); setTimeout(() => openModal("splashScreen"), 150) }} className="p-1.5 rounded-lg text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors" title="Home" aria-label="Go to Home">
             <Home className="w-4 h-4" />
           </button>
-          <div className="inline-flex items-center bg-violet-600 text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded">
+          <div className="inline-flex items-center bg-slate-600 text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded">
             Production Design
   </div>
           {currentProject && <span className="hidden sm:inline text-sm text-gray-500">{currentProject.name}</span>}
@@ -625,7 +624,7 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
             >
               <Icon className="w-3.5 h-3.5" />
               {label}
-              <span className={`ml-0.5 px-1.5 py-0.5 rounded-full text-[10px] font-bold ${activeTab === key ? "bg-violet-100 text-violet-700" : "bg-gray-200 text-gray-500"}`}>
+              <span className={`ml-0.5 px-1.5 py-0.5 rounded-full text-[10px] font-bold ${activeTab === key ? "bg-slate-100 text-slate-700" : "bg-gray-200 text-gray-500"}`}>
                 {count}
               </span>
             </button>
@@ -641,7 +640,7 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
             placeholder="Search sets, elements..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 placeholder-gray-400 text-gray-900"
+            className="w-full pl-9 pr-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-slate-500 placeholder-gray-400 text-gray-900"
           />
         </div>
 
@@ -683,7 +682,7 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
                 <div className="flex items-center flex-wrap gap-1.5">
                   <button
                     onClick={() => setStatusFilter("all")}
-                    className={`px-2 py-1 rounded-md text-[10px] font-semibold transition-colors ${statusFilter === "all" ? "bg-violet-100 text-violet-700" : "bg-gray-100 text-gray-500 hover:text-gray-700"}`}
+                    className={`px-2 py-1 rounded-md text-[10px] font-semibold transition-colors ${statusFilter === "all" ? "bg-slate-100 text-slate-700" : "bg-gray-100 text-gray-500 hover:text-gray-700"}`}
                   >
                     All ({sets.length})
                   </button>
@@ -713,11 +712,11 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
                     <button
                       key={s.id}
                       onClick={() => { setSelectedSetId(s.id); setEditingSetId(null) }}
-                      className={`w-full text-left px-4 py-3.5 border-b border-gray-100 transition-all ${isActive ? "bg-violet-50/80 border-l-[3px] border-l-violet-500" : "hover:bg-gray-50/80 border-l-[3px] border-l-transparent"}`}
+                      className={`w-full text-left px-4 py-3.5 border-b border-gray-100 transition-all ${isActive ? "bg-slate-50/80 border-l-[3px] border-l-slate-500" : "hover:bg-gray-50/80 border-l-[3px] border-l-transparent"}`}
                     >
                       <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0">
-                          <p className={`text-sm font-semibold truncate ${isActive ? "text-violet-900" : "text-gray-900"}`}>{s.name}</p>
+                          <p className={`text-sm font-semibold truncate ${isActive ? "text-slate-900" : "text-gray-900"}`}>{s.name}</p>
                           <p className="text-[11px] text-gray-500 mt-0.5 line-clamp-1">{s.description}</p>
                         </div>
                         <span className={`shrink-0 flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold ${st.color} ${st.bg}`}>
@@ -754,7 +753,7 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
               <div className="p-3 border-t border-gray-100 bg-gray-50/80 shrink-0">
                 <button
                   onClick={() => setShowAddSet(true)}
-                  className="w-full flex items-center justify-center gap-1.5 px-3 py-2 bg-violet-600 text-white text-xs font-semibold rounded-xl hover:bg-violet-700 transition-colors"
+                  className="w-full flex items-center justify-center gap-1.5 px-3 py-2 bg-slate-600 text-white text-xs font-semibold rounded-xl hover:bg-slate-700 transition-colors"
                 >
                   <Plus className="w-3.5 h-3.5" /> Add New Set
                 </button>
@@ -898,11 +897,11 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
                         <button
                           key={key}
                           onClick={() => setSetDetailTab(key)}
-                          className={`flex items-center gap-1.5 px-3 py-2.5 text-xs font-medium border-b-2 -mb-px transition-colors ${setDetailTab === key ? "border-violet-500 text-violet-700" : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"}`}
+                          className={`flex items-center gap-1.5 px-3 py-2.5 text-xs font-medium border-b-2 -mb-px transition-colors ${setDetailTab === key ? "border-slate-500 text-slate-700" : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"}`}
                         >
                           <Icon className="w-3.5 h-3.5" />
                           {label}
-                          <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${setDetailTab === key ? "bg-violet-100 text-violet-700" : "bg-gray-100 text-gray-500"}`}>
+                          <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${setDetailTab === key ? "bg-slate-100 text-slate-700" : "bg-gray-100 text-gray-500"}`}>
                             {count}
                           </span>
                         </button>
@@ -916,7 +915,7 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
                       {/* Add button for sub-items */}
                       <button
                         onClick={() => setAddSubItem({ type: setDetailTab, setId: selectedSet.id })}
-                        className="w-full flex items-center justify-center gap-1.5 py-2.5 text-xs font-semibold text-violet-600 bg-violet-50 hover:bg-violet-100 border border-violet-200 border-dashed rounded-xl transition-colors"
+                        className="w-full flex items-center justify-center gap-1.5 py-2.5 text-xs font-semibold text-slate-600 bg-slate-50 hover:bg-slate-100 border border-slate-200 border-dashed rounded-xl transition-colors"
                       >
                         <Plus className="w-3.5 h-3.5" />
                         Add {setDetailTab === "elements" ? "Build Element" : setDetailTab === "decorations" ? "Decoration" : setDetailTab === "lighting" ? "Lighting Fixture" : "Mood Board Image"}
@@ -936,7 +935,7 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
                                     <p className="text-sm font-semibold text-gray-900">{el.name}</p>
                                     <div className="flex items-center gap-1.5 shrink-0">
                                       <span className="text-xs text-gray-500 font-medium bg-gray-100 px-2 py-0.5 rounded">x{el.quantity}</span>
-                                      <button onClick={() => setEditingSubItem({ type: "elements", setId: selectedSet.id, itemId: el.id })} className="opacity-0 group-hover:opacity-100 p-1 rounded text-gray-400 hover:text-violet-600 hover:bg-violet-50 transition-all"><Pencil className="w-3 h-3" /></button>
+                                      <button onClick={() => setEditingSubItem({ type: "elements", setId: selectedSet.id, itemId: el.id })} className="opacity-0 group-hover:opacity-100 p-1 rounded text-gray-400 hover:text-slate-600 hover:bg-slate-50 transition-all"><Pencil className="w-3 h-3" /></button>
                                       <button onClick={() => setConfirmDelete({ type: "element", id: el.id, name: el.name })} className="opacity-0 group-hover:opacity-100 p-1 rounded text-gray-400 hover:text-red-600 hover:bg-red-50 transition-all"><Trash2 className="w-3 h-3" /></button>
                                     </div>
                                   </div>
@@ -970,7 +969,7 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
                                     <div className="flex items-center gap-1.5 shrink-0">
                                       <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase border ${SOURCE_BADGE[dec.source] || "bg-gray-100 text-gray-600 border-gray-200"}`}>{dec.source}</span>
                                       <span className="text-xs text-gray-500 font-medium bg-gray-100 px-2 py-0.5 rounded">x{dec.quantity}</span>
-                                      <button onClick={() => setEditingSubItem({ type: "decorations", setId: selectedSet.id, itemId: dec.id })} className="opacity-0 group-hover:opacity-100 p-1 rounded text-gray-400 hover:text-violet-600 hover:bg-violet-50 transition-all"><Pencil className="w-3 h-3" /></button>
+                                      <button onClick={() => setEditingSubItem({ type: "decorations", setId: selectedSet.id, itemId: dec.id })} className="opacity-0 group-hover:opacity-100 p-1 rounded text-gray-400 hover:text-slate-600 hover:bg-slate-50 transition-all"><Pencil className="w-3 h-3" /></button>
                                       <button onClick={() => setConfirmDelete({ type: "decoration", id: dec.id, name: dec.name })} className="opacity-0 group-hover:opacity-100 p-1 rounded text-gray-400 hover:text-red-600 hover:bg-red-50 transition-all"><Trash2 className="w-3 h-3" /></button>
                                     </div>
                                   </div>
@@ -1005,7 +1004,7 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
                                       <p className="text-sm font-semibold text-gray-900">{lf.name}</p>
                                       <div className="flex items-center gap-1.5 shrink-0">
                                         <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase border ${style.badge}`}>{lf.type}</span>
-                                        <button onClick={() => setEditingSubItem({ type: "lighting", setId: selectedSet.id, itemId: lf.id })} className="opacity-0 group-hover:opacity-100 p-1 rounded text-gray-400 hover:text-violet-600 hover:bg-violet-50 transition-all"><Pencil className="w-3 h-3" /></button>
+                                        <button onClick={() => setEditingSubItem({ type: "lighting", setId: selectedSet.id, itemId: lf.id })} className="opacity-0 group-hover:opacity-100 p-1 rounded text-gray-400 hover:text-slate-600 hover:bg-slate-50 transition-all"><Pencil className="w-3 h-3" /></button>
                                         <button onClick={() => setConfirmDelete({ type: "fixture", id: lf.id, name: lf.name })} className="opacity-0 group-hover:opacity-100 p-1 rounded text-gray-400 hover:text-red-600 hover:bg-red-50 transition-all"><Trash2 className="w-3 h-3" /></button>
                                       </div>
                                     </div>
@@ -1032,7 +1031,7 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
                             {selectedSet.moodBoard.map((img) => (
                               <div
                                 key={img.id}
-                                className={`group rounded-xl overflow-hidden border bg-white hover:shadow-md transition-all relative ${dragOverImageId === img.id ? "border-violet-400 ring-2 ring-violet-200 scale-[1.02]" : "border-gray-200"}`}
+                                className={`group rounded-xl overflow-hidden border bg-white hover:shadow-md transition-all relative ${dragOverImageId === img.id ? "border-slate-400 ring-2 ring-slate-200 scale-[1.02]" : "border-gray-200"}`}
                                 onDragOver={(e) => { e.preventDefault(); setDragOverImageId(img.id) }}
                                 onDragLeave={() => setDragOverImageId(null)}
                                 onDrop={(e) => handleDropImage(e, selectedSet.id, img.id)}
@@ -1041,19 +1040,19 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
                                   <img src={img.url} alt={img.caption || "Mood board"} className={`w-full h-full object-cover transition-all duration-300 ${dragOverImageId === img.id ? "opacity-30 scale-105" : "group-hover:scale-105"}`} />
                                   {dragOverImageId === img.id && (
                                     <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                      <Upload className="w-8 h-8 text-violet-500 mb-1.5" />
-                                      <span className="text-xs font-semibold text-violet-700">Drop to replace</span>
+                                      <Upload className="w-8 h-8 text-slate-500 mb-1.5" />
+                                      <span className="text-xs font-semibold text-slate-700">Drop to replace</span>
                                     </div>
                                   )}
                                 </div>
                                 <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                  <button onClick={() => setEditingSubItem({ type: "moodboard", setId: selectedSet.id, itemId: img.id })} className="p-1.5 rounded-lg bg-white/90 text-violet-600 hover:bg-violet-50 shadow-sm"><Pencil className="w-3 h-3" /></button>
+                                  <button onClick={() => setEditingSubItem({ type: "moodboard", setId: selectedSet.id, itemId: img.id })} className="p-1.5 rounded-lg bg-white/90 text-slate-600 hover:bg-slate-50 shadow-sm"><Pencil className="w-3 h-3" /></button>
                                   <button onClick={() => setConfirmDelete({ type: "moodimage", id: img.id, name: img.caption || "Image", setId: selectedSet.id })} className="p-1.5 rounded-lg bg-white/90 text-red-500 hover:bg-red-50 shadow-sm"><Trash2 className="w-3 h-3" /></button>
                                 </div>
                                 <div className="p-3">
                                   {img.caption && <p className="text-xs text-gray-700 font-medium line-clamp-1">{img.caption}</p>}
                                   <div className="flex items-center gap-1.5 mt-1.5">
-                                    {img.tags.map((t) => <span key={t} className="px-1.5 py-0.5 bg-violet-50 text-violet-600 border border-violet-200 rounded text-[9px] font-medium">{t}</span>)}
+                                    {img.tags.map((t) => <span key={t} className="px-1.5 py-0.5 bg-slate-50 text-slate-600 border border-slate-200 rounded text-[9px] font-medium">{t}</span>)}
                                   </div>
                                   <p className="text-[10px] text-gray-400 mt-1.5">{formatRelative(img.addedAt)}</p>
                                 </div>
@@ -1061,7 +1060,7 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
                             ))}
                             {/* Drop zone to add new image */}
                             <div
-                              className={`rounded-xl border-2 border-dashed flex flex-col items-center justify-center aspect-[4/3] transition-all cursor-pointer ${dragOverImageId === "new-detail" ? "border-violet-400 bg-violet-50/50 scale-[1.02]" : "border-gray-200 hover:border-violet-300 bg-gray-50/50 hover:bg-violet-50/30"}`}
+                              className={`rounded-xl border-2 border-dashed flex flex-col items-center justify-center aspect-[4/3] transition-all cursor-pointer ${dragOverImageId === "new-detail" ? "border-slate-400 bg-slate-50/50 scale-[1.02]" : "border-gray-200 hover:border-slate-300 bg-gray-50/50 hover:bg-slate-50/30"}`}
                               onClick={() => setAddSubItem({ type: "moodboard", setId: selectedSet.id })}
                               onDragOver={(e) => { e.preventDefault(); setDragOverImageId("new-detail") }}
                               onDragLeave={() => setDragOverImageId(null)}
@@ -1069,8 +1068,8 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
                             >
                               {dragOverImageId === "new-detail" ? (
                                 <>
-                                  <Upload className="w-6 h-6 text-violet-500 mb-1" />
-                                  <span className="text-[10px] text-violet-600 font-semibold">Drop to add</span>
+                                  <Upload className="w-6 h-6 text-slate-500 mb-1" />
+                                  <span className="text-[10px] text-slate-600 font-semibold">Drop to add</span>
                                 </>
                               ) : (
                                 <>
@@ -1082,7 +1081,7 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
                           </div>
                         ) : (
                           <div
-                            className={`w-full py-12 rounded-xl border-2 border-dashed flex flex-col items-center cursor-pointer transition-all ${dragOverImageId === "empty-detail" ? "border-violet-400 bg-violet-50/50" : "border-gray-200 hover:border-violet-300 bg-gray-50/50 hover:bg-violet-50/30"}`}
+                            className={`w-full py-12 rounded-xl border-2 border-dashed flex flex-col items-center cursor-pointer transition-all ${dragOverImageId === "empty-detail" ? "border-slate-400 bg-slate-50/50" : "border-gray-200 hover:border-slate-300 bg-gray-50/50 hover:bg-slate-50/30"}`}
                             onClick={() => setAddSubItem({ type: "moodboard", setId: selectedSet.id })}
                             onDragOver={(e) => { e.preventDefault(); setDragOverImageId("empty-detail") }}
                             onDragLeave={() => setDragOverImageId(null)}
@@ -1090,14 +1089,14 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
                           >
                             {dragOverImageId === "empty-detail" ? (
                               <>
-                                <Upload className="w-10 h-10 text-violet-400 mb-2" />
-                                <span className="text-sm text-violet-600 font-semibold">Drop image to add</span>
+                                <Upload className="w-10 h-10 text-slate-400 mb-2" />
+                                <span className="text-sm text-slate-600 font-semibold">Drop image to add</span>
                               </>
                             ) : (
                               <>
                                 <ImageIcon className="w-10 h-10 text-gray-300 mb-2" />
                                 <span className="text-xs text-gray-400 font-medium">No mood board images yet</span>
-                                <span className="text-[10px] text-violet-500 mt-1 font-medium">Click or drag images here</span>
+                                <span className="text-[10px] text-slate-500 mt-1 font-medium">Click or drag images here</span>
                               </>
                             )}
                           </div>
@@ -1120,12 +1119,12 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
               ) : (
                 <div className="flex items-center justify-center h-full">
                   <div className="text-center max-w-sm">
-                    <div className="w-16 h-16 rounded-2xl bg-violet-50 flex items-center justify-center mx-auto mb-4">
-                      <Layers className="w-8 h-8 text-violet-400" />
+                    <div className="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center mx-auto mb-4">
+                      <Layers className="w-8 h-8 text-slate-400" />
                     </div>
                     <h3 className="text-base font-bold text-gray-900 mb-1">Select a Set</h3>
                     <p className="text-sm text-gray-500 leading-relaxed">Choose a set from the list to view and manage build elements, decorations, lighting, and mood boards.</p>
-                    <button onClick={() => setShowAddSet(true)} className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 bg-violet-600 text-white text-sm font-semibold rounded-xl hover:bg-violet-700 transition-colors">
+                    <button onClick={() => setShowAddSet(true)} className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 bg-slate-600 text-white text-sm font-semibold rounded-xl hover:bg-slate-700 transition-colors">
                       <Plus className="w-4 h-4" /> Create New Set
                     </button>
                   </div>
@@ -1153,15 +1152,15 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-3">
                         <button onClick={() => { setSelectedSetId(s.id); setActiveTab("sets"); setSetDetailTab("moodboard") }} className="flex items-center gap-2 group">
-                          <h3 className="text-sm font-bold text-gray-900 group-hover:text-violet-700 transition-colors">{s.name}</h3>
-                          <ArrowRight className="w-3.5 h-3.5 text-gray-400 group-hover:text-violet-500 transition-colors" />
+                          <h3 className="text-sm font-bold text-gray-900 group-hover:text-slate-700 transition-colors">{s.name}</h3>
+                          <ArrowRight className="w-3.5 h-3.5 text-gray-400 group-hover:text-slate-500 transition-colors" />
                         </button>
                         <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${STATUS_CONFIG[s.status].color} ${STATUS_CONFIG[s.status].bg}`}>{STATUS_CONFIG[s.status].label}</span>
                         <span className="text-[10px] text-gray-400 font-medium">{s.moodBoard.length} images</span>
                       </div>
                       <button
                         onClick={() => setAddSubItem({ type: "moodboard", setId: s.id })}
-                        className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-violet-600 bg-violet-50 hover:bg-violet-100 border border-violet-200 rounded-lg transition-colors"
+                        className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-slate-600 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg transition-colors"
                       >
                         <Plus className="w-3 h-3" /> Add Image
                       </button>
@@ -1171,7 +1170,7 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
                         {s.moodBoard.map((img) => (
                           <div
                             key={img.id}
-                            className={`rounded-xl overflow-hidden border bg-white group hover:shadow-md transition-all relative ${dragOverImageId === `ov-${img.id}` ? "border-violet-400 ring-2 ring-violet-200 scale-[1.02]" : "border-gray-200"}`}
+                            className={`rounded-xl overflow-hidden border bg-white group hover:shadow-md transition-all relative ${dragOverImageId === `ov-${img.id}` ? "border-slate-400 ring-2 ring-slate-200 scale-[1.02]" : "border-gray-200"}`}
                             onDragOver={(e) => { e.preventDefault(); setDragOverImageId(`ov-${img.id}`) }}
                             onDragLeave={() => setDragOverImageId(null)}
                             onDrop={(e) => handleDropImage(e, s.id, img.id)}
@@ -1180,8 +1179,8 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
                               <img src={img.url} alt={img.caption || ""} className={`w-full h-full object-cover transition-all duration-300 ${dragOverImageId === `ov-${img.id}` ? "opacity-30 scale-105" : "group-hover:scale-105"}`} />
                               {dragOverImageId === `ov-${img.id}` && (
                                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                  <Upload className="w-7 h-7 text-violet-500 mb-1" />
-                                  <span className="text-[10px] font-semibold text-violet-700">Drop to replace</span>
+                                  <Upload className="w-7 h-7 text-slate-500 mb-1" />
+                                  <span className="text-[10px] font-semibold text-slate-700">Drop to replace</span>
                                 </div>
                               )}
                             </div>
@@ -1189,7 +1188,7 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
                             <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                               <button
                                 onClick={() => setEditingSubItem({ type: "moodboard", setId: s.id, itemId: img.id })}
-                                className="p-1.5 rounded-lg bg-white/90 text-violet-600 hover:bg-violet-50 shadow-sm transition-colors"
+                                className="p-1.5 rounded-lg bg-white/90 text-slate-600 hover:bg-slate-50 shadow-sm transition-colors"
                                 title="Edit image"
                               >
                                 <Pencil className="w-3 h-3" />
@@ -1205,7 +1204,7 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
                             <div className="p-2.5">
                               {img.caption && <p className="text-[11px] text-gray-700 font-medium line-clamp-1">{img.caption}</p>}
                               <div className="flex flex-wrap gap-1 mt-1">
-                                {img.tags.map((t) => <span key={t} className="px-1 py-0.5 bg-violet-50 text-violet-600 border border-violet-200 rounded text-[8px] font-medium">{t}</span>)}
+                                {img.tags.map((t) => <span key={t} className="px-1 py-0.5 bg-slate-50 text-slate-600 border border-slate-200 rounded text-[8px] font-medium">{t}</span>)}
                               </div>
                               <p className="text-[10px] text-gray-400 mt-1">{formatRelative(img.addedAt)}</p>
                             </div>
@@ -1213,7 +1212,7 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
                         ))}
                         {/* Inline add / drop zone */}
                         <div
-                          className={`rounded-xl border-2 border-dashed flex flex-col items-center justify-center aspect-[4/3] transition-all cursor-pointer ${dragOverImageId === `ov-new-${s.id}` ? "border-violet-400 bg-violet-50/50 scale-[1.02]" : "border-gray-200 hover:border-violet-300 bg-gray-50/50 hover:bg-violet-50/30"}`}
+                          className={`rounded-xl border-2 border-dashed flex flex-col items-center justify-center aspect-[4/3] transition-all cursor-pointer ${dragOverImageId === `ov-new-${s.id}` ? "border-slate-400 bg-slate-50/50 scale-[1.02]" : "border-gray-200 hover:border-slate-300 bg-gray-50/50 hover:bg-slate-50/30"}`}
                           onClick={() => setAddSubItem({ type: "moodboard", setId: s.id })}
                           onDragOver={(e) => { e.preventDefault(); setDragOverImageId(`ov-new-${s.id}`) }}
                           onDragLeave={() => setDragOverImageId(null)}
@@ -1221,8 +1220,8 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
                         >
                           {dragOverImageId === `ov-new-${s.id}` ? (
                             <>
-                              <Upload className="w-6 h-6 text-violet-500 mb-1" />
-                              <span className="text-[10px] text-violet-600 font-semibold">Drop to add</span>
+                              <Upload className="w-6 h-6 text-slate-500 mb-1" />
+                              <span className="text-[10px] text-slate-600 font-semibold">Drop to add</span>
                             </>
                           ) : (
                             <>
@@ -1234,7 +1233,7 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
                       </div>
                     ) : (
                       <div
-                        className={`w-full py-10 rounded-xl border-2 border-dashed flex flex-col items-center cursor-pointer transition-all ${dragOverImageId === `ov-empty-${s.id}` ? "border-violet-400 bg-violet-50/50" : "border-gray-200 hover:border-violet-300 bg-gray-50/50 hover:bg-violet-50/30"}`}
+                        className={`w-full py-10 rounded-xl border-2 border-dashed flex flex-col items-center cursor-pointer transition-all ${dragOverImageId === `ov-empty-${s.id}` ? "border-slate-400 bg-slate-50/50" : "border-gray-200 hover:border-slate-300 bg-gray-50/50 hover:bg-slate-50/30"}`}
                         onClick={() => setAddSubItem({ type: "moodboard", setId: s.id })}
                         onDragOver={(e) => { e.preventDefault(); setDragOverImageId(`ov-empty-${s.id}`) }}
                         onDragLeave={() => setDragOverImageId(null)}
@@ -1242,14 +1241,14 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
                       >
                         {dragOverImageId === `ov-empty-${s.id}` ? (
                           <>
-                            <Upload className="w-8 h-8 text-violet-400 mb-2" />
-                            <span className="text-sm text-violet-600 font-semibold">Drop image to add</span>
+                            <Upload className="w-8 h-8 text-slate-400 mb-2" />
+                            <span className="text-sm text-slate-600 font-semibold">Drop image to add</span>
                           </>
                         ) : (
                           <>
                             <ImageIcon className="w-8 h-8 text-gray-300 mb-2" />
                             <span className="text-xs text-gray-400 font-medium">No images yet</span>
-                            <span className="text-[10px] text-violet-500 mt-1 font-medium">Click or drag images here</span>
+                            <span className="text-[10px] text-slate-500 mt-1 font-medium">Click or drag images here</span>
                           </>
                         )}
                       </div>
@@ -1273,18 +1272,18 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
                   </div>
                   <div className="hidden sm:flex items-center gap-2">
                     <div className="w-32 h-1.5 bg-gray-200 rounded-full">
-                      <div className="h-full rounded-full bg-violet-500 transition-all" style={{ width: `${totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0}%` }} />
+                      <div className="h-full rounded-full bg-slate-500 transition-all" style={{ width: `${totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0}%` }} />
                     </div>
                     <span className="text-[10px] font-semibold text-gray-500">{totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0}%</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <button onClick={() => setShowAddTask(true)} className="flex items-center gap-1 px-3 py-1.5 bg-violet-600 text-white text-xs font-semibold rounded-lg hover:bg-violet-700 transition-colors">
+                  <button onClick={() => setShowAddTask(true)} className="flex items-center gap-1 px-3 py-1.5 bg-slate-600 text-white text-xs font-semibold rounded-lg hover:bg-slate-700 transition-colors">
                     <Plus className="w-3.5 h-3.5" /> Add Task
                   </button>
                   <div className="flex items-center gap-1">
                     <span className="text-[10px] text-gray-400 font-medium">Filter:</span>
-                    <select value={kanbanSetFilter} onChange={(e) => setKanbanSetFilter(e.target.value)} className="text-xs border border-gray-200 rounded-lg px-2 py-1 bg-white text-gray-700 focus:outline-none focus:ring-1 focus:ring-violet-400">
+                    <select value={kanbanSetFilter} onChange={(e) => setKanbanSetFilter(e.target.value)} className="text-xs border border-gray-200 rounded-lg px-2 py-1 bg-white text-gray-700 focus:outline-none focus:ring-1 focus:ring-slate-400">
                       <option value="all">All Sets</option>
                       {sets.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
                     </select>
@@ -1321,18 +1320,18 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
                           return (
                             <div key={task.id} className={`p-2.5 rounded-lg border transition-all group ${task.completed ? "bg-gray-50/80 border-gray-200 opacity-60" : "bg-white border-gray-200 hover:border-gray-300 hover:shadow-sm"}`}>
                               <div className="flex items-start gap-2">
-                                <button onClick={() => toggleTaskComplete(task.id)} className={`mt-0.5 w-4 h-4 rounded border shrink-0 flex items-center justify-center transition-colors ${task.completed ? "bg-emerald-500 border-emerald-500 text-white" : "border-gray-300 hover:border-violet-400"}`}>
+                                <button onClick={() => toggleTaskComplete(task.id)} className={`mt-0.5 w-4 h-4 rounded border shrink-0 flex items-center justify-center transition-colors ${task.completed ? "bg-emerald-500 border-emerald-500 text-white" : "border-gray-300 hover:border-slate-400"}`}>
                                   {task.completed && <Check className="w-2.5 h-2.5" />}
                                 </button>
                                 <div className="flex-1 min-w-0">
                                   <p className={`text-xs font-medium leading-snug ${task.completed ? "line-through text-gray-400" : "text-gray-900"}`}>{task.title}</p>
                                   {taskSet && (
-                                    <button onClick={() => { setSelectedSetId(task.setId); setActiveTab("sets") }} className="text-[10px] text-violet-500 hover:text-violet-700 mt-0.5 truncate block transition-colors">{taskSet.name}</button>
+                                    <button onClick={() => { setSelectedSetId(task.setId); setActiveTab("sets") }} className="text-[10px] text-slate-500 hover:text-slate-700 mt-0.5 truncate block transition-colors">{taskSet.name}</button>
                                   )}
                                 </div>
                                 <div className="flex items-center gap-1 shrink-0">
                                   <span className={`w-2 h-2 rounded-full ${PRIORITY_DOT[task.priority]}`} title={task.priority} />
-                                  <button onClick={() => setEditingTaskId(task.id)} className="opacity-0 group-hover:opacity-100 p-0.5 rounded text-gray-400 hover:text-violet-600 transition-all"><Pencil className="w-2.5 h-2.5" /></button>
+                                  <button onClick={() => setEditingTaskId(task.id)} className="opacity-0 group-hover:opacity-100 p-0.5 rounded text-gray-400 hover:text-slate-600 transition-all"><Pencil className="w-2.5 h-2.5" /></button>
                                   <button onClick={() => setConfirmDelete({ type: "task", id: task.id, name: task.title })} className="opacity-0 group-hover:opacity-100 p-0.5 rounded text-gray-400 hover:text-red-600 transition-all"><Trash2 className="w-2.5 h-2.5" /></button>
                                 </div>
                               </div>
@@ -1395,15 +1394,15 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-3">
                       <button onClick={() => { setSelectedSetId(s.id); setActiveTab("sets"); setSetDetailTab("lighting") }} className="flex items-center gap-2 group">
-                        <h3 className="text-sm font-bold text-gray-900 group-hover:text-violet-700 transition-colors">{s.name}</h3>
-                        <ArrowRight className="w-3.5 h-3.5 text-gray-400 group-hover:text-violet-500 transition-colors" />
+                        <h3 className="text-sm font-bold text-gray-900 group-hover:text-slate-700 transition-colors">{s.name}</h3>
+                        <ArrowRight className="w-3.5 h-3.5 text-gray-400 group-hover:text-slate-500 transition-colors" />
                       </button>
                       <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${STATUS_CONFIG[s.status].color} ${STATUS_CONFIG[s.status].bg}`}>{STATUS_CONFIG[s.status].label}</span>
                       <span className="text-[10px] text-gray-400 font-medium">{s.lighting.length} fixtures</span>
                     </div>
                     <button
                       onClick={() => setAddSubItem({ type: "lighting", setId: s.id })}
-                      className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-violet-600 bg-violet-50 hover:bg-violet-100 border border-violet-200 rounded-lg transition-colors"
+                      className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-slate-600 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg transition-colors"
                     >
                       <Plus className="w-3 h-3" /> Add Fixture
                     </button>
@@ -1424,7 +1423,7 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
                                   <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase border ${style.badge}`}>{lf.type}</span>
                                   <button
                                     onClick={() => setEditingSubItem({ type: "lighting", setId: s.id, itemId: lf.id })}
-                                    className="opacity-0 group-hover:opacity-100 p-1 rounded text-gray-400 hover:text-violet-600 hover:bg-violet-50 transition-all"
+                                    className="opacity-0 group-hover:opacity-100 p-1 rounded text-gray-400 hover:text-slate-600 hover:bg-slate-50 transition-all"
                                     title="Edit fixture"
                                   >
                                     <Pencil className="w-3 h-3" />
@@ -1452,11 +1451,11 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
                   ) : (
                     <button
                       onClick={() => setAddSubItem({ type: "lighting", setId: s.id })}
-                      className="w-full py-8 rounded-xl border-2 border-dashed border-gray-200 hover:border-violet-300 bg-gray-50/50 hover:bg-violet-50/30 transition-colors flex flex-col items-center"
+                      className="w-full py-8 rounded-xl border-2 border-dashed border-gray-200 hover:border-slate-300 bg-gray-50/50 hover:bg-slate-50/30 transition-colors flex flex-col items-center"
                     >
                       <Lightbulb className="w-7 h-7 text-gray-300 mb-2" />
                       <span className="text-xs text-gray-400 font-medium">No fixtures yet</span>
-                      <span className="text-[10px] text-violet-500 mt-1 font-medium">Click to add first lighting fixture</span>
+                      <span className="text-[10px] text-slate-500 mt-1 font-medium">Click to add first lighting fixture</span>
                     </button>
                   )}
                 </div>
@@ -1627,7 +1626,7 @@ function SetFormOverlay({ existingSet, locations, onSave, onClose }: {
         </div>
         <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 shrink-0 bg-gray-50/70">
           <button onClick={onClose} className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors">Cancel</button>
-          <button onClick={handleSave} disabled={!form.name.trim()} className="flex items-center gap-1.5 px-5 py-2 bg-violet-600 text-white text-sm font-semibold rounded-xl hover:bg-violet-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+          <button onClick={handleSave} disabled={!form.name.trim()} className="flex items-center gap-1.5 px-5 py-2 bg-slate-600 text-white text-sm font-semibold rounded-xl hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
             <Save className="w-3.5 h-3.5" /> {isEdit ? "Save Changes" : "Create Set"}
           </button>
         </div>
@@ -1653,7 +1652,7 @@ function MoodBoardDropZone({ url, onUrlChange }: { url: string; onUrlChange: (v:
 
   return (
     <div
-      className={`relative rounded-xl border-2 border-dashed overflow-hidden transition-all ${dragging ? "border-violet-400 bg-violet-50/50" : url ? "border-gray-200 bg-gray-100" : "border-gray-300 bg-gray-50 hover:border-violet-300"}`}
+      className={`relative rounded-xl border-2 border-dashed overflow-hidden transition-all ${dragging ? "border-slate-400 bg-slate-50/50" : url ? "border-gray-200 bg-gray-100" : "border-gray-300 bg-gray-50 hover:border-slate-300"}`}
       onDragOver={(e) => { e.preventDefault(); setDragging(true) }}
       onDragLeave={() => setDragging(false)}
       onDrop={(e) => { e.preventDefault(); setDragging(false); const f = e.dataTransfer.files?.[0]; if (f) handleFile(f) }}
@@ -1664,8 +1663,8 @@ function MoodBoardDropZone({ url, onUrlChange }: { url: string; onUrlChange: (v:
           <img src={url} alt="Preview" className={`w-full h-full object-cover transition-opacity ${dragging ? "opacity-30" : ""}`} />
           {dragging ? (
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <Upload className="w-8 h-8 text-violet-500 mb-1.5" />
-              <span className="text-sm font-semibold text-violet-700">Drop to replace image</span>
+              <Upload className="w-8 h-8 text-slate-500 mb-1.5" />
+              <span className="text-sm font-semibold text-slate-700">Drop to replace image</span>
             </div>
           ) : (
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
@@ -1687,8 +1686,8 @@ function MoodBoardDropZone({ url, onUrlChange }: { url: string; onUrlChange: (v:
         >
           {dragging ? (
             <>
-              <Upload className="w-8 h-8 text-violet-500 mb-1.5" />
-              <span className="text-sm font-semibold text-violet-700">Drop image here</span>
+              <Upload className="w-8 h-8 text-slate-500 mb-1.5" />
+              <span className="text-sm font-semibold text-slate-700">Drop image here</span>
             </>
           ) : (
             <>
@@ -1779,7 +1778,7 @@ function SubItemFormOverlay({ type, existingItem, onSave, onClose }: {
                 <FloatingField label="Wattage" value={lfForm.wattage} onChange={(v) => setLfForm({ ...lfForm, wattage: v })} />
               </div>
               <label className="flex items-center gap-3 px-4 py-3 bg-white border border-gray-300 rounded-xl cursor-pointer">
-                <input type="checkbox" checked={lfForm.dimmable} onChange={(e) => setLfForm({ ...lfForm, dimmable: e.target.checked })} className="w-4 h-4 rounded border-gray-300 text-violet-600 focus:ring-violet-500" />
+                <input type="checkbox" checked={lfForm.dimmable} onChange={(e) => setLfForm({ ...lfForm, dimmable: e.target.checked })} className="w-4 h-4 rounded border-gray-300 text-slate-600 focus:ring-slate-500" />
                 <span className="text-sm text-gray-700 font-medium">Dimmable</span>
               </label>
               <FloatingTextarea label="Notes" value={lfForm.notes} onChange={(v) => setLfForm({ ...lfForm, notes: v })} />
@@ -1797,7 +1796,7 @@ function SubItemFormOverlay({ type, existingItem, onSave, onClose }: {
         </div>
         <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 shrink-0 bg-gray-50/70">
           <button onClick={onClose} className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors">Cancel</button>
-          <button onClick={handleSave} className="flex items-center gap-1.5 px-5 py-2 bg-violet-600 text-white text-sm font-semibold rounded-xl hover:bg-violet-700 transition-colors">
+          <button onClick={handleSave} className="flex items-center gap-1.5 px-5 py-2 bg-slate-600 text-white text-sm font-semibold rounded-xl hover:bg-slate-700 transition-colors">
             <Save className="w-3.5 h-3.5" /> {isEdit ? "Save" : "Add"}
           </button>
         </div>
@@ -1855,7 +1854,7 @@ function TaskFormOverlay({ existingTask, sets, onSave, onClose }: {
         </div>
         <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 shrink-0 bg-gray-50/70">
           <button onClick={onClose} className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors">Cancel</button>
-          <button onClick={handleSave} disabled={!form.title.trim() || !form.setId} className="flex items-center gap-1.5 px-5 py-2 bg-violet-600 text-white text-sm font-semibold rounded-xl hover:bg-violet-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+          <button onClick={handleSave} disabled={!form.title.trim() || !form.setId} className="flex items-center gap-1.5 px-5 py-2 bg-slate-600 text-white text-sm font-semibold rounded-xl hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
             <Save className="w-3.5 h-3.5" /> {isEdit ? "Save" : "Add Task"}
           </button>
         </div>

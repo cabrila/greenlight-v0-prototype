@@ -401,7 +401,7 @@ export default function Sidebar() {
 
               <button
                 onClick={() => openModal("productionDesign")}
-                className="w-full flex items-center space-x-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:text-violet-600 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50"
+                className="w-full flex items-center space-x-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:text-slate-900 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50"
               >
                 <Paintbrush className="w-4 h-4" />
                 <span>Production Design</span>
@@ -513,7 +513,7 @@ export default function Sidebar() {
 
               <button
                 onClick={() => openModal("productionDesign")}
-                className="w-full flex justify-center p-3 text-slate-700 hover:text-violet-600 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50"
+                className="w-full flex justify-center p-3 text-slate-700 hover:text-slate-900 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50"
                 title="Production Design"
               >
                 <Paintbrush className="w-5 h-5" />
