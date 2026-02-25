@@ -1,19 +1,15 @@
 "use client"
 
-import { useState, useMemo, useRef, useCallback } from "react"
+import { useState, useMemo, useCallback } from "react"
 import {
   X,
   Plus,
   Search,
-  MoreVertical,
-  Grid3X3,
-  List,
   ChevronDown,
   ChevronRight,
   Check,
   Pencil,
   Trash2,
-  Upload,
   Lightbulb,
   Image as ImageIcon,
   Layers,
@@ -25,8 +21,6 @@ import {
   Calendar,
   DollarSign,
   Paintbrush,
-  Settings2,
-  GripVertical,
   ArrowRight,
   CheckCircle,
   Clock,
@@ -36,7 +30,17 @@ import {
   Ruler,
   Sofa,
   StickyNote,
+  Grid3X3,
+  List,
+  SlidersHorizontal,
   Columns3,
+  Activity,
+  Sparkles,
+  Link2,
+  CircleDot,
+  Zap,
+  Box,
+  ChevronLeft,
 } from "lucide-react"
 import { useCasting } from "@/components/casting/CastingContext"
 import { openModal } from "./ModalManager"
@@ -227,35 +231,55 @@ const MOCK_TASKS: ConstructionTask[] = [
    HELPERS
    ============================================================ */
 
-const STATUS_CONFIG: Record<SetStatusPhase, { label: string; color: string; bg: string }> = {
-  concept:        { label: "Concept",        color: "text-gray-700",    bg: "bg-gray-100" },
-  design:         { label: "Design",         color: "text-blue-700",    bg: "bg-blue-50" },
-  drafting:       { label: "Drafting",       color: "text-indigo-700",  bg: "bg-indigo-50" },
-  approved:       { label: "Approved",       color: "text-emerald-700", bg: "bg-emerald-50" },
-  construction:   { label: "Construction",   color: "text-amber-700",   bg: "bg-amber-50" },
-  dressing:       { label: "Dressing",       color: "text-purple-700",  bg: "bg-purple-50" },
-  "camera-ready": { label: "Camera Ready",   color: "text-green-700",   bg: "bg-green-100" },
-  wrapped:        { label: "Wrapped",        color: "text-gray-500",    bg: "bg-gray-50" },
+const STATUS_CONFIG: Record<SetStatusPhase, { label: string; color: string; bg: string; dot: string }> = {
+  concept:        { label: "Concept",        color: "text-gray-700",    bg: "bg-gray-100",    dot: "bg-gray-400" },
+  design:         { label: "Design",         color: "text-blue-700",    bg: "bg-blue-50",     dot: "bg-blue-500" },
+  drafting:       { label: "Drafting",       color: "text-indigo-700",  bg: "bg-indigo-50",   dot: "bg-indigo-500" },
+  approved:       { label: "Approved",       color: "text-emerald-700", bg: "bg-emerald-50",  dot: "bg-emerald-500" },
+  construction:   { label: "Construction",   color: "text-amber-700",   bg: "bg-amber-50",    dot: "bg-amber-500" },
+  dressing:       { label: "Dressing",       color: "text-purple-700",  bg: "bg-purple-50",   dot: "bg-purple-500" },
+  "camera-ready": { label: "Camera Ready",   color: "text-green-700",   bg: "bg-green-100",   dot: "bg-green-500" },
+  wrapped:        { label: "Wrapped",        color: "text-gray-500",    bg: "bg-gray-50",     dot: "bg-gray-300" },
 }
 
-const PHASE_CONFIG: Record<ConstructionPhase, { label: string; color: string; bg: string; border: string }> = {
-  carpentry:  { label: "Carpentry",  color: "text-amber-800",   bg: "bg-amber-50",   border: "border-amber-200" },
-  paint:      { label: "Paint",      color: "text-blue-800",    bg: "bg-blue-50",     border: "border-blue-200" },
-  rigging:    { label: "Rigging",    color: "text-orange-800",  bg: "bg-orange-50",   border: "border-orange-200" },
-  "set-dec":  { label: "Set Dec",    color: "text-purple-800",  bg: "bg-purple-50",   border: "border-purple-200" },
-  "on-camera":{ label: "On Camera",  color: "text-green-800",   bg: "bg-green-50",    border: "border-green-200" },
-  strike:     { label: "Strike",     color: "text-gray-700",    bg: "bg-gray-50",     border: "border-gray-200" },
+const STATUS_ORDER: SetStatusPhase[] = ["concept", "design", "drafting", "approved", "construction", "dressing", "camera-ready", "wrapped"]
+
+const PHASE_CONFIG: Record<ConstructionPhase, { label: string; color: string; bg: string; border: string; barColor: string }> = {
+  carpentry:  { label: "Carpentry",  color: "text-amber-800",   bg: "bg-amber-50",   border: "border-amber-200",  barColor: "bg-amber-500" },
+  paint:      { label: "Paint",      color: "text-blue-800",    bg: "bg-blue-50",     border: "border-blue-200",   barColor: "bg-blue-500" },
+  rigging:    { label: "Rigging",    color: "text-orange-800",  bg: "bg-orange-50",   border: "border-orange-200", barColor: "bg-orange-500" },
+  "set-dec":  { label: "Set Dec",    color: "text-purple-800",  bg: "bg-purple-50",   border: "border-purple-200", barColor: "bg-purple-500" },
+  "on-camera":{ label: "On Camera",  color: "text-green-800",   bg: "bg-green-50",    border: "border-green-200",  barColor: "bg-green-500" },
+  strike:     { label: "Strike",     color: "text-gray-700",    bg: "bg-gray-50",     border: "border-gray-200",   barColor: "bg-gray-400" },
 }
 
-const PRIORITY_DOT: Record<string, string> = {
-  low: "bg-gray-400",
-  medium: "bg-blue-500",
-  high: "bg-amber-500",
-  urgent: "bg-red-500",
+const PRIORITY_DOT: Record<string, string> = { low: "bg-gray-400", medium: "bg-blue-500", high: "bg-amber-500", urgent: "bg-red-500" }
+
+const SOURCE_BADGE: Record<string, string> = {
+  inventory: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  rental: "bg-blue-50 text-blue-700 border-blue-200",
+  purchase: "bg-amber-50 text-amber-700 border-amber-200",
+  fabricated: "bg-violet-50 text-violet-700 border-violet-200",
+}
+
+const LIGHT_TYPE_STYLE: Record<string, { bg: string; text: string; badge: string }> = {
+  practical: { bg: "bg-yellow-50", text: "text-yellow-600", badge: "bg-yellow-50 text-yellow-700 border-yellow-200" },
+  motivated: { bg: "bg-orange-50", text: "text-orange-600", badge: "bg-orange-50 text-orange-700 border-orange-200" },
+  ambient:   { bg: "bg-gray-50",   text: "text-gray-500",   badge: "bg-gray-100 text-gray-600 border-gray-200" },
+  effect:    { bg: "bg-red-50",     text: "text-red-600",     badge: "bg-red-50 text-red-700 border-red-200" },
 }
 
 function formatDate(ts: number) {
   return new Date(ts).toLocaleDateString("en-US", { month: "short", day: "numeric" })
+}
+
+function formatRelative(ts: number) {
+  const diff = Date.now() - ts
+  const days = Math.floor(diff / 86400000)
+  if (days === 0) return "Today"
+  if (days === 1) return "Yesterday"
+  if (days < 7) return `${days}d ago`
+  return formatDate(ts)
 }
 
 /* ============================================================
@@ -263,6 +287,7 @@ function formatDate(ts: number) {
    ============================================================ */
 
 type ModalTab = "sets" | "moodboards" | "construction" | "lighting"
+type SetDetailTab = "elements" | "decorations" | "lighting" | "moodboard"
 
 export default function ProductionDesignModal({ onClose }: { onClose: () => void }) {
   const { state } = useCasting()
@@ -274,72 +299,69 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
   const [searchTerm, setSearchTerm] = useState("")
   const [sets, setSets] = useState<ProductionDesignSet[]>(MOCK_SETS)
   const [tasks, setTasks] = useState<ConstructionTask[]>(MOCK_TASKS)
-  const [selectedSetId, setSelectedSetId] = useState<string | null>(null)
-  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
-    buildElements: true,
-    decorations: true,
-    lighting: true,
-    moodBoard: false,
-  })
+  const [selectedSetId, setSelectedSetId] = useState<string | null>("set-1")
+  const [statusFilter, setStatusFilter] = useState<SetStatusPhase | "all">("all")
+  const [setDetailTab, setSetDetailTab] = useState<SetDetailTab>("elements")
+  const [kanbanSetFilter, setKanbanSetFilter] = useState<string>("all")
 
   const selectedSet = useMemo(() => sets.find((s) => s.id === selectedSetId), [sets, selectedSetId])
 
   const filteredSets = useMemo(() => {
-    if (!searchTerm.trim()) return sets
-    const q = searchTerm.toLowerCase()
-    return sets.filter(
-      (s) =>
-        s.name.toLowerCase().includes(q) ||
-        s.description.toLowerCase().includes(q) ||
-        s.status.toLowerCase().includes(q),
-    )
-  }, [sets, searchTerm])
+    let result = sets
+    if (statusFilter !== "all") result = result.filter((s) => s.status === statusFilter)
+    if (searchTerm.trim()) {
+      const q = searchTerm.toLowerCase()
+      result = result.filter((s) => s.name.toLowerCase().includes(q) || s.description.toLowerCase().includes(q))
+    }
+    return result
+  }, [sets, searchTerm, statusFilter])
 
-  const toggleSection = (key: string) => {
-    setExpandedSections((prev) => ({ ...prev, [key]: !prev[key] }))
-  }
+  const resolveLocationName = useCallback(
+    (id?: string) => {
+      if (!id) return null
+      const loc = locations.find((l: any) => l.id === id)
+      return loc ? loc.name : id
+    },
+    [locations],
+  )
 
-  const resolveLocationName = (id?: string) => {
-    if (!id) return null
-    const loc = locations.find((l: any) => l.id === id)
-    return loc ? loc.name : id
-  }
+  const resolveSceneLabel = useCallback(
+    (sceneId: string) => {
+      const sc = scenes.find((s: any) => s.id === sceneId)
+      return sc ? `Sc ${sc.sceneNumber}` : sceneId
+    },
+    [scenes],
+  )
 
-  const resolveSceneLabel = (sceneId: string) => {
-    const sc = scenes.find((s: any) => s.id === sceneId)
-    return sc ? `Sc ${sc.sceneNumber}` : sceneId
-  }
-
-  /* Task helpers */
   const toggleTaskComplete = (taskId: string) => {
     setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, completed: !t.completed } : t)))
   }
 
   const tasksByPhase = useMemo(() => {
     const phases: ConstructionPhase[] = ["carpentry", "paint", "rigging", "set-dec", "on-camera", "strike"]
-    return phases.map((phase) => ({
-      phase,
-      tasks: tasks.filter((t) => t.phase === phase),
-    }))
-  }, [tasks])
+    const filtered = kanbanSetFilter === "all" ? tasks : tasks.filter((t) => t.setId === kanbanSetFilter)
+    return phases.map((phase) => ({ phase, tasks: filtered.filter((t) => t.phase === phase) }))
+  }, [tasks, kanbanSetFilter])
 
-  /* Budget summary */
   const budgetSummary = useMemo(() => {
-    const parseBudget = (s: string) => parseFloat(s.replace(/[^0-9.]/g, "")) || 0
-    const est = sets.reduce((sum, s) => sum + parseBudget(s.estimatedBudget), 0)
-    const act = sets.reduce((sum, s) => sum + parseBudget(s.actualBudget || "0"), 0)
+    const parse = (s: string) => parseFloat(s.replace(/[^0-9.]/g, "")) || 0
+    const est = sets.reduce((sum, s) => sum + parse(s.estimatedBudget), 0)
+    const act = sets.reduce((sum, s) => sum + parse(s.actualBudget || "0"), 0)
     return { estimated: est, actual: act }
   }, [sets])
 
-  /* All mood board images */
-  const allMoodImages = useMemo(() => {
-    return sets.flatMap((s) => s.moodBoard.map((img) => ({ ...img, setName: s.name, setId: s.id })))
+  const allMoodImages = useMemo(() => sets.flatMap((s) => s.moodBoard.map((img) => ({ ...img, setName: s.name, setId: s.id }))), [sets])
+
+  const allLighting = useMemo(() => sets.flatMap((s) => s.lighting.map((l) => ({ ...l, setName: s.name, setId: s.id }))), [sets])
+
+  const statusCounts = useMemo(() => {
+    const counts: Record<string, number> = {}
+    for (const s of sets) counts[s.status] = (counts[s.status] || 0) + 1
+    return counts
   }, [sets])
 
-  /* All lighting fixtures */
-  const allLighting = useMemo(() => {
-    return sets.flatMap((s) => s.lighting.map((l) => ({ ...l, setName: s.name, setId: s.id })))
-  }, [sets])
+  const totalTasks = tasks.length
+  const completedTasks = tasks.filter((t) => t.completed).length
 
   /* ========================================
      RENDER
@@ -360,10 +382,7 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
             <span className="hidden sm:inline text-sm text-amber-600 font-medium">No project selected</span>
           )}
         </div>
-        <button
-          onClick={onClose}
-          className="p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors"
-        >
+        <button onClick={onClose} className="p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors">
           <X className="w-5 h-5" />
         </button>
       </header>
@@ -373,11 +392,11 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
         {/* Tabs */}
         <div className="flex items-center bg-gray-100 rounded-lg p-0.5">
           {([
-            { key: "sets", label: "Sets", icon: Layers },
-            { key: "moodboards", label: "Mood Boards", icon: ImageIcon },
-            { key: "construction", label: "Construction", icon: Hammer },
-            { key: "lighting", label: "Lighting", icon: Lightbulb },
-          ] as const).map(({ key, label, icon: Icon }) => (
+            { key: "sets", label: "Sets", icon: Layers, count: sets.length },
+            { key: "moodboards", label: "Mood Boards", icon: ImageIcon, count: allMoodImages.length },
+            { key: "construction", label: "Construction", icon: Hammer, count: totalTasks },
+            { key: "lighting", label: "Lighting", icon: Lightbulb, count: allLighting.length },
+          ] as const).map(({ key, label, icon: Icon, count }) => (
             <button
               key={key}
               onClick={() => setActiveTab(key)}
@@ -387,6 +406,11 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
             >
               <Icon className="w-3.5 h-3.5" />
               {label}
+              <span className={`ml-0.5 px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
+                activeTab === key ? "bg-violet-100 text-violet-700" : "bg-gray-200 text-gray-500"
+              }`}>
+                {count}
+              </span>
             </button>
           ))}
         </div>
@@ -394,42 +418,46 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
         <div className="w-px h-6 bg-gray-200 hidden sm:block" />
 
         {/* Search */}
-        <div className="relative flex-1 max-w-xs">
-          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+        <div className="relative flex-1 min-w-[160px] max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           <input
             type="text"
             placeholder="Search sets, elements..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-8 pr-3 py-1.5 text-sm border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-violet-400 transition-shadow"
+            className="w-full pl-9 pr-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 placeholder-gray-400 text-gray-900"
           />
         </div>
 
-        <div className="ml-auto flex items-center gap-3">
-          {/* Budget summary */}
-          <div className="hidden md:flex items-center gap-3 text-xs">
-            <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-gray-100 rounded-lg">
+        <div className="flex items-center gap-2 ml-auto">
+          {/* Budget chips */}
+          <div className="hidden lg:flex items-center gap-2">
+            <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-gray-100 rounded-lg text-xs">
               <DollarSign className="w-3.5 h-3.5 text-gray-500" />
               <span className="text-gray-500">Est</span>
               <span className="font-semibold text-gray-800">${budgetSummary.estimated.toLocaleString()}</span>
             </div>
-            <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-emerald-50 rounded-lg">
-              <DollarSign className="w-3.5 h-3.5 text-emerald-600" />
-              <span className="text-emerald-600">Actual</span>
-              <span className="font-semibold text-emerald-800">${budgetSummary.actual.toLocaleString()}</span>
-            </div>
+            {budgetSummary.actual > 0 && (
+              <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-emerald-50 rounded-lg text-xs">
+                <DollarSign className="w-3.5 h-3.5 text-emerald-600" />
+                <span className="text-emerald-600">Actual</span>
+                <span className="font-semibold text-emerald-800">${budgetSummary.actual.toLocaleString()}</span>
+              </div>
+            )}
           </div>
 
-          {/* Cross-link buttons */}
+          <div className="w-px h-6 bg-gray-200 hidden lg:block" />
+
+          {/* Cross-links */}
           <button
             onClick={() => openModal("locations")}
-            className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-teal-700 bg-teal-50 hover:bg-teal-100 rounded-lg transition-colors"
+            className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-teal-700 bg-teal-50 hover:bg-teal-100 rounded-lg transition-colors border border-teal-200"
           >
             <MapPin className="w-3.5 h-3.5" /> Locations
           </button>
           <button
             onClick={() => openModal("props")}
-            className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-lg transition-colors"
+            className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-lg transition-colors border border-amber-200"
           >
             <Package className="w-3.5 h-3.5" /> Props
           </button>
@@ -441,254 +469,320 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
         {/* =================== SETS TAB =================== */}
         {activeTab === "sets" && (
           <div className="flex h-full">
-            {/* Left: Set list */}
+            {/* Left sidebar */}
             <div className="w-80 border-r border-gray-200 bg-white flex flex-col shrink-0 overflow-hidden">
+              {/* Status filter pills */}
               <div className="p-3 border-b border-gray-100 shrink-0">
-                <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
-                  {filteredSets.length} Set{filteredSets.length !== 1 ? "s" : ""}
-                </p>
+                <div className="flex items-center flex-wrap gap-1.5">
+                  <button
+                    onClick={() => setStatusFilter("all")}
+                    className={`px-2 py-1 rounded-md text-[10px] font-semibold transition-colors ${
+                      statusFilter === "all" ? "bg-violet-100 text-violet-700" : "bg-gray-100 text-gray-500 hover:text-gray-700"
+                    }`}
+                  >
+                    All ({sets.length})
+                  </button>
+                  {STATUS_ORDER.filter((s) => statusCounts[s]).map((s) => {
+                    const cfg = STATUS_CONFIG[s]
+                    return (
+                      <button
+                        key={s}
+                        onClick={() => setStatusFilter(statusFilter === s ? "all" : s)}
+                        className={`flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-semibold transition-colors ${
+                          statusFilter === s ? `${cfg.bg} ${cfg.color}` : "bg-gray-100 text-gray-500 hover:text-gray-700"
+                        }`}
+                      >
+                        <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
+                        {cfg.label} ({statusCounts[s]})
+                      </button>
+                    )
+                  })}
+                </div>
               </div>
+
+              {/* Set list */}
               <div className="flex-1 overflow-y-auto">
-                {filteredSets.map((s) => {
-                  const st = STATUS_CONFIG[s.status]
-                  const isActive = s.id === selectedSetId
-                  return (
-                    <button
-                      key={s.id}
-                      onClick={() => setSelectedSetId(s.id)}
-                      className={`w-full text-left px-4 py-3 border-b border-gray-100 transition-colors ${
-                        isActive ? "bg-violet-50 border-l-2 border-l-violet-500" : "hover:bg-gray-50 border-l-2 border-l-transparent"
-                      }`}
-                    >
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="min-w-0">
-                          <p className={`text-sm font-semibold truncate ${isActive ? "text-violet-900" : "text-gray-900"}`}>{s.name}</p>
-                          <p className="text-[11px] text-gray-500 mt-0.5 line-clamp-1">{s.description}</p>
+                {filteredSets.length === 0 ? (
+                  <div className="text-center py-12 px-4">
+                    <Search className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+                    <p className="text-xs text-gray-400">No sets found</p>
+                  </div>
+                ) : (
+                  filteredSets.map((s) => {
+                    const st = STATUS_CONFIG[s.status]
+                    const isActive = s.id === selectedSetId
+                    const totalElements = s.buildElements.length + s.decorations.length + s.lighting.length
+                    return (
+                      <button
+                        key={s.id}
+                        onClick={() => setSelectedSetId(s.id)}
+                        className={`w-full text-left px-4 py-3.5 border-b border-gray-100 transition-all ${
+                          isActive
+                            ? "bg-violet-50/80 border-l-[3px] border-l-violet-500"
+                            : "hover:bg-gray-50/80 border-l-[3px] border-l-transparent"
+                        }`}
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="min-w-0">
+                            <p className={`text-sm font-semibold truncate ${isActive ? "text-violet-900" : "text-gray-900"}`}>
+                              {s.name}
+                            </p>
+                            <p className="text-[11px] text-gray-500 mt-0.5 line-clamp-1">{s.description}</p>
+                          </div>
+                          <span className={`shrink-0 flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold ${st.color} ${st.bg}`}>
+                            <span className={`w-1.5 h-1.5 rounded-full ${st.dot}`} />
+                            {st.label}
+                          </span>
                         </div>
-                        <span className={`shrink-0 px-1.5 py-0.5 rounded text-[9px] font-bold ${st.color} ${st.bg}`}>
-                          {st.label}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2 mt-1.5">
-                        {s.locationId && (
-                          <span className="inline-flex items-center gap-1 text-[10px] text-teal-700 bg-teal-50 px-1.5 py-0.5 rounded">
-                            <MapPin className="w-2.5 h-2.5" /> {resolveLocationName(s.locationId) || s.locationId}
+                        <div className="flex items-center gap-2 mt-2">
+                          {s.locationId && (
+                            <span className="inline-flex items-center gap-0.5 text-[10px] text-teal-700 bg-teal-50 px-1.5 py-0.5 rounded font-medium">
+                              <MapPin className="w-2.5 h-2.5" /> {resolveLocationName(s.locationId) || s.locationId}
+                            </span>
+                          )}
+                          <span className="inline-flex items-center gap-0.5 text-[10px] text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded font-medium">
+                            <Film className="w-2.5 h-2.5" /> {s.sceneIds.length}
                           </span>
-                        )}
-                        {s.sceneIds.length > 0 && (
-                          <span className="inline-flex items-center gap-1 text-[10px] text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded">
-                            <Film className="w-2.5 h-2.5" /> {s.sceneIds.length} scene{s.sceneIds.length > 1 ? "s" : ""}
+                          <span className="inline-flex items-center gap-0.5 text-[10px] text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded font-medium">
+                            <Box className="w-2.5 h-2.5" /> {totalElements}
                           </span>
-                        )}
-                        <span className="text-[10px] text-gray-400 ml-auto">{s.estimatedBudget}</span>
-                      </div>
-                    </button>
-                  )
-                })}
+                          <span className="text-[10px] text-gray-400 ml-auto font-medium">{s.estimatedBudget}</span>
+                        </div>
+                      </button>
+                    )
+                  })
+                )}
+              </div>
+
+              {/* Sidebar footer summary */}
+              <div className="p-3 border-t border-gray-100 bg-gray-50/80 shrink-0">
+                <div className="flex items-center justify-between text-[10px] text-gray-500">
+                  <span>{sets.length} sets total</span>
+                  <span className="font-medium">Updated {formatRelative(Math.max(...sets.map((s) => s.updatedAt)))}</span>
+                </div>
               </div>
             </div>
 
-            {/* Right: Set detail */}
-            <div className="flex-1 min-w-0 overflow-y-auto">
+            {/* Right: detail panel */}
+            <div className="flex-1 min-w-0 flex flex-col overflow-hidden">
               {selectedSet ? (
-                <div className="p-6 space-y-6 max-w-4xl">
-                  {/* Set header */}
-                  <div>
+                <>
+                  {/* Detail header */}
+                  <div className="px-6 py-4 bg-white border-b border-gray-200 shrink-0">
                     <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <h2 className="text-xl font-bold text-gray-900">{selectedSet.name}</h2>
-                        <p className="text-sm text-gray-500 mt-1 leading-relaxed">{selectedSet.description}</p>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-3 mb-1">
+                          <h2 className="text-lg font-bold text-gray-900 truncate">{selectedSet.name}</h2>
+                          <span className={`flex items-center gap-1 shrink-0 px-2 py-0.5 rounded-lg text-[10px] font-bold ${STATUS_CONFIG[selectedSet.status].color} ${STATUS_CONFIG[selectedSet.status].bg}`}>
+                            <span className={`w-1.5 h-1.5 rounded-full ${STATUS_CONFIG[selectedSet.status].dot}`} />
+                            {STATUS_CONFIG[selectedSet.status].label}
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-500 leading-relaxed line-clamp-2">{selectedSet.description}</p>
                       </div>
-                      <span className={`shrink-0 px-2.5 py-1 rounded-lg text-xs font-bold ${STATUS_CONFIG[selectedSet.status].color} ${STATUS_CONFIG[selectedSet.status].bg}`}>
-                        {STATUS_CONFIG[selectedSet.status].label}
-                      </span>
                     </div>
+
+                    {/* Meta row */}
                     <div className="flex items-center flex-wrap gap-2 mt-3">
                       {selectedSet.locationId && (
-                        <span className="inline-flex items-center gap-1.5 text-xs text-teal-700 bg-teal-50 border border-teal-200 px-2.5 py-1 rounded-lg font-medium">
-                          <MapPin className="w-3.5 h-3.5" /> {resolveLocationName(selectedSet.locationId) || selectedSet.locationId}
-                        </span>
+                        <button
+                          onClick={() => openModal("locations")}
+                          className="inline-flex items-center gap-1.5 text-xs text-teal-700 bg-teal-50 border border-teal-200 px-2.5 py-1 rounded-lg font-medium hover:bg-teal-100 transition-colors"
+                        >
+                          <MapPin className="w-3 h-3" /> {resolveLocationName(selectedSet.locationId) || selectedSet.locationId}
+                          <ArrowRight className="w-2.5 h-2.5 opacity-50" />
+                        </button>
                       )}
                       {selectedSet.sceneIds.map((sid) => (
                         <span key={sid} className="inline-flex items-center gap-1 text-xs text-blue-700 bg-blue-50 border border-blue-200 px-2 py-1 rounded-lg font-medium">
                           <Film className="w-3 h-3" /> {resolveSceneLabel(sid)}
                         </span>
                       ))}
-                      <span className="inline-flex items-center gap-1.5 text-xs text-gray-600 bg-gray-100 px-2.5 py-1 rounded-lg font-medium">
-                        <DollarSign className="w-3.5 h-3.5" /> Est {selectedSet.estimatedBudget}
+                      <span className="inline-flex items-center gap-1.5 text-xs text-gray-600 bg-gray-100 border border-gray-200 px-2.5 py-1 rounded-lg font-medium">
+                        <DollarSign className="w-3 h-3" /> Est {selectedSet.estimatedBudget}
                         {selectedSet.actualBudget && (
-                          <span className="text-emerald-700"> / Actual {selectedSet.actualBudget}</span>
+                          <span className="text-emerald-700 font-semibold"> / {selectedSet.actualBudget}</span>
                         )}
                       </span>
+                      <span className="text-[10px] text-gray-400 ml-auto">
+                        Updated {formatRelative(selectedSet.updatedAt)}
+                      </span>
+                    </div>
+
+                    {/* Detail tab bar */}
+                    <div className="flex items-center gap-1 mt-4 border-b border-gray-200 -mb-4 -mx-6 px-6">
+                      {([
+                        { key: "elements", label: "Build Elements", count: selectedSet.buildElements.length, icon: Hammer },
+                        { key: "decorations", label: "Set Decorations", count: selectedSet.decorations.length, icon: Sofa },
+                        { key: "lighting", label: "Lighting", count: selectedSet.lighting.length, icon: Lightbulb },
+                        { key: "moodboard", label: "Mood Board", count: selectedSet.moodBoard.length, icon: ImageIcon },
+                      ] as const).map(({ key, label, count, icon: Icon }) => (
+                        <button
+                          key={key}
+                          onClick={() => setSetDetailTab(key)}
+                          className={`flex items-center gap-1.5 px-3 py-2.5 text-xs font-medium border-b-2 -mb-px transition-colors ${
+                            setDetailTab === key
+                              ? "border-violet-500 text-violet-700"
+                              : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                          }`}
+                        >
+                          <Icon className="w-3.5 h-3.5" />
+                          {label}
+                          <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
+                            setDetailTab === key ? "bg-violet-100 text-violet-700" : "bg-gray-100 text-gray-500"
+                          }`}>
+                            {count}
+                          </span>
+                        </button>
+                      ))}
                     </div>
                   </div>
 
-                  {/* Build Elements */}
-                  <CollapsibleSection
-                    title="Build Elements"
-                    icon={<Hammer className="w-4 h-4 text-amber-600" />}
-                    count={selectedSet.buildElements.length}
-                    isOpen={expandedSections.buildElements}
-                    onToggle={() => toggleSection("buildElements")}
-                  >
-                    <div className="space-y-2">
-                      {selectedSet.buildElements.map((el) => (
-                        <div key={el.id} className="flex items-start gap-3 p-3 bg-white rounded-xl border border-gray-200">
-                          <div className="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center shrink-0">
-                            <Hammer className="w-4 h-4 text-amber-600" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between gap-2">
-                              <p className="text-sm font-semibold text-gray-900">{el.name}</p>
-                              <span className="text-xs text-gray-500 shrink-0">x{el.quantity}</span>
-                            </div>
-                            <div className="flex items-center gap-3 mt-0.5 text-[11px] text-gray-500">
-                              <span>{el.material}</span>
-                              <span className="text-gray-300">|</span>
-                              <span>{el.dimensions}</span>
-                            </div>
-                            {el.notes && <p className="text-[11px] text-gray-400 mt-1 italic">{el.notes}</p>}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </CollapsibleSection>
-
-                  {/* Set Decorations */}
-                  <CollapsibleSection
-                    title="Set Decorations"
-                    icon={<Sofa className="w-4 h-4 text-purple-600" />}
-                    count={selectedSet.decorations.length}
-                    isOpen={expandedSections.decorations}
-                    onToggle={() => toggleSection("decorations")}
-                  >
-                    <div className="space-y-2">
-                      {selectedSet.decorations.map((dec) => (
-                        <div key={dec.id} className="flex items-start gap-3 p-3 bg-white rounded-xl border border-gray-200">
-                          <div className="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center shrink-0">
-                            <Sofa className="w-4 h-4 text-purple-600" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between gap-2">
-                              <p className="text-sm font-semibold text-gray-900">{dec.name}</p>
-                              <div className="flex items-center gap-1.5 shrink-0">
-                                <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase ${
-                                  dec.source === "inventory" ? "bg-emerald-50 text-emerald-700" :
-                                  dec.source === "rental" ? "bg-blue-50 text-blue-700" :
-                                  dec.source === "purchase" ? "bg-amber-50 text-amber-700" :
-                                  "bg-gray-100 text-gray-600"
-                                }`}>
-                                  {dec.source}
-                                </span>
-                                <span className="text-xs text-gray-500">x{dec.quantity}</span>
+                  {/* Detail content */}
+                  <div className="flex-1 min-h-0 overflow-y-auto p-6">
+                    <div className="max-w-4xl space-y-4">
+                      {/* Build Elements */}
+                      {setDetailTab === "elements" && (
+                        selectedSet.buildElements.length > 0 ? (
+                          <div className="space-y-2">
+                            {selectedSet.buildElements.map((el) => (
+                              <div key={el.id} className="flex items-start gap-3 p-4 bg-white rounded-xl border border-gray-200 hover:shadow-sm transition-shadow">
+                                <div className="w-9 h-9 rounded-lg bg-amber-50 flex items-center justify-center shrink-0">
+                                  <Hammer className="w-4.5 h-4.5 text-amber-600" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center justify-between gap-2">
+                                    <p className="text-sm font-semibold text-gray-900">{el.name}</p>
+                                    <span className="text-xs text-gray-500 font-medium bg-gray-100 px-2 py-0.5 rounded shrink-0">x{el.quantity}</span>
+                                  </div>
+                                  <div className="flex items-center gap-2 mt-1 text-[11px] text-gray-500">
+                                    <span className="flex items-center gap-1"><Tag className="w-3 h-3" /> {el.material}</span>
+                                    <span className="text-gray-300">|</span>
+                                    <span className="flex items-center gap-1"><Ruler className="w-3 h-3" /> {el.dimensions}</span>
+                                  </div>
+                                  {el.notes && <p className="text-[11px] text-amber-700 bg-amber-50 mt-2 px-2 py-1 rounded italic">{el.notes}</p>}
+                                </div>
                               </div>
-                            </div>
-                            {dec.propId && (
-                              <span className="inline-flex items-center gap-1 text-[10px] text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded mt-1">
-                                <Package className="w-2.5 h-2.5" /> Linked prop
-                              </span>
-                            )}
-                            {dec.notes && <p className="text-[11px] text-gray-400 mt-1 italic">{dec.notes}</p>}
+                            ))}
                           </div>
-                        </div>
-                      ))}
-                    </div>
-                  </CollapsibleSection>
+                        ) : (
+                          <EmptyState icon={Hammer} label="No build elements defined yet" />
+                        )
+                      )}
 
-                  {/* Lighting */}
-                  <CollapsibleSection
-                    title="Lighting & Practicals"
-                    icon={<Lightbulb className="w-4 h-4 text-yellow-600" />}
-                    count={selectedSet.lighting.length}
-                    isOpen={expandedSections.lighting}
-                    onToggle={() => toggleSection("lighting")}
-                  >
-                    <div className="space-y-2">
-                      {selectedSet.lighting.map((lf) => (
-                        <div key={lf.id} className="flex items-start gap-3 p-3 bg-white rounded-xl border border-gray-200">
-                          <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
-                            lf.type === "practical" ? "bg-yellow-50" :
-                            lf.type === "motivated" ? "bg-orange-50" :
-                            lf.type === "effect" ? "bg-red-50" :
-                            "bg-gray-50"
-                          }`}>
-                            <Lightbulb className={`w-4 h-4 ${
-                              lf.type === "practical" ? "text-yellow-600" :
-                              lf.type === "motivated" ? "text-orange-600" :
-                              lf.type === "effect" ? "text-red-600" :
-                              "text-gray-500"
-                            }`} />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between gap-2">
-                              <p className="text-sm font-semibold text-gray-900">{lf.name}</p>
-                              <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase ${
-                                lf.type === "practical" ? "bg-yellow-50 text-yellow-700" :
-                                lf.type === "motivated" ? "bg-orange-50 text-orange-700" :
-                                lf.type === "effect" ? "bg-red-50 text-red-700" :
-                                "bg-gray-100 text-gray-600"
-                              }`}>
-                                {lf.type}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-3 mt-0.5 text-[11px] text-gray-500">
-                              {lf.wattage && <span>{lf.wattage}</span>}
-                              <span className={lf.dimmable ? "text-emerald-600" : "text-gray-400"}>
-                                {lf.dimmable ? "Dimmable" : "Non-dimmable"}
-                              </span>
-                            </div>
-                            {lf.notes && <p className="text-[11px] text-gray-400 mt-1 italic">{lf.notes}</p>}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </CollapsibleSection>
-
-                  {/* Mood Board */}
-                  <CollapsibleSection
-                    title="Mood Board"
-                    icon={<ImageIcon className="w-4 h-4 text-pink-600" />}
-                    count={selectedSet.moodBoard.length}
-                    isOpen={expandedSections.moodBoard}
-                    onToggle={() => toggleSection("moodBoard")}
-                  >
-                    {selectedSet.moodBoard.length > 0 ? (
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                        {selectedSet.moodBoard.map((img) => (
-                          <div key={img.id} className="group rounded-xl overflow-hidden border border-gray-200 bg-white">
-                            <div className="aspect-[4/3] bg-gray-100">
-                              <img src={img.url} alt={img.caption || "Mood board"} className="w-full h-full object-cover" />
-                            </div>
-                            <div className="p-2.5">
-                              {img.caption && <p className="text-xs text-gray-700 font-medium line-clamp-1">{img.caption}</p>}
-                              <div className="flex items-center gap-1.5 mt-1">
-                                {img.tags.map((t) => (
-                                  <span key={t} className="px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded text-[9px] font-medium">{t}</span>
-                                ))}
+                      {/* Decorations */}
+                      {setDetailTab === "decorations" && (
+                        selectedSet.decorations.length > 0 ? (
+                          <div className="space-y-2">
+                            {selectedSet.decorations.map((dec) => (
+                              <div key={dec.id} className="flex items-start gap-3 p-4 bg-white rounded-xl border border-gray-200 hover:shadow-sm transition-shadow">
+                                <div className="w-9 h-9 rounded-lg bg-purple-50 flex items-center justify-center shrink-0">
+                                  <Sofa className="w-4.5 h-4.5 text-purple-600" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center justify-between gap-2">
+                                    <p className="text-sm font-semibold text-gray-900">{dec.name}</p>
+                                    <div className="flex items-center gap-1.5 shrink-0">
+                                      <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase border ${SOURCE_BADGE[dec.source] || "bg-gray-100 text-gray-600 border-gray-200"}`}>
+                                        {dec.source}
+                                      </span>
+                                      <span className="text-xs text-gray-500 font-medium bg-gray-100 px-2 py-0.5 rounded">x{dec.quantity}</span>
+                                    </div>
+                                  </div>
+                                  {dec.propId && (
+                                    <button
+                                      onClick={() => openModal("props")}
+                                      className="inline-flex items-center gap-1 text-[10px] text-amber-700 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded mt-1.5 hover:bg-amber-100 transition-colors"
+                                    >
+                                      <Link2 className="w-2.5 h-2.5" /> View linked prop
+                                      <ArrowRight className="w-2 h-2 opacity-50" />
+                                    </button>
+                                  )}
+                                  {dec.notes && <p className="text-[11px] text-purple-700 bg-purple-50 mt-2 px-2 py-1 rounded italic">{dec.notes}</p>}
+                                </div>
                               </div>
-                            </div>
+                            ))}
                           </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="text-center py-8 text-gray-400">
-                        <ImageIcon className="w-8 h-8 mx-auto mb-2 opacity-40" />
-                        <p className="text-xs">No mood board images yet</p>
-                      </div>
-                    )}
-                  </CollapsibleSection>
+                        ) : (
+                          <EmptyState icon={Sofa} label="No decorations defined yet" />
+                        )
+                      )}
 
-                  {/* Notes */}
-                  {selectedSet.notes && (
-                    <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl">
-                      <div className="flex items-center gap-2 mb-1.5">
-                        <StickyNote className="w-4 h-4 text-amber-600" />
-                        <span className="text-xs font-semibold text-amber-800 uppercase tracking-wide">Notes</span>
-                      </div>
-                      <p className="text-sm text-amber-900 leading-relaxed">{selectedSet.notes}</p>
+                      {/* Lighting */}
+                      {setDetailTab === "lighting" && (
+                        selectedSet.lighting.length > 0 ? (
+                          <div className="space-y-2">
+                            {selectedSet.lighting.map((lf) => {
+                              const style = LIGHT_TYPE_STYLE[lf.type] || LIGHT_TYPE_STYLE.ambient
+                              return (
+                                <div key={lf.id} className="flex items-start gap-3 p-4 bg-white rounded-xl border border-gray-200 hover:shadow-sm transition-shadow">
+                                  <div className={`w-9 h-9 rounded-lg ${style.bg} flex items-center justify-center shrink-0`}>
+                                    <Lightbulb className={`w-4.5 h-4.5 ${style.text}`} />
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center justify-between gap-2">
+                                      <p className="text-sm font-semibold text-gray-900">{lf.name}</p>
+                                      <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase border ${style.badge}`}>
+                                        {lf.type}
+                                      </span>
+                                    </div>
+                                    <div className="flex items-center gap-2 mt-1 text-[11px] text-gray-500">
+                                      {lf.wattage && <span className="flex items-center gap-1"><Zap className="w-3 h-3" /> {lf.wattage}</span>}
+                                      {lf.wattage && <span className="text-gray-300">|</span>}
+                                      <span className={lf.dimmable ? "text-emerald-600 font-medium" : "text-gray-400"}>
+                                        {lf.dimmable ? "Dimmable" : "Non-dimmable"}
+                                      </span>
+                                    </div>
+                                    {lf.notes && <p className="text-[11px] text-gray-500 bg-gray-50 mt-2 px-2 py-1 rounded italic">{lf.notes}</p>}
+                                  </div>
+                                </div>
+                              )
+                            })}
+                          </div>
+                        ) : (
+                          <EmptyState icon={Lightbulb} label="No lighting fixtures defined yet" />
+                        )
+                      )}
+
+                      {/* Mood Board */}
+                      {setDetailTab === "moodboard" && (
+                        selectedSet.moodBoard.length > 0 ? (
+                          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                            {selectedSet.moodBoard.map((img) => (
+                              <div key={img.id} className="group rounded-xl overflow-hidden border border-gray-200 bg-white hover:shadow-md transition-shadow">
+                                <div className="aspect-[4/3] bg-gray-100 overflow-hidden">
+                                  <img src={img.url} alt={img.caption || "Mood board"} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                                </div>
+                                <div className="p-3">
+                                  {img.caption && <p className="text-xs text-gray-700 font-medium line-clamp-1">{img.caption}</p>}
+                                  <div className="flex items-center gap-1.5 mt-1.5">
+                                    {img.tags.map((t) => (
+                                      <span key={t} className="px-1.5 py-0.5 bg-violet-50 text-violet-600 border border-violet-200 rounded text-[9px] font-medium">{t}</span>
+                                    ))}
+                                  </div>
+                                  <p className="text-[10px] text-gray-400 mt-1.5">{formatRelative(img.addedAt)}</p>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <EmptyState icon={ImageIcon} label="No mood board images yet" />
+                        )
+                      )}
+
+                      {/* Notes callout */}
+                      {selectedSet.notes && (
+                        <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl">
+                          <div className="flex items-center gap-2 mb-1.5">
+                            <AlertTriangle className="w-4 h-4 text-amber-600" />
+                            <span className="text-xs font-semibold text-amber-800 uppercase tracking-wide">Production Notes</span>
+                          </div>
+                          <p className="text-sm text-amber-900 leading-relaxed">{selectedSet.notes}</p>
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
+                  </div>
+                </>
               ) : (
                 <div className="flex items-center justify-center h-full">
                   <div className="text-center max-w-sm">
@@ -710,31 +804,41 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
         {activeTab === "moodboards" && (
           <div className="h-full overflow-y-auto p-6">
             <div className="max-w-6xl mx-auto">
-              <h2 className="text-lg font-bold text-gray-900 mb-1">All Mood Boards</h2>
-              <p className="text-sm text-gray-500 mb-6">Reference images across all sets</p>
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="text-lg font-bold text-gray-900">All Mood Boards</h2>
+                  <p className="text-sm text-gray-500 mt-0.5">{allMoodImages.length} reference images across {sets.filter((s) => s.moodBoard.length > 0).length} sets</p>
+                </div>
+              </div>
 
               {allMoodImages.length > 0 ? (
-                <div className="space-y-8">
+                <div className="space-y-10">
                   {sets.filter((s) => s.moodBoard.length > 0).map((s) => (
                     <div key={s.id}>
-                      <div className="flex items-center gap-2 mb-3">
-                        <h3 className="text-sm font-bold text-gray-900">{s.name}</h3>
+                      <div className="flex items-center gap-3 mb-4">
+                        <button
+                          onClick={() => { setSelectedSetId(s.id); setActiveTab("sets"); setSetDetailTab("moodboard") }}
+                          className="flex items-center gap-2 group"
+                        >
+                          <h3 className="text-sm font-bold text-gray-900 group-hover:text-violet-700 transition-colors">{s.name}</h3>
+                          <ArrowRight className="w-3.5 h-3.5 text-gray-400 group-hover:text-violet-500 transition-colors" />
+                        </button>
                         <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${STATUS_CONFIG[s.status].color} ${STATUS_CONFIG[s.status].bg}`}>
                           {STATUS_CONFIG[s.status].label}
                         </span>
-                        <span className="text-xs text-gray-400">{s.moodBoard.length} image{s.moodBoard.length > 1 ? "s" : ""}</span>
+                        <span className="text-[11px] text-gray-400">{s.moodBoard.length} image{s.moodBoard.length > 1 ? "s" : ""}</span>
                       </div>
                       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
                         {s.moodBoard.map((img) => (
                           <div key={img.id} className="rounded-xl overflow-hidden border border-gray-200 bg-white group hover:shadow-md transition-shadow">
-                            <div className="aspect-[4/3] bg-gray-100">
-                              <img src={img.url} alt={img.caption || ""} className="w-full h-full object-cover" />
+                            <div className="aspect-[4/3] bg-gray-100 overflow-hidden">
+                              <img src={img.url} alt={img.caption || ""} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                             </div>
-                            <div className="p-2">
+                            <div className="p-2.5">
                               {img.caption && <p className="text-[11px] text-gray-700 font-medium line-clamp-1">{img.caption}</p>}
                               <div className="flex flex-wrap gap-1 mt-1">
                                 {img.tags.map((t) => (
-                                  <span key={t} className="px-1 py-0.5 bg-gray-100 text-gray-500 rounded text-[8px] font-medium">{t}</span>
+                                  <span key={t} className="px-1 py-0.5 bg-violet-50 text-violet-600 border border-violet-200 rounded text-[8px] font-medium">{t}</span>
                                 ))}
                               </div>
                             </div>
@@ -759,20 +863,48 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
         {activeTab === "construction" && (
           <div className="h-full flex flex-col overflow-hidden">
             {/* Kanban header */}
-            <div className="px-5 py-3 bg-white border-b border-gray-200 shrink-0 flex items-center justify-between">
-              <div>
-                <h2 className="text-sm font-bold text-gray-900">Construction Tracker</h2>
-                <p className="text-xs text-gray-500">
-                  {tasks.filter((t) => t.completed).length} of {tasks.length} tasks complete
-                </p>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="flex items-center gap-3 text-[10px]">
-                  {(["low", "medium", "high", "urgent"] as const).map((p) => (
-                    <span key={p} className="flex items-center gap-1 text-gray-500 capitalize">
-                      <span className={`w-2 h-2 rounded-full ${PRIORITY_DOT[p]}`} /> {p}
-                    </span>
-                  ))}
+            <div className="px-5 py-3 bg-white border-b border-gray-200 shrink-0">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div>
+                    <h2 className="text-sm font-bold text-gray-900">Construction Tracker</h2>
+                    <p className="text-xs text-gray-500">
+                      {completedTasks} of {totalTasks} tasks complete
+                    </p>
+                  </div>
+                  {/* Overall progress bar */}
+                  <div className="hidden sm:flex items-center gap-2">
+                    <div className="w-32 h-1.5 bg-gray-200 rounded-full">
+                      <div className="h-full rounded-full bg-violet-500 transition-all" style={{ width: `${totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0}%` }} />
+                    </div>
+                    <span className="text-[10px] font-semibold text-gray-500">{totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0}%</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  {/* Set filter */}
+                  <div className="flex items-center gap-1">
+                    <span className="text-[10px] text-gray-400 font-medium">Filter:</span>
+                    <select
+                      value={kanbanSetFilter}
+                      onChange={(e) => setKanbanSetFilter(e.target.value)}
+                      className="text-xs border border-gray-200 rounded-lg px-2 py-1 bg-white text-gray-700 focus:outline-none focus:ring-1 focus:ring-violet-400"
+                    >
+                      <option value="all">All Sets</option>
+                      {sets.map((s) => (
+                        <option key={s.id} value={s.id}>{s.name}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Priority legend */}
+                  <div className="hidden md:flex items-center gap-3 text-[10px] border-l border-gray-200 pl-3">
+                    {(["low", "medium", "high", "urgent"] as const).map((p) => (
+                      <span key={p} className="flex items-center gap-1 text-gray-500 capitalize">
+                        <span className={`w-2 h-2 rounded-full ${PRIORITY_DOT[p]}`} /> {p}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
@@ -794,17 +926,10 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
                           </span>
                         </div>
                         {phaseTasks.length > 0 && (
-                          <div className="w-full h-1 bg-gray-200 rounded-full mt-1.5">
+                          <div className="w-full h-1 bg-white/50 rounded-full mt-1.5">
                             <div
-                              className={`h-full rounded-full transition-all ${
-                                phase === "carpentry" ? "bg-amber-500" :
-                                phase === "paint" ? "bg-blue-500" :
-                                phase === "rigging" ? "bg-orange-500" :
-                                phase === "set-dec" ? "bg-purple-500" :
-                                phase === "on-camera" ? "bg-green-500" :
-                                "bg-gray-400"
-                              }`}
-                              style={{ width: phaseTasks.length > 0 ? `${(done / phaseTasks.length) * 100}%` : "0%" }}
+                              className={`h-full rounded-full transition-all ${cfg.barColor}`}
+                              style={{ width: `${(done / phaseTasks.length) * 100}%` }}
                             />
                           </div>
                         )}
@@ -817,17 +942,15 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
                           return (
                             <div
                               key={task.id}
-                              className={`p-2.5 rounded-lg border transition-colors ${
-                                task.completed ? "bg-gray-50 border-gray-200 opacity-60" : "bg-white border-gray-200 hover:border-gray-300"
+                              className={`p-2.5 rounded-lg border transition-all ${
+                                task.completed ? "bg-gray-50/80 border-gray-200 opacity-60" : "bg-white border-gray-200 hover:border-gray-300 hover:shadow-sm"
                               }`}
                             >
                               <div className="flex items-start gap-2">
                                 <button
                                   onClick={() => toggleTaskComplete(task.id)}
                                   className={`mt-0.5 w-4 h-4 rounded border shrink-0 flex items-center justify-center transition-colors ${
-                                    task.completed
-                                      ? "bg-emerald-500 border-emerald-500 text-white"
-                                      : "border-gray-300 hover:border-gray-400"
+                                    task.completed ? "bg-emerald-500 border-emerald-500 text-white" : "border-gray-300 hover:border-violet-400"
                                   }`}
                                 >
                                   {task.completed && <Check className="w-2.5 h-2.5" />}
@@ -837,7 +960,12 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
                                     {task.title}
                                   </p>
                                   {taskSet && (
-                                    <p className="text-[10px] text-gray-400 mt-0.5 truncate">{taskSet.name}</p>
+                                    <button
+                                      onClick={() => { setSelectedSetId(task.setId); setActiveTab("sets") }}
+                                      className="text-[10px] text-violet-500 hover:text-violet-700 mt-0.5 truncate block transition-colors"
+                                    >
+                                      {taskSet.name}
+                                    </button>
                                   )}
                                 </div>
                                 <span className={`w-2 h-2 rounded-full shrink-0 mt-1 ${PRIORITY_DOT[task.priority]}`} title={task.priority} />
@@ -849,9 +977,7 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
                                   )}
                                   {task.dueDate && (
                                     <span className={`text-[9px] px-1.5 py-0.5 rounded font-medium flex items-center gap-0.5 ${
-                                      task.dueDate < Date.now() && !task.completed
-                                        ? "text-red-700 bg-red-50"
-                                        : "text-gray-500 bg-gray-100"
+                                      task.dueDate < Date.now() && !task.completed ? "text-red-700 bg-red-50" : "text-gray-500 bg-gray-100"
                                     }`}>
                                       <Calendar className="w-2.5 h-2.5" /> {formatDate(task.dueDate)}
                                     </span>
@@ -867,7 +993,7 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
                           )
                         })}
                         {phaseTasks.length === 0 && (
-                          <div className="text-center py-6">
+                          <div className="text-center py-8">
                             <p className="text-[10px] text-gray-300">No tasks</p>
                           </div>
                         )}
@@ -884,27 +1010,28 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
         {activeTab === "lighting" && (
           <div className="h-full overflow-y-auto p-6">
             <div className="max-w-5xl mx-auto">
-              <h2 className="text-lg font-bold text-gray-900 mb-1">Lighting & Practicals</h2>
-              <p className="text-sm text-gray-500 mb-6">All fixtures across every set</p>
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="text-lg font-bold text-gray-900">Lighting & Practicals</h2>
+                  <p className="text-sm text-gray-500 mt-0.5">{allLighting.length} fixtures across {sets.filter((s) => s.lighting.length > 0).length} sets</p>
+                </div>
+              </div>
 
               {/* Summary cards */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
                 {(["practical", "motivated", "ambient", "effect"] as const).map((type) => {
                   const count = allLighting.filter((l) => l.type === type).length
-                  const colorMap = {
-                    practical: { bg: "bg-yellow-50", border: "border-yellow-200", text: "text-yellow-800", icon: "text-yellow-600" },
-                    motivated: { bg: "bg-orange-50", border: "border-orange-200", text: "text-orange-800", icon: "text-orange-600" },
-                    ambient:   { bg: "bg-gray-50",   border: "border-gray-200",   text: "text-gray-800",   icon: "text-gray-500" },
-                    effect:    { bg: "bg-red-50",     border: "border-red-200",     text: "text-red-800",     icon: "text-red-600" },
-                  }
-                  const c = colorMap[type]
+                  const style = LIGHT_TYPE_STYLE[type]
                   return (
-                    <div key={type} className={`${c.bg} border ${c.border} rounded-xl p-3.5`}>
+                    <div key={type} className={`${style.bg} border ${style.badge.split(" ").find((c) => c.startsWith("border-")) || "border-gray-200"} rounded-xl p-4`}>
                       <div className="flex items-center justify-between">
-                        <Lightbulb className={`w-5 h-5 ${c.icon}`} />
-                        <span className={`text-2xl font-bold ${c.text}`}>{count}</span>
+                        <Lightbulb className={`w-5 h-5 ${style.text}`} />
+                        <span className={`text-2xl font-bold ${style.text.replace("text-", "text-")}`}>{count}</span>
                       </div>
-                      <p className={`text-xs font-semibold ${c.text} capitalize mt-1`}>{type}</p>
+                      <p className={`text-xs font-semibold capitalize mt-1.5 ${style.text}`}>{type}</p>
+                      <p className="text-[10px] text-gray-400 mt-0.5">
+                        {type === "practical" ? "On-set visible" : type === "motivated" ? "Story-driven" : type === "ambient" ? "Fill lighting" : "Special FX"}
+                      </p>
                     </div>
                   )
                 })}
@@ -912,52 +1039,46 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
 
               {/* Fixtures by set */}
               {sets.filter((s) => s.lighting.length > 0).map((s) => (
-                <div key={s.id} className="mb-6">
-                  <div className="flex items-center gap-2 mb-3">
-                    <h3 className="text-sm font-bold text-gray-900">{s.name}</h3>
+                <div key={s.id} className="mb-8">
+                  <div className="flex items-center gap-3 mb-4">
+                    <button
+                      onClick={() => { setSelectedSetId(s.id); setActiveTab("sets"); setSetDetailTab("lighting") }}
+                      className="flex items-center gap-2 group"
+                    >
+                      <h3 className="text-sm font-bold text-gray-900 group-hover:text-violet-700 transition-colors">{s.name}</h3>
+                      <ArrowRight className="w-3.5 h-3.5 text-gray-400 group-hover:text-violet-500 transition-colors" />
+                    </button>
                     <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${STATUS_CONFIG[s.status].color} ${STATUS_CONFIG[s.status].bg}`}>
                       {STATUS_CONFIG[s.status].label}
                     </span>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {s.lighting.map((lf) => (
-                      <div key={lf.id} className="flex items-start gap-3 p-3.5 bg-white rounded-xl border border-gray-200 hover:shadow-sm transition-shadow">
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
-                          lf.type === "practical" ? "bg-yellow-50" :
-                          lf.type === "motivated" ? "bg-orange-50" :
-                          lf.type === "effect" ? "bg-red-50" :
-                          "bg-gray-50"
-                        }`}>
-                          <Lightbulb className={`w-5 h-5 ${
-                            lf.type === "practical" ? "text-yellow-600" :
-                            lf.type === "motivated" ? "text-orange-600" :
-                            lf.type === "effect" ? "text-red-600" :
-                            "text-gray-500"
-                          }`} />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between gap-2">
-                            <p className="text-sm font-semibold text-gray-900">{lf.name}</p>
-                            <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase ${
-                              lf.type === "practical" ? "bg-yellow-50 text-yellow-700" :
-                              lf.type === "motivated" ? "bg-orange-50 text-orange-700" :
-                              lf.type === "effect" ? "bg-red-50 text-red-700" :
-                              "bg-gray-100 text-gray-600"
-                            }`}>
-                              {lf.type}
-                            </span>
+                    {s.lighting.map((lf) => {
+                      const style = LIGHT_TYPE_STYLE[lf.type] || LIGHT_TYPE_STYLE.ambient
+                      return (
+                        <div key={lf.id} className="flex items-start gap-3 p-4 bg-white rounded-xl border border-gray-200 hover:shadow-sm transition-shadow">
+                          <div className={`w-10 h-10 rounded-xl ${style.bg} flex items-center justify-center shrink-0`}>
+                            <Lightbulb className={`w-5 h-5 ${style.text}`} />
                           </div>
-                          <div className="flex items-center gap-2 mt-0.5 text-[11px] text-gray-500">
-                            {lf.wattage && <span>{lf.wattage}</span>}
-                            {lf.wattage && <span className="text-gray-300">|</span>}
-                            <span className={lf.dimmable ? "text-emerald-600 font-medium" : "text-gray-400"}>
-                              {lf.dimmable ? "Dimmable" : "Non-dimmable"}
-                            </span>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between gap-2">
+                              <p className="text-sm font-semibold text-gray-900">{lf.name}</p>
+                              <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase border ${style.badge}`}>
+                                {lf.type}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2 mt-1 text-[11px] text-gray-500">
+                              {lf.wattage && <span className="flex items-center gap-1"><Zap className="w-3 h-3" /> {lf.wattage}</span>}
+                              {lf.wattage && <span className="text-gray-300">|</span>}
+                              <span className={lf.dimmable ? "text-emerald-600 font-medium" : "text-gray-400"}>
+                                {lf.dimmable ? "Dimmable" : "Non-dimmable"}
+                              </span>
+                            </div>
+                            {lf.notes && <p className="text-[11px] text-gray-500 bg-gray-50 mt-2 px-2 py-1 rounded italic">{lf.notes}</p>}
                           </div>
-                          {lf.notes && <p className="text-[11px] text-gray-400 mt-1 italic">{lf.notes}</p>}
                         </div>
-                      </div>
-                    ))}
+                      )
+                    })}
                   </div>
                 </div>
               ))}
@@ -970,38 +1091,14 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
 }
 
 /* ============================================================
-   Collapsible Section Sub-Component
+   Sub-Components
    ============================================================ */
 
-function CollapsibleSection({
-  title,
-  icon,
-  count,
-  isOpen,
-  onToggle,
-  children,
-}: {
-  title: string
-  icon: React.ReactNode
-  count: number
-  isOpen: boolean
-  onToggle: () => void
-  children: React.ReactNode
-}) {
+function EmptyState({ icon: Icon, label }: { icon: React.ComponentType<{ className?: string }>; label: string }) {
   return (
-    <div className="border border-gray-200 rounded-xl overflow-hidden">
-      <button
-        onClick={onToggle}
-        className="w-full flex items-center justify-between px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors"
-      >
-        <div className="flex items-center gap-2.5">
-          {icon}
-          <span className="text-sm font-semibold text-gray-900">{title}</span>
-          <span className="px-1.5 py-0.5 bg-gray-200 text-gray-600 rounded text-[10px] font-bold">{count}</span>
-        </div>
-        {isOpen ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
-      </button>
-      {isOpen && <div className="p-4 bg-gray-50/50">{children}</div>}
+    <div className="text-center py-12">
+      <Icon className="w-10 h-10 text-gray-300 mx-auto mb-3" />
+      <p className="text-sm text-gray-400">{label}</p>
     </div>
   )
 }
