@@ -1791,11 +1791,11 @@ export default function LocationsModal({ onClose }: LocationsModalProps) {
       {/* Top Bar */}
       <header className="flex items-center justify-between px-5 py-3 bg-white border-b border-gray-200 shrink-0">
   <div className="flex items-center gap-4">
-> <img src="/images/gogreenlight-logo.png" alt="GoGreenlight" className="h-8 w-auto" />
-  <button onClick={() => { onClose(); setTimeout(() => openModal("splashScreen"), 150) }} className="p-1.5 rounded-lg text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors" title="Home" aria-label="Go to Home">
-    <Home className="w-4 h-4" />
-  </button>
-  <div className="inline-flex items-center bg-teal-600 text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded">Locations</div>
+          <img src="/images/gogreenlight-logo.png" alt="GoGreenlight" className="h-8 w-auto" />
+          <button onClick={() => { onClose(); setTimeout(() => openModal("splashScreen"), 150) }} className="p-1.5 rounded-lg text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors" title="Home" aria-label="Go to Home">
+            <Home className="w-4 h-4" />
+          </button>
+          <div className="inline-flex items-center bg-teal-600 text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded">Locations</div>
           {currentProject ? (
             <span className="hidden sm:inline text-sm text-gray-500">{currentProject.name}</span>
           ) : (
