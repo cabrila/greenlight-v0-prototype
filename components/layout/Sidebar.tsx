@@ -26,16 +26,19 @@ import {
   ScrollText,
   ChevronDown,
   Paintbrush,
+  Film,
 } from "lucide-react"
 import { openModal } from "@/components/modals/ModalManager"
 import { useState, useEffect, useRef } from "react"
 import { mockData } from "@/lib/mockData"
+import { jurassicAIData } from "@/lib/jurassicAIData"
 import UserMenu from "./UserMenu"
 
 export default function Sidebar() {
   const { state, dispatch } = useCasting()
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [isLoadingDemo, setIsLoadingDemo] = useState(false)
+const [isLoadingJurassic, setIsLoadingJurassic] = useState(false)
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const [castingToolsOpen, setCastingToolsOpen] = useState(false)
   const userAvatarRef = useRef<HTMLDivElement>(null)
@@ -162,6 +165,20 @@ export default function Sidebar() {
       console.error("Error loading demo data:", error)
     } finally {
       setIsLoadingDemo(false)
+    }
+  }
+
+  const handleLoadJurassicData = async () => {
+    setIsLoadingJurassic(true)
+
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 500))
+      dispatch({ type: "LOAD_DEMO_DATA", payload: jurassicAIData })
+      console.log("Jurassic AI data loaded successfully")
+    } catch (error) {
+      console.error("Error loading Jurassic AI data:", error)
+    } finally {
+      setIsLoadingJurassic(false)
     }
   }
 
@@ -716,6 +733,20 @@ export default function Sidebar() {
                       <Database size={16} />
                     )}
                     <span>{isLoadingDemo ? "Loading..." : "Load Demo Data"}</span>
+                  </button>
+
+                  <button
+                    onClick={handleLoadJurassicData}
+                    disabled={isLoadingJurassic}
+                    className="flex items-center space-x-3 w-full text-sm text-amber-600 hover:text-amber-700 hover:bg-amber-50 px-3 py-2 rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                    title="Load Jurassic AI script data"
+                  >
+                    {isLoadingJurassic ? (
+                      <div className="w-4 h-4 border-2 border-amber-600 border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <Film size={16} />
+                    )}
+                    <span>{isLoadingJurassic ? "Loading..." : "Load Jurassic AI Data"}</span>
                   </button>
 
                   <button
