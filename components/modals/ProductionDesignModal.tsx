@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo, useCallback, useRef, type ChangeEvent } from "react"
+import { useState, useEffect, useMemo, useCallback, useRef, type ChangeEvent } from "react"
 import {
   X,
   Plus,
@@ -234,6 +234,23 @@ const MOCK_TASKS: ConstructionTask[] = [
 ]
 
 /* ============================================================
+   LOCALSTORAGE PERSISTENCE
+   ============================================================ */
+
+const PD_STORAGE_KEY = "greenlight-production-design-sets"
+
+function loadSavedSets(): ProductionDesignSet[] | null {
+  try {
+    const raw = localStorage.getItem(PD_STORAGE_KEY)
+    if (raw) {
+      const parsed = JSON.parse(raw)
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed
+    }
+  } catch { /* ignore corrupt data */ }
+  return null
+}
+
+/* ============================================================
    HELPERS
    ============================================================ */
 
@@ -367,8 +384,15 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
 
   const [activeTab, setActiveTab] = useState<ModalTab>("sets")
   const [searchTerm, setSearchTerm] = useState("")
-  const [sets, setSets] = useState<ProductionDesignSet[]>(MOCK_SETS)
+  const [sets, setSets] = useState<ProductionDesignSet[]>(() => loadSavedSets() || MOCK_SETS)
   const [tasks, setTasks] = useState<ConstructionTask[]>(MOCK_TASKS)
+
+  // Persist sets to localStorage on every change
+  useEffect(() => {
+    try {
+      localStorage.setItem(PD_STORAGE_KEY, JSON.stringify(sets))
+    } catch { /* quota exceeded or unavailable */ }
+  }, [sets])
   const [selectedSetId, setSelectedSetId] = useState<string | null>("set-1")
   const [statusFilter, setStatusFilter] = useState<SetStatusPhase | "all">("all")
   const [setDetailTab, setSetDetailTab] = useState<SetDetailTab>("elements")
