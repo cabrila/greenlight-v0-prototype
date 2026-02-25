@@ -657,10 +657,9 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
                 <DollarSign className="w-3.5 h-3.5 text-emerald-600" />
                 <span className="text-emerald-600">Actual</span>
                 <span className="font-semibold text-emerald-800">${budgetSummary.actual.toLocaleString()}</span>
-                          </div>
-                          </>
-                        )}
-                      </div>
+              </div>
+            )}
+          </div>
           <div className="w-px h-6 bg-gray-200 hidden lg:block" />
           <button onClick={() => openModal("locations")} className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-teal-700 bg-teal-50 hover:bg-teal-100 rounded-lg transition-colors border border-teal-200">
             <MapPin className="w-3.5 h-3.5" /> Locations
