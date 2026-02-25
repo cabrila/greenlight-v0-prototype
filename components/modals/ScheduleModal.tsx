@@ -22,6 +22,7 @@ import {
   Rows3,
 } from "lucide-react"
 import { useCasting } from "@/components/casting/CastingContext"
+import { openModal } from "./ModalManager"
 import type { ScheduleEntry, RedFlag, ProductionPhase } from "@/types/schedule"
 import type { Actor } from "@/types/casting"
 import StripboardView from "@/components/schedule/StripboardView"
@@ -360,13 +361,18 @@ export default function ScheduleModal({ onClose }: ScheduleModalProps) {
 
   return (
     <div className="fixed inset-0 bg-gray-50 z-50 flex flex-col">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between shadow-sm">
-        <h1 className="text-2xl font-bold text-gray-900">Shoot Days</h1>
-        <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
-          <X className="w-6 h-6" />
-        </button>
-      </div>
+  {/* Header */}
+  <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between shadow-sm">
+  <div className="flex items-center gap-3">
+    <button onClick={() => { onClose(); setTimeout(() => openModal("splashScreen"), 150) }} className="p-1.5 rounded-lg text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors" title="Home" aria-label="Go to Home">
+      <Home className="w-5 h-5" />
+    </button>
+    <h1 className="text-2xl font-bold text-gray-900">Shoot Days</h1>
+  </div>
+  <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
+  <X className="w-6 h-6" />
+  </button>
+  </div>
 
       {successMessage && (
         <div className="bg-emerald-500 text-white px-6 py-3 flex items-center justify-between shadow-md animate-in slide-in-from-top">

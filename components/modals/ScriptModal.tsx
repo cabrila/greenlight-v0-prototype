@@ -42,8 +42,10 @@ import {
   GripVertical,
   Pencil,
   Link2,
+  Home,
 } from "lucide-react"
 import { useCasting } from "@/components/casting/CastingContext"
+import { openModal } from "./ModalManager"
 import type {
   ScriptBlock,
   ScriptBlockType,
@@ -1388,7 +1390,11 @@ export default function ScriptModal({ onClose }: { onClose: () => void }) {
     <div className="fixed inset-0 bg-gradient-to-br from-stone-100 via-stone-50 to-amber-50/30 z-50 flex flex-col">
       {/* Header toolbar */}
       <div className="h-12 bg-white/90 backdrop-blur-sm border-b border-stone-200 flex items-center gap-2 px-4 shrink-0">
-        <button onClick={onClose} className="p-1.5 text-stone-500 hover:text-stone-700 hover:bg-stone-100 rounded-lg transition-colors">
+        <button onClick={() => { onClose(); setTimeout(() => openModal("splashScreen"), 150) }} className="p-1.5 text-stone-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors" title="Home" aria-label="Go to Home">
+          <Home className="w-4.5 h-4.5" />
+        </button>
+
+        <button onClick={onClose} className="p-1.5 text-stone-500 hover:text-stone-700 hover:bg-stone-100 rounded-lg transition-colors" title="Close">
           <X className="w-5 h-5" />
         </button>
 
