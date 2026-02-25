@@ -482,6 +482,51 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
     setConfirmDelete(null)
   }
 
+  /* ---- DRAG-AND-DROP IMAGE REPLACEMENT ---- */
+  const [dragOverImageId, setDragOverImageId] = useState<string | null>(null)
+
+  const handleDropImage = useCallback((e: React.DragEvent, setId: string, imageId: string) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setDragOverImageId(null)
+    const file = e.dataTransfer.files?.[0]
+    if (!file || !file.type.startsWith("image/")) return
+    const reader = new FileReader()
+    reader.onload = () => {
+      const dataUrl = reader.result as string
+      setSets((prev) => prev.map((s) => {
+        if (s.id !== setId) return s
+        return {
+          ...s,
+          moodBoard: s.moodBoard.map((img) => img.id === imageId ? { ...img, url: dataUrl, addedAt: Date.now() } : img),
+          updatedAt: Date.now(),
+        }
+      }))
+    }
+    reader.readAsDataURL(file)
+  }, [])
+
+  const handleDropNewImage = useCallback((e: React.DragEvent, setId: string) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setDragOverImageId(null)
+    const file = e.dataTransfer.files?.[0]
+    if (!file || !file.type.startsWith("image/")) return
+    const reader = new FileReader()
+    reader.onload = () => {
+      const dataUrl = reader.result as string
+      const newImage: MoodBoardImage = {
+        id: uid(),
+        url: dataUrl,
+        caption: file.name.replace(/\.[^.]+$/, ""),
+        tags: [],
+        addedAt: Date.now(),
+      }
+      setSets((prev) => prev.map((s) => s.id === setId ? { ...s, moodBoard: [...s.moodBoard, newImage], updatedAt: Date.now() } : s))
+    }
+    reader.readAsDataURL(file)
+  }, [])
+
   /* ---- TASK CRUD ---- */
   const toggleTaskComplete = (taskId: string) => {
     setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, completed: !t.completed } : t)))
@@ -907,12 +952,25 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
                         selectedSet.moodBoard.length > 0 ? (
                           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                             {selectedSet.moodBoard.map((img) => (
-                              <div key={img.id} className="group rounded-xl overflow-hidden border border-gray-200 bg-white hover:shadow-md transition-shadow relative">
-                                <div className="aspect-[4/3] bg-gray-100 overflow-hidden">
-                                  <img src={img.url} alt={img.caption || "Mood board"} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                              <div
+                                key={img.id}
+                                className={`group rounded-xl overflow-hidden border bg-white hover:shadow-md transition-all relative ${dragOverImageId === img.id ? "border-violet-400 ring-2 ring-violet-200 scale-[1.02]" : "border-gray-200"}`}
+                                onDragOver={(e) => { e.preventDefault(); setDragOverImageId(img.id) }}
+                                onDragLeave={() => setDragOverImageId(null)}
+                                onDrop={(e) => handleDropImage(e, selectedSet.id, img.id)}
+                              >
+                                <div className="aspect-[4/3] bg-gray-100 overflow-hidden relative">
+                                  <img src={img.url} alt={img.caption || "Mood board"} className={`w-full h-full object-cover transition-all duration-300 ${dragOverImageId === img.id ? "opacity-30 scale-105" : "group-hover:scale-105"}`} />
+                                  {dragOverImageId === img.id && (
+                                    <div className="absolute inset-0 flex flex-col items-center justify-center">
+                                      <Upload className="w-8 h-8 text-violet-500 mb-1.5" />
+                                      <span className="text-xs font-semibold text-violet-700">Drop to replace</span>
+                                    </div>
+                                  )}
                                 </div>
                                 <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                  <button onClick={() => setConfirmDelete({ type: "moodimage", id: img.id, name: img.caption || "Image" })} className="p-1.5 rounded-lg bg-white/90 text-red-500 hover:bg-red-50 shadow-sm"><Trash2 className="w-3 h-3" /></button>
+                                  <button onClick={() => setEditingSubItem({ type: "moodboard", setId: selectedSet.id, itemId: img.id })} className="p-1.5 rounded-lg bg-white/90 text-violet-600 hover:bg-violet-50 shadow-sm"><Pencil className="w-3 h-3" /></button>
+                                  <button onClick={() => setConfirmDelete({ type: "moodimage", id: img.id, name: img.caption || "Image", setId: selectedSet.id })} className="p-1.5 rounded-lg bg-white/90 text-red-500 hover:bg-red-50 shadow-sm"><Trash2 className="w-3 h-3" /></button>
                                 </div>
                                 <div className="p-3">
                                   {img.caption && <p className="text-xs text-gray-700 font-medium line-clamp-1">{img.caption}</p>}
@@ -923,9 +981,48 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
                                 </div>
                               </div>
                             ))}
+                            {/* Drop zone to add new image */}
+                            <div
+                              className={`rounded-xl border-2 border-dashed flex flex-col items-center justify-center aspect-[4/3] transition-all cursor-pointer ${dragOverImageId === "new-detail" ? "border-violet-400 bg-violet-50/50 scale-[1.02]" : "border-gray-200 hover:border-violet-300 bg-gray-50/50 hover:bg-violet-50/30"}`}
+                              onClick={() => setAddSubItem({ type: "moodboard", setId: selectedSet.id })}
+                              onDragOver={(e) => { e.preventDefault(); setDragOverImageId("new-detail") }}
+                              onDragLeave={() => setDragOverImageId(null)}
+                              onDrop={(e) => handleDropNewImage(e, selectedSet.id)}
+                            >
+                              {dragOverImageId === "new-detail" ? (
+                                <>
+                                  <Upload className="w-6 h-6 text-violet-500 mb-1" />
+                                  <span className="text-[10px] text-violet-600 font-semibold">Drop to add</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Plus className="w-6 h-6 text-gray-300" />
+                                  <span className="text-[10px] text-gray-400 mt-1 font-medium">Add or drop image</span>
+                                </>
+                              )}
+                            </div>
                           </div>
                         ) : (
-                          <EmptyState icon={ImageIcon} label="No mood board images yet" />
+                          <div
+                            className={`w-full py-12 rounded-xl border-2 border-dashed flex flex-col items-center cursor-pointer transition-all ${dragOverImageId === "empty-detail" ? "border-violet-400 bg-violet-50/50" : "border-gray-200 hover:border-violet-300 bg-gray-50/50 hover:bg-violet-50/30"}`}
+                            onClick={() => setAddSubItem({ type: "moodboard", setId: selectedSet.id })}
+                            onDragOver={(e) => { e.preventDefault(); setDragOverImageId("empty-detail") }}
+                            onDragLeave={() => setDragOverImageId(null)}
+                            onDrop={(e) => handleDropNewImage(e, selectedSet.id)}
+                          >
+                            {dragOverImageId === "empty-detail" ? (
+                              <>
+                                <Upload className="w-10 h-10 text-violet-400 mb-2" />
+                                <span className="text-sm text-violet-600 font-semibold">Drop image to add</span>
+                              </>
+                            ) : (
+                              <>
+                                <ImageIcon className="w-10 h-10 text-gray-300 mb-2" />
+                                <span className="text-xs text-gray-400 font-medium">No mood board images yet</span>
+                                <span className="text-[10px] text-violet-500 mt-1 font-medium">Click or drag images here</span>
+                              </>
+                            )}
+                          </div>
                         )
                       )}
 
@@ -994,9 +1091,21 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
                     {s.moodBoard.length > 0 ? (
                       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
                         {s.moodBoard.map((img) => (
-                          <div key={img.id} className="rounded-xl overflow-hidden border border-gray-200 bg-white group hover:shadow-md transition-shadow relative">
-                            <div className="aspect-[4/3] bg-gray-100 overflow-hidden">
-                              <img src={img.url} alt={img.caption || ""} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                          <div
+                            key={img.id}
+                            className={`rounded-xl overflow-hidden border bg-white group hover:shadow-md transition-all relative ${dragOverImageId === `ov-${img.id}` ? "border-violet-400 ring-2 ring-violet-200 scale-[1.02]" : "border-gray-200"}`}
+                            onDragOver={(e) => { e.preventDefault(); setDragOverImageId(`ov-${img.id}`) }}
+                            onDragLeave={() => setDragOverImageId(null)}
+                            onDrop={(e) => handleDropImage(e, s.id, img.id)}
+                          >
+                            <div className="aspect-[4/3] bg-gray-100 overflow-hidden relative">
+                              <img src={img.url} alt={img.caption || ""} className={`w-full h-full object-cover transition-all duration-300 ${dragOverImageId === `ov-${img.id}` ? "opacity-30 scale-105" : "group-hover:scale-105"}`} />
+                              {dragOverImageId === `ov-${img.id}` && (
+                                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                                  <Upload className="w-7 h-7 text-violet-500 mb-1" />
+                                  <span className="text-[10px] font-semibold text-violet-700">Drop to replace</span>
+                                </div>
+                              )}
                             </div>
                             {/* Hover action buttons */}
                             <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -1024,24 +1133,48 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
                             </div>
                           </div>
                         ))}
-                        {/* Inline add card */}
-                        <button
+                        {/* Inline add / drop zone */}
+                        <div
+                          className={`rounded-xl border-2 border-dashed flex flex-col items-center justify-center aspect-[4/3] transition-all cursor-pointer ${dragOverImageId === `ov-new-${s.id}` ? "border-violet-400 bg-violet-50/50 scale-[1.02]" : "border-gray-200 hover:border-violet-300 bg-gray-50/50 hover:bg-violet-50/30"}`}
                           onClick={() => setAddSubItem({ type: "moodboard", setId: s.id })}
-                          className="rounded-xl border-2 border-dashed border-gray-200 hover:border-violet-300 bg-gray-50/50 hover:bg-violet-50/30 flex flex-col items-center justify-center aspect-[4/3] transition-colors group/add"
+                          onDragOver={(e) => { e.preventDefault(); setDragOverImageId(`ov-new-${s.id}`) }}
+                          onDragLeave={() => setDragOverImageId(null)}
+                          onDrop={(e) => handleDropNewImage(e, s.id)}
                         >
-                          <Plus className="w-6 h-6 text-gray-300 group-hover/add:text-violet-400 transition-colors" />
-                          <span className="text-[10px] text-gray-400 group-hover/add:text-violet-500 mt-1 font-medium transition-colors">Add Image</span>
-                        </button>
+                          {dragOverImageId === `ov-new-${s.id}` ? (
+                            <>
+                              <Upload className="w-6 h-6 text-violet-500 mb-1" />
+                              <span className="text-[10px] text-violet-600 font-semibold">Drop to add</span>
+                            </>
+                          ) : (
+                            <>
+                              <Plus className="w-6 h-6 text-gray-300" />
+                              <span className="text-[10px] text-gray-400 mt-1 font-medium">Add or drop image</span>
+                            </>
+                          )}
+                        </div>
                       </div>
                     ) : (
-                      <button
+                      <div
+                        className={`w-full py-10 rounded-xl border-2 border-dashed flex flex-col items-center cursor-pointer transition-all ${dragOverImageId === `ov-empty-${s.id}` ? "border-violet-400 bg-violet-50/50" : "border-gray-200 hover:border-violet-300 bg-gray-50/50 hover:bg-violet-50/30"}`}
                         onClick={() => setAddSubItem({ type: "moodboard", setId: s.id })}
-                        className="w-full py-10 rounded-xl border-2 border-dashed border-gray-200 hover:border-violet-300 bg-gray-50/50 hover:bg-violet-50/30 transition-colors flex flex-col items-center"
+                        onDragOver={(e) => { e.preventDefault(); setDragOverImageId(`ov-empty-${s.id}`) }}
+                        onDragLeave={() => setDragOverImageId(null)}
+                        onDrop={(e) => handleDropNewImage(e, s.id)}
                       >
-                        <ImageIcon className="w-8 h-8 text-gray-300 mb-2" />
-                        <span className="text-xs text-gray-400 font-medium">No images yet</span>
-                        <span className="text-[10px] text-violet-500 mt-1 font-medium">Click to add first image</span>
-                      </button>
+                        {dragOverImageId === `ov-empty-${s.id}` ? (
+                          <>
+                            <Upload className="w-8 h-8 text-violet-400 mb-2" />
+                            <span className="text-sm text-violet-600 font-semibold">Drop image to add</span>
+                          </>
+                        ) : (
+                          <>
+                            <ImageIcon className="w-8 h-8 text-gray-300 mb-2" />
+                            <span className="text-xs text-gray-400 font-medium">No images yet</span>
+                            <span className="text-[10px] text-violet-500 mt-1 font-medium">Click or drag images here</span>
+                          </>
+                        )}
+                      </div>
                     )}
                   </div>
                 ))}
@@ -1426,6 +1559,73 @@ function SetFormOverlay({ existingSet, locations, onSave, onClose }: {
 }
 
 /* ============================================================
+   MOOD BOARD DROP ZONE (for form overlay)
+   ============================================================ */
+
+function MoodBoardDropZone({ url, onUrlChange }: { url: string; onUrlChange: (v: string) => void }) {
+  const [dragging, setDragging] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const handleFile = (file: File) => {
+    if (!file.type.startsWith("image/")) return
+    const reader = new FileReader()
+    reader.onload = () => onUrlChange(reader.result as string)
+    reader.readAsDataURL(file)
+  }
+
+  return (
+    <div
+      className={`relative rounded-xl border-2 border-dashed overflow-hidden transition-all ${dragging ? "border-violet-400 bg-violet-50/50" : url ? "border-gray-200 bg-gray-100" : "border-gray-300 bg-gray-50 hover:border-violet-300"}`}
+      onDragOver={(e) => { e.preventDefault(); setDragging(true) }}
+      onDragLeave={() => setDragging(false)}
+      onDrop={(e) => { e.preventDefault(); setDragging(false); const f = e.dataTransfer.files?.[0]; if (f) handleFile(f) }}
+    >
+      <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f) }} />
+      {url ? (
+        <div className="aspect-video relative group">
+          <img src={url} alt="Preview" className={`w-full h-full object-cover transition-opacity ${dragging ? "opacity-30" : ""}`} />
+          {dragging ? (
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <Upload className="w-8 h-8 text-violet-500 mb-1.5" />
+              <span className="text-sm font-semibold text-violet-700">Drop to replace image</span>
+            </div>
+          ) : (
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="px-3 py-1.5 bg-white/90 text-sm font-semibold text-gray-800 rounded-lg shadow-sm hover:bg-white transition-colors"
+              >
+                Replace Image
+              </button>
+            </div>
+          )}
+        </div>
+      ) : (
+        <button
+          type="button"
+          className="w-full aspect-video flex flex-col items-center justify-center cursor-pointer"
+          onClick={() => fileInputRef.current?.click()}
+        >
+          {dragging ? (
+            <>
+              <Upload className="w-8 h-8 text-violet-500 mb-1.5" />
+              <span className="text-sm font-semibold text-violet-700">Drop image here</span>
+            </>
+          ) : (
+            <>
+              <Upload className="w-8 h-8 text-gray-400 mb-1.5" />
+              <span className="text-sm font-medium text-gray-500">Drag and drop an image, or click to browse</span>
+              <span className="text-[10px] text-gray-400 mt-1">PNG, JPG, WebP supported</span>
+            </>
+          )}
+        </button>
+      )}
+    </div>
+  )
+}
+
+/* ============================================================
    SUB-ITEM FORM OVERLAY
    ============================================================ */
 
@@ -1509,14 +1709,11 @@ function SubItemFormOverlay({ type, existingItem, onSave, onClose }: {
           )}
           {type === "moodboard" && (
             <>
+              {/* Drop zone / image preview */}
+              <MoodBoardDropZone url={mbForm.url} onUrlChange={(v) => setMbForm({ ...mbForm, url: v })} />
               <FloatingField label="Image URL" value={mbForm.url} onChange={(v) => setMbForm({ ...mbForm, url: v })} />
               <FloatingField label="Caption" value={mbForm.caption} onChange={(v) => setMbForm({ ...mbForm, caption: v })} />
               <FloatingField label="Tags (comma-separated)" value={mbForm.tags} onChange={(v) => setMbForm({ ...mbForm, tags: v })} placeholder="e.g. terrain, color, mood" />
-              {mbForm.url && (
-                <div className="rounded-xl overflow-hidden border border-gray-200 aspect-video bg-gray-100">
-                  <img src={mbForm.url} alt="Preview" className="w-full h-full object-cover" />
-                </div>
-              )}
             </>
           )}
         </div>
