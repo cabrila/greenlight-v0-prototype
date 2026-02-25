@@ -179,8 +179,7 @@ export default function SplashScreenModal({ onClose }: SplashScreenModalProps) {
 
   return (
     <div className="fixed inset-0 flex flex-col z-50 overflow-hidden" style={{ background: "linear-gradient(180deg, #2d6b3f 0%, #1a4a2a 30%, #0f3520 55%, #0a2618 80%, #061a10 100%)" }}>
-      {/* Subtle texture overlay */}
-      <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")" }} />
+
 
       {/* Timer indicator */}
       {isTimerActive && (
@@ -195,7 +194,7 @@ export default function SplashScreenModal({ onClose }: SplashScreenModalProps) {
       {/* Top Navigation Bar */}
       <header className="relative flex justify-between items-center px-6 py-3 border-b border-white/10 shrink-0 z-20">
         <div className="flex items-center">
-          <img src="/images/gogreenlight-logo.png" alt="GoGreenlight" className="h-9 w-auto brightness-0 invert opacity-90" />
+          <img src="/images/gogreenlight-logo.png" alt="GoGreenlight" className="h-9 w-auto" />
         </div>
         <div className="flex items-center gap-1">
           <div className="relative">
@@ -238,10 +237,6 @@ export default function SplashScreenModal({ onClose }: SplashScreenModalProps) {
 
           {/* Hero Section */}
           <div className="text-center mb-10 md:mb-14 max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/10 text-emerald-300 text-xs font-semibold tracking-wide uppercase mb-6">
-              <Sparkles className="w-3.5 h-3.5" />
-              Your single source of truth
-            </div>
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 text-balance leading-tight">
               Every creative asset.{" "}
               <span className="text-emerald-300">One platform.</span>
