@@ -873,6 +873,7 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
                               </div>
                             )}
                           </div>
+                          </>
                         )}
                       </div>
                       {selectedSet.sceneIds.map((sid) => (
