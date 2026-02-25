@@ -380,7 +380,7 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
   const [editingSubItem, setEditingSubItem] = useState<{ type: SetDetailTab; setId: string; itemId: string } | null>(null)
   const [showAddTask, setShowAddTask] = useState(false)
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null)
-  const [confirmDelete, setConfirmDelete] = useState<{ type: string; id: string; name: string } | null>(null)
+  const [confirmDelete, setConfirmDelete] = useState<{ type: string; id: string; name: string; setId?: string } | null>(null)
 
   const selectedSet = useMemo(() => sets.find((s) => s.id === selectedSetId), [sets, selectedSetId])
 
@@ -970,42 +970,82 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
                   <p className="text-sm text-gray-500 mt-0.5">{allMoodImages.length} reference images across {sets.filter((s) => s.moodBoard.length > 0).length} sets</p>
                 </div>
               </div>
-              {allMoodImages.length > 0 ? (
-                <div className="space-y-10">
-                  {sets.filter((s) => s.moodBoard.length > 0).map((s) => (
-                    <div key={s.id}>
-                      <div className="flex items-center gap-3 mb-4">
+
+              {/* Per-set mood boards with CRUD */}
+              <div className="space-y-10">
+                {sets.map((s) => (
+                  <div key={s.id}>
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-3">
                         <button onClick={() => { setSelectedSetId(s.id); setActiveTab("sets"); setSetDetailTab("moodboard") }} className="flex items-center gap-2 group">
                           <h3 className="text-sm font-bold text-gray-900 group-hover:text-violet-700 transition-colors">{s.name}</h3>
                           <ArrowRight className="w-3.5 h-3.5 text-gray-400 group-hover:text-violet-500 transition-colors" />
                         </button>
                         <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${STATUS_CONFIG[s.status].color} ${STATUS_CONFIG[s.status].bg}`}>{STATUS_CONFIG[s.status].label}</span>
+                        <span className="text-[10px] text-gray-400 font-medium">{s.moodBoard.length} images</span>
                       </div>
+                      <button
+                        onClick={() => setAddSubItem({ type: "moodboard", setId: s.id })}
+                        className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-violet-600 bg-violet-50 hover:bg-violet-100 border border-violet-200 rounded-lg transition-colors"
+                      >
+                        <Plus className="w-3 h-3" /> Add Image
+                      </button>
+                    </div>
+                    {s.moodBoard.length > 0 ? (
                       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
                         {s.moodBoard.map((img) => (
-                          <div key={img.id} className="rounded-xl overflow-hidden border border-gray-200 bg-white group hover:shadow-md transition-shadow">
+                          <div key={img.id} className="rounded-xl overflow-hidden border border-gray-200 bg-white group hover:shadow-md transition-shadow relative">
                             <div className="aspect-[4/3] bg-gray-100 overflow-hidden">
                               <img src={img.url} alt={img.caption || ""} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                            </div>
+                            {/* Hover action buttons */}
+                            <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <button
+                                onClick={() => setEditingSubItem({ type: "moodboard", setId: s.id, itemId: img.id })}
+                                className="p-1.5 rounded-lg bg-white/90 text-violet-600 hover:bg-violet-50 shadow-sm transition-colors"
+                                title="Edit image"
+                              >
+                                <Pencil className="w-3 h-3" />
+                              </button>
+                              <button
+                                onClick={() => setConfirmDelete({ type: "moodimage", id: img.id, name: img.caption || "Image", setId: s.id })}
+                                className="p-1.5 rounded-lg bg-white/90 text-red-500 hover:bg-red-50 shadow-sm transition-colors"
+                                title="Delete image"
+                              >
+                                <Trash2 className="w-3 h-3" />
+                              </button>
                             </div>
                             <div className="p-2.5">
                               {img.caption && <p className="text-[11px] text-gray-700 font-medium line-clamp-1">{img.caption}</p>}
                               <div className="flex flex-wrap gap-1 mt-1">
                                 {img.tags.map((t) => <span key={t} className="px-1 py-0.5 bg-violet-50 text-violet-600 border border-violet-200 rounded text-[8px] font-medium">{t}</span>)}
                               </div>
+                              <p className="text-[10px] text-gray-400 mt-1">{formatRelative(img.addedAt)}</p>
                             </div>
                           </div>
                         ))}
+                        {/* Inline add card */}
+                        <button
+                          onClick={() => setAddSubItem({ type: "moodboard", setId: s.id })}
+                          className="rounded-xl border-2 border-dashed border-gray-200 hover:border-violet-300 bg-gray-50/50 hover:bg-violet-50/30 flex flex-col items-center justify-center aspect-[4/3] transition-colors group/add"
+                        >
+                          <Plus className="w-6 h-6 text-gray-300 group-hover/add:text-violet-400 transition-colors" />
+                          <span className="text-[10px] text-gray-400 group-hover/add:text-violet-500 mt-1 font-medium transition-colors">Add Image</span>
+                        </button>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-20 text-gray-400">
-                  <ImageIcon className="w-12 h-12 mx-auto mb-3 opacity-30" />
-                  <p className="text-sm font-medium">No mood board images yet</p>
-                  <p className="text-xs mt-1">Add images to individual sets to see them here</p>
-                </div>
-              )}
+                    ) : (
+                      <button
+                        onClick={() => setAddSubItem({ type: "moodboard", setId: s.id })}
+                        className="w-full py-10 rounded-xl border-2 border-dashed border-gray-200 hover:border-violet-300 bg-gray-50/50 hover:bg-violet-50/30 transition-colors flex flex-col items-center"
+                      >
+                        <ImageIcon className="w-8 h-8 text-gray-300 mb-2" />
+                        <span className="text-xs text-gray-400 font-medium">No images yet</span>
+                        <span className="text-[10px] text-violet-500 mt-1 font-medium">Click to add first image</span>
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         )}
@@ -1119,6 +1159,8 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
                   <p className="text-sm text-gray-500 mt-0.5">{allLighting.length} fixtures across {sets.filter((s) => s.lighting.length > 0).length} sets</p>
                 </div>
               </div>
+
+              {/* Summary cards */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
                 {(["practical", "motivated", "ambient", "effect"] as const).map((type) => {
                   const count = allLighting.filter((l) => l.type === type).length
@@ -1135,39 +1177,77 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
                   )
                 })}
               </div>
-              {sets.filter((s) => s.lighting.length > 0).map((s) => (
+
+              {/* Per-set lighting with CRUD */}
+              {sets.map((s) => (
                 <div key={s.id} className="mb-8">
-                  <div className="flex items-center gap-3 mb-4">
-                    <button onClick={() => { setSelectedSetId(s.id); setActiveTab("sets"); setSetDetailTab("lighting") }} className="flex items-center gap-2 group">
-                      <h3 className="text-sm font-bold text-gray-900 group-hover:text-violet-700 transition-colors">{s.name}</h3>
-                      <ArrowRight className="w-3.5 h-3.5 text-gray-400 group-hover:text-violet-500 transition-colors" />
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <button onClick={() => { setSelectedSetId(s.id); setActiveTab("sets"); setSetDetailTab("lighting") }} className="flex items-center gap-2 group">
+                        <h3 className="text-sm font-bold text-gray-900 group-hover:text-violet-700 transition-colors">{s.name}</h3>
+                        <ArrowRight className="w-3.5 h-3.5 text-gray-400 group-hover:text-violet-500 transition-colors" />
+                      </button>
+                      <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${STATUS_CONFIG[s.status].color} ${STATUS_CONFIG[s.status].bg}`}>{STATUS_CONFIG[s.status].label}</span>
+                      <span className="text-[10px] text-gray-400 font-medium">{s.lighting.length} fixtures</span>
+                    </div>
+                    <button
+                      onClick={() => setAddSubItem({ type: "lighting", setId: s.id })}
+                      className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-violet-600 bg-violet-50 hover:bg-violet-100 border border-violet-200 rounded-lg transition-colors"
+                    >
+                      <Plus className="w-3 h-3" /> Add Fixture
                     </button>
-                    <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${STATUS_CONFIG[s.status].color} ${STATUS_CONFIG[s.status].bg}`}>{STATUS_CONFIG[s.status].label}</span>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {s.lighting.map((lf) => {
-                      const style = LIGHT_TYPE_STYLE[lf.type] || LIGHT_TYPE_STYLE.ambient
-                      return (
-                        <div key={lf.id} className="flex items-start gap-3 p-4 bg-white rounded-xl border border-gray-200 hover:shadow-sm transition-shadow">
-                          <div className={`w-10 h-10 rounded-xl ${style.bg} flex items-center justify-center shrink-0`}>
-                            <Lightbulb className={`w-5 h-5 ${style.text}`} />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between gap-2">
-                              <p className="text-sm font-semibold text-gray-900">{lf.name}</p>
-                              <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase border ${style.badge}`}>{lf.type}</span>
+                  {s.lighting.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {s.lighting.map((lf) => {
+                        const style = LIGHT_TYPE_STYLE[lf.type] || LIGHT_TYPE_STYLE.ambient
+                        return (
+                          <div key={lf.id} className="flex items-start gap-3 p-4 bg-white rounded-xl border border-gray-200 hover:shadow-sm transition-shadow group">
+                            <div className={`w-10 h-10 rounded-xl ${style.bg} flex items-center justify-center shrink-0`}>
+                              <Lightbulb className={`w-5 h-5 ${style.text}`} />
                             </div>
-                            <div className="flex items-center gap-2 mt-1 text-[11px] text-gray-500">
-                              {lf.wattage && <span className="flex items-center gap-1"><Zap className="w-3 h-3" /> {lf.wattage}</span>}
-                              {lf.wattage && <span className="text-gray-300">|</span>}
-                              <span className={lf.dimmable ? "text-emerald-600 font-medium" : "text-gray-400"}>{lf.dimmable ? "Dimmable" : "Non-dimmable"}</span>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between gap-2">
+                                <p className="text-sm font-semibold text-gray-900">{lf.name}</p>
+                                <div className="flex items-center gap-1.5 shrink-0">
+                                  <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase border ${style.badge}`}>{lf.type}</span>
+                                  <button
+                                    onClick={() => setEditingSubItem({ type: "lighting", setId: s.id, itemId: lf.id })}
+                                    className="opacity-0 group-hover:opacity-100 p-1 rounded text-gray-400 hover:text-violet-600 hover:bg-violet-50 transition-all"
+                                    title="Edit fixture"
+                                  >
+                                    <Pencil className="w-3 h-3" />
+                                  </button>
+                                  <button
+                                    onClick={() => setConfirmDelete({ type: "fixture", id: lf.id, name: lf.name, setId: s.id })}
+                                    className="opacity-0 group-hover:opacity-100 p-1 rounded text-gray-400 hover:text-red-600 hover:bg-red-50 transition-all"
+                                    title="Delete fixture"
+                                  >
+                                    <Trash2 className="w-3 h-3" />
+                                  </button>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2 mt-1 text-[11px] text-gray-500">
+                                {lf.wattage && <span className="flex items-center gap-1"><Zap className="w-3 h-3" /> {lf.wattage}</span>}
+                                {lf.wattage && <span className="text-gray-300">|</span>}
+                                <span className={lf.dimmable ? "text-emerald-600 font-medium" : "text-gray-400"}>{lf.dimmable ? "Dimmable" : "Non-dimmable"}</span>
+                              </div>
+                              {lf.notes && <p className="text-[11px] text-gray-500 bg-gray-50 mt-2 px-2 py-1 rounded italic">{lf.notes}</p>}
                             </div>
-                            {lf.notes && <p className="text-[11px] text-gray-500 bg-gray-50 mt-2 px-2 py-1 rounded italic">{lf.notes}</p>}
                           </div>
-                        </div>
-                      )
-                    })}
-                  </div>
+                        )
+                      })}
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setAddSubItem({ type: "lighting", setId: s.id })}
+                      className="w-full py-8 rounded-xl border-2 border-dashed border-gray-200 hover:border-violet-300 bg-gray-50/50 hover:bg-violet-50/30 transition-colors flex flex-col items-center"
+                    >
+                      <Lightbulb className="w-7 h-7 text-gray-300 mb-2" />
+                      <span className="text-xs text-gray-400 font-medium">No fixtures yet</span>
+                      <span className="text-[10px] text-violet-500 mt-1 font-medium">Click to add first lighting fixture</span>
+                    </button>
+                  )}
                 </div>
               ))}
             </div>
@@ -1198,9 +1278,12 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
                 onClick={() => {
                   if (confirmDelete.type === "set") handleDeleteSet(confirmDelete.id)
                   else if (confirmDelete.type === "task") handleDeleteTask(confirmDelete.id)
-                  else if (selectedSet) {
-                    const typeMap: Record<string, SetDetailTab> = { element: "elements", decoration: "decorations", fixture: "lighting", moodimage: "moodboard" }
-                    deleteSubItemFromSet(selectedSet.id, typeMap[confirmDelete.type] || "elements", confirmDelete.id)
+                  else {
+                    const parentSetId = confirmDelete.setId || selectedSet?.id
+                    if (parentSetId) {
+                      const typeMap: Record<string, SetDetailTab> = { element: "elements", decoration: "decorations", fixture: "lighting", moodimage: "moodboard" }
+                      deleteSubItemFromSet(parentSetId, typeMap[confirmDelete.type] || "elements", confirmDelete.id)
+                    }
                   }
                 }}
                 className="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 rounded-xl transition-colors"
@@ -1223,14 +1306,19 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
       )}
 
       {/* Add/Edit Sub-Item */}
-      {(addSubItem || editingSubItem) && selectedSet && (
-        <SubItemFormOverlay
-          type={(addSubItem || editingSubItem)!.type}
-          existingItem={editingSubItem ? getSubItem(selectedSet, editingSubItem.type, editingSubItem.itemId) : undefined}
-          onSave={(item) => editingSubItem ? editSubItemInSet(editingSubItem.setId, editingSubItem.type, editingSubItem.itemId, item) : addSubItemToSet(addSubItem!.setId, addSubItem!.type, item)}
-          onClose={() => { setAddSubItem(null); setEditingSubItem(null) }}
-        />
-      )}
+      {(addSubItem || editingSubItem) && (() => {
+        const targetSetId = (addSubItem || editingSubItem)!.setId
+        const targetSet = sets.find((s) => s.id === targetSetId)
+        if (!targetSet) return null
+        return (
+          <SubItemFormOverlay
+            type={(addSubItem || editingSubItem)!.type}
+            existingItem={editingSubItem ? getSubItem(targetSet, editingSubItem.type, editingSubItem.itemId) : undefined}
+            onSave={(item) => editingSubItem ? editSubItemInSet(editingSubItem.setId, editingSubItem.type, editingSubItem.itemId, item) : addSubItemToSet(addSubItem!.setId, addSubItem!.type, item)}
+            onClose={() => { setAddSubItem(null); setEditingSubItem(null) }}
+          />
+        )
+      })()}
 
       {/* Add/Edit Task */}
       {(showAddTask || editingTaskId) && (
