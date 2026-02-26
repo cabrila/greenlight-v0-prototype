@@ -10,10 +10,19 @@
         "@id": "gg:character/jb2-alan-grant"
       },
       "characterLevel": "lead",
-      "gg:notes": "Minimal script-description extraction. Detailed styling design requires HMU department pass.",
+      "gg:notes": "Script-backed styling cues extracted from intro/action lines.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
-      }
+      },
+      "gg:stylingCues": [
+        "physical state styling",
+        "wet look continuity"
+      ],
+      "gg:evidence": [
+        "Lex is crying silently. Tim is pale but focused. Grant crouches",
+        "Grant and the kids moving. Dawn light. Wet ground. Birds calling.",
+        "Grant lands and runs to Tim. He's on the ground, pale, not"
+      ]
     },
     {
       "@id": "gg:styling/jb2-dennis-nedry",
@@ -24,10 +33,16 @@
         "@id": "gg:character/jb2-dennis-nedry"
       },
       "characterLevel": "dayPlayer",
-      "gg:notes": "Minimal script-description extraction. Detailed styling design requires HMU department pass.",
+      "gg:notes": "Script-backed styling cues extracted from intro/action lines.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
-      }
+      },
+      "gg:stylingCues": [
+        "physical state styling"
+      ],
+      "gg:evidence": [
+        "Nedry drives Jeep 12 in pouring rain. He's sweating, leaning"
+      ]
     },
     {
       "@id": "gg:styling/jb2-donald-gennaro",
@@ -38,10 +53,16 @@
         "@id": "gg:character/jb2-donald-gennaro"
       },
       "characterLevel": "supporting",
-      "gg:notes": "Minimal script-description extraction. Detailed styling design requires HMU department pass.",
+      "gg:notes": "Script-backed styling cues extracted from intro/action lines.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
-      }
+      },
+      "gg:stylingCues": [
+        "physical state styling"
+      ],
+      "gg:evidence": [
+        "Beside Hammond: DONALD GENNARO, looking pale with anxiety. And"
+      ]
     },
     {
       "@id": "gg:styling/jb2-ellie-sattler",
@@ -94,10 +115,16 @@
         "@id": "gg:character/jb2-ian-malcolm"
       },
       "characterLevel": "lead",
-      "gg:notes": "Minimal script-description extraction. Detailed styling design requires HMU department pass.",
+      "gg:notes": "Script-backed styling cues extracted from intro/action lines.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
-      }
+      },
+      "gg:stylingCues": [
+        "physical state styling"
+      ],
+      "gg:evidence": [
+        "MALCOLM is in the back of the jeep, leg still splinted, pale"
+      ]
     },
     {
       "@id": "gg:styling/jb2-john-hammond",
@@ -108,10 +135,16 @@
         "@id": "gg:character/jb2-john-hammond"
       },
       "characterLevel": "lead",
-      "gg:notes": "Minimal script-description extraction. Detailed styling design requires HMU department pass.",
+      "gg:notes": "Script-backed styling cues extracted from intro/action lines.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
-      }
+      },
+      "gg:stylingCues": [
+        "physical state styling"
+      ],
+      "gg:evidence": [
+        "Beside Hammond: DONALD GENNARO, looking pale with anxiety. And"
+      ]
     },
     {
       "@id": "gg:styling/jb2-juanito-rostagno",
@@ -122,10 +155,16 @@
         "@id": "gg:character/jb2-juanito-rostagno"
       },
       "characterLevel": "dayPlayer",
-      "gg:notes": "Minimal script-description extraction. Detailed styling design requires HMU department pass.",
+      "gg:notes": "Script-backed styling cues extracted from intro/action lines.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
-      }
+      },
+      "gg:stylingCues": [
+        "physical state styling"
+      ],
+      "gg:evidence": [
+        "mopping sweat from his forehead. JUANITO ROSTAGNO, the mine"
+      ]
     },
     {
       "@id": "gg:styling/jb2-lewis-dodgson",
@@ -192,10 +231,18 @@
         "@id": "gg:character/jb2-tim-murphy"
       },
       "characterLevel": "lead",
-      "gg:notes": "Minimal script-description extraction. Detailed styling design requires HMU department pass.",
+      "gg:notes": "Script-backed styling cues extracted from intro/action lines.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
-      }
+      },
+      "gg:stylingCues": [
+        "wet look continuity",
+        "physical state styling"
+      ],
+      "gg:evidence": [
+        "TIM is there \u2014 bruised, wet, unsteady, but alive. He looks at",
+        "Grant lands and runs to Tim. He's on the ground, pale, not"
+      ]
     }
   ]
 }

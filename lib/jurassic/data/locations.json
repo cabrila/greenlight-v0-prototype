@@ -17,7 +17,31 @@
           "@id": "gg:scene/jb2-scene-082"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 2,
+      "gg:actCoverage": [
+        "Act 1",
+        "Act 2b"
+      ],
+      "gg:settingCounts": {
+        "interior": 0,
+        "exterior": 2
+      },
+      "gg:timeOfDayCounts": {
+        "continuous": 1,
+        "night": 1
+      },
+      "gg:dominantCues": [
+        "dinosaurs",
+        "vehicles",
+        "water"
+      ],
+      "gg:evidence": [
+        "EXT. JUNGLE - NIGHT",
+        "darkness. The SOUND of the raptor is horrible. The other workers",
+        "we can barely make out a convoy of vehicles moving along the road.",
+        "TRUCKS. The convoy moves through the mud toward a large holding"
+      ],
+      "description": "Appears in 2 scene(s) across 2 act(s) (Act 1, Act 2b), exterior-focused, night-leaning. Dominant cues: dinosaur presence, vehicle activity, water-related hazards.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -35,7 +59,27 @@
           "@id": "gg:scene/jb2-scene-002"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 1,
+      "gg:actCoverage": [
+        "Act 1"
+      ],
+      "gg:settingCounts": {
+        "interior": 0,
+        "exterior": 1
+      },
+      "gg:timeOfDayCounts": {
+        "day": 1
+      },
+      "gg:dominantCues": [
+        "action",
+        "water"
+      ],
+      "gg:evidence": [
+        "EXT. MOUNTAINSIDE - DAY",
+        "that was killed \u2014",
+        "tropical heat. A pair of mud-caked boots come into frame, picking"
+      ],
+      "description": "Appears in 1 scene(s) across 1 act(s) (Act 1), exterior-focused, day-leaning. Dominant cues: action beats, water-related hazards.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -53,7 +97,22 @@
           "@id": "gg:scene/jb2-scene-003"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 1,
+      "gg:actCoverage": [
+        "Act 1"
+      ],
+      "gg:settingCounts": {
+        "interior": 0,
+        "exterior": 1
+      },
+      "gg:timeOfDayCounts": {
+        "day": 1
+      },
+      "gg:dominantCues": [],
+      "gg:evidence": [
+        "EXT. CAVE - DAY"
+      ],
+      "description": "Appears in 1 scene(s) across 1 act(s) (Act 1), exterior-focused, day-leaning.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -71,7 +130,25 @@
           "@id": "gg:scene/jb2-scene-004"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 1,
+      "gg:actCoverage": [
+        "Act 1"
+      ],
+      "gg:settingCounts": {
+        "interior": 0,
+        "exterior": 1
+      },
+      "gg:timeOfDayCounts": {
+        "day": 1
+      },
+      "gg:dominantCues": [
+        "aerial"
+      ],
+      "gg:evidence": [
+        "EXT. THE DIG - ESTABLISHING - DAY",
+        "Aerial view of the Montana badlands. Barren, dusty, spectacular."
+      ],
+      "description": "Appears in 1 scene(s) across 1 act(s) (Act 1), exterior-focused, day-leaning. Dominant cues: aerial logistics.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -92,7 +169,30 @@
           "@id": "gg:scene/jb2-scene-006"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 2,
+      "gg:actCoverage": [
+        "Act 1"
+      ],
+      "gg:settingCounts": {
+        "interior": 0,
+        "exterior": 2
+      },
+      "gg:timeOfDayCounts": {
+        "continuous": 1,
+        "day": 1
+      },
+      "gg:dominantCues": [
+        "dinosaurs",
+        "systems",
+        "action"
+      ],
+      "gg:evidence": [
+        "EXT. THE DIG - DAY",
+        "shows a three-dimensional model of a velociraptor skeleton,",
+        "concentration) is crouched over a computer display. The screen",
+        "back. And that's when the attack comes. Not"
+      ],
+      "description": "Appears in 2 scene(s) across 1 act(s) (Act 1), exterior-focused, day-leaning. Dominant cues: dinosaur presence, control/power systems, action beats.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -110,7 +210,23 @@
           "@id": "gg:scene/jb2-scene-007"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 1,
+      "gg:actCoverage": [
+        "Act 1"
+      ],
+      "gg:settingCounts": {
+        "interior": 0,
+        "exterior": 1
+      },
+      "gg:timeOfDayCounts": {},
+      "gg:dominantCues": [
+        "aerial"
+      ],
+      "gg:evidence": [
+        "EXT. THE DIG - MOMENTS LATER",
+        "Everyone looks up. A helicopter drops into view \u2014 a sleek,"
+      ],
+      "description": "Appears in 1 scene(s) across 1 act(s) (Act 1), exterior-focused, unspecified time profile. Dominant cues: aerial logistics.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -131,7 +247,28 @@
           "@id": "gg:scene/jb2-scene-009"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 2,
+      "gg:actCoverage": [
+        "Act 1"
+      ],
+      "gg:settingCounts": {
+        "interior": 0,
+        "exterior": 2
+      },
+      "gg:timeOfDayCounts": {
+        "continuous": 1,
+        "day": 1
+      },
+      "gg:dominantCues": [
+        "aerial",
+        "dinosaurs"
+      ],
+      "gg:evidence": [
+        "EXT. BASE CAMP - DAY",
+        "The helicopter lands in a swirl of dust. The rotors scatter papers,",
+        "I see you've found your raptor."
+      ],
+      "description": "Appears in 2 scene(s) across 1 act(s) (Act 1), exterior-focused, day-leaning. Dominant cues: aerial logistics, dinosaur presence.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -149,7 +286,22 @@
           "@id": "gg:scene/jb2-scene-010"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 1,
+      "gg:actCoverage": [
+        "Act 1"
+      ],
+      "gg:settingCounts": {
+        "interior": 0,
+        "exterior": 1
+      },
+      "gg:timeOfDayCounts": {
+        "day": 1
+      },
+      "gg:dominantCues": [],
+      "gg:evidence": [
+        "EXT. TRAILER - DAY"
+      ],
+      "description": "Appears in 1 scene(s) across 1 act(s) (Act 1), exterior-focused, day-leaning.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -167,7 +319,22 @@
           "@id": "gg:scene/jb2-scene-011"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 1,
+      "gg:actCoverage": [
+        "Act 1"
+      ],
+      "gg:settingCounts": {
+        "interior": 0,
+        "exterior": 1
+      },
+      "gg:timeOfDayCounts": {
+        "day": 1
+      },
+      "gg:dominantCues": [],
+      "gg:evidence": [
+        "EXT. CAFE - DAY"
+      ],
+      "description": "Appears in 1 scene(s) across 1 act(s) (Act 1), exterior-focused, day-leaning.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -191,7 +358,28 @@
           "@id": "gg:scene/jb2-scene-144"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 3,
+      "gg:actCoverage": [
+        "Act 1",
+        "Act 3"
+      ],
+      "gg:settingCounts": {
+        "interior": 0,
+        "exterior": 3
+      },
+      "gg:timeOfDayCounts": {
+        "day": 3
+      },
+      "gg:dominantCues": [
+        "aerial",
+        "water"
+      ],
+      "gg:evidence": [
+        "EXT. OPEN SEA - DAY",
+        "A smaller chartered helicopter skims low over the dark water.",
+        "A transport ship plows through rough water."
+      ],
+      "description": "Appears in 3 scene(s) across 2 act(s) (Act 1, Act 3), exterior-focused, day-leaning. Dominant cues: aerial logistics, water-related hazards.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -218,7 +406,31 @@
           "@id": "gg:scene/jb2-scene-143"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 4,
+      "gg:actCoverage": [
+        "Act 1",
+        "Act 3"
+      ],
+      "gg:settingCounts": {
+        "interior": 2,
+        "exterior": 2
+      },
+      "gg:timeOfDayCounts": {
+        "continuous": 1,
+        "day": 3
+      },
+      "gg:dominantCues": [
+        "aerial",
+        "action",
+        "dinosaurs"
+      ],
+      "gg:evidence": [
+        "EXT. HELICOPTER - DAY",
+        "14  EXT. HELICOPTER - DAY",
+        "new territories and crashes through barriers,",
+        "open across his lap. A drawing of a velociraptor. Accurate."
+      ],
+      "description": "Appears in 4 scene(s) across 2 act(s) (Act 1, Act 3), mixed interior/exterior, day-leaning. Dominant cues: aerial logistics, action beats, dinosaur presence.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -236,7 +448,27 @@
           "@id": "gg:scene/jb2-scene-015"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 1,
+      "gg:actCoverage": [
+        "Act 1"
+      ],
+      "gg:settingCounts": {
+        "interior": 0,
+        "exterior": 1
+      },
+      "gg:timeOfDayCounts": {
+        "day": 1
+      },
+      "gg:dominantCues": [
+        "aerial",
+        "vehicles"
+      ],
+      "gg:evidence": [
+        "EXT. HELICOPTER LANDING PAD - DAY",
+        "14A EXT. HELICOPTER LANDING PAD - DAY",
+        "Hammond is already walking toward the waiting JEEPS."
+      ],
+      "description": "Appears in 1 scene(s) across 1 act(s) (Act 1), exterior-focused, day-leaning. Dominant cues: aerial logistics, vehicle activity.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -254,7 +486,27 @@
           "@id": "gg:scene/jb2-scene-016"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 1,
+      "gg:actCoverage": [
+        "Act 1"
+      ],
+      "gg:settingCounts": {
+        "interior": 0,
+        "exterior": 1
+      },
+      "gg:timeOfDayCounts": {
+        "day": 1
+      },
+      "gg:dominantCues": [
+        "dinosaurs",
+        "vehicles"
+      ],
+      "gg:evidence": [
+        "EXT. HILLTOP - DAY",
+        "valley \u2014 moving slowly, impossibly large, a BRACHIOSAURUS.",
+        "The jeeps crest a rise and stop. The group gets out."
+      ],
+      "description": "Appears in 1 scene(s) across 1 act(s) (Act 1), exterior-focused, day-leaning. Dominant cues: dinosaur presence, vehicle activity.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -290,7 +542,33 @@
           "@id": "gg:scene/jb2-scene-093"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 7,
+      "gg:actCoverage": [
+        "Act 1",
+        "Act 2a",
+        "Act 2b"
+      ],
+      "gg:settingCounts": {
+        "interior": 0,
+        "exterior": 7
+      },
+      "gg:timeOfDayCounts": {
+        "continuous": 3,
+        "day": 1,
+        "night": 3
+      },
+      "gg:dominantCues": [
+        "vehicles",
+        "dinosaurs",
+        "perimeter"
+      ],
+      "gg:evidence": [
+        "EXT. PARK ROAD - DAY",
+        "The jeeps move along a well-maintained road. Everyone stares out",
+        "at the T-Rex paddock.",
+        "at the T-Rex paddock."
+      ],
+      "description": "Appears in 7 scene(s) across 3 act(s) (Act 1, Act 2a, Act 2b), exterior-focused, night-leaning. Dominant cues: vehicle activity, dinosaur presence, fence/perimeter interactions.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -308,7 +586,27 @@
           "@id": "gg:scene/jb2-scene-018"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 1,
+      "gg:actCoverage": [
+        "Act 1"
+      ],
+      "gg:settingCounts": {
+        "interior": 0,
+        "exterior": 1
+      },
+      "gg:timeOfDayCounts": {
+        "day": 1
+      },
+      "gg:dominantCues": [
+        "systems",
+        "vehicles"
+      ],
+      "gg:evidence": [
+        "EXT. MAIN COMPOUND - DAY",
+        "a lot more impressive than a computer",
+        "The jeeps arrive at the Visitor's Center compound. A cluster of"
+      ],
+      "description": "Appears in 1 scene(s) across 1 act(s) (Act 1), exterior-focused, day-leaning. Dominant cues: control/power systems, vehicle activity.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -347,7 +645,33 @@
           "@id": "gg:scene/jb2-scene-136"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 8,
+      "gg:actCoverage": [
+        "Act 1",
+        "Act 2a",
+        "Act 3"
+      ],
+      "gg:settingCounts": {
+        "interior": 3,
+        "exterior": 5
+      },
+      "gg:timeOfDayCounts": {
+        "continuous": 1,
+        "day": 6,
+        "night": 1
+      },
+      "gg:dominantCues": [
+        "dinosaurs",
+        "vehicles",
+        "systems"
+      ],
+      "gg:evidence": [
+        "INT. VISITOR'S CENTER - DAY",
+        "SKELETONS \u2014 a T-Rex and a Raptor \u2014 arch dramatically through",
+        "Four FORD EXPLORER XLT tour vehicles wait in front of the",
+        "I'll monitor from the control room. You'll"
+      ],
+      "description": "Appears in 8 scene(s) across 3 act(s) (Act 1, Act 2a, Act 3), mixed interior/exterior, day-leaning. Dominant cues: dinosaur presence, vehicle activity, control/power systems.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -377,7 +701,23 @@
           "@id": "gg:scene/jb2-scene-024"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 5,
+      "gg:actCoverage": [
+        "Act 1"
+      ],
+      "gg:settingCounts": {
+        "interior": 5,
+        "exterior": 0
+      },
+      "gg:timeOfDayCounts": {
+        "continuous": 4,
+        "day": 1
+      },
+      "gg:dominantCues": [],
+      "gg:evidence": [
+        "INT. SHOW ROOM - DAY"
+      ],
+      "description": "Appears in 5 scene(s) across 1 act(s) (Act 1), interior-focused, continuous-leaning.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -395,7 +735,22 @@
           "@id": "gg:scene/jb2-scene-025"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 1,
+      "gg:actCoverage": [
+        "Act 1"
+      ],
+      "gg:settingCounts": {
+        "interior": 1,
+        "exterior": 0
+      },
+      "gg:timeOfDayCounts": {
+        "day": 1
+      },
+      "gg:dominantCues": [],
+      "gg:evidence": [
+        "INT. HALLWAY - DAY"
+      ],
+      "description": "Appears in 1 scene(s) across 1 act(s) (Act 1), interior-focused, day-leaning.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -416,7 +771,26 @@
           "@id": "gg:scene/jb2-scene-027"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 2,
+      "gg:actCoverage": [
+        "Act 1"
+      ],
+      "gg:settingCounts": {
+        "interior": 2,
+        "exterior": 0
+      },
+      "gg:timeOfDayCounts": {
+        "continuous": 1,
+        "day": 1
+      },
+      "gg:dominantCues": [
+        "systems"
+      ],
+      "gg:evidence": [
+        "INT. GENETICS LAB - DAY",
+        "We control the sex chromosomally."
+      ],
+      "description": "Appears in 2 scene(s) across 1 act(s) (Act 1), interior-focused, day-leaning. Dominant cues: control/power systems.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -434,7 +808,22 @@
           "@id": "gg:scene/jb2-scene-028"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 1,
+      "gg:actCoverage": [
+        "Act 1"
+      ],
+      "gg:settingCounts": {
+        "interior": 1,
+        "exterior": 0
+      },
+      "gg:timeOfDayCounts": {
+        "day": 1
+      },
+      "gg:dominantCues": [],
+      "gg:evidence": [
+        "INT. HALLWAY / STAIRS - DAY"
+      ],
+      "description": "Appears in 1 scene(s) across 1 act(s) (Act 1), interior-focused, day-leaning.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -452,7 +841,25 @@
           "@id": "gg:scene/jb2-scene-029"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 1,
+      "gg:actCoverage": [
+        "Act 1"
+      ],
+      "gg:settingCounts": {
+        "interior": 1,
+        "exterior": 0
+      },
+      "gg:timeOfDayCounts": {
+        "day": 1
+      },
+      "gg:dominantCues": [
+        "dinosaurs"
+      ],
+      "gg:evidence": [
+        "INT. HALLWAY/STAIRS - DAY",
+        "A BABY RAPTOR, the size of a kitten, struggles out of the egg."
+      ],
+      "description": "Appears in 1 scene(s) across 1 act(s) (Act 1), interior-focused, day-leaning. Dominant cues: dinosaur presence.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -470,7 +877,29 @@
           "@id": "gg:scene/jb2-scene-030"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 1,
+      "gg:actCoverage": [
+        "Act 1"
+      ],
+      "gg:settingCounts": {
+        "interior": 0,
+        "exterior": 1
+      },
+      "gg:timeOfDayCounts": {
+        "day": 1
+      },
+      "gg:dominantCues": [
+        "action",
+        "dinosaurs",
+        "perimeter"
+      ],
+      "gg:evidence": [
+        "EXT. RAPTOR PEN - DAY",
+        "The worker who was killed \u2014",
+        "29  EXT. RAPTOR PEN - DAY",
+        "A high electric fence encloses a thick area of jungle. Warning"
+      ],
+      "description": "Appears in 1 scene(s) across 1 act(s) (Act 1), exterior-focused, day-leaning. Dominant cues: action beats, dinosaur presence, fence/perimeter interactions.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -488,7 +917,27 @@
           "@id": "gg:scene/jb2-scene-031"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 1,
+      "gg:actCoverage": [
+        "Act 1"
+      ],
+      "gg:settingCounts": {
+        "interior": 1,
+        "exterior": 0
+      },
+      "gg:timeOfDayCounts": {
+        "day": 1
+      },
+      "gg:dominantCues": [
+        "dinosaurs",
+        "systems"
+      ],
+      "gg:evidence": [
+        "INT. VISITOR CENTER PRESENTATION ROOM - DAY",
+        "Tim has spotted Grant's raptor CLAW, which Grant carries on his",
+        "Genetic power is the most awesome force the"
+      ],
+      "description": "Appears in 1 scene(s) across 1 act(s) (Act 1), interior-focused, day-leaning. Dominant cues: dinosaur presence, control/power systems.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -554,7 +1003,34 @@
           "@id": "gg:scene/jb2-scene-129"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 17,
+      "gg:actCoverage": [
+        "Act 2a",
+        "Act 2b",
+        "Act 3"
+      ],
+      "gg:settingCounts": {
+        "interior": 17,
+        "exterior": 0
+      },
+      "gg:timeOfDayCounts": {
+        "continuous": 4,
+        "day": 8,
+        "dusk": 1,
+        "night": 4
+      },
+      "gg:dominantCues": [
+        "systems",
+        "vehicles",
+        "dinosaurs"
+      ],
+      "gg:evidence": [
+        "INT. CONTROL ROOM - DAY",
+        "32  INT. CONTROL ROOM - DAY",
+        "watches a row of screens showing the tour vehicles moving along",
+        "Dilophosaurus is hiding again."
+      ],
+      "description": "Appears in 17 scene(s) across 3 act(s) (Act 2a, Act 2b, Act 3), interior-focused, day-leaning. Dominant cues: control/power systems, vehicle activity, dinosaur presence.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -572,7 +1048,25 @@
           "@id": "gg:scene/jb2-scene-035"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 1,
+      "gg:actCoverage": [
+        "Act 2a"
+      ],
+      "gg:settingCounts": {
+        "interior": 0,
+        "exterior": 1
+      },
+      "gg:timeOfDayCounts": {
+        "day": 1
+      },
+      "gg:dominantCues": [
+        "vehicles"
+      ],
+      "gg:evidence": [
+        "EXT. MAIN GATES - DAY",
+        "The vehicles pass through the main entrance gates of the park"
+      ],
+      "description": "Appears in 1 scene(s) across 1 act(s) (Act 2a), exterior-focused, day-leaning. Dominant cues: vehicle activity.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -590,7 +1084,29 @@
           "@id": "gg:scene/jb2-scene-036"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 1,
+      "gg:actCoverage": [
+        "Act 2a"
+      ],
+      "gg:settingCounts": {
+        "interior": 0,
+        "exterior": 1
+      },
+      "gg:timeOfDayCounts": {
+        "day": 1
+      },
+      "gg:dominantCues": [
+        "dinosaurs",
+        "perimeter",
+        "vehicles"
+      ],
+      "gg:evidence": [
+        "EXT. JURASSIC PARK - DAY",
+        "A sign: DILOPHOSAURUS - THE SPITTER.",
+        "approaching the Dilophosaurus paddock.",
+        "The vehicles cruise along the tour road. Ahead: the first exhibit."
+      ],
+      "description": "Appears in 1 scene(s) across 1 act(s) (Act 2a), exterior-focused, day-leaning. Dominant cues: dinosaur presence, fence/perimeter interactions, vehicle activity.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -632,7 +1148,32 @@
           "@id": "gg:scene/jb2-scene-076"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 9,
+      "gg:actCoverage": [
+        "Act 2a",
+        "Act 2b"
+      ],
+      "gg:settingCounts": {
+        "interior": 0,
+        "exterior": 9
+      },
+      "gg:timeOfDayCounts": {
+        "continuous": 6,
+        "day": 1,
+        "night": 2
+      },
+      "gg:dominantCues": [
+        "dinosaurs",
+        "perimeter",
+        "vehicles"
+      ],
+      "gg:evidence": [
+        "EXT. TYRANNOSAUR PADDOCK - DAY",
+        "36  EXT. TYRANNOSAUR PADDOCK - DAY",
+        "36  EXT. TYRANNOSAUR PADDOCK - DAY",
+        "The cars slow and stop. The cars are right next to a concrete"
+      ],
+      "description": "Appears in 9 scene(s) across 2 act(s) (Act 2a, Act 2b), exterior-focused, continuous-leaning. Dominant cues: dinosaur presence, fence/perimeter interactions, vehicle activity.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -662,7 +1203,34 @@
           "@id": "gg:scene/jb2-scene-099"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 5,
+      "gg:actCoverage": [
+        "Act 2a",
+        "Act 2b",
+        "Act 3"
+      ],
+      "gg:settingCounts": {
+        "interior": 0,
+        "exterior": 5
+      },
+      "gg:timeOfDayCounts": {
+        "dawn": 1,
+        "day": 2,
+        "dusk": 1,
+        "night": 1
+      },
+      "gg:dominantCues": [
+        "dinosaurs",
+        "vehicles",
+        "weather"
+      ],
+      "gg:evidence": [
+        "EXT. PARK - DAY",
+        "Ahead: a TRICERATOPS. Enormous, magnificent, lying on its side",
+        "The tour vehicles cruise along the road. Malcolm has leaned out",
+        "In car one: Grant watches the jungle go by. The rain picks up."
+      ],
+      "description": "Appears in 5 scene(s) across 3 act(s) (Act 2a, Act 2b, Act 3), exterior-focused, day-leaning. Dominant cues: dinosaur presence, vehicle activity, weather pressure.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -680,7 +1248,23 @@
           "@id": "gg:scene/jb2-scene-044"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 1,
+      "gg:actCoverage": [
+        "Act 2a"
+      ],
+      "gg:settingCounts": {
+        "interior": 1,
+        "exterior": 0
+      },
+      "gg:timeOfDayCounts": {},
+      "gg:dominantCues": [
+        "systems"
+      ],
+      "gg:evidence": [
+        "INT. CONTROL ROOM - ACROSS THE ROOM",
+        "41  INT. CONTROL ROOM - ACROSS THE ROOM"
+      ],
+      "description": "Appears in 1 scene(s) across 1 act(s) (Act 2a), interior-focused, unspecified time profile. Dominant cues: control/power systems.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -704,7 +1288,30 @@
           "@id": "gg:scene/jb2-scene-048"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 3,
+      "gg:actCoverage": [
+        "Act 2a"
+      ],
+      "gg:settingCounts": {
+        "interior": 0,
+        "exterior": 3
+      },
+      "gg:timeOfDayCounts": {
+        "continuous": 1,
+        "day": 2
+      },
+      "gg:dominantCues": [
+        "perimeter",
+        "vehicles",
+        "dinosaurs"
+      ],
+      "gg:evidence": [
+        "EXT. FIELD - DAY",
+        "the plant grows on the far side of the paddock.",
+        "Dr. Harding, the tour vehicles need to come",
+        "Ellie examines the droppings near the triceratops. They're massive."
+      ],
+      "description": "Appears in 3 scene(s) across 1 act(s) (Act 2a), exterior-focused, day-leaning. Dominant cues: fence/perimeter interactions, vehicle activity, dinosaur presence.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -722,7 +1329,25 @@
           "@id": "gg:scene/jb2-scene-052"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 1,
+      "gg:actCoverage": [
+        "Act 2a"
+      ],
+      "gg:settingCounts": {
+        "interior": 1,
+        "exterior": 0
+      },
+      "gg:timeOfDayCounts": {
+        "night": 1
+      },
+      "gg:dominantCues": [
+        "dinosaurs"
+      ],
+      "gg:evidence": [
+        "INT. FERTILIZATION LAB - NIGHT",
+        "Brachiosaurus... Stegosaurus... Triceratops..."
+      ],
+      "description": "Appears in 1 scene(s) across 1 act(s) (Act 2a), interior-focused, night-leaning. Dominant cues: dinosaur presence.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -740,7 +1365,27 @@
           "@id": "gg:scene/jb2-scene-059"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 1,
+      "gg:actCoverage": [
+        "Act 2a"
+      ],
+      "gg:settingCounts": {
+        "interior": 1,
+        "exterior": 0
+      },
+      "gg:timeOfDayCounts": {
+        "continuous": 1
+      },
+      "gg:dominantCues": [
+        "dinosaurs",
+        "vehicles"
+      ],
+      "gg:evidence": [
+        "INT. CAR ONE - CONTINUOUS",
+        "The T-Rex moves toward the vehicles. Her footfalls shake the",
+        "56  INT. CAR ONE - CONTINUOUS"
+      ],
+      "description": "Appears in 1 scene(s) across 1 act(s) (Act 2a), interior-focused, continuous-leaning. Dominant cues: dinosaur presence, vehicle activity.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -758,7 +1403,29 @@
           "@id": "gg:scene/jb2-scene-060"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 1,
+      "gg:actCoverage": [
+        "Act 2a"
+      ],
+      "gg:settingCounts": {
+        "interior": 1,
+        "exterior": 0
+      },
+      "gg:timeOfDayCounts": {
+        "continuous": 1
+      },
+      "gg:dominantCues": [
+        "perimeter",
+        "vehicles",
+        "weather"
+      ],
+      "gg:evidence": [
+        "INT. CAR TWO - CONTINUOUS",
+        "paddock.",
+        "57  INT. CAR TWO - CONTINUOUS",
+        "Gennaro throws the car door open and runs. Right into the rain."
+      ],
+      "description": "Appears in 1 scene(s) across 1 act(s) (Act 2a), interior-focused, continuous-leaning. Dominant cues: fence/perimeter interactions, vehicle activity, weather pressure.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -776,7 +1443,27 @@
           "@id": "gg:scene/jb2-scene-065"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 1,
+      "gg:actCoverage": [
+        "Act 2b"
+      ],
+      "gg:settingCounts": {
+        "interior": 0,
+        "exterior": 1
+      },
+      "gg:timeOfDayCounts": {
+        "night": 1
+      },
+      "gg:dominantCues": [
+        "dinosaurs",
+        "perimeter"
+      ],
+      "gg:evidence": [
+        "EXT. TYRANNOSAUR PADDOCK - BASE OF BARRIER - NIGHT",
+        "62  EXT. TYRANNOSAUR PADDOCK - BASE OF BARRIER - NIGHT",
+        "62  EXT. TYRANNOSAUR PADDOCK - BASE OF BARRIER - NIGHT"
+      ],
+      "description": "Appears in 1 scene(s) across 1 act(s) (Act 2b), exterior-focused, night-leaning. Dominant cues: dinosaur presence, fence/perimeter interactions.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -800,7 +1487,30 @@
           "@id": "gg:scene/jb2-scene-077"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 3,
+      "gg:actCoverage": [
+        "Act 2b"
+      ],
+      "gg:settingCounts": {
+        "interior": 0,
+        "exterior": 3
+      },
+      "gg:timeOfDayCounts": {
+        "continuous": 1,
+        "night": 2
+      },
+      "gg:dominantCues": [
+        "dinosaurs",
+        "perimeter",
+        "vehicles"
+      ],
+      "gg:evidence": [
+        "EXT. TYRANNOSAUR PADDOCK - ROAD - NIGHT",
+        "64  EXT. TYRANNOSAUR PADDOCK - ROAD - NIGHT",
+        "64  EXT. TYRANNOSAUR PADDOCK - ROAD - NIGHT",
+        "She SEES car one \u2014 which went over the barrier and is now wedged"
+      ],
+      "description": "Appears in 3 scene(s) across 1 act(s) (Act 2b), exterior-focused, night-leaning. Dominant cues: dinosaur presence, fence/perimeter interactions, vehicle activity.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -821,7 +1531,27 @@
           "@id": "gg:scene/jb2-scene-070"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 2,
+      "gg:actCoverage": [
+        "Act 2b"
+      ],
+      "gg:settingCounts": {
+        "interior": 0,
+        "exterior": 2
+      },
+      "gg:timeOfDayCounts": {
+        "continuous": 2
+      },
+      "gg:dominantCues": [
+        "vehicles",
+        "dinosaurs"
+      ],
+      "gg:evidence": [
+        "EXT. BASE OF BARRIER WALL - CONTINUOUS",
+        "Grant sees the car from the trees. He sees Tim inside.",
+        "it \u2014 an audible crack. The T-Rex's head swings toward the sound."
+      ],
+      "description": "Appears in 2 scene(s) across 1 act(s) (Act 2b), exterior-focused, continuous-leaning. Dominant cues: vehicle activity, dinosaur presence.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -839,7 +1569,27 @@
           "@id": "gg:scene/jb2-scene-071"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 1,
+      "gg:actCoverage": [
+        "Act 2b"
+      ],
+      "gg:settingCounts": {
+        "interior": 1,
+        "exterior": 0
+      },
+      "gg:timeOfDayCounts": {
+        "continuous": 1
+      },
+      "gg:dominantCues": [
+        "dinosaurs",
+        "vehicles"
+      ],
+      "gg:evidence": [
+        "INT. WRECKED CAR - CONTINUOUS",
+        "The T-Rex shoves the car again. Tim tumbles. The car slides",
+        "68  INT. WRECKED CAR - CONTINUOUS"
+      ],
+      "description": "Appears in 1 scene(s) across 1 act(s) (Act 2b), interior-focused, continuous-leaning. Dominant cues: dinosaur presence, vehicle activity.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -860,7 +1610,27 @@
           "@id": "gg:scene/jb2-scene-073"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 2,
+      "gg:actCoverage": [
+        "Act 2b"
+      ],
+      "gg:settingCounts": {
+        "interior": 0,
+        "exterior": 2
+      },
+      "gg:timeOfDayCounts": {
+        "continuous": 2
+      },
+      "gg:dominantCues": [
+        "dinosaurs",
+        "vehicles"
+      ],
+      "gg:evidence": [
+        "EXT. BASE OF BARRIER - CONTINUOUS",
+        "The T-Rex loses interest. She sniffs around, then turns and moves",
+        "The car slides down the slope and catches in the branches of"
+      ],
+      "description": "Appears in 2 scene(s) across 1 act(s) (Act 2b), exterior-focused, continuous-leaning. Dominant cues: dinosaur presence, vehicle activity.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -887,7 +1657,29 @@
           "@id": "gg:scene/jb2-scene-095"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 4,
+      "gg:actCoverage": [
+        "Act 2b",
+        "Act 3"
+      ],
+      "gg:settingCounts": {
+        "interior": 0,
+        "exterior": 4
+      },
+      "gg:timeOfDayCounts": {
+        "continuous": 1,
+        "night": 3
+      },
+      "gg:dominantCues": [
+        "vehicles",
+        "action"
+      ],
+      "gg:evidence": [
+        "EXT. TREE - NIGHT",
+        "Grant reaches the car. The door is partially open. He gets it",
+        "The car slips and FALLS \u2014 crashing through the branches below,"
+      ],
+      "description": "Appears in 4 scene(s) across 2 act(s) (Act 2b, Act 3), exterior-focused, night-leaning. Dominant cues: vehicle activity, action beats.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -905,7 +1697,25 @@
           "@id": "gg:scene/jb2-scene-080"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 1,
+      "gg:actCoverage": [
+        "Act 2b"
+      ],
+      "gg:settingCounts": {
+        "interior": 1,
+        "exterior": 0
+      },
+      "gg:timeOfDayCounts": {
+        "continuous": 1
+      },
+      "gg:dominantCues": [
+        "systems"
+      ],
+      "gg:evidence": [
+        "INT. CONTROL ROOM - NIGHT - CONTINUOUS",
+        "77  INT. CONTROL ROOM - NIGHT - CONTINUOUS"
+      ],
+      "description": "Appears in 1 scene(s) across 1 act(s) (Act 2b), interior-focused, continuous-leaning. Dominant cues: control/power systems.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -923,7 +1733,29 @@
           "@id": "gg:scene/jb2-scene-081"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 1,
+      "gg:actCoverage": [
+        "Act 2b"
+      ],
+      "gg:settingCounts": {
+        "interior": 0,
+        "exterior": 1
+      },
+      "gg:timeOfDayCounts": {
+        "night": 1
+      },
+      "gg:dominantCues": [
+        "vehicles",
+        "water",
+        "weather"
+      ],
+      "gg:evidence": [
+        "EXT. VISITOR'S CENTER ROAD - NIGHT",
+        "Nedry drives Jeep 12 in pouring rain. He's sweating, leaning",
+        "He guns it. The wheel spins in the mud. He guns it again.",
+        "Nedry drives Jeep 12 in pouring rain. He's sweating, leaning"
+      ],
+      "description": "Appears in 1 scene(s) across 1 act(s) (Act 2b), exterior-focused, night-leaning. Dominant cues: vehicle activity, water-related hazards, weather pressure.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -944,7 +1776,30 @@
           "@id": "gg:scene/jb2-scene-085"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 2,
+      "gg:actCoverage": [
+        "Act 2b"
+      ],
+      "gg:settingCounts": {
+        "interior": 0,
+        "exterior": 2
+      },
+      "gg:timeOfDayCounts": {
+        "continuous": 1,
+        "night": 1
+      },
+      "gg:dominantCues": [
+        "dinosaurs",
+        "perimeter",
+        "vehicles"
+      ],
+      "gg:evidence": [
+        "EXT. TYRANNOSAUR PADDOCK ROAD - NIGHT",
+        "81  EXT. TYRANNOSAUR PADDOCK ROAD - NIGHT",
+        "81  EXT. TYRANNOSAUR PADDOCK ROAD - NIGHT",
+        "Muldoon's jeep arrives at the T-Rex paddock. The headlights"
+      ],
+      "description": "Appears in 2 scene(s) across 1 act(s) (Act 2b), exterior-focused, night-leaning. Dominant cues: dinosaur presence, fence/perimeter interactions, vehicle activity.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -965,7 +1820,31 @@
           "@id": "gg:scene/jb2-scene-101"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 2,
+      "gg:actCoverage": [
+        "Act 2b",
+        "Act 3"
+      ],
+      "gg:settingCounts": {
+        "interior": 0,
+        "exterior": 2
+      },
+      "gg:timeOfDayCounts": {
+        "day": 1,
+        "night": 1
+      },
+      "gg:dominantCues": [
+        "perimeter",
+        "vehicles",
+        "weather"
+      ],
+      "gg:evidence": [
+        "EXT. PARK GROUNDS - NIGHT",
+        "In the park. Near the perimeter fence.",
+        "GRANT has found a JEEP track \u2014 a maintenance road running",
+        "for a while. The rain is easing but the dark is total."
+      ],
+      "description": "Appears in 2 scene(s) across 2 act(s) (Act 2b, Act 3), exterior-focused, night-leaning. Dominant cues: fence/perimeter interactions, vehicle activity, weather pressure.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -983,7 +1862,27 @@
           "@id": "gg:scene/jb2-scene-088"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 1,
+      "gg:actCoverage": [
+        "Act 2b"
+      ],
+      "gg:settingCounts": {
+        "interior": 0,
+        "exterior": 1
+      },
+      "gg:timeOfDayCounts": {
+        "night": 1
+      },
+      "gg:dominantCues": [
+        "action",
+        "dinosaurs"
+      ],
+      "gg:evidence": [
+        "EXT. CULVERT - NIGHT",
+        "Earlier. Shortly after the T-Rex attack. LEX had hidden in",
+        "Earlier. Shortly after the T-Rex attack. LEX had hidden in"
+      ],
+      "description": "Appears in 1 scene(s) across 1 act(s) (Act 2b), exterior-focused, night-leaning. Dominant cues: action beats, dinosaur presence.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -1001,7 +1900,27 @@
           "@id": "gg:scene/jb2-scene-090"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 1,
+      "gg:actCoverage": [
+        "Act 2b"
+      ],
+      "gg:settingCounts": {
+        "interior": 0,
+        "exterior": 1
+      },
+      "gg:timeOfDayCounts": {
+        "night": 1
+      },
+      "gg:dominantCues": [
+        "perimeter",
+        "vehicles"
+      ],
+      "gg:evidence": [
+        "EXT. CLEARING - NIGHT",
+        "barrier and is lying on its side in the paddock clearing.",
+        "Muldoon finds the wrecked tour car one \u2014 it went over the"
+      ],
+      "description": "Appears in 1 scene(s) across 1 act(s) (Act 2b), exterior-focused, night-leaning. Dominant cues: fence/perimeter interactions, vehicle activity.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -1019,7 +1938,25 @@
           "@id": "gg:scene/jb2-scene-094"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 1,
+      "gg:actCoverage": [
+        "Act 3"
+      ],
+      "gg:settingCounts": {
+        "interior": 0,
+        "exterior": 1
+      },
+      "gg:timeOfDayCounts": {
+        "night": 1
+      },
+      "gg:dominantCues": [
+        "dinosaurs"
+      ],
+      "gg:evidence": [
+        "EXT. PARK GROUND - NIGHT",
+        "The grassland is FULL of movement. A HERD of GALLIMIMUS \u2014"
+      ],
+      "description": "Appears in 1 scene(s) across 1 act(s) (Act 3), exterior-focused, night-leaning. Dominant cues: dinosaur presence.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -1037,7 +1974,20 @@
           "@id": "gg:scene/jb2-scene-096"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 1,
+      "gg:actCoverage": [
+        "Act 3"
+      ],
+      "gg:settingCounts": {
+        "interior": 0,
+        "exterior": 1
+      },
+      "gg:timeOfDayCounts": {},
+      "gg:dominantCues": [],
+      "gg:evidence": [
+        "EXT. TREE - LATER THAT NIGHT"
+      ],
+      "description": "Appears in 1 scene(s) across 1 act(s) (Act 3), exterior-focused, unspecified time profile.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -1058,7 +2008,26 @@
           "@id": "gg:scene/jb2-scene-119"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 2,
+      "gg:actCoverage": [
+        "Act 3"
+      ],
+      "gg:settingCounts": {
+        "interior": 2,
+        "exterior": 0
+      },
+      "gg:timeOfDayCounts": {
+        "day": 1,
+        "night": 1
+      },
+      "gg:dominantCues": [
+        "systems"
+      ],
+      "gg:evidence": [
+        "INT. VISITOR'S CENTER RESTAURANT - NIGHT",
+        "bad in the power outage. HAMMOND sits alone at a table with"
+      ],
+      "description": "Appears in 2 scene(s) across 1 act(s) (Act 3), interior-focused, night-leaning. Dominant cues: control/power systems.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -1076,7 +2045,25 @@
           "@id": "gg:scene/jb2-scene-098"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 1,
+      "gg:actCoverage": [
+        "Act 3"
+      ],
+      "gg:settingCounts": {
+        "interior": 0,
+        "exterior": 1
+      },
+      "gg:timeOfDayCounts": {},
+      "gg:dominantCues": [
+        "perimeter",
+        "vehicles"
+      ],
+      "gg:evidence": [
+        "EXT. PARK - DAWN - GROUND LEVEL",
+        "They emerge at the edge of what seems to be an open paddock",
+        "tour car \u2014 crumpled, slightly damp, but legible."
+      ],
+      "description": "Appears in 1 scene(s) across 1 act(s) (Act 3), exterior-focused, unspecified time profile. Dominant cues: fence/perimeter interactions, vehicle activity.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -1106,7 +2093,28 @@
           "@id": "gg:scene/jb2-scene-115"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 5,
+      "gg:actCoverage": [
+        "Act 3"
+      ],
+      "gg:settingCounts": {
+        "interior": 0,
+        "exterior": 5
+      },
+      "gg:timeOfDayCounts": {
+        "continuous": 2,
+        "day": 3
+      },
+      "gg:dominantCues": [
+        "perimeter",
+        "systems"
+      ],
+      "gg:evidence": [
+        "EXT. FENCE - DAY",
+        "99  EXT. FENCE - DAY",
+        "The fence COMES ALIVE with power. TIM is thrown \u2014 a horrible"
+      ],
+      "description": "Appears in 5 scene(s) across 1 act(s) (Act 3), exterior-focused, day-leaning. Dominant cues: fence/perimeter interactions, control/power systems.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -1124,7 +2132,22 @@
           "@id": "gg:scene/jb2-scene-103"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 1,
+      "gg:actCoverage": [
+        "Act 3"
+      ],
+      "gg:settingCounts": {
+        "interior": 1,
+        "exterior": 0
+      },
+      "gg:timeOfDayCounts": {
+        "day": 1
+      },
+      "gg:dominantCues": [],
+      "gg:evidence": [
+        "INT. BUNKER - DAY"
+      ],
+      "description": "Appears in 1 scene(s) across 1 act(s) (Act 3), interior-focused, day-leaning.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -1145,7 +2168,28 @@
           "@id": "gg:scene/jb2-scene-107"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 2,
+      "gg:actCoverage": [
+        "Act 3"
+      ],
+      "gg:settingCounts": {
+        "interior": 0,
+        "exterior": 2
+      },
+      "gg:timeOfDayCounts": {
+        "continuous": 1,
+        "day": 1
+      },
+      "gg:dominantCues": [
+        "dinosaurs",
+        "perimeter"
+      ],
+      "gg:evidence": [
+        "EXT. JUNGLE PATH - DAY",
+        "He stares at the gap. It's exactly the size of a velociraptor",
+        "Muldoon stops at a section of fence. He looks at it."
+      ],
+      "description": "Appears in 2 scene(s) across 1 act(s) (Act 3), exterior-focused, day-leaning. Dominant cues: dinosaur presence, fence/perimeter interactions.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -1175,7 +2219,26 @@
           "@id": "gg:scene/jb2-scene-113"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 5,
+      "gg:actCoverage": [
+        "Act 3"
+      ],
+      "gg:settingCounts": {
+        "interior": 3,
+        "exterior": 2
+      },
+      "gg:timeOfDayCounts": {
+        "continuous": 3,
+        "day": 2
+      },
+      "gg:dominantCues": [
+        "dinosaurs"
+      ],
+      "gg:evidence": [
+        "EXT. MAINTENANCE SHED - DAY",
+        "The raptor comes at her from the shadows."
+      ],
+      "description": "Appears in 5 scene(s) across 1 act(s) (Act 3), mixed interior/exterior, continuous-leaning. Dominant cues: dinosaur presence.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -1193,7 +2256,22 @@
           "@id": "gg:scene/jb2-scene-117"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 1,
+      "gg:actCoverage": [
+        "Act 3"
+      ],
+      "gg:settingCounts": {
+        "interior": 0,
+        "exterior": 1
+      },
+      "gg:timeOfDayCounts": {
+        "continuous": 1
+      },
+      "gg:dominantCues": [],
+      "gg:evidence": [
+        "EXT. VISITOR'S CENTER ENTRANCE - CONTINUOUS"
+      ],
+      "description": "Appears in 1 scene(s) across 1 act(s) (Act 3), exterior-focused, continuous-leaning.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -1214,7 +2292,27 @@
           "@id": "gg:scene/jb2-scene-125"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 2,
+      "gg:actCoverage": [
+        "Act 3"
+      ],
+      "gg:settingCounts": {
+        "interior": 2,
+        "exterior": 0
+      },
+      "gg:timeOfDayCounts": {
+        "day": 2
+      },
+      "gg:dominantCues": [
+        "systems",
+        "dinosaurs"
+      ],
+      "gg:evidence": [
+        "INT. VISITOR'S CENTER - CORRIDOR - DAY",
+        "They move down the corridor toward the control room.",
+        "the kids. The loose raptor is somewhere behind them."
+      ],
+      "description": "Appears in 2 scene(s) across 1 act(s) (Act 3), interior-focused, day-leaning. Dominant cues: control/power systems, dinosaur presence.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -1232,7 +2330,25 @@
           "@id": "gg:scene/jb2-scene-122"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 1,
+      "gg:actCoverage": [
+        "Act 3"
+      ],
+      "gg:settingCounts": {
+        "interior": 1,
+        "exterior": 0
+      },
+      "gg:timeOfDayCounts": {
+        "day": 1
+      },
+      "gg:dominantCues": [
+        "dinosaurs"
+      ],
+      "gg:evidence": [
+        "INT. VISITOR'S CENTER KITCHEN - DAY",
+        "He's right. A second raptor has appeared at the kitchen door."
+      ],
+      "description": "Appears in 1 scene(s) across 1 act(s) (Act 3), interior-focused, day-leaning. Dominant cues: dinosaur presence.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -1253,7 +2369,27 @@
           "@id": "gg:scene/jb2-scene-124"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 2,
+      "gg:actCoverage": [
+        "Act 3"
+      ],
+      "gg:settingCounts": {
+        "interior": 2,
+        "exterior": 0
+      },
+      "gg:timeOfDayCounts": {
+        "continuous": 2
+      },
+      "gg:dominantCues": [
+        "dinosaurs",
+        "action"
+      ],
+      "gg:evidence": [
+        "INT. KITCHEN - CONTINUOUS",
+        "The first raptor enters. It moves slowly, head low, scanning.",
+        "He knocks it. The crash is enormous in the quiet kitchen."
+      ],
+      "description": "Appears in 2 scene(s) across 1 act(s) (Act 3), interior-focused, continuous-leaning. Dominant cues: dinosaur presence, action beats.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -1271,7 +2407,27 @@
           "@id": "gg:scene/jb2-scene-130"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 1,
+      "gg:actCoverage": [
+        "Act 3"
+      ],
+      "gg:settingCounts": {
+        "interior": 1,
+        "exterior": 0
+      },
+      "gg:timeOfDayCounts": {
+        "day": 1
+      },
+      "gg:dominantCues": [
+        "dinosaurs",
+        "systems"
+      ],
+      "gg:evidence": [
+        "INT. ATRIUM / CRAWL SPACE - DAY",
+        "Behind them: the control room door opens. The raptor is through.",
+        "Behind them: the control room door opens. The raptor is through."
+      ],
+      "description": "Appears in 1 scene(s) across 1 act(s) (Act 3), interior-focused, day-leaning. Dominant cues: dinosaur presence, control/power systems.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -1292,7 +2448,25 @@
           "@id": "gg:scene/jb2-scene-132"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 2,
+      "gg:actCoverage": [
+        "Act 3"
+      ],
+      "gg:settingCounts": {
+        "interior": 2,
+        "exterior": 0
+      },
+      "gg:timeOfDayCounts": {
+        "continuous": 2
+      },
+      "gg:dominantCues": [
+        "dinosaurs"
+      ],
+      "gg:evidence": [
+        "INT. CRAWL SPACE - CONTINUOUS",
+        "through the ceiling panels, they can hear the raptor moving."
+      ],
+      "description": "Appears in 2 scene(s) across 1 act(s) (Act 3), interior-focused, continuous-leaning. Dominant cues: dinosaur presence.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -1310,7 +2484,25 @@
           "@id": "gg:scene/jb2-scene-133"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 1,
+      "gg:actCoverage": [
+        "Act 3"
+      ],
+      "gg:settingCounts": {
+        "interior": 1,
+        "exterior": 0
+      },
+      "gg:timeOfDayCounts": {
+        "day": 1
+      },
+      "gg:dominantCues": [
+        "dinosaurs"
+      ],
+      "gg:evidence": [
+        "INT. LOBBY / ROTUNDA - DAY",
+        "Both raptors are in the lobby."
+      ],
+      "description": "Appears in 1 scene(s) across 1 act(s) (Act 3), interior-focused, day-leaning. Dominant cues: dinosaur presence.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -1328,7 +2520,25 @@
           "@id": "gg:scene/jb2-scene-134"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 1,
+      "gg:actCoverage": [
+        "Act 3"
+      ],
+      "gg:settingCounts": {
+        "interior": 1,
+        "exterior": 0
+      },
+      "gg:timeOfDayCounts": {
+        "continuous": 1
+      },
+      "gg:dominantCues": [
+        "dinosaurs"
+      ],
+      "gg:evidence": [
+        "INT. ROTUNDA - CONTINUOUS",
+        "The raptor on the left leaps."
+      ],
+      "description": "Appears in 1 scene(s) across 1 act(s) (Act 3), interior-focused, continuous-leaning. Dominant cues: dinosaur presence.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -1346,7 +2556,25 @@
           "@id": "gg:scene/jb2-scene-135"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 1,
+      "gg:actCoverage": [
+        "Act 3"
+      ],
+      "gg:settingCounts": {
+        "interior": 1,
+        "exterior": 0
+      },
+      "gg:timeOfDayCounts": {
+        "continuous": 1
+      },
+      "gg:dominantCues": [
+        "vehicles"
+      ],
+      "gg:evidence": [
+        "INT. LOBBY - CONTINUOUS",
+        "Then \u2014 from outside \u2014 the sound of a JEEP. HAMMOND at the"
+      ],
+      "description": "Appears in 1 scene(s) across 1 act(s) (Act 3), interior-focused, continuous-leaning. Dominant cues: vehicle activity.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -1364,7 +2592,27 @@
           "@id": "gg:scene/jb2-scene-137"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 1,
+      "gg:actCoverage": [
+        "Act 3"
+      ],
+      "gg:settingCounts": {
+        "interior": 0,
+        "exterior": 1
+      },
+      "gg:timeOfDayCounts": {
+        "day": 1
+      },
+      "gg:dominantCues": [
+        "aerial",
+        "perimeter"
+      ],
+      "gg:evidence": [
+        "EXT. HELIPAD - DAY",
+        "A helicopter is landing. The big In-Gen corporate machine",
+        "the fence knocked his ankle. Lex has attached herself to"
+      ],
+      "description": "Appears in 1 scene(s) across 1 act(s) (Act 3), exterior-focused, day-leaning. Dominant cues: aerial logistics, fence/perimeter interactions.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -1382,7 +2630,25 @@
           "@id": "gg:scene/jb2-scene-138"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 1,
+      "gg:actCoverage": [
+        "Act 3"
+      ],
+      "gg:settingCounts": {
+        "interior": 0,
+        "exterior": 1
+      },
+      "gg:timeOfDayCounts": {
+        "day": 1
+      },
+      "gg:dominantCues": [
+        "aerial"
+      ],
+      "gg:evidence": [
+        "EXT. PARK / HELICOPTER APPROACH - DAY",
+        "135 EXT. PARK / HELICOPTER APPROACH - DAY"
+      ],
+      "description": "Appears in 1 scene(s) across 1 act(s) (Act 3), exterior-focused, day-leaning. Dominant cues: aerial logistics.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -1400,7 +2666,25 @@
           "@id": "gg:scene/jb2-scene-139"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 1,
+      "gg:actCoverage": [
+        "Act 3"
+      ],
+      "gg:settingCounts": {
+        "interior": 0,
+        "exterior": 1
+      },
+      "gg:timeOfDayCounts": {
+        "day": 1
+      },
+      "gg:dominantCues": [
+        "aerial"
+      ],
+      "gg:evidence": [
+        "EXT. AIR - DAY",
+        "The helicopter banks away from the island. Through the windows:"
+      ],
+      "description": "Appears in 1 scene(s) across 1 act(s) (Act 3), exterior-focused, day-leaning. Dominant cues: aerial logistics.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -1418,7 +2702,25 @@
           "@id": "gg:scene/jb2-scene-142"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 1,
+      "gg:actCoverage": [
+        "Act 3"
+      ],
+      "gg:settingCounts": {
+        "interior": 0,
+        "exterior": 1
+      },
+      "gg:timeOfDayCounts": {
+        "day": 1
+      },
+      "gg:dominantCues": [
+        "aerial"
+      ],
+      "gg:evidence": [
+        "EXT. OPEN SEA - HELICOPTER - DAY",
+        "138 EXT. OPEN SEA - HELICOPTER - DAY"
+      ],
+      "description": "Appears in 1 scene(s) across 1 act(s) (Act 3), exterior-focused, day-leaning. Dominant cues: aerial logistics.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -1436,7 +2738,23 @@
           "@id": "gg:scene/jb2-scene-145"
         }
       ],
-      "description": "Derived directly from scene sluglines.",
+      "gg:sceneCount": 1,
+      "gg:actCoverage": [
+        "Act 3"
+      ],
+      "gg:settingCounts": {
+        "interior": 1,
+        "exterior": 0
+      },
+      "gg:timeOfDayCounts": {},
+      "gg:dominantCues": [
+        "aerial"
+      ],
+      "gg:evidence": [
+        "INT. HELICOPTER - FINAL",
+        "141 INT. HELICOPTER - FINAL"
+      ],
+      "description": "Appears in 1 scene(s) across 1 act(s) (Act 3), interior-focused, unspecified time profile. Dominant cues: aerial logistics.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }

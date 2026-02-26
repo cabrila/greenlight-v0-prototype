@@ -11,10 +11,16 @@
       },
       "wardrobeScope": "individual",
       "characterLevel": "lead",
-      "gg:notes": "Minimal script-description extraction. Detailed wardrobe design requires costume department pass.",
+      "gg:notes": "Script-backed wardrobe cues extracted from intro/action lines.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
-      }
+      },
+      "gg:wardrobeCues": [
+        "hat"
+      ],
+      "gg:evidence": [
+        "Grant freezes. He cannot speak. He takes off his hat."
+      ]
     },
     {
       "@id": "gg:wardrobe/jb2-dennis-nedry",

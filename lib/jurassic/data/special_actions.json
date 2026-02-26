@@ -79,7 +79,8 @@
         }
       ],
       "actionBeats": [
-        "attack"
+        "attack",
+        "bite"
       ],
       "gg:evidence": "back. And that's when the attack comes. Not",
       "isPartOf": {
@@ -120,6 +121,28 @@
         "crashes"
       ],
       "gg:evidence": "new territories and crashes through barriers,",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:special-action/jb2-scene-020-action",
+      "@type": "omc:SpecialAction",
+      "entityType": "omc:SpecialAction",
+      "name": "Scene 19 Action",
+      "specialActionType": [
+        "other"
+      ],
+      "scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-020"
+        }
+      ],
+      "charactersInvolved": [],
+      "actionBeats": [
+        "pursuing"
+      ],
+      "gg:evidence": "pursuing a dream that the brightest minds",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -283,6 +306,32 @@
       }
     },
     {
+      "@id": "gg:special-action/jb2-scene-052-action",
+      "@type": "omc:SpecialAction",
+      "entityType": "omc:SpecialAction",
+      "name": "Scene 49 Action",
+      "specialActionType": [
+        "other"
+      ],
+      "scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-052"
+        }
+      ],
+      "charactersInvolved": [
+        {
+          "@id": "gg:character/jb2-dennis-nedry"
+        }
+      ],
+      "actionBeats": [
+        "creature-threat"
+      ],
+      "gg:evidence": "",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
       "@id": "gg:special-action/jb2-scene-062-action",
       "@type": "omc:SpecialAction",
       "entityType": "omc:SpecialAction",
@@ -384,6 +433,28 @@
       }
     },
     {
+      "@id": "gg:special-action/jb2-scene-068-action",
+      "@type": "omc:SpecialAction",
+      "entityType": "omc:SpecialAction",
+      "name": "Scene 65 Action",
+      "specialActionType": [
+        "other"
+      ],
+      "scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-068"
+        }
+      ],
+      "charactersInvolved": [],
+      "actionBeats": [
+        "bites"
+      ],
+      "gg:evidence": "The T-Rex bites the car. The car shudders.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
       "@id": "gg:special-action/jb2-scene-075-action",
       "@type": "omc:SpecialAction",
       "entityType": "omc:SpecialAction",
@@ -439,9 +510,10 @@
         }
       ],
       "actionBeats": [
-        "kill"
+        "kill",
+        "slams"
       ],
-      "gg:evidence": "I will kill Nedry! I will personally kill",
+      "gg:evidence": "Hammond slams his hand on a console.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -465,7 +537,8 @@
         }
       ],
       "actionBeats": [
-        "falls"
+        "falls",
+        "lunges"
       ],
       "gg:evidence": "falls. He grabs for it, blind, finds it, clutches it.",
       "isPartOf": {
@@ -490,6 +563,32 @@
         "attack"
       ],
       "gg:evidence": "Earlier. Shortly after the T-Rex attack. LEX had hidden in",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:special-action/jb2-scene-092-action",
+      "@type": "omc:SpecialAction",
+      "entityType": "omc:SpecialAction",
+      "name": "Scene 89 Action",
+      "specialActionType": [
+        "other"
+      ],
+      "scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-092"
+        }
+      ],
+      "charactersInvolved": [
+        {
+          "@id": "gg:character/jb2-muldoon"
+        }
+      ],
+      "actionBeats": [
+        "creature-threat"
+      ],
+      "gg:evidence": "",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -550,6 +649,57 @@
       }
     },
     {
+      "@id": "gg:special-action/jb2-scene-112-action",
+      "@type": "omc:SpecialAction",
+      "entityType": "omc:SpecialAction",
+      "name": "Scene 109 Action",
+      "specialActionType": [
+        "other"
+      ],
+      "scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-112"
+        }
+      ],
+      "charactersInvolved": [],
+      "actionBeats": [
+        "slams"
+      ],
+      "gg:evidence": "Ellie gets the door open and gets out. She slams the door",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:special-action/jb2-scene-116-action",
+      "@type": "omc:SpecialAction",
+      "entityType": "omc:SpecialAction",
+      "name": "Scene 113 Action",
+      "specialActionType": [
+        "other"
+      ],
+      "scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-116"
+        }
+      ],
+      "charactersInvolved": [
+        {
+          "@id": "gg:character/jb2-ellie-sattler"
+        },
+        {
+          "@id": "gg:character/jb2-alan-grant"
+        }
+      ],
+      "actionBeats": [
+        "entrapment"
+      ],
+      "gg:evidence": "",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
       "@id": "gg:special-action/jb2-scene-123-action",
       "@type": "omc:SpecialAction",
       "entityType": "omc:SpecialAction",
@@ -568,6 +718,60 @@
         "fallen"
       ],
       "gg:evidence": "fallen from a rack. He reaches for it slowly, slowly \u2014",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:special-action/jb2-scene-124-action",
+      "@type": "omc:SpecialAction",
+      "entityType": "omc:SpecialAction",
+      "name": "Scene 121 Action",
+      "specialActionType": [
+        "other"
+      ],
+      "scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-124"
+        }
+      ],
+      "charactersInvolved": [
+        {
+          "@id": "gg:character/jb2-alan-grant"
+        },
+        {
+          "@id": "gg:character/jb2-lex-murphy"
+        },
+        {
+          "@id": "gg:character/jb2-tim-murphy"
+        }
+      ],
+      "actionBeats": [
+        "slams"
+      ],
+      "gg:evidence": "carries it into the freezer. He slams the door. The raptor",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:special-action/jb2-scene-125-action",
+      "@type": "omc:SpecialAction",
+      "entityType": "omc:SpecialAction",
+      "name": "Scene 122 Action",
+      "specialActionType": [
+        "other"
+      ],
+      "scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-125"
+        }
+      ],
+      "charactersInvolved": [],
+      "actionBeats": [
+        "entrapment"
+      ],
+      "gg:evidence": "",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }

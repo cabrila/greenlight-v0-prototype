@@ -55,6 +55,7 @@
         "availability",
         "scene-context-completeness"
       ],
+      "gg:evidence": "EXT. THE DIG - DAY",
       "description": "Lead-role scene volume implies extended schedule availability across acts.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
@@ -101,6 +102,7 @@
       "gg:criteriaTags": [
         "scene-context-completeness"
       ],
+      "gg:evidence": "EXT. THE DIG - DAY",
       "description": "Derived from script evidence only. Use scene context packs for final casting decisions.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
@@ -154,6 +156,7 @@
         "scene-context-completeness",
         "stunt-capability"
       ],
+      "gg:evidence": "EXT. THE DIG - DAY",
       "description": "Action-heavy scenes indicate physical-performance and stunt-coordination requirements.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
@@ -189,6 +192,147 @@
       ],
       "gg:evidence": "valley \u2014 moving slowly, impossibly large, a BRACHIOSAURUS.",
       "description": "Technical planning requirement derived from explicit effect evidence in script scenes.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:requirement/jb2-child-actor-labor-compliance",
+      "@type": "gg:Requirement",
+      "entityType": "gg:Requirement",
+      "name": "Child Actor Labor Compliance",
+      "gg:requirementType": "legal",
+      "gg:priority": "critical",
+      "gg:relatedCharacters": [
+        {
+          "@id": "gg:character/jb2-lex-murphy"
+        },
+        {
+          "@id": "gg:character/jb2-tim-murphy"
+        }
+      ],
+      "gg:relatedScenes": [
+        {
+          "@id": "gg:scene/jb2-scene-031"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-032"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-035"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-036"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-038"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-042"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-047"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-049"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-051"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-056"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-061"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-073"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-074"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-075"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-086"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-087"
+        }
+      ],
+      "gg:criteriaTags": [
+        "scene-context-completeness",
+        "child-welfare-compliance"
+      ],
+      "gg:evidence": "INT. VISITOR CENTER PRESENTATION ROOM - DAY",
+      "description": "Child-performer scenes require labor-law compliant scheduling and supervision.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:requirement/jb2-child-stunt-safety",
+      "@type": "gg:Requirement",
+      "entityType": "gg:Requirement",
+      "name": "Child Stunt Safety Requirement",
+      "gg:requirementType": "safety",
+      "gg:priority": "critical",
+      "gg:relatedCharacters": [
+        {
+          "@id": "gg:character/jb2-lex-murphy"
+        },
+        {
+          "@id": "gg:character/jb2-tim-murphy"
+        }
+      ],
+      "gg:relatedScenes": [
+        {
+          "@id": "gg:scene/jb2-scene-031"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-049"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-051"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-061"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-073"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-075"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-094"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-099"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-122"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-124"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-128"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-132"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-134"
+        }
+      ],
+      "gg:criteriaTags": [
+        "child-welfare-compliance",
+        "scene-context-completeness"
+      ],
+      "gg:evidence": "Tim has spotted Grant's raptor CLAW, which Grant carries on his",
+      "description": "Action scenes involving child characters require dedicated stunt and welfare controls.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
@@ -312,6 +456,7 @@
       "gg:criteriaTags": [
         "scene-context-completeness"
       ],
+      "gg:evidence": "EXT. CAFE - DAY",
       "description": "Derived from script evidence only. Use scene context packs for final casting decisions.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
@@ -389,6 +534,7 @@
       "gg:criteriaTags": [
         "scene-context-completeness"
       ],
+      "gg:evidence": "EXT. MOUNTAINSIDE - DAY",
       "description": "Derived from script evidence only. Use scene context packs for final casting decisions.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
@@ -421,6 +567,7 @@
         "scene-context-completeness",
         "stunt-capability"
       ],
+      "gg:evidence": "EXT. MOUNTAINSIDE - DAY",
       "description": "Action-heavy scenes indicate physical-performance and stunt-coordination requirements.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
@@ -508,6 +655,7 @@
         "availability",
         "scene-context-completeness"
       ],
+      "gg:evidence": "EXT. THE DIG - DAY",
       "description": "Lead-role scene volume implies extended schedule availability across acts.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
@@ -554,6 +702,7 @@
       "gg:criteriaTags": [
         "scene-context-completeness"
       ],
+      "gg:evidence": "EXT. THE DIG - DAY",
       "description": "Derived from script evidence only. Use scene context packs for final casting decisions.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
@@ -598,6 +747,7 @@
         "scene-context-completeness",
         "stunt-capability"
       ],
+      "gg:evidence": "EXT. THE DIG - DAY",
       "description": "Action-heavy scenes indicate physical-performance and stunt-coordination requirements.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
@@ -696,6 +846,7 @@
       "gg:criteriaTags": [
         "scene-context-completeness"
       ],
+      "gg:evidence": "EXT. PARK - DAY",
       "description": "Derived from script evidence only. Use scene context packs for final casting decisions.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
@@ -824,6 +975,7 @@
       "gg:criteriaTags": [
         "scene-context-completeness"
       ],
+      "gg:evidence": "INT. GENETICS LAB - DAY",
       "description": "Derived from script evidence only. Use scene context packs for final casting decisions.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
@@ -883,6 +1035,7 @@
         "availability",
         "scene-context-completeness"
       ],
+      "gg:evidence": "EXT. HELICOPTER - DAY",
       "description": "Lead-role scene volume implies extended schedule availability across acts.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
@@ -929,6 +1082,7 @@
       "gg:criteriaTags": [
         "scene-context-completeness"
       ],
+      "gg:evidence": "EXT. HELICOPTER - DAY",
       "description": "Derived from script evidence only. Use scene context packs for final casting decisions.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
@@ -967,6 +1121,7 @@
         "scene-context-completeness",
         "stunt-capability"
       ],
+      "gg:evidence": "EXT. HELICOPTER - DAY",
       "description": "Action-heavy scenes indicate physical-performance and stunt-coordination requirements.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
@@ -1026,6 +1181,7 @@
         "availability",
         "scene-context-completeness"
       ],
+      "gg:evidence": "EXT. BASE CAMP - CONTINUOUS",
       "description": "Lead-role scene volume implies extended schedule availability across acts.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
@@ -1072,6 +1228,7 @@
       "gg:criteriaTags": [
         "scene-context-completeness"
       ],
+      "gg:evidence": "EXT. BASE CAMP - CONTINUOUS",
       "description": "Derived from script evidence only. Use scene context packs for final casting decisions.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
@@ -1107,6 +1264,7 @@
         "scene-context-completeness",
         "stunt-capability"
       ],
+      "gg:evidence": "EXT. HELICOPTER - DAY",
       "description": "Action-heavy scenes indicate physical-performance and stunt-coordination requirements.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
@@ -1135,6 +1293,7 @@
       "gg:criteriaTags": [
         "scene-context-completeness"
       ],
+      "gg:evidence": "EXT. MOUNTAINSIDE - DAY",
       "description": "Derived from script evidence only. Use scene context packs for final casting decisions.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
@@ -1187,6 +1346,7 @@
       "gg:criteriaTags": [
         "scene-context-completeness"
       ],
+      "gg:evidence": "EXT. CAFE - DAY",
       "description": "Derived from script evidence only. Use scene context packs for final casting decisions.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
@@ -1233,6 +1393,7 @@
       "gg:criteriaTags": [
         "scene-context-completeness"
       ],
+      "gg:evidence": "INT. VISITOR CENTER PRESENTATION ROOM - DAY",
       "description": "Derived from script evidence only. Use scene context packs for final casting decisions.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
@@ -1262,6 +1423,7 @@
         "scene-context-completeness",
         "stunt-capability"
       ],
+      "gg:evidence": "EXT. TREE - NIGHT",
       "description": "Action-heavy scenes indicate physical-performance and stunt-coordination requirements.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
@@ -1341,6 +1503,7 @@
       "gg:criteriaTags": [
         "scene-context-completeness"
       ],
+      "gg:evidence": "EXT. JUNGLE - NIGHT",
       "description": "Derived from script evidence only. Use scene context packs for final casting decisions.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
@@ -1376,6 +1539,7 @@
         "scene-context-completeness",
         "stunt-capability"
       ],
+      "gg:evidence": "EXT. JUNGLE - NIGHT",
       "description": "Action-heavy scenes indicate physical-performance and stunt-coordination requirements.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
@@ -1454,6 +1618,7 @@
         "schedule-flexibility",
         "scene-context-completeness"
       ],
+      "gg:evidence": "EXT. JUNGLE - NIGHT",
       "description": "High volume of night scenes requires coordinated cast/crew scheduling and turnaround planning.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
@@ -1580,6 +1745,7 @@
         "effects-comfort",
         "scene-context-completeness"
       ],
+      "gg:evidence": "The box is still. The jungle is quiet again except for rain.",
       "description": "Recurring rain/storm scenes require coordinated practical-effects and continuity planning.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
@@ -1736,6 +1902,7 @@
       "gg:criteriaTags": [
         "scene-context-completeness"
       ],
+      "gg:evidence": "INT. CONTROL ROOM - DAY",
       "description": "Derived from script evidence only. Use scene context packs for final casting decisions.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
@@ -1820,6 +1987,7 @@
         "availability",
         "scene-context-completeness"
       ],
+      "gg:evidence": "INT. VISITOR CENTER PRESENTATION ROOM - DAY",
       "description": "Lead-role scene volume implies extended schedule availability across acts.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
@@ -1866,6 +2034,7 @@
       "gg:criteriaTags": [
         "scene-context-completeness"
       ],
+      "gg:evidence": "INT. VISITOR CENTER PRESENTATION ROOM - DAY",
       "description": "Derived from script evidence only. Use scene context packs for final casting decisions.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
@@ -1904,6 +2073,7 @@
         "scene-context-completeness",
         "stunt-capability"
       ],
+      "gg:evidence": "EXT. PARK - DUSK",
       "description": "Action-heavy scenes indicate physical-performance and stunt-coordination requirements.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"

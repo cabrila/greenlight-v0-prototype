@@ -160,11 +160,26 @@ const locations: any[] = locsArr.map((l: any, idx: number) => {
       : { sceneNumber: sId }
   })
 
-  // Infer locationType from sluglines of referenced scenes
-  const sluglines = sceneRefs.map((sId: string) => sceneNumMap[sId]?.slugline || "").join(" ")
-  const hasInt = /\bINT\b/i.test(sluglines)
-  const hasExt = /\bEXT\b/i.test(sluglines)
-  const locationType = hasInt && !hasExt ? "studio" : "on-location"
+  // Use gg:settingCounts to determine locationType
+  const settingCounts = l["gg:settingCounts"] || {}
+  const intCount = settingCounts["interior"] || 0
+  const extCount = settingCounts["exterior"] || 0
+  const locationType = intCount > 0 && extCount === 0 ? "studio" : "on-location"
+
+  // Use gg:dominantCues as vibeTags
+  const dominantCues: string[] = l["gg:dominantCues"] || []
+  const actCoverage: string[] = l["gg:actCoverage"] || []
+  const evidence: string[] = l["gg:evidence"] || []
+  const sceneCount: number = l["gg:sceneCount"] || sceneRefs.length
+  const timeOfDay = l["gg:timeOfDayCounts"] || {}
+
+  // Build notes from evidence + metadata
+  const noteParts = [
+    desc,
+    actCoverage.length > 0 ? "Acts: " + actCoverage.join(", ") : "",
+    sceneCount > 0 ? "Scene count: " + sceneCount : "",
+    Object.keys(timeOfDay).length > 0 ? "Time of day: " + Object.entries(timeOfDay).map(([k, v]) => k + " (" + v + ")").join(", ") : "",
+  ].filter(Boolean).join("\n")
 
   const code = "LOC-" + String(idx + 1).padStart(3, "0")
 
@@ -177,9 +192,9 @@ const locations: any[] = locsArr.map((l: any, idx: number) => {
     lat: 0,
     lng: 0,
     address: "",
-    vibeTags: [] as string[],
+    vibeTags: dominantCues,
     media: [] as any[],
-    notes: desc,
+    notes: noteParts,
     dailyRate: "",
     overtimeRate: "",
     securityDeposit: "",
@@ -211,11 +226,26 @@ const costumeInventory: CostumeInventoryItem[] = []
 const costumeLooks: CostumeLook[] = []
 const actorSpecs: Record<string, { measurements: ActorMeasurements; hmuSpecs: ActorHMUSpecs }> = {}
 
-characters.forEach((ch: any, idx: number) => {
+characters.forEach((ch: any) => {
   const c = findCostume(ch.id)
   const s = findStyling(ch.id)
-  const wardrobeNotes = c ? (c["gg:notes"] || c["name"] || "") : ""
-  const stylingNotes = s ? (s["gg:notes"] || s["name"] || "") : ""
+
+  // Build rich notes from wardrobeCues + evidence
+  const wardrobeCues: string[] = c?.["gg:wardrobeCues"] || []
+  const wardrobeEvidence: string[] = c?.["gg:evidence"] || []
+  const wardrobeNotes = [
+    c?.["gg:notes"] || "",
+    wardrobeCues.length > 0 ? "Cues: " + wardrobeCues.join(", ") : "",
+    ...wardrobeEvidence.map((e: string) => "Evidence: " + e),
+  ].filter(Boolean).join("\n")
+
+  const stylingCues: string[] = s?.["gg:stylingCues"] || []
+  const stylingEvidence: string[] = s?.["gg:evidence"] || []
+  const stylingNotes = [
+    s?.["gg:notes"] || "",
+    stylingCues.length > 0 ? "Cues: " + stylingCues.join(", ") : "",
+    ...stylingEvidence.map((e: string) => "Evidence: " + e),
+  ].filter(Boolean).join("\n")
 
   // Create a costume-piece inventory item per character
   const costumeItemId = "inv-costume-" + ch.id
@@ -226,11 +256,11 @@ characters.forEach((ch: any, idx: number) => {
     status: "in-stock",
     size: "",
     imageUrl: "",
-    vibeTags: [],
+    vibeTags: wardrobeCues,
     notes: wardrobeNotes,
     votes: [],
     comments: [],
-  })
+  } as any)
 
   // Create an HMU consumable inventory item per character
   const hmuItemId = "inv-hmu-" + ch.id
@@ -241,11 +271,11 @@ characters.forEach((ch: any, idx: number) => {
     status: "in-stock",
     size: "",
     imageUrl: "",
-    vibeTags: [],
+    vibeTags: stylingCues,
     notes: stylingNotes,
     votes: [],
     comments: [],
-  })
+  } as any)
 
   // Create a look linking the character to their costume + HMU items
   costumeLooks.push({
@@ -259,10 +289,10 @@ characters.forEach((ch: any, idx: number) => {
     continuityNotes: wardrobeNotes,
     referencePhotos: [],
     matchPhotos: [],
-  })
+  } as any)
 
-  // Placeholder actorSpecs (empty measurements + HMU)
-  actorSpecs["actor-" + ch.id] = {
+  // actorSpecs keyed by character id
+  actorSpecs[ch.id] = {
     measurements: { chest: "", waist: "", inseam: "", hat: "", ring: "", glove: "", shoe: "" },
     hmuSpecs: { skinToneCode: "", hairType: "", hairColor: "", allergies: [], tattoos: [] },
   }
