@@ -59,7 +59,7 @@
         "shardPath": "scenes/scene_001.jsonld",
         "manifestRef": "jb2-manifest-001",
         "sha256": "49264b58f2be3384369d557b714560318215b43f064f4a97502acd61115c5a6d",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -87,7 +87,7 @@
           "@id": "gg:character/jb2-donald-gennaro"
         },
         {
-          "@id": "gg:character/jb2-rostagno"
+          "@id": "gg:character/jb2-juanito-rostagno"
         }
       ],
       "narrativeObjectsInScene": [],
@@ -105,8 +105,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_002.jsonld",
         "manifestRef": "jb2-manifest-002",
-        "sha256": "d02b17e103c68e66ecea3f250743e0feba28aea38f911c9290cbc2d5837be7f2",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "bc02fcbbebf5d8a5a1fa45b8231bb80ce697f7d2ce9003b41a61c4b34bb20594",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -134,7 +134,7 @@
           "@id": "gg:character/jb2-donald-gennaro"
         },
         {
-          "@id": "gg:character/jb2-rostagno"
+          "@id": "gg:character/jb2-juanito-rostagno"
         }
       ],
       "narrativeObjectsInScene": [],
@@ -148,8 +148,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_003.jsonld",
         "manifestRef": "jb2-manifest-003",
-        "sha256": "d69923b4227c4b65a8143cceef118e243272e9da69a7c9d02b41e38a4248ecd1",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "0c928e0b860990418adf55a8e07856accf6ffbf96daf3739a4cbfcec1e7bde07",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -185,7 +185,7 @@
         "shardPath": "scenes/scene_004.jsonld",
         "manifestRef": "jb2-manifest-004",
         "sha256": "8d94fe7d1f94042edc66650fd48b4674965db75a9ae1fbd9563567e7e325995a",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -210,10 +210,10 @@
       "gg:act": "Act 1",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-ellie"
+          "@id": "gg:character/jb2-alan-grant"
         },
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-ellie-sattler"
         }
       ],
       "narrativeObjectsInScene": [
@@ -248,8 +248,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_005.jsonld",
         "manifestRef": "jb2-manifest-005",
-        "sha256": "ba6f5f829b3953ad91592e4234fda762cbd1d9f6777feafff2932d8319c0477d",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "116457ee11a26e166eff34ba782682f447366f86bec1308f8fc6ef5955979f63",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -274,10 +274,10 @@
       "gg:act": "Act 1",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-ellie"
+          "@id": "gg:character/jb2-alan-grant"
         },
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-ellie-sattler"
         }
       ],
       "narrativeObjectsInScene": [
@@ -305,8 +305,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_006.jsonld",
         "manifestRef": "jb2-manifest-006",
-        "sha256": "3e6f2a1177af79d5c3ed32161f176e8e9eda8c12ef33236f23e19377de4f241c",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "3e76788c65f68c5d22857f6329528a7206d811a9d3813fb873b28792e22f048c",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -345,7 +345,7 @@
         "shardPath": "scenes/scene_007.jsonld",
         "manifestRef": "jb2-manifest-007",
         "sha256": "f9a44508070e444e54913d47bc2aa3b5cd42e4cd04461e4410bfe651195dc94d",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -385,7 +385,7 @@
         "shardPath": "scenes/scene_008.jsonld",
         "manifestRef": "jb2-manifest-008",
         "sha256": "c4b83ff82d94993b68acbe146a795a44591df55213b91f4a76a18e3bf894d69c",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -410,10 +410,10 @@
       "gg:act": "Act 1",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-alan-grant"
         },
         {
-          "@id": "gg:character/jb2-hammond"
+          "@id": "gg:character/jb2-john-hammond"
         }
       ],
       "narrativeObjectsInScene": [
@@ -438,8 +438,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_009.jsonld",
         "manifestRef": "jb2-manifest-009",
-        "sha256": "ba16eaa92577051e9ca34d4813a9584aaf26f134e1b294be978b08289d86ea24",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "b42deadf2efd84fac3921949cb148aa221c8ac98d468a3b16afe9a20bd261ffe",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -464,13 +464,13 @@
       "gg:act": "Act 1",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-ellie"
+          "@id": "gg:character/jb2-alan-grant"
         },
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-ellie-sattler"
         },
         {
-          "@id": "gg:character/jb2-hammond"
+          "@id": "gg:character/jb2-john-hammond"
         }
       ],
       "narrativeObjectsInScene": [
@@ -488,8 +488,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_010.jsonld",
         "manifestRef": "jb2-manifest-010",
-        "sha256": "5863c3a502aa024078936cfc4c770da09ab6eb733445eb51d252dcf0515892ab",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "6032bcfbc64185d3d537dd005698bf8909ec50af6fa035c7a685460b4025dad5",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -514,10 +514,10 @@
       "gg:act": "Act 1",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-dodgson"
+          "@id": "gg:character/jb2-dennis-nedry"
         },
         {
-          "@id": "gg:character/jb2-nedry"
+          "@id": "gg:character/jb2-lewis-dodgson"
         }
       ],
       "narrativeObjectsInScene": [
@@ -544,8 +544,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_011.jsonld",
         "manifestRef": "jb2-manifest-011",
-        "sha256": "20df535009b53d19cd60c57ddfa3b2dffdea95bdd30d1a48498239d71e400244",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "7b54210dfb68290e41afbf14774158e939aefd498020c02417e7db15a25df58d",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -581,7 +581,7 @@
         "shardPath": "scenes/scene_012.jsonld",
         "manifestRef": "jb2-manifest-012",
         "sha256": "362416c2b115e96403507d50a91fc0a0cafdee4b572e268c8b66a58b0a32b136",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -621,7 +621,7 @@
         "shardPath": "scenes/scene_013.jsonld",
         "manifestRef": "jb2-manifest-013",
         "sha256": "2fecbb2896834b4008a49b86233f4462c689c00fa10b709b05fdfee735a60670",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -646,19 +646,19 @@
       "gg:act": "Act 1",
       "charactersInScene": [
         {
+          "@id": "gg:character/jb2-alan-grant"
+        },
+        {
           "@id": "gg:character/jb2-donald-gennaro"
         },
         {
-          "@id": "gg:character/jb2-ellie"
+          "@id": "gg:character/jb2-ellie-sattler"
         },
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-ian-malcolm"
         },
         {
-          "@id": "gg:character/jb2-hammond"
-        },
-        {
-          "@id": "gg:character/jb2-malcolm"
+          "@id": "gg:character/jb2-john-hammond"
         }
       ],
       "narrativeObjectsInScene": [],
@@ -680,8 +680,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_014.jsonld",
         "manifestRef": "jb2-manifest-014",
-        "sha256": "59105dc60b875125fc3526191b8387e545efa42326b4fc46940061567815eb2e",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "6321a830095a7888b0d1067bd482cde54bc5385405556582477def456eb13a98",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -706,13 +706,13 @@
       "gg:act": "Act 1",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-ellie"
+          "@id": "gg:character/jb2-alan-grant"
         },
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-ellie-sattler"
         },
         {
-          "@id": "gg:character/jb2-hammond"
+          "@id": "gg:character/jb2-john-hammond"
         }
       ],
       "narrativeObjectsInScene": [
@@ -734,8 +734,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_015.jsonld",
         "manifestRef": "jb2-manifest-015",
-        "sha256": "8316f8709c3f1aed5b337468ae20d65145c0b480dceee65f4d75536e990ba20b",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "b38d7afb46110dd6bcf3b5b6ebd158a939701cafd8e898676c9dbdb6cc09f061",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -760,13 +760,13 @@
       "gg:act": "Act 1",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-ellie"
+          "@id": "gg:character/jb2-alan-grant"
         },
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-ellie-sattler"
         },
         {
-          "@id": "gg:character/jb2-hammond"
+          "@id": "gg:character/jb2-john-hammond"
         }
       ],
       "narrativeObjectsInScene": [
@@ -788,8 +788,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_016.jsonld",
         "manifestRef": "jb2-manifest-016",
-        "sha256": "38c869a8022c5b03b427d3c8ecae941354d42229dc3181a38ae2eb7c4955cb88",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "ea12ac53ed5953bbd282f02c0c143dfed8bf6d45f3841c798767ffbc6851ade2",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -829,7 +829,7 @@
         "shardPath": "scenes/scene_017.jsonld",
         "manifestRef": "jb2-manifest-017",
         "sha256": "176c1337e767e40a719e6f01f24f00ef9a5fa53d1883e38066b073ed9e0a328c",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -854,10 +854,10 @@
       "gg:act": "Act 1",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-alan-grant"
         },
         {
-          "@id": "gg:character/jb2-hammond"
+          "@id": "gg:character/jb2-john-hammond"
         }
       ],
       "narrativeObjectsInScene": [
@@ -881,8 +881,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_018.jsonld",
         "manifestRef": "jb2-manifest-018",
-        "sha256": "6d5a010beaff8d30b18905848cdc4e9235335097ca90db4e366a2557bc9379a5",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "7c229e89c32758cf2f0dcb4b09b54205a59e1baf0c34e681e6c004f2aeb3baed",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -907,7 +907,7 @@
       "gg:act": "Act 1",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-hammond"
+          "@id": "gg:character/jb2-john-hammond"
         }
       ],
       "narrativeObjectsInScene": [
@@ -932,8 +932,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_019.jsonld",
         "manifestRef": "jb2-manifest-019",
-        "sha256": "7f4fcb3ac625ad47d00d8617da38aa0ff401d77e5420653fc2a35580d25f6dc7",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "be7a729bbc99581e4c29aa39717b8ea71ef0f9d46f11869b0c6f3bb2ca609ecc",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -956,11 +956,7 @@
         "endLine": 677
       },
       "gg:act": "Act 1",
-      "charactersInScene": [
-        {
-          "@id": "gg:character/jb2-hammond"
-        }
-      ],
+      "charactersInScene": [],
       "narrativeObjectsInScene": [
         {
           "@id": "gg:object/jb2-cane"
@@ -976,8 +972,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_020.jsonld",
         "manifestRef": "jb2-manifest-020",
-        "sha256": "def8bfa2f09cab2fb5f1fd738833dcff6896b4c3a695b732abe7f19e4e5b32cf",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "a40d5222c217948cea6c243e014e438e3cc9ceaf726f06900912337c27f91b47",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -1013,7 +1009,7 @@
         "shardPath": "scenes/scene_021.jsonld",
         "manifestRef": "jb2-manifest-021",
         "sha256": "2fdc849a8c6a278a619ad6fa5a46d9ee2f72921613c193348f131205a2604801",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -1036,11 +1032,7 @@
         "endLine": 730
       },
       "gg:act": "Act 1",
-      "charactersInScene": [
-        {
-          "@id": "gg:character/jb2-dna"
-        }
-      ],
+      "charactersInScene": [],
       "narrativeObjectsInScene": [
         {
           "@id": "gg:object/jb2-blueprints-schematics"
@@ -1056,8 +1048,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_022.jsonld",
         "manifestRef": "jb2-manifest-022",
-        "sha256": "15c7d267fd8e963de2a4a5363817419c24c5a3b913d7ca73999b9600eb071c80",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "42be4764e996e2f48323e3ce34ab3224c957c53a2d77c9a5b05ec44392d06a7c",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -1082,10 +1074,10 @@
       "gg:act": "Act 1",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-ellie"
+          "@id": "gg:character/jb2-alan-grant"
         },
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-ellie-sattler"
         }
       ],
       "narrativeObjectsInScene": [],
@@ -1099,8 +1091,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_023.jsonld",
         "manifestRef": "jb2-manifest-023",
-        "sha256": "189bfa005685fb56989879d73f24b88a275f657719cc0c37a808f83a925685d2",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "901689a5ccd495cf96a2e7b711d2d139a7ffbe2655b99f76024f2306f9777ef5",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -1125,7 +1117,7 @@
       "gg:act": "Act 1",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-hammond"
+          "@id": "gg:character/jb2-john-hammond"
         }
       ],
       "narrativeObjectsInScene": [],
@@ -1139,8 +1131,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_024.jsonld",
         "manifestRef": "jb2-manifest-024",
-        "sha256": "9aa1175fc5cc7884336fb5809af4d321164e116715301d96367ef4e89e670ac9",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "d50bcce11c84aa17e5803817d85b8da519fcd2a8e8d8a830c5263ebaa8bb73d4",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -1176,7 +1168,7 @@
         "shardPath": "scenes/scene_025.jsonld",
         "manifestRef": "jb2-manifest-025",
         "sha256": "67b36be47519b5627b9938d4aa24ea983a7489d456b145a061ee90be5a4508f8",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -1201,19 +1193,19 @@
       "gg:act": "Act 1",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-ellie"
+          "@id": "gg:character/jb2-alan-grant"
         },
         {
-          "@id": "gg:character/jb2-grant"
-        },
-        {
-          "@id": "gg:character/jb2-hammond"
+          "@id": "gg:character/jb2-ellie-sattler"
         },
         {
           "@id": "gg:character/jb2-henry-wu"
         },
         {
-          "@id": "gg:character/jb2-malcolm"
+          "@id": "gg:character/jb2-ian-malcolm"
+        },
+        {
+          "@id": "gg:character/jb2-john-hammond"
         }
       ],
       "narrativeObjectsInScene": [
@@ -1231,8 +1223,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_026.jsonld",
         "manifestRef": "jb2-manifest-026",
-        "sha256": "5a5664ef8f28547e17f7e8fe1676a25c721b6bca2241ca2363934ab3bbe6cd79",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "16686d7ee0e83338012070cdff2503bcb4c33521fb700087d2a6fd6ceb414ad5",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -1260,7 +1252,7 @@
           "@id": "gg:character/jb2-henry-wu"
         },
         {
-          "@id": "gg:character/jb2-malcolm"
+          "@id": "gg:character/jb2-ian-malcolm"
         }
       ],
       "narrativeObjectsInScene": [],
@@ -1274,8 +1266,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_027.jsonld",
         "manifestRef": "jb2-manifest-027",
-        "sha256": "9b2a12c4010393d3c006788325389aa77611b6dd8e6f610fb8c7f95b54ea2c0a",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "b89636b381be382e486a73f36a219c7e589d7030b0b7d98b6e4fc872b37ef51c",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -1311,7 +1303,7 @@
         "shardPath": "scenes/scene_028.jsonld",
         "manifestRef": "jb2-manifest-028",
         "sha256": "91a5efe2987fe794212696a42dd261c8a062fe0438dd459a1c55ced2f3f16af2",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -1336,19 +1328,19 @@
       "gg:act": "Act 1",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-ellie"
+          "@id": "gg:character/jb2-alan-grant"
         },
         {
-          "@id": "gg:character/jb2-grant"
-        },
-        {
-          "@id": "gg:character/jb2-hammond"
+          "@id": "gg:character/jb2-ellie-sattler"
         },
         {
           "@id": "gg:character/jb2-henry-wu"
         },
         {
-          "@id": "gg:character/jb2-malcolm"
+          "@id": "gg:character/jb2-ian-malcolm"
+        },
+        {
+          "@id": "gg:character/jb2-john-hammond"
         }
       ],
       "narrativeObjectsInScene": [
@@ -1377,8 +1369,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_029.jsonld",
         "manifestRef": "jb2-manifest-029",
-        "sha256": "f961b68e34d58def8eb23ae4f6c4b024f709f8719d561b0fb260da4a41176863",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "a9407e7c1694e7ffc0cb4db1ef1366be2e3843eaaf5e8cfd74c4b97bc4d169cc",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -1403,10 +1395,10 @@
       "gg:act": "Act 1",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-alan-grant"
         },
         {
-          "@id": "gg:character/jb2-hammond"
+          "@id": "gg:character/jb2-john-hammond"
         },
         {
           "@id": "gg:character/jb2-muldoon"
@@ -1435,8 +1427,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_030.jsonld",
         "manifestRef": "jb2-manifest-030",
-        "sha256": "91b8c8e85f4d08b04a426d96b98084517f9c731993bb823b6eaca86306da8df2",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "4f0c8362cd497dab71e3c01812c668fa3bd6e62ec3c3cbc0521155e41bcead4f",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -1461,22 +1453,22 @@
       "gg:act": "Act 1",
       "charactersInScene": [
         {
+          "@id": "gg:character/jb2-alan-grant"
+        },
+        {
           "@id": "gg:character/jb2-donald-gennaro"
         },
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-ian-malcolm"
         },
         {
-          "@id": "gg:character/jb2-hammond"
+          "@id": "gg:character/jb2-john-hammond"
         },
         {
-          "@id": "gg:character/jb2-lex"
+          "@id": "gg:character/jb2-lex-murphy"
         },
         {
-          "@id": "gg:character/jb2-malcolm"
-        },
-        {
-          "@id": "gg:character/jb2-tim"
+          "@id": "gg:character/jb2-tim-murphy"
         }
       ],
       "narrativeObjectsInScene": [
@@ -1507,8 +1499,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_031.jsonld",
         "manifestRef": "jb2-manifest-031",
-        "sha256": "b5a9ab46d302a8a8097022a4d32251c0a1ccbc33f0338d6bc5fe2818da31a6e5",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "251a150adb4d81e4d8d993e70caa33349152a2e5a0849ab80b99d19531940746",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -1533,16 +1525,16 @@
       "gg:act": "Act 1",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-alan-grant"
         },
         {
-          "@id": "gg:character/jb2-hammond"
+          "@id": "gg:character/jb2-john-hammond"
         },
         {
-          "@id": "gg:character/jb2-lex"
+          "@id": "gg:character/jb2-lex-murphy"
         },
         {
-          "@id": "gg:character/jb2-tim"
+          "@id": "gg:character/jb2-tim-murphy"
         }
       ],
       "narrativeObjectsInScene": [
@@ -1570,8 +1562,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_032.jsonld",
         "manifestRef": "jb2-manifest-032",
-        "sha256": "cd0ebdba6b2c600f82bb32d8ef177fcaf1350b80aaf2bbf2ba47a4a11991b134",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "44d9202bf3187cf91903da94c245a27930581ea4dd956568797aa9701ad5e18b",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -1596,16 +1588,16 @@
       "gg:act": "Act 2a",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-arnold"
+          "@id": "gg:character/jb2-dennis-nedry"
         },
         {
-          "@id": "gg:character/jb2-hammond"
+          "@id": "gg:character/jb2-john-hammond"
         },
         {
           "@id": "gg:character/jb2-muldoon"
         },
         {
-          "@id": "gg:character/jb2-nedry"
+          "@id": "gg:character/jb2-ray-arnold"
         }
       ],
       "narrativeObjectsInScene": [
@@ -1627,8 +1619,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_033.jsonld",
         "manifestRef": "jb2-manifest-033",
-        "sha256": "28de5e6ca5680c9d14cd13a11f34cf747615cd6a90ebb4da0b582013e12fe697",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "20f27a144f8245a6de0a6a6f0f3e7c0f7bcd8f7043c3887f244dae7895bbf9a7",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -1668,7 +1660,7 @@
         "shardPath": "scenes/scene_034.jsonld",
         "manifestRef": "jb2-manifest-034",
         "sha256": "bce7c05ddf1cde8df969cd4e23bc94b057b6e3ecc793cd959189392d93e2898a",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -1693,10 +1685,10 @@
       "gg:act": "Act 2a",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-alan-grant"
         },
         {
-          "@id": "gg:character/jb2-tim"
+          "@id": "gg:character/jb2-tim-murphy"
         }
       ],
       "narrativeObjectsInScene": [],
@@ -1710,8 +1702,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_035.jsonld",
         "manifestRef": "jb2-manifest-035",
-        "sha256": "02e1d01ff9b26802eb530bf28bf0f0bb356172e5db4cf3fe4c3685e31a4d2d06",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "9c5e5b4edbe94dff2cf151e750e1bad1d8bec18ebb21fa5762586d865dd2abb1",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -1736,16 +1728,16 @@
       "gg:act": "Act 2a",
       "charactersInScene": [
         {
+          "@id": "gg:character/jb2-alan-grant"
+        },
+        {
           "@id": "gg:character/jb2-donald-gennaro"
         },
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-ian-malcolm"
         },
         {
-          "@id": "gg:character/jb2-malcolm"
-        },
-        {
-          "@id": "gg:character/jb2-tim"
+          "@id": "gg:character/jb2-tim-murphy"
         }
       ],
       "narrativeObjectsInScene": [],
@@ -1766,8 +1758,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_036.jsonld",
         "manifestRef": "jb2-manifest-036",
-        "sha256": "6892cd32a14ca1d07322dd46f70ee79608e050d6aee7477ccbeb5f2d7112869c",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "6637f6996db3fdf1d70ea3e8db97178118911bb8860e58e8c1c2a2415611213d",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -1792,10 +1784,10 @@
       "gg:act": "Act 2a",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-arnold"
+          "@id": "gg:character/jb2-john-hammond"
         },
         {
-          "@id": "gg:character/jb2-hammond"
+          "@id": "gg:character/jb2-ray-arnold"
         }
       ],
       "narrativeObjectsInScene": [],
@@ -1813,8 +1805,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_037.jsonld",
         "manifestRef": "jb2-manifest-037",
-        "sha256": "05caaef212e817f16d24268521a1a306c99cf8b3a4a442168e3628fdf77b5821",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "770ba1a3a102f949df48c8e2e8da4b98c86afbe47155a0201021a0e250e2f1b4",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -1839,19 +1831,19 @@
       "gg:act": "Act 2a",
       "charactersInScene": [
         {
+          "@id": "gg:character/jb2-alan-grant"
+        },
+        {
           "@id": "gg:character/jb2-donald-gennaro"
         },
         {
-          "@id": "gg:character/jb2-ellie"
+          "@id": "gg:character/jb2-ellie-sattler"
         },
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-ian-malcolm"
         },
         {
-          "@id": "gg:character/jb2-malcolm"
-        },
-        {
-          "@id": "gg:character/jb2-tim"
+          "@id": "gg:character/jb2-tim-murphy"
         }
       ],
       "narrativeObjectsInScene": [
@@ -1873,8 +1865,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_038.jsonld",
         "manifestRef": "jb2-manifest-038",
-        "sha256": "ea2126dec36c00d445dd99abba528763da53c02600c7bcd9215d95208c91863c",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "9d9fe5f496c0e3d8c1a3a263daa5eca3af169fa8dbf99c11438e9111922d9d74",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -1899,10 +1891,10 @@
       "gg:act": "Act 2a",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-arnold"
+          "@id": "gg:character/jb2-john-hammond"
         },
         {
-          "@id": "gg:character/jb2-hammond"
+          "@id": "gg:character/jb2-ray-arnold"
         }
       ],
       "narrativeObjectsInScene": [
@@ -1927,8 +1919,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_039.jsonld",
         "manifestRef": "jb2-manifest-039",
-        "sha256": "f5904a650fe8c86a92e81f0747019a3762e9001b1503326ca4dff3f043bbe828",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "8f99ed285274495bf8d8e4b69b3bd1e11de0916131fd6ab49af3b1393b09b2bb",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -1953,13 +1945,13 @@
       "gg:act": "Act 2a",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-ellie"
+          "@id": "gg:character/jb2-alan-grant"
         },
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-ellie-sattler"
         },
         {
-          "@id": "gg:character/jb2-malcolm"
+          "@id": "gg:character/jb2-ian-malcolm"
         }
       ],
       "narrativeObjectsInScene": [
@@ -1981,8 +1973,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_040.jsonld",
         "manifestRef": "jb2-manifest-040",
-        "sha256": "5d58903df5446fd4eda70220378d4fda95f9b9babf2af9db2edeac317af286c7",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "9a20ca22caca365306f964e3c8a8f7eda40b4a15c55bb9bef44cfc71612cbce5",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -2007,10 +1999,10 @@
       "gg:act": "Act 2a",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-arnold"
+          "@id": "gg:character/jb2-john-hammond"
         },
         {
-          "@id": "gg:character/jb2-hammond"
+          "@id": "gg:character/jb2-ray-arnold"
         }
       ],
       "narrativeObjectsInScene": [
@@ -2028,8 +2020,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_041.jsonld",
         "manifestRef": "jb2-manifest-041",
-        "sha256": "dd5837f7dd79131507c76b500573db4e9fab5f12909d7c3d219c6d5d2d0bff49",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "3eed624a2aced84543b8e7b067ee8194d480043c97934fa45b86b50b78c11a16",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -2054,19 +2046,19 @@
       "gg:act": "Act 2a",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-ellie"
+          "@id": "gg:character/jb2-alan-grant"
         },
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-ellie-sattler"
         },
         {
-          "@id": "gg:character/jb2-harding"
+          "@id": "gg:character/jb2-gerry-harding"
         },
         {
-          "@id": "gg:character/jb2-malcolm"
+          "@id": "gg:character/jb2-ian-malcolm"
         },
         {
-          "@id": "gg:character/jb2-tim"
+          "@id": "gg:character/jb2-tim-murphy"
         }
       ],
       "narrativeObjectsInScene": [],
@@ -2084,8 +2076,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_042.jsonld",
         "manifestRef": "jb2-manifest-042",
-        "sha256": "deb58d1b7f1191f1dbadb030a95d37e67fba1a1c43c5de9bbacc5ff9254d59dc",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "4a98f31c2bf68ba9cc4ce5ff9270dad511c8e1b986ef92f7b83c9b82037b66d3",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -2110,10 +2102,10 @@
       "gg:act": "Act 2a",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-arnold"
+          "@id": "gg:character/jb2-muldoon"
         },
         {
-          "@id": "gg:character/jb2-muldoon"
+          "@id": "gg:character/jb2-ray-arnold"
         }
       ],
       "narrativeObjectsInScene": [
@@ -2138,8 +2130,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_043.jsonld",
         "manifestRef": "jb2-manifest-043",
-        "sha256": "d31c5cd2aaef46ba76921af8783acaf2fc9d230da5d311cb47a266fe3cb5b36a",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "b189afd34e89913906563ccd257a426863dfe7fb1b54cd15105012cf7779d9f3",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -2174,7 +2166,7 @@
         "shardPath": "scenes/scene_044.jsonld",
         "manifestRef": "jb2-manifest-044",
         "sha256": "9ab0661c08c9a905d34f9680c06f064a0df3af4c92bcdbc4c75e77267107e93b",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -2199,19 +2191,19 @@
       "gg:act": "Act 2a",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-arnold"
-        },
-        {
           "@id": "gg:character/jb2-donald-gennaro"
         },
         {
-          "@id": "gg:character/jb2-ellie"
+          "@id": "gg:character/jb2-ellie-sattler"
         },
         {
-          "@id": "gg:character/jb2-harding"
+          "@id": "gg:character/jb2-gerry-harding"
         },
         {
-          "@id": "gg:character/jb2-malcolm"
+          "@id": "gg:character/jb2-ian-malcolm"
+        },
+        {
+          "@id": "gg:character/jb2-ray-arnold"
         }
       ],
       "narrativeObjectsInScene": [
@@ -2239,8 +2231,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_045.jsonld",
         "manifestRef": "jb2-manifest-045",
-        "sha256": "647df44af9194577eabd852811b804572452270aead0a528d4ae00a34aa15d7b",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "b254fadc10e2a91344b654e9ecff1fa1c07f9a119128838ad224e167342a941e",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -2265,7 +2257,7 @@
       "gg:act": "Act 2a",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-nedry"
+          "@id": "gg:character/jb2-dennis-nedry"
         }
       ],
       "narrativeObjectsInScene": [
@@ -2291,8 +2283,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_046.jsonld",
         "manifestRef": "jb2-manifest-046",
-        "sha256": "a2db3d495227c08ee2bd5e73fc116f87da3179e46c3aeb04f7256be89a73ea75",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "b3c84cf788a1908310d57b44c73e2777980decf97202cf0f54bafd6d59fc8697",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -2317,16 +2309,16 @@
       "gg:act": "Act 2a",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-arnold"
+          "@id": "gg:character/jb2-alan-grant"
         },
         {
-          "@id": "gg:character/jb2-ellie"
+          "@id": "gg:character/jb2-ellie-sattler"
         },
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-ray-arnold"
         },
         {
-          "@id": "gg:character/jb2-tim"
+          "@id": "gg:character/jb2-tim-murphy"
         }
       ],
       "narrativeObjectsInScene": [
@@ -2344,8 +2336,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_047.jsonld",
         "manifestRef": "jb2-manifest-047",
-        "sha256": "fc3cf8cc024beebdd9cd0bf103b9a757ce0103f3002ada8cb4d67c7f786d2130",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "856cc3d117d531b46cbb08e05f967f00784f23638867f01b6f04dbe51f98cb95",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -2385,7 +2377,7 @@
         "shardPath": "scenes/scene_048.jsonld",
         "manifestRef": "jb2-manifest-048",
         "sha256": "fefb1fe1105a5c7dccb7f5f5b2455019ae08540500cf897c416f5bacdb831d56",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -2410,10 +2402,10 @@
       "gg:act": "Act 2a",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-alan-grant"
         },
         {
-          "@id": "gg:character/jb2-tim"
+          "@id": "gg:character/jb2-tim-murphy"
         }
       ],
       "narrativeObjectsInScene": [],
@@ -2438,8 +2430,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_049.jsonld",
         "manifestRef": "jb2-manifest-049",
-        "sha256": "8083ff35a29b03236add3c108aab123e5105a795aef842f07a340543f7f5c600",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "f70bd5caab63f12e2d32f5e04f546ac8044a35fb414549a0298033477289e328",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -2464,7 +2456,7 @@
       "gg:act": "Act 2a",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-arnold"
+          "@id": "gg:character/jb2-ray-arnold"
         }
       ],
       "narrativeObjectsInScene": [
@@ -2489,8 +2481,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_050.jsonld",
         "manifestRef": "jb2-manifest-050",
-        "sha256": "b2417ad7626215cf776d91ada7562deaa35353787823ab86ba327bb781809fa4",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "48a402a31f041b06e45d53ba197373334a3c0f0b76a7db42f2ccb4ea5a98b034",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -2515,16 +2507,16 @@
       "gg:act": "Act 2a",
       "charactersInScene": [
         {
+          "@id": "gg:character/jb2-alan-grant"
+        },
+        {
           "@id": "gg:character/jb2-donald-gennaro"
         },
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-ian-malcolm"
         },
         {
-          "@id": "gg:character/jb2-malcolm"
-        },
-        {
-          "@id": "gg:character/jb2-tim"
+          "@id": "gg:character/jb2-tim-murphy"
         }
       ],
       "narrativeObjectsInScene": [
@@ -2552,8 +2544,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_051.jsonld",
         "manifestRef": "jb2-manifest-051",
-        "sha256": "d731185e63dc1e23e863a7c483cbf550237c639f51bf9fecf3264f5aae67da2f",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "867ef396966d2f9fe41c588e2a98a68af1c25297133a21ca1c5227a792882580",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -2578,7 +2570,7 @@
       "gg:act": "Act 2a",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-nedry"
+          "@id": "gg:character/jb2-dennis-nedry"
         }
       ],
       "narrativeObjectsInScene": [
@@ -2618,8 +2610,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_052.jsonld",
         "manifestRef": "jb2-manifest-052",
-        "sha256": "aceec36c0dc63a188cfa4321ab36a1c7b2a3163ce0644594ae486830206498a3",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "ae1e72a3ea4ee625175f17c1582d7ef1222d431ed33c0779ed78dfeddb533316",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -2644,7 +2636,7 @@
       "gg:act": "Act 2a",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-arnold"
+          "@id": "gg:character/jb2-ray-arnold"
         }
       ],
       "narrativeObjectsInScene": [
@@ -2662,8 +2654,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_053.jsonld",
         "manifestRef": "jb2-manifest-053",
-        "sha256": "f3b5b05ce6cbe438461568367b44dbcb318b5cb8415af1f240967ead7e7287d4",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "d2e89de8f49ea14a3044b9b77cfd1eedab41f799c5bc32bca3fc55504d65e51c",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -2707,7 +2699,7 @@
         "shardPath": "scenes/scene_054.jsonld",
         "manifestRef": "jb2-manifest-054",
         "sha256": "40368d84b566a6b3736317af2d98d57ab27654557f8da85d6444b2a40d58662e",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -2732,13 +2724,13 @@
       "gg:act": "Act 2a",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-arnold"
-        },
-        {
-          "@id": "gg:character/jb2-hammond"
+          "@id": "gg:character/jb2-john-hammond"
         },
         {
           "@id": "gg:character/jb2-muldoon"
+        },
+        {
+          "@id": "gg:character/jb2-ray-arnold"
         }
       ],
       "narrativeObjectsInScene": [
@@ -2760,8 +2752,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_055.jsonld",
         "manifestRef": "jb2-manifest-055",
-        "sha256": "819eaf0addb7e53a939ec12cc4fe27a50497b5a1e3f1acc0becafc14419b97f2",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "ca6b71b64c163c0cf21b64a9704d2fc5615581498608bbc537db11d200d10699",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -2786,10 +2778,10 @@
       "gg:act": "Act 2a",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-alan-grant"
         },
         {
-          "@id": "gg:character/jb2-tim"
+          "@id": "gg:character/jb2-tim-murphy"
         }
       ],
       "narrativeObjectsInScene": [
@@ -2820,8 +2812,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_056.jsonld",
         "manifestRef": "jb2-manifest-056",
-        "sha256": "0d7b6a0316c79571473fe03fde274702c898b5ca6b6dc45e7fc4ec6c942c01a1",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "77fd4bc21ce6441921d45461cbe319cf396ea4245a1f067c6869baf3c26143b0",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -2846,7 +2838,7 @@
       "gg:act": "Act 2a",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-malcolm"
+          "@id": "gg:character/jb2-ian-malcolm"
         }
       ],
       "narrativeObjectsInScene": [],
@@ -2864,8 +2856,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_057.jsonld",
         "manifestRef": "jb2-manifest-057",
-        "sha256": "c567ce9a9265777617b64b178b599c993b856cd5dc8c98f167e91195ba6d0647",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "e81a5f4598c8a30eb7a732f8ffc053e32b101fad57a1606014ca93093972c9ae",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -2890,7 +2882,7 @@
       "gg:act": "Act 2a",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-alan-grant"
         }
       ],
       "narrativeObjectsInScene": [
@@ -2915,8 +2907,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_058.jsonld",
         "manifestRef": "jb2-manifest-058",
-        "sha256": "7ad99bbfd902f0c516de34e79f6e91676dfecda5a72fa77099dc1e983857ade0",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "705c18d4e41b1120114349b66bc506d70eac037aaa8e3ad6f6c36504af584175",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -2941,7 +2933,7 @@
       "gg:act": "Act 2a",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-alan-grant"
         }
       ],
       "narrativeObjectsInScene": [],
@@ -2959,8 +2951,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_059.jsonld",
         "manifestRef": "jb2-manifest-059",
-        "sha256": "279bb98fc0b2a7372c5776ad3d0e649a704002aabf1ba0139b4d9b6e04c3eb9f",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "01e554fd37965275dc312602b6b4a7533360fa9ff4fda412afe6a56085a787ab",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -2985,7 +2977,7 @@
       "gg:act": "Act 2a",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-malcolm"
+          "@id": "gg:character/jb2-ian-malcolm"
         }
       ],
       "narrativeObjectsInScene": [
@@ -3007,8 +2999,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_060.jsonld",
         "manifestRef": "jb2-manifest-060",
-        "sha256": "45bbe56f9d35d4542492b5bf3d76ff8daddddf818ebdac226b7ce7f323fd8379",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "3b07a6e29d8222c35b37f42ce81c8044b02d18c4717368aa30fb369a62f03a31",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -3033,13 +3025,13 @@
       "gg:act": "Act 2a",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-alan-grant"
         },
         {
-          "@id": "gg:character/jb2-malcolm"
+          "@id": "gg:character/jb2-ian-malcolm"
         },
         {
-          "@id": "gg:character/jb2-tim"
+          "@id": "gg:character/jb2-tim-murphy"
         }
       ],
       "narrativeObjectsInScene": [
@@ -3067,8 +3059,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_061.jsonld",
         "manifestRef": "jb2-manifest-061",
-        "sha256": "707328e30046cd14079186464e4caae65bcb5d71fbc000a4064af8b4dbb98a4f",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "7c0a0c41e6d7d0c4a6769ecc8b95cb4b75cae676794cc7d8fd689df57343fb61",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -3112,7 +3104,7 @@
         "shardPath": "scenes/scene_062.jsonld",
         "manifestRef": "jb2-manifest-062",
         "sha256": "622a38ac46adb5872d5924d40eba2ceb9882cffd22b2cf95b66034936a511dbe",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -3137,7 +3129,7 @@
       "gg:act": "Act 2a",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-alan-grant"
         }
       ],
       "narrativeObjectsInScene": [
@@ -3163,8 +3155,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_063.jsonld",
         "manifestRef": "jb2-manifest-063",
-        "sha256": "8b7bd21be8706dffe8dc07d7098ae75f6d20fa466fad768c31408d25ed74ed81",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "91d10fa19e708bb20b06928b675cc9a928072df8a43b6d50b49d70e3ef8055a0",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -3207,7 +3199,7 @@
         "shardPath": "scenes/scene_064.jsonld",
         "manifestRef": "jb2-manifest-064",
         "sha256": "eb8878123c4e1cb14b71338d3c9f6fa8328563f793b572f5599a5cdeaee45231",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -3232,7 +3224,7 @@
       "gg:act": "Act 2b",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-alan-grant"
         }
       ],
       "narrativeObjectsInScene": [],
@@ -3250,8 +3242,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_065.jsonld",
         "manifestRef": "jb2-manifest-065",
-        "sha256": "8e0d139a106228f6619e2fe967a28f35e23fd52181a110d9c66a879328b30b6a",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "25f2d811a1ad975a5aa8eb0a71371015553b3ddec8299e5b6506fcf781443e23",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -3276,7 +3268,7 @@
       "gg:act": "Act 2b",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-malcolm"
+          "@id": "gg:character/jb2-ian-malcolm"
         }
       ],
       "narrativeObjectsInScene": [],
@@ -3298,8 +3290,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_066.jsonld",
         "manifestRef": "jb2-manifest-066",
-        "sha256": "da42add3c1d007e5442271a8f54e738826b7c01583ef13b9a8718e42f8ccc4b8",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "c11b7893464180bfdc58547b5cc36f6a6a92d604393dbbd993c3a475e6cb2db7",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -3354,7 +3346,7 @@
         "shardPath": "scenes/scene_067.jsonld",
         "manifestRef": "jb2-manifest-067",
         "sha256": "831d49e3929ad1d3b89ffb5e9832175a002c9f44903ea8d42834f58353f6abf2",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -3394,7 +3386,7 @@
         "shardPath": "scenes/scene_068.jsonld",
         "manifestRef": "jb2-manifest-068",
         "sha256": "ed4a53904072141ad5edeeed1123533cc21044d32333e50ad47543d8158660cc",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -3419,7 +3411,7 @@
       "gg:act": "Act 2b",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-alan-grant"
         }
       ],
       "narrativeObjectsInScene": [],
@@ -3433,8 +3425,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_069.jsonld",
         "manifestRef": "jb2-manifest-069",
-        "sha256": "4d6386a416d1eaa433df91dc9c4cc8d655a0bdb368e540d83cb6e428dcd2d129",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "c402fb836271c4c9561b84571e2858caca5922a39c259bbc7410029b04a50b07",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -3459,7 +3451,7 @@
       "gg:act": "Act 2b",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-alan-grant"
         }
       ],
       "narrativeObjectsInScene": [
@@ -3481,8 +3473,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_070.jsonld",
         "manifestRef": "jb2-manifest-070",
-        "sha256": "ec54282c031c7553a792d9e510795464037f6ac494afdf68837022836194c50a",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "6b9e4e2432b2b265b4a2834ffa1d6171432899440ed6c895ba30402154aea69c",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -3526,7 +3518,7 @@
         "shardPath": "scenes/scene_071.jsonld",
         "manifestRef": "jb2-manifest-071",
         "sha256": "9d8f4c01143f9572baf1d684bbe7bcdedafc5db32f5034aa65b31e2cc30f6753",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -3570,7 +3562,7 @@
         "shardPath": "scenes/scene_072.jsonld",
         "manifestRef": "jb2-manifest-072",
         "sha256": "0c5b7b1957ba6bde61b43fa7b0ec754161a153b1a401838d4b0112ff8d38b472",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -3595,10 +3587,10 @@
       "gg:act": "Act 2b",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-alan-grant"
         },
         {
-          "@id": "gg:character/jb2-tim"
+          "@id": "gg:character/jb2-tim-murphy"
         }
       ],
       "narrativeObjectsInScene": [],
@@ -3616,8 +3608,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_073.jsonld",
         "manifestRef": "jb2-manifest-073",
-        "sha256": "2d4e86d2f4b88478b7676159955520a1db04e2182582a96d53484de4403a22fe",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "9cdf389cfac1bfcdb1fddcfcce1f8f39c66959c21dd0b63e01811b89dd0edb4b",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -3642,10 +3634,10 @@
       "gg:act": "Act 2b",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-alan-grant"
         },
         {
-          "@id": "gg:character/jb2-tim"
+          "@id": "gg:character/jb2-tim-murphy"
         }
       ],
       "narrativeObjectsInScene": [],
@@ -3659,8 +3651,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_074.jsonld",
         "manifestRef": "jb2-manifest-074",
-        "sha256": "77d7b0e944d34d87af032a81ca62c83ccc6aea213799b693ed55fbde63073e2d",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "bcf71a20c579542f964507af729afe460fa25c54a903f59ac5378015bea60ae6",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -3685,10 +3677,10 @@
       "gg:act": "Act 2b",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-alan-grant"
         },
         {
-          "@id": "gg:character/jb2-tim"
+          "@id": "gg:character/jb2-tim-murphy"
         }
       ],
       "narrativeObjectsInScene": [],
@@ -3706,8 +3698,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_075.jsonld",
         "manifestRef": "jb2-manifest-075",
-        "sha256": "08a999998f9afce9242d47b2571a8427e56d86a5aa02325b09697e3b41712db6",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "87bd14d57950c3c64357688c2ab193ac3adafd3616b8fb15e199ce5e17eaedc2",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -3747,7 +3739,7 @@
         "shardPath": "scenes/scene_076.jsonld",
         "manifestRef": "jb2-manifest-076",
         "sha256": "38817577696ad9862bc41dcb9d9a72a0faf8bb8e49b97fc1b8ea92b1675a8e0b",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -3772,7 +3764,7 @@
       "gg:act": "Act 2b",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-alan-grant"
         }
       ],
       "narrativeObjectsInScene": [
@@ -3797,8 +3789,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_077.jsonld",
         "manifestRef": "jb2-manifest-077",
-        "sha256": "6f7ff279bb4d02be23eb58ef37fd89dcbb462572f4c7c54a70080d45271c8f8f",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "351a468ca65e4ca46255d9f6535e8ea9028cfccc1ecbf0913588b0d63b46d5bf",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -3838,7 +3830,7 @@
         "shardPath": "scenes/scene_078.jsonld",
         "manifestRef": "jb2-manifest-078",
         "sha256": "9a355e81ac3576506d70500ae67705ffd5cb85241108385699e72b198febd57d",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -3863,13 +3855,13 @@
       "gg:act": "Act 2b",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-arnold"
-        },
-        {
-          "@id": "gg:character/jb2-hammond"
+          "@id": "gg:character/jb2-john-hammond"
         },
         {
           "@id": "gg:character/jb2-muldoon"
+        },
+        {
+          "@id": "gg:character/jb2-ray-arnold"
         }
       ],
       "narrativeObjectsInScene": [
@@ -3898,8 +3890,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_079.jsonld",
         "manifestRef": "jb2-manifest-079",
-        "sha256": "618ba1d23a4b5f43f54c89ccbe1f6032555a822d09be8024776fa165a3f3cc30",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "406775ac462eb9b1bbcd960879cbe1c1f566ff3fd51bbbee9dabf5d7b433ab82",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -3924,10 +3916,10 @@
       "gg:act": "Act 2b",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-arnold"
+          "@id": "gg:character/jb2-john-hammond"
         },
         {
-          "@id": "gg:character/jb2-hammond"
+          "@id": "gg:character/jb2-ray-arnold"
         }
       ],
       "narrativeObjectsInScene": [],
@@ -3941,8 +3933,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_080.jsonld",
         "manifestRef": "jb2-manifest-080",
-        "sha256": "d59f41313839eea2ae02727d61e8b762ae9b1a1e51984c09eef38603cc6e4d49",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "6a9c825759413369dd308d9c5adc73bd81d57ee600dc3484573d0e8dfad8c03a",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -3967,7 +3959,7 @@
       "gg:act": "Act 2b",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-nedry"
+          "@id": "gg:character/jb2-dennis-nedry"
         }
       ],
       "narrativeObjectsInScene": [
@@ -3992,8 +3984,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_081.jsonld",
         "manifestRef": "jb2-manifest-081",
-        "sha256": "6b780b89f7b03d2ccfacb46fd240af6f9b1a0b4c763876904d8da4f972c0a34e",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "d1b3a0b902fa5238b69bd4c5b2bb6a9e2cb44261b69c75bf9bacb507780a8fc7",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -4018,7 +4010,7 @@
       "gg:act": "Act 2b",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-nedry"
+          "@id": "gg:character/jb2-dennis-nedry"
         }
       ],
       "narrativeObjectsInScene": [
@@ -4053,8 +4045,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_082.jsonld",
         "manifestRef": "jb2-manifest-082",
-        "sha256": "dec17fedab32c5ea96e44a7495523e09ec416e758942db6d80e1c98d6dd7fe81",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "b097dd52e6d91ffe423bd6079731e31cd7dc00f878717810b6bbf65bd32b999b",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -4079,16 +4071,16 @@
       "gg:act": "Act 2b",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-arnold"
+          "@id": "gg:character/jb2-ellie-sattler"
         },
         {
-          "@id": "gg:character/jb2-ellie"
-        },
-        {
-          "@id": "gg:character/jb2-hammond"
+          "@id": "gg:character/jb2-john-hammond"
         },
         {
           "@id": "gg:character/jb2-muldoon"
+        },
+        {
+          "@id": "gg:character/jb2-ray-arnold"
         }
       ],
       "narrativeObjectsInScene": [
@@ -4113,8 +4105,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_083.jsonld",
         "manifestRef": "jb2-manifest-083",
-        "sha256": "05b67d126f8f2a8a8cf63436247874da9dcd85527332325357aed64f23d2f671",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "ef4a3dc6c5d98c0a316f1e341e7db0f9310e9944e2a67197ab637340d2b5bd60",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -4139,7 +4131,7 @@
       "gg:act": "Act 2b",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-ellie"
+          "@id": "gg:character/jb2-ellie-sattler"
         },
         {
           "@id": "gg:character/jb2-muldoon"
@@ -4176,8 +4168,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_084.jsonld",
         "manifestRef": "jb2-manifest-084",
-        "sha256": "e09f913264cd9b5f2c6457902f6c74ac226fe71428da9f76f5d50424172bc3de",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "dd4a43d9e23c645cfa9870c3d62b0c2d5ccdbcc13d0ecf14e2bad3e8a4164dca",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -4202,10 +4194,10 @@
       "gg:act": "Act 2b",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-ellie"
+          "@id": "gg:character/jb2-ellie-sattler"
         },
         {
-          "@id": "gg:character/jb2-malcolm"
+          "@id": "gg:character/jb2-ian-malcolm"
         },
         {
           "@id": "gg:character/jb2-muldoon"
@@ -4230,8 +4222,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_085.jsonld",
         "manifestRef": "jb2-manifest-085",
-        "sha256": "497846c002b42b648978db50e2abbdfcedbc42a802d39ed7ffe044f8f99c20bf",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "d66b022b08c555233e4ce39026648553b0dd36582613cb5c5ec4607559836fbb",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -4256,10 +4248,10 @@
       "gg:act": "Act 2b",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-alan-grant"
         },
         {
-          "@id": "gg:character/jb2-lex"
+          "@id": "gg:character/jb2-lex-murphy"
         }
       ],
       "narrativeObjectsInScene": [],
@@ -4277,8 +4269,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_086.jsonld",
         "manifestRef": "jb2-manifest-086",
-        "sha256": "7b980663b99d849093ae0fd6fb7f8e18d5bbd28030e83fddbdb3b06a603d283d",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "3f583e8f159057dd883e288d03265a1cfe314f6c685238b254a4ce37ae98a96c",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -4303,13 +4295,13 @@
       "gg:act": "Act 2b",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-alan-grant"
         },
         {
-          "@id": "gg:character/jb2-lex"
+          "@id": "gg:character/jb2-lex-murphy"
         },
         {
-          "@id": "gg:character/jb2-tim"
+          "@id": "gg:character/jb2-tim-murphy"
         }
       ],
       "narrativeObjectsInScene": [],
@@ -4323,8 +4315,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_087.jsonld",
         "manifestRef": "jb2-manifest-087",
-        "sha256": "b58146731b80634798d0304855c22e24e0896bac17f390ebed89c24a5f0a4184",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "661eb950ada95fb7128fe0135390c2ad74019fcbb98d8dce127c53f73f8e5d5f",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -4368,7 +4360,7 @@
         "shardPath": "scenes/scene_088.jsonld",
         "manifestRef": "jb2-manifest-088",
         "sha256": "23bce9b6ec6ccbe3b1c194f7958ac94dc3ff5e0c0e01cc3fd5cc97c7cb287790",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -4393,10 +4385,10 @@
       "gg:act": "Act 2b",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-ellie"
+          "@id": "gg:character/jb2-ellie-sattler"
         },
         {
-          "@id": "gg:character/jb2-malcolm"
+          "@id": "gg:character/jb2-ian-malcolm"
         },
         {
           "@id": "gg:character/jb2-muldoon"
@@ -4420,8 +4412,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_089.jsonld",
         "manifestRef": "jb2-manifest-089",
-        "sha256": "5443cd28e28bce27611d594765639ecf9b2cf3b8d5b674b1dd8a1467034e7293",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "3fd60a16c56c67c0f2152a5dbe7ea4cadd2ced3634fa1d7c9af8b7caabc11368",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -4465,7 +4457,7 @@
         "shardPath": "scenes/scene_090.jsonld",
         "manifestRef": "jb2-manifest-090",
         "sha256": "4d9d6f5d84aacfc3839d2e34f0a506f377ea978f241dde554458eeb0e66ef2fe",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -4490,7 +4482,7 @@
       "gg:act": "Act 2b",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-malcolm"
+          "@id": "gg:character/jb2-ian-malcolm"
         },
         {
           "@id": "gg:character/jb2-muldoon"
@@ -4515,8 +4507,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_091.jsonld",
         "manifestRef": "jb2-manifest-091",
-        "sha256": "94c89e30a7e4936c3f06e67f485a72495d75def095055866480ef0ccf40ed09c",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "493835f1592b13ebcdf8c6591139b2524cd19c2901563c7a84411bcc6f2a89db",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -4564,7 +4556,7 @@
         "shardPath": "scenes/scene_092.jsonld",
         "manifestRef": "jb2-manifest-092",
         "sha256": "7c85cb3c469c2aebc1f1e493365a8c068f85d3f437ba41f03933c52a105bdee8",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -4589,7 +4581,7 @@
       "gg:act": "Act 2b",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-malcolm"
+          "@id": "gg:character/jb2-ian-malcolm"
         }
       ],
       "narrativeObjectsInScene": [
@@ -4614,8 +4606,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_093.jsonld",
         "manifestRef": "jb2-manifest-093",
-        "sha256": "11fc47bc5d0ddb45077788d1ba2560c943c9648ddc862948d2c074c85682b850",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "003cc8e3d2da31a5bfd5aacee71489499e72a7251f20e4c3e066323304e114ee",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -4640,10 +4632,10 @@
       "gg:act": "Act 3",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-alan-grant"
         },
         {
-          "@id": "gg:character/jb2-tim"
+          "@id": "gg:character/jb2-tim-murphy"
         }
       ],
       "narrativeObjectsInScene": [],
@@ -4664,8 +4656,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_094.jsonld",
         "manifestRef": "jb2-manifest-094",
-        "sha256": "c1f580fb2eabd7bab605a49a5d70048cfd36df5853409bda3a937cb2da9a1f2f",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "e15d79df8992eb5dc3364753408dabc8d306b244546ec8a71801ac84de6059dd",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -4690,10 +4682,10 @@
       "gg:act": "Act 3",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-alan-grant"
         },
         {
-          "@id": "gg:character/jb2-lex"
+          "@id": "gg:character/jb2-lex-murphy"
         }
       ],
       "narrativeObjectsInScene": [],
@@ -4711,8 +4703,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_095.jsonld",
         "manifestRef": "jb2-manifest-095",
-        "sha256": "52e5cd4f752fcde508dcb0babac429a0f6ad0f49e86f2a239909bc4cc28096b4",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "aa618ab5c9e9869670da22e336b4ef84418cd445f7a53333cd975df150126571",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -4747,7 +4739,7 @@
         "shardPath": "scenes/scene_096.jsonld",
         "manifestRef": "jb2-manifest-096",
         "sha256": "00ce72280c015edf3e630b58b089f8f0a14bf1c494547406d841e5ca4dbba7a4",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -4772,10 +4764,10 @@
       "gg:act": "Act 3",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-ellie"
+          "@id": "gg:character/jb2-ellie-sattler"
         },
         {
-          "@id": "gg:character/jb2-hammond"
+          "@id": "gg:character/jb2-john-hammond"
         }
       ],
       "narrativeObjectsInScene": [
@@ -4796,8 +4788,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_097.jsonld",
         "manifestRef": "jb2-manifest-097",
-        "sha256": "223d7ac54d9b67ce354d4017360ebd7a95416074a575eacff4af10137e965ed5",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "975f45c08c051b25f2021ccbe534ff9fe6b319af8faf3adfc280441fe08582ad",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -4822,10 +4814,10 @@
       "gg:act": "Act 3",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-alan-grant"
         },
         {
-          "@id": "gg:character/jb2-tim"
+          "@id": "gg:character/jb2-tim-murphy"
         }
       ],
       "narrativeObjectsInScene": [
@@ -4845,8 +4837,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_098.jsonld",
         "manifestRef": "jb2-manifest-098",
-        "sha256": "37bb5e3490fc1bd67b7c0203400631bda69f2afb2bd953e63bf408d480e812ed",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "1d9c68f35decba5c187f832b21b97a64babead9b74f4470d08ac7c3181c7a540",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -4871,13 +4863,13 @@
       "gg:act": "Act 3",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-alan-grant"
         },
         {
-          "@id": "gg:character/jb2-lex"
+          "@id": "gg:character/jb2-lex-murphy"
         },
         {
-          "@id": "gg:character/jb2-tim"
+          "@id": "gg:character/jb2-tim-murphy"
         }
       ],
       "narrativeObjectsInScene": [
@@ -4908,8 +4900,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_099.jsonld",
         "manifestRef": "jb2-manifest-099",
-        "sha256": "737301a55627cd663f1572372545d6f643c37fdf1ed94baa018726d3437c410a",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "2091c9a149b0100ae98fc8a94839049738db577a7e0ca41da7b6073bc02c7cba",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -4934,16 +4926,16 @@
       "gg:act": "Act 3",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-arnold"
+          "@id": "gg:character/jb2-ian-malcolm"
         },
         {
-          "@id": "gg:character/jb2-hammond"
-        },
-        {
-          "@id": "gg:character/jb2-malcolm"
+          "@id": "gg:character/jb2-john-hammond"
         },
         {
           "@id": "gg:character/jb2-muldoon"
+        },
+        {
+          "@id": "gg:character/jb2-ray-arnold"
         }
       ],
       "narrativeObjectsInScene": [
@@ -4971,8 +4963,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_100.jsonld",
         "manifestRef": "jb2-manifest-100",
-        "sha256": "3c04beebdf47b6f68c830dd4aa8b634ad35f14e0d0ec5b261edd3a51ad52ff54",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "85bc47bcb584ffc2c150e1e8db70b61f157ede23751262a65abc9abd76b561b6",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -4997,10 +4989,10 @@
       "gg:act": "Act 3",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-alan-grant"
         },
         {
-          "@id": "gg:character/jb2-tim"
+          "@id": "gg:character/jb2-tim-murphy"
         }
       ],
       "narrativeObjectsInScene": [
@@ -5021,8 +5013,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_101.jsonld",
         "manifestRef": "jb2-manifest-101",
-        "sha256": "6902158aa9ed222fee806496e1467ff2610db1ca5b7c226491b3db75cc0be692",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "d46b2b55055385135cf487e56852e2a5f73ac21a3aea94b84d1af95b5c3043d0",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -5047,10 +5039,10 @@
       "gg:act": "Act 3",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-alan-grant"
         },
         {
-          "@id": "gg:character/jb2-lex"
+          "@id": "gg:character/jb2-lex-murphy"
         }
       ],
       "narrativeObjectsInScene": [
@@ -5072,8 +5064,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_102.jsonld",
         "manifestRef": "jb2-manifest-102",
-        "sha256": "61504f4015ff7c8cc985c09d1ed905b7868d25ca63895effa2a85df842728799",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "89e7791a6c2d484db8e72226e03e16ae523fdb835c9f8700f012139815241108",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -5098,13 +5090,13 @@
       "gg:act": "Act 3",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-ellie"
+          "@id": "gg:character/jb2-ellie-sattler"
         },
         {
-          "@id": "gg:character/jb2-hammond"
+          "@id": "gg:character/jb2-ian-malcolm"
         },
         {
-          "@id": "gg:character/jb2-malcolm"
+          "@id": "gg:character/jb2-john-hammond"
         },
         {
           "@id": "gg:character/jb2-muldoon"
@@ -5128,8 +5120,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_103.jsonld",
         "manifestRef": "jb2-manifest-103",
-        "sha256": "364270271f743edcff14e8f54644528ccdfe36f75587635a6339beb18f36a27f",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "f7230236c6a62815a9c08f78b8b48f431f90dc2744168042067cd0bcafa69be4",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -5154,7 +5146,7 @@
       "gg:act": "Act 3",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-alan-grant"
         }
       ],
       "narrativeObjectsInScene": [
@@ -5176,8 +5168,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_104.jsonld",
         "manifestRef": "jb2-manifest-104",
-        "sha256": "4b9a9cf55c30dbb0b42aeb4a0e3137ec5538fc840e5a8b460259275a90b87b3e",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "fdc0d7a09adfca30aa52f75d91034a09d79b37d969d2876f7a5909e228c37443",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -5202,13 +5194,13 @@
       "gg:act": "Act 3",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-alan-grant"
         },
         {
-          "@id": "gg:character/jb2-lex"
+          "@id": "gg:character/jb2-lex-murphy"
         },
         {
-          "@id": "gg:character/jb2-tim"
+          "@id": "gg:character/jb2-tim-murphy"
         }
       ],
       "narrativeObjectsInScene": [
@@ -5226,8 +5218,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_105.jsonld",
         "manifestRef": "jb2-manifest-105",
-        "sha256": "7cc7ffd1a7cf8c970716c9b461c32ab95fdc40d290b00e051cd3efffdbc10f4e",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "b356bbdebc451ef703631f69d0ef12b14f8d647916d5b1e32fb53eb1c2239e34",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -5278,7 +5270,7 @@
         "shardPath": "scenes/scene_106.jsonld",
         "manifestRef": "jb2-manifest-106",
         "sha256": "33ddf6f0efde33b94518d8a965aaafe4d25b138ff037e3049d63d1e6d40ae77e",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -5322,7 +5314,7 @@
         "shardPath": "scenes/scene_107.jsonld",
         "manifestRef": "jb2-manifest-107",
         "sha256": "f90babcd6ef878fc84fbaaa6883fdcc29b28f7ad5b0745339615c7e5cf078af2",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -5358,7 +5350,7 @@
         "shardPath": "scenes/scene_108.jsonld",
         "manifestRef": "jb2-manifest-108",
         "sha256": "f7e007548b2fcd44190321e31ee5b5d26b9570936e9a838652d211a80f66a6ad",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -5383,10 +5375,10 @@
       "gg:act": "Act 3",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-ellie"
+          "@id": "gg:character/jb2-ellie-sattler"
         },
         {
-          "@id": "gg:character/jb2-hammond"
+          "@id": "gg:character/jb2-john-hammond"
         }
       ],
       "narrativeObjectsInScene": [
@@ -5411,8 +5403,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_109.jsonld",
         "manifestRef": "jb2-manifest-109",
-        "sha256": "d06b64d1b08c5834827312048f1ba2b9083bff6f67073c523e5979c90053d9dc",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "481895fdbc0f47dcc2ded1c49baf4972d768c6301f42cc2fcd2297bfb6726d6e",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -5452,7 +5444,7 @@
         "shardPath": "scenes/scene_110.jsonld",
         "manifestRef": "jb2-manifest-110",
         "sha256": "2ddbb51428dae06c5844d6ededf15331e0a76f8ab88b88076cacd8c3486459a8",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -5477,7 +5469,7 @@
       "gg:act": "Act 3",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-hammond"
+          "@id": "gg:character/jb2-john-hammond"
         }
       ],
       "narrativeObjectsInScene": [],
@@ -5491,8 +5483,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_111.jsonld",
         "manifestRef": "jb2-manifest-111",
-        "sha256": "8d481191ed09cf70dc747b65cfdf8d98e74caaed70c87543d3d9ac140366f104",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "1d471d10e197aefd02101cfdb15818788b2f7d38bbdd50325e925f14c66ea187",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -5532,7 +5524,7 @@
         "shardPath": "scenes/scene_112.jsonld",
         "manifestRef": "jb2-manifest-112",
         "sha256": "65217f63697130838ba490d259e828f044096daa5ff9c7a883a92372b38b8598",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -5568,7 +5560,7 @@
         "shardPath": "scenes/scene_113.jsonld",
         "manifestRef": "jb2-manifest-113",
         "sha256": "5c33359c7113a362e96ac600169af3484843ce385467db6daf18601d4173248d",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -5593,13 +5585,13 @@
       "gg:act": "Act 3",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-alan-grant"
         },
         {
-          "@id": "gg:character/jb2-lex"
+          "@id": "gg:character/jb2-lex-murphy"
         },
         {
-          "@id": "gg:character/jb2-tim"
+          "@id": "gg:character/jb2-tim-murphy"
         }
       ],
       "narrativeObjectsInScene": [
@@ -5617,8 +5609,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_114.jsonld",
         "manifestRef": "jb2-manifest-114",
-        "sha256": "e8966dc545ceb4b68bddc21032077ed97e54bd2eabe720d6f9ccfa1c70c549a0",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "1acbbbab7f28b5a9f412b460482862d3a3464104d5b4c778b8010cd33d034cb1",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -5643,10 +5635,10 @@
       "gg:act": "Act 3",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-lex"
+          "@id": "gg:character/jb2-lex-murphy"
         },
         {
-          "@id": "gg:character/jb2-tim"
+          "@id": "gg:character/jb2-tim-murphy"
         }
       ],
       "narrativeObjectsInScene": [
@@ -5664,8 +5656,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_115.jsonld",
         "manifestRef": "jb2-manifest-115",
-        "sha256": "bed672c467d52ee01bca218c7b4dffcd0c9940f2e9f1e07fa0f38cda2cf489fd",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "4be8bac08cca1f7bb88bb2d3278947fb0921de7918af31a1a0d89e7bcfe031cb",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -5690,10 +5682,10 @@
       "gg:act": "Act 3",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-ellie"
+          "@id": "gg:character/jb2-alan-grant"
         },
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-ellie-sattler"
         }
       ],
       "narrativeObjectsInScene": [],
@@ -5711,8 +5703,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_116.jsonld",
         "manifestRef": "jb2-manifest-116",
-        "sha256": "32369ef981b6fe6beab196d392d2df19ec6ca47f4defcf4da15310b7ae11d0e1",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "62790dca84373578ef1b24952b3427f8a6bb4980ad2494526e62076231e4b561",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -5737,7 +5729,7 @@
       "gg:act": "Act 3",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-alan-grant"
         }
       ],
       "narrativeObjectsInScene": [],
@@ -5751,8 +5743,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_117.jsonld",
         "manifestRef": "jb2-manifest-117",
-        "sha256": "33f44bf05ac0a43fea898f9d4c56df9219c072036f56f58026fc30a1a6f1e2b1",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "7ed2d26a35097b6bd9c733333f5d70bc077db184a6b0ea2537f8f3a4056dac03",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -5792,7 +5784,7 @@
         "shardPath": "scenes/scene_118.jsonld",
         "manifestRef": "jb2-manifest-118",
         "sha256": "82114fb6806cebf9aaf112ba14b9a8bed8936ddbccc07c2fbf4c466533275aa2",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -5817,10 +5809,10 @@
       "gg:act": "Act 3",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-alan-grant"
         },
         {
-          "@id": "gg:character/jb2-hammond"
+          "@id": "gg:character/jb2-john-hammond"
         }
       ],
       "narrativeObjectsInScene": [],
@@ -5834,8 +5826,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_119.jsonld",
         "manifestRef": "jb2-manifest-119",
-        "sha256": "71486a04e49568a6bef6981ef668ee792907dfc00d182e9707f8b9b69a498c10",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "8d2a4d1bbc420d5ebfd6e303ddaa2679cf7e068022c17ae26acf31e936188104",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -5871,7 +5863,7 @@
         "shardPath": "scenes/scene_120.jsonld",
         "manifestRef": "jb2-manifest-120",
         "sha256": "2669d61884f74c3b00a263d7614b236ee0bdff0e11ea25b0019f59d7333918b4",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -5896,7 +5888,7 @@
       "gg:act": "Act 3",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-tim"
+          "@id": "gg:character/jb2-tim-murphy"
         }
       ],
       "narrativeObjectsInScene": [],
@@ -5917,8 +5909,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_121.jsonld",
         "manifestRef": "jb2-manifest-121",
-        "sha256": "849e01e1e2f7c24a51b4a1b10044fa0988733d542817f3446d43cccb1f94064a",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "45d2c3e5b36d19c23e4f70ea12e97219b11242fc45fabb024db8fd68adc41438",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -5943,10 +5935,10 @@
       "gg:act": "Act 3",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-alan-grant"
         },
         {
-          "@id": "gg:character/jb2-tim"
+          "@id": "gg:character/jb2-tim-murphy"
         }
       ],
       "narrativeObjectsInScene": [],
@@ -5964,8 +5956,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_122.jsonld",
         "manifestRef": "jb2-manifest-122",
-        "sha256": "0e56bf058fd32abb4c991583e805915c06261ca292824d2279cc3ada5ed61725",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "bd49f0bec33e596623911fa5381ae5d79e9fe082d7ead6421d11f7bbf6734eae",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -6016,7 +6008,7 @@
         "shardPath": "scenes/scene_123.jsonld",
         "manifestRef": "jb2-manifest-123",
         "sha256": "9a54a8aa8442de7d45c63a10bd7a14374f6a2bdf6343fc2f1013d91d85081fe7",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -6041,13 +6033,13 @@
       "gg:act": "Act 3",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-alan-grant"
         },
         {
-          "@id": "gg:character/jb2-lex"
+          "@id": "gg:character/jb2-lex-murphy"
         },
         {
-          "@id": "gg:character/jb2-tim"
+          "@id": "gg:character/jb2-tim-murphy"
         }
       ],
       "narrativeObjectsInScene": [],
@@ -6065,8 +6057,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_124.jsonld",
         "manifestRef": "jb2-manifest-124",
-        "sha256": "690ef5aa9928cf10dcbeb0b67eaa5852da1a65cf58b398685e2a49f1f5e0ccad",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "3918435a8ad37cee04de9651be6652d9999a1f279758d4e350581b590fb1825e",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -6106,7 +6098,7 @@
         "shardPath": "scenes/scene_125.jsonld",
         "manifestRef": "jb2-manifest-125",
         "sha256": "22b2b829e73dd93f08824c43842e58196e2139063942d18a8e3991f5f7e85020",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -6142,7 +6134,7 @@
         "shardPath": "scenes/scene_126.jsonld",
         "manifestRef": "jb2-manifest-126",
         "sha256": "ddff15b19c8f30eb20ea7929ce4dbcc1b32088e346e35a3137ba7f60882114cb",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -6167,16 +6159,16 @@
       "gg:act": "Act 3",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-ellie"
+          "@id": "gg:character/jb2-alan-grant"
         },
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-ellie-sattler"
         },
         {
-          "@id": "gg:character/jb2-hammond"
+          "@id": "gg:character/jb2-john-hammond"
         },
         {
-          "@id": "gg:character/jb2-lex"
+          "@id": "gg:character/jb2-lex-murphy"
         }
       ],
       "narrativeObjectsInScene": [],
@@ -6194,8 +6186,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_127.jsonld",
         "manifestRef": "jb2-manifest-127",
-        "sha256": "03d5e24d3fb2cc1824bd7a62d5eaeacb06c90692fdc296bc43b3917027e58bf7",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "c86c8817a633d9902bbc652196b6ea2c13ce194fed1f3b3850d85ffec026d62c",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -6220,16 +6212,16 @@
       "gg:act": "Act 3",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-ellie"
+          "@id": "gg:character/jb2-alan-grant"
         },
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-ellie-sattler"
         },
         {
-          "@id": "gg:character/jb2-lex"
+          "@id": "gg:character/jb2-lex-murphy"
         },
         {
-          "@id": "gg:character/jb2-tim"
+          "@id": "gg:character/jb2-tim-murphy"
         }
       ],
       "narrativeObjectsInScene": [],
@@ -6251,8 +6243,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_128.jsonld",
         "manifestRef": "jb2-manifest-128",
-        "sha256": "19a797ff4b3834f9d6ea84d614557560a1e66e8cceb4275b0163803c1e122bbd",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "79296a37c9da87b266af921687ed8e0389074261a2f16ac6f080cd4b31cfbe6b",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -6277,13 +6269,13 @@
       "gg:act": "Act 3",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-ellie"
+          "@id": "gg:character/jb2-alan-grant"
         },
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-ellie-sattler"
         },
         {
-          "@id": "gg:character/jb2-hammond"
+          "@id": "gg:character/jb2-john-hammond"
         }
       ],
       "narrativeObjectsInScene": [],
@@ -6301,8 +6293,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_129.jsonld",
         "manifestRef": "jb2-manifest-129",
-        "sha256": "a6d7b96fa7fc5e2be07dc7551771d8e8de8657fa2b776d4db6743eda648611bf",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "1e509ed58c7d740c6f6ca78a7b69a55c25e5397963c21f14b664bb0a71e39868",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -6327,7 +6319,7 @@
       "gg:act": "Act 3",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-alan-grant"
         }
       ],
       "narrativeObjectsInScene": [],
@@ -6345,8 +6337,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_130.jsonld",
         "manifestRef": "jb2-manifest-130",
-        "sha256": "dfcaf7d4830c0e6548b08c6c0e2b069c56affb00a42489b11bc279627065b3fe",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "98ef6d0a304b1fc52a705df9cc6f29e717c728af9f25d54c6031ba2050ce9529",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -6371,7 +6363,7 @@
       "gg:act": "Act 3",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-alan-grant"
         }
       ],
       "narrativeObjectsInScene": [],
@@ -6389,8 +6381,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_131.jsonld",
         "manifestRef": "jb2-manifest-131",
-        "sha256": "538d224342593a108a7f3a251bbfee2dd2fe2bac441f56146dd12cdb6b333e60",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "c94827b570f33667e9fd44980fa43dffe5d678dfa360a037f02cb21904b2ffa3",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -6415,7 +6407,7 @@
       "gg:act": "Act 3",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-lex"
+          "@id": "gg:character/jb2-lex-murphy"
         }
       ],
       "narrativeObjectsInScene": [],
@@ -6433,8 +6425,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_132.jsonld",
         "manifestRef": "jb2-manifest-132",
-        "sha256": "cff853c5ef9be364ee98524dd4d18508683db23b658b11055a1a27ddf02b2126",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "2d9571ec7fdd79f6e78d2fdce2457fd3a4d49a56f4483e5fa1f07eafae24dcb3",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -6459,10 +6451,10 @@
       "gg:act": "Act 3",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-ellie"
+          "@id": "gg:character/jb2-alan-grant"
         },
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-ellie-sattler"
         }
       ],
       "narrativeObjectsInScene": [
@@ -6490,8 +6482,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_133.jsonld",
         "manifestRef": "jb2-manifest-133",
-        "sha256": "812ef06f5c9fdbef575b3bb7ab116ac682e5b6b4d7c4890b59ab1d7c866c7fe3",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "f3f6c26ef5c9555d0a569f754739d2b7739bd165e6a6ef6f384a45bde6a8cb2b",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -6516,7 +6508,7 @@
       "gg:act": "Act 3",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-tim"
+          "@id": "gg:character/jb2-tim-murphy"
         }
       ],
       "narrativeObjectsInScene": [
@@ -6548,8 +6540,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_134.jsonld",
         "manifestRef": "jb2-manifest-134",
-        "sha256": "d7c35ff3314c5692e81b8382e92a18b36a2912876907adb4bb2c84978db67101",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "29448ddc32e6588c49a2abc129e7921f8912b9f3a53566c933a4ca00e1c1a3df",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -6589,7 +6581,7 @@
         "shardPath": "scenes/scene_135.jsonld",
         "manifestRef": "jb2-manifest-135",
         "sha256": "e7a1883f9405cb02bd69f9f6aabf5c4b076c000eea5e78260390671ebe061e7a",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -6614,16 +6606,16 @@
       "gg:act": "Act 3",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-alan-grant"
         },
         {
-          "@id": "gg:character/jb2-hammond"
+          "@id": "gg:character/jb2-ian-malcolm"
         },
         {
-          "@id": "gg:character/jb2-malcolm"
+          "@id": "gg:character/jb2-john-hammond"
         },
         {
-          "@id": "gg:character/jb2-tim"
+          "@id": "gg:character/jb2-tim-murphy"
         }
       ],
       "narrativeObjectsInScene": [
@@ -6641,8 +6633,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_136.jsonld",
         "manifestRef": "jb2-manifest-136",
-        "sha256": "57abf0680649d4ae23c53cf52a78b61378714847aacf26cd2765887713af71a6",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "6b40ae35b9cb55b1ee96cba3b6660ea6516a3f90acd54782f1eb36326ff0c21e",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -6667,10 +6659,10 @@
       "gg:act": "Act 3",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-alan-grant"
         },
         {
-          "@id": "gg:character/jb2-hammond"
+          "@id": "gg:character/jb2-john-hammond"
         }
       ],
       "narrativeObjectsInScene": [
@@ -6692,8 +6684,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_137.jsonld",
         "manifestRef": "jb2-manifest-137",
-        "sha256": "b8f52ecb4b79a39da420ac204d210caaa286de164fa4feb775e48b33ad508296",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "452d138f40260440a7f80bb944b3981f6ccb6acf23507c56c74197d1c2ee8b52",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -6733,7 +6725,7 @@
         "shardPath": "scenes/scene_138.jsonld",
         "manifestRef": "jb2-manifest-138",
         "sha256": "af41bf7fde44d31846cf745f0a014f358d7fce5445f88bbf4cd8ad8243117e53",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -6781,7 +6773,7 @@
         "shardPath": "scenes/scene_139.jsonld",
         "manifestRef": "jb2-manifest-139",
         "sha256": "aec4885cf02e57595b0ca6438d357d69bc53ed3501953c022b056bb686f3d680",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -6806,10 +6798,10 @@
       "gg:act": "Act 3",
       "charactersInScene": [
         {
-          "@id": "gg:character/jb2-ellie"
+          "@id": "gg:character/jb2-alan-grant"
         },
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-ellie-sattler"
         }
       ],
       "narrativeObjectsInScene": [],
@@ -6831,8 +6823,8 @@
       "sceneShard": {
         "shardPath": "scenes/scene_140.jsonld",
         "manifestRef": "jb2-manifest-140",
-        "sha256": "f75d905867d1d62b9c8d43f07518499c4f1da68a2f112a7054a96cd342e78816",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "sha256": "cbab2cd193642420b5b71182cd7c6c8daee5dfa5b3b3f0dde15cb14c9e574a83",
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -6876,7 +6868,7 @@
         "shardPath": "scenes/scene_141.jsonld",
         "manifestRef": "jb2-manifest-141",
         "sha256": "20d36a934276dc3bd06083e1392ad0d8a5ac74036d5d7be318d9e5578f91d857",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -6916,7 +6908,7 @@
         "shardPath": "scenes/scene_142.jsonld",
         "manifestRef": "jb2-manifest-142",
         "sha256": "2fca2d3eabfbbff7d6276de3b26ef2c2c6048947399aafd3bc0237f29ac41a90",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -6963,7 +6955,7 @@
         "shardPath": "scenes/scene_143.jsonld",
         "manifestRef": "jb2-manifest-143",
         "sha256": "e91c23346d944c737b9ed4ac05ce412e3c75695a066555e35f2bf65ddd9dbfcf",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -7003,7 +6995,7 @@
         "shardPath": "scenes/scene_144.jsonld",
         "manifestRef": "jb2-manifest-144",
         "sha256": "7677ae3617e9352fdc0314010a5d7964925677020fa5589024ef74ec0278ccef",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     },
     {
@@ -7042,7 +7034,7 @@
         "shardPath": "scenes/scene_145.jsonld",
         "manifestRef": "jb2-manifest-145",
         "sha256": "9cdcef0eab9acaa71fb9787bbfe0933aba8b31c2b2ae9052072f4007d815289f",
-        "compiledAt": "2026-02-26T09:51:20.143236+00:00"
+        "compiledAt": "2026-02-26T11:07:01.313385+00:00"
       }
     }
   ]

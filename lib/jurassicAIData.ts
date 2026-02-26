@@ -59,6 +59,9 @@ for (const r of reqsArr) {
   }
 }
 
+// Build costume/styling maps keyed by characterAssociation @id
+// Also build a secondary map keyed by name-slug for fuzzy matching
+// (costumes may use "jb2-alan-grant" while characters use "jb2-grant")
 const costumeMap: Record<string, any> = {}
 for (const c of costumesArr) {
   const cId = extractId(c["characterAssociation"])
@@ -69,6 +72,29 @@ const stylingMap: Record<string, any> = {}
 for (const s of stylingArr) {
   const cId = extractId(s["characterAssociation"])
   if (cId) stylingMap[cId] = s
+}
+
+// Fuzzy lookup: if exact id match fails, try substring match
+function findCostume(charId: string): any {
+  if (costumeMap[charId]) return costumeMap[charId]
+  // charId = "gg:character/jb2-grant", costume key = "gg:character/jb2-alan-grant"
+  // Try: find a costume key whose slug contains the character's slug
+  const slug = charId.split("/").pop() || ""
+  for (const key of Object.keys(costumeMap)) {
+    const kSlug = key.split("/").pop() || ""
+    if (kSlug.includes(slug) || slug.includes(kSlug)) return costumeMap[key]
+  }
+  return null
+}
+
+function findStyling(charId: string): any {
+  if (stylingMap[charId]) return stylingMap[charId]
+  const slug = charId.split("/").pop() || ""
+  for (const key of Object.keys(stylingMap)) {
+    const kSlug = key.split("/").pop() || ""
+    if (kSlug.includes(slug) || slug.includes(kSlug)) return stylingMap[key]
+  }
+  return null
 }
 
 /* ------------------------------------------------------------------ */
@@ -82,8 +108,8 @@ const characters = charsArr.map((c: any) => {
   const scenes = c["gg:scenes"] || []
   const sceneRefs = (Array.isArray(scenes) ? scenes : [scenes]).map(extractId).filter(Boolean)
   const reqs = reqMap[id] || []
-  const costume = costumeMap[id]
-  const styling = stylingMap[id]
+  const costume = findCostume(id)
+  const styling = findStyling(id)
 
   let notes = desc
   for (const r of reqs) {
@@ -186,8 +212,8 @@ const costumeLooks: CostumeLook[] = []
 const actorSpecs: Record<string, { measurements: ActorMeasurements; hmuSpecs: ActorHMUSpecs }> = {}
 
 characters.forEach((ch: any, idx: number) => {
-  const c = costumeMap[ch.id]
-  const s = stylingMap[ch.id]
+  const c = findCostume(ch.id)
+  const s = findStyling(ch.id)
   const wardrobeNotes = c ? (c["gg:notes"] || c["name"] || "") : ""
   const stylingNotes = s ? (s["gg:notes"] || s["name"] || "") : ""
 

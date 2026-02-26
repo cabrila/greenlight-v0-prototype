@@ -2,40 +2,26 @@
   "@context": "https://gogreenlight.com/schemas/context/v1",
   "@graph": [
     {
-      "@id": "gg:styling/jb2-arnold",
+      "@id": "gg:styling/jb2-alan-grant",
       "@type": "omc:NarrativeStyling",
       "entityType": "omc:NarrativeStyling",
-      "name": "Arnold Styling",
+      "name": "Alan Grant Styling",
       "characterAssociation": {
-        "@id": "gg:character/jb2-arnold"
+        "@id": "gg:character/jb2-alan-grant"
       },
-      "characterLevel": "supporting",
+      "characterLevel": "lead",
       "gg:notes": "Minimal script-description extraction. Detailed styling design requires HMU department pass.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
     },
     {
-      "@id": "gg:styling/jb2-dna",
+      "@id": "gg:styling/jb2-dennis-nedry",
       "@type": "omc:NarrativeStyling",
       "entityType": "omc:NarrativeStyling",
-      "name": "Dna Styling",
+      "name": "Dennis Nedry Styling",
       "characterAssociation": {
-        "@id": "gg:character/jb2-dna"
-      },
-      "characterLevel": "dayPlayer",
-      "gg:notes": "Minimal script-description extraction. Detailed styling design requires HMU department pass.",
-      "isPartOf": {
-        "@id": "gg:project/jurassic-park-1992-jb2"
-      }
-    },
-    {
-      "@id": "gg:styling/jb2-dodgson",
-      "@type": "omc:NarrativeStyling",
-      "entityType": "omc:NarrativeStyling",
-      "name": "Dodgson Styling",
-      "characterAssociation": {
-        "@id": "gg:character/jb2-dodgson"
+        "@id": "gg:character/jb2-dennis-nedry"
       },
       "characterLevel": "dayPlayer",
       "gg:notes": "Minimal script-description extraction. Detailed styling design requires HMU department pass.",
@@ -58,12 +44,12 @@
       }
     },
     {
-      "@id": "gg:styling/jb2-ellie",
+      "@id": "gg:styling/jb2-ellie-sattler",
       "@type": "omc:NarrativeStyling",
       "entityType": "omc:NarrativeStyling",
-      "name": "Ellie Styling",
+      "name": "Ellie Sattler Styling",
       "characterAssociation": {
-        "@id": "gg:character/jb2-ellie"
+        "@id": "gg:character/jb2-ellie-sattler"
       },
       "characterLevel": "lead",
       "gg:notes": "Minimal script-description extraction. Detailed styling design requires HMU department pass.",
@@ -72,40 +58,12 @@
       }
     },
     {
-      "@id": "gg:styling/jb2-grant",
+      "@id": "gg:styling/jb2-gerry-harding",
       "@type": "omc:NarrativeStyling",
       "entityType": "omc:NarrativeStyling",
-      "name": "Grant Styling",
+      "name": "Gerry Harding Styling",
       "characterAssociation": {
-        "@id": "gg:character/jb2-grant"
-      },
-      "characterLevel": "lead",
-      "gg:notes": "Minimal script-description extraction. Detailed styling design requires HMU department pass.",
-      "isPartOf": {
-        "@id": "gg:project/jurassic-park-1992-jb2"
-      }
-    },
-    {
-      "@id": "gg:styling/jb2-hammond",
-      "@type": "omc:NarrativeStyling",
-      "entityType": "omc:NarrativeStyling",
-      "name": "Hammond Styling",
-      "characterAssociation": {
-        "@id": "gg:character/jb2-hammond"
-      },
-      "characterLevel": "lead",
-      "gg:notes": "Minimal script-description extraction. Detailed styling design requires HMU department pass.",
-      "isPartOf": {
-        "@id": "gg:project/jurassic-park-1992-jb2"
-      }
-    },
-    {
-      "@id": "gg:styling/jb2-harding",
-      "@type": "omc:NarrativeStyling",
-      "entityType": "omc:NarrativeStyling",
-      "name": "Harding Styling",
-      "characterAssociation": {
-        "@id": "gg:character/jb2-harding"
+        "@id": "gg:character/jb2-gerry-harding"
       },
       "characterLevel": "dayPlayer",
       "gg:notes": "Minimal script-description extraction. Detailed styling design requires HMU department pass.",
@@ -128,28 +86,70 @@
       }
     },
     {
-      "@id": "gg:styling/jb2-lex",
+      "@id": "gg:styling/jb2-ian-malcolm",
       "@type": "omc:NarrativeStyling",
       "entityType": "omc:NarrativeStyling",
-      "name": "Lex Styling",
+      "name": "Ian Malcolm Styling",
       "characterAssociation": {
-        "@id": "gg:character/jb2-lex"
+        "@id": "gg:character/jb2-ian-malcolm"
       },
-      "characterLevel": "supporting",
+      "characterLevel": "lead",
       "gg:notes": "Minimal script-description extraction. Detailed styling design requires HMU department pass.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
     },
     {
-      "@id": "gg:styling/jb2-malcolm",
+      "@id": "gg:styling/jb2-john-hammond",
       "@type": "omc:NarrativeStyling",
       "entityType": "omc:NarrativeStyling",
-      "name": "Malcolm Styling",
+      "name": "John Hammond Styling",
       "characterAssociation": {
-        "@id": "gg:character/jb2-malcolm"
+        "@id": "gg:character/jb2-john-hammond"
       },
       "characterLevel": "lead",
+      "gg:notes": "Minimal script-description extraction. Detailed styling design requires HMU department pass.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:styling/jb2-juanito-rostagno",
+      "@type": "omc:NarrativeStyling",
+      "entityType": "omc:NarrativeStyling",
+      "name": "Juanito Rostagno Styling",
+      "characterAssociation": {
+        "@id": "gg:character/jb2-juanito-rostagno"
+      },
+      "characterLevel": "dayPlayer",
+      "gg:notes": "Minimal script-description extraction. Detailed styling design requires HMU department pass.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:styling/jb2-lewis-dodgson",
+      "@type": "omc:NarrativeStyling",
+      "entityType": "omc:NarrativeStyling",
+      "name": "Lewis Dodgson Styling",
+      "characterAssociation": {
+        "@id": "gg:character/jb2-lewis-dodgson"
+      },
+      "characterLevel": "dayPlayer",
+      "gg:notes": "Minimal script-description extraction. Detailed styling design requires HMU department pass.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:styling/jb2-lex-murphy",
+      "@type": "omc:NarrativeStyling",
+      "entityType": "omc:NarrativeStyling",
+      "name": "Lex Murphy Styling",
+      "characterAssociation": {
+        "@id": "gg:character/jb2-lex-murphy"
+      },
+      "characterLevel": "supporting",
       "gg:notes": "Minimal script-description extraction. Detailed styling design requires HMU department pass.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
@@ -170,40 +170,26 @@
       }
     },
     {
-      "@id": "gg:styling/jb2-nedry",
+      "@id": "gg:styling/jb2-ray-arnold",
       "@type": "omc:NarrativeStyling",
       "entityType": "omc:NarrativeStyling",
-      "name": "Nedry Styling",
+      "name": "Ray Arnold Styling",
       "characterAssociation": {
-        "@id": "gg:character/jb2-nedry"
+        "@id": "gg:character/jb2-ray-arnold"
       },
-      "characterLevel": "dayPlayer",
+      "characterLevel": "supporting",
       "gg:notes": "Minimal script-description extraction. Detailed styling design requires HMU department pass.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
     },
     {
-      "@id": "gg:styling/jb2-rostagno",
+      "@id": "gg:styling/jb2-tim-murphy",
       "@type": "omc:NarrativeStyling",
       "entityType": "omc:NarrativeStyling",
-      "name": "Rostagno Styling",
+      "name": "Tim Murphy Styling",
       "characterAssociation": {
-        "@id": "gg:character/jb2-rostagno"
-      },
-      "characterLevel": "dayPlayer",
-      "gg:notes": "Minimal script-description extraction. Detailed styling design requires HMU department pass.",
-      "isPartOf": {
-        "@id": "gg:project/jurassic-park-1992-jb2"
-      }
-    },
-    {
-      "@id": "gg:styling/jb2-tim",
-      "@type": "omc:NarrativeStyling",
-      "entityType": "omc:NarrativeStyling",
-      "name": "Tim Styling",
-      "characterAssociation": {
-        "@id": "gg:character/jb2-tim"
+        "@id": "gg:character/jb2-tim-murphy"
       },
       "characterLevel": "lead",
       "gg:notes": "Minimal script-description extraction. Detailed styling design requires HMU department pass.",

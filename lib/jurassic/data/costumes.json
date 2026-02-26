@@ -2,42 +2,27 @@
   "@context": "https://gogreenlight.com/schemas/context/v1",
   "@graph": [
     {
-      "@id": "gg:wardrobe/jb2-arnold",
+      "@id": "gg:wardrobe/jb2-alan-grant",
       "@type": "omc:NarrativeWardrobe",
       "entityType": "omc:NarrativeWardrobe",
-      "name": "Arnold Wardrobe",
+      "name": "Alan Grant Wardrobe",
       "characterAssociation": {
-        "@id": "gg:character/jb2-arnold"
+        "@id": "gg:character/jb2-alan-grant"
       },
       "wardrobeScope": "individual",
-      "characterLevel": "supporting",
+      "characterLevel": "lead",
       "gg:notes": "Minimal script-description extraction. Detailed wardrobe design requires costume department pass.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
     },
     {
-      "@id": "gg:wardrobe/jb2-dna",
+      "@id": "gg:wardrobe/jb2-dennis-nedry",
       "@type": "omc:NarrativeWardrobe",
       "entityType": "omc:NarrativeWardrobe",
-      "name": "Dna Wardrobe",
+      "name": "Dennis Nedry Wardrobe",
       "characterAssociation": {
-        "@id": "gg:character/jb2-dna"
-      },
-      "wardrobeScope": "individual",
-      "characterLevel": "dayPlayer",
-      "gg:notes": "Minimal script-description extraction. Detailed wardrobe design requires costume department pass.",
-      "isPartOf": {
-        "@id": "gg:project/jurassic-park-1992-jb2"
-      }
-    },
-    {
-      "@id": "gg:wardrobe/jb2-dodgson",
-      "@type": "omc:NarrativeWardrobe",
-      "entityType": "omc:NarrativeWardrobe",
-      "name": "Dodgson Wardrobe",
-      "characterAssociation": {
-        "@id": "gg:character/jb2-dodgson"
+        "@id": "gg:character/jb2-dennis-nedry"
       },
       "wardrobeScope": "individual",
       "characterLevel": "dayPlayer",
@@ -62,12 +47,12 @@
       }
     },
     {
-      "@id": "gg:wardrobe/jb2-ellie",
+      "@id": "gg:wardrobe/jb2-ellie-sattler",
       "@type": "omc:NarrativeWardrobe",
       "entityType": "omc:NarrativeWardrobe",
-      "name": "Ellie Wardrobe",
+      "name": "Ellie Sattler Wardrobe",
       "characterAssociation": {
-        "@id": "gg:character/jb2-ellie"
+        "@id": "gg:character/jb2-ellie-sattler"
       },
       "wardrobeScope": "individual",
       "characterLevel": "lead",
@@ -77,42 +62,12 @@
       }
     },
     {
-      "@id": "gg:wardrobe/jb2-grant",
+      "@id": "gg:wardrobe/jb2-gerry-harding",
       "@type": "omc:NarrativeWardrobe",
       "entityType": "omc:NarrativeWardrobe",
-      "name": "Grant Wardrobe",
+      "name": "Gerry Harding Wardrobe",
       "characterAssociation": {
-        "@id": "gg:character/jb2-grant"
-      },
-      "wardrobeScope": "individual",
-      "characterLevel": "lead",
-      "gg:notes": "Minimal script-description extraction. Detailed wardrobe design requires costume department pass.",
-      "isPartOf": {
-        "@id": "gg:project/jurassic-park-1992-jb2"
-      }
-    },
-    {
-      "@id": "gg:wardrobe/jb2-hammond",
-      "@type": "omc:NarrativeWardrobe",
-      "entityType": "omc:NarrativeWardrobe",
-      "name": "Hammond Wardrobe",
-      "characterAssociation": {
-        "@id": "gg:character/jb2-hammond"
-      },
-      "wardrobeScope": "individual",
-      "characterLevel": "lead",
-      "gg:notes": "Minimal script-description extraction. Detailed wardrobe design requires costume department pass.",
-      "isPartOf": {
-        "@id": "gg:project/jurassic-park-1992-jb2"
-      }
-    },
-    {
-      "@id": "gg:wardrobe/jb2-harding",
-      "@type": "omc:NarrativeWardrobe",
-      "entityType": "omc:NarrativeWardrobe",
-      "name": "Harding Wardrobe",
-      "characterAssociation": {
-        "@id": "gg:character/jb2-harding"
+        "@id": "gg:character/jb2-gerry-harding"
       },
       "wardrobeScope": "individual",
       "characterLevel": "dayPlayer",
@@ -137,30 +92,75 @@
       }
     },
     {
-      "@id": "gg:wardrobe/jb2-lex",
+      "@id": "gg:wardrobe/jb2-ian-malcolm",
       "@type": "omc:NarrativeWardrobe",
       "entityType": "omc:NarrativeWardrobe",
-      "name": "Lex Wardrobe",
+      "name": "Ian Malcolm Wardrobe",
       "characterAssociation": {
-        "@id": "gg:character/jb2-lex"
+        "@id": "gg:character/jb2-ian-malcolm"
       },
       "wardrobeScope": "individual",
-      "characterLevel": "supporting",
+      "characterLevel": "lead",
       "gg:notes": "Minimal script-description extraction. Detailed wardrobe design requires costume department pass.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
     },
     {
-      "@id": "gg:wardrobe/jb2-malcolm",
+      "@id": "gg:wardrobe/jb2-john-hammond",
       "@type": "omc:NarrativeWardrobe",
       "entityType": "omc:NarrativeWardrobe",
-      "name": "Malcolm Wardrobe",
+      "name": "John Hammond Wardrobe",
       "characterAssociation": {
-        "@id": "gg:character/jb2-malcolm"
+        "@id": "gg:character/jb2-john-hammond"
       },
       "wardrobeScope": "individual",
       "characterLevel": "lead",
+      "gg:notes": "Minimal script-description extraction. Detailed wardrobe design requires costume department pass.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:wardrobe/jb2-juanito-rostagno",
+      "@type": "omc:NarrativeWardrobe",
+      "entityType": "omc:NarrativeWardrobe",
+      "name": "Juanito Rostagno Wardrobe",
+      "characterAssociation": {
+        "@id": "gg:character/jb2-juanito-rostagno"
+      },
+      "wardrobeScope": "individual",
+      "characterLevel": "dayPlayer",
+      "gg:notes": "Minimal script-description extraction. Detailed wardrobe design requires costume department pass.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:wardrobe/jb2-lewis-dodgson",
+      "@type": "omc:NarrativeWardrobe",
+      "entityType": "omc:NarrativeWardrobe",
+      "name": "Lewis Dodgson Wardrobe",
+      "characterAssociation": {
+        "@id": "gg:character/jb2-lewis-dodgson"
+      },
+      "wardrobeScope": "individual",
+      "characterLevel": "dayPlayer",
+      "gg:notes": "Minimal script-description extraction. Detailed wardrobe design requires costume department pass.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:wardrobe/jb2-lex-murphy",
+      "@type": "omc:NarrativeWardrobe",
+      "entityType": "omc:NarrativeWardrobe",
+      "name": "Lex Murphy Wardrobe",
+      "characterAssociation": {
+        "@id": "gg:character/jb2-lex-murphy"
+      },
+      "wardrobeScope": "individual",
+      "characterLevel": "supporting",
       "gg:notes": "Minimal script-description extraction. Detailed wardrobe design requires costume department pass.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
@@ -182,42 +182,27 @@
       }
     },
     {
-      "@id": "gg:wardrobe/jb2-nedry",
+      "@id": "gg:wardrobe/jb2-ray-arnold",
       "@type": "omc:NarrativeWardrobe",
       "entityType": "omc:NarrativeWardrobe",
-      "name": "Nedry Wardrobe",
+      "name": "Ray Arnold Wardrobe",
       "characterAssociation": {
-        "@id": "gg:character/jb2-nedry"
+        "@id": "gg:character/jb2-ray-arnold"
       },
       "wardrobeScope": "individual",
-      "characterLevel": "dayPlayer",
+      "characterLevel": "supporting",
       "gg:notes": "Minimal script-description extraction. Detailed wardrobe design requires costume department pass.",
       "isPartOf": {
         "@id": "gg:project/jurassic-park-1992-jb2"
       }
     },
     {
-      "@id": "gg:wardrobe/jb2-rostagno",
+      "@id": "gg:wardrobe/jb2-tim-murphy",
       "@type": "omc:NarrativeWardrobe",
       "entityType": "omc:NarrativeWardrobe",
-      "name": "Rostagno Wardrobe",
+      "name": "Tim Murphy Wardrobe",
       "characterAssociation": {
-        "@id": "gg:character/jb2-rostagno"
-      },
-      "wardrobeScope": "individual",
-      "characterLevel": "dayPlayer",
-      "gg:notes": "Minimal script-description extraction. Detailed wardrobe design requires costume department pass.",
-      "isPartOf": {
-        "@id": "gg:project/jurassic-park-1992-jb2"
-      }
-    },
-    {
-      "@id": "gg:wardrobe/jb2-tim",
-      "@type": "omc:NarrativeWardrobe",
-      "entityType": "omc:NarrativeWardrobe",
-      "name": "Tim Wardrobe",
-      "characterAssociation": {
-        "@id": "gg:character/jb2-tim"
+        "@id": "gg:character/jb2-tim-murphy"
       },
       "wardrobeScope": "individual",
       "characterLevel": "lead",

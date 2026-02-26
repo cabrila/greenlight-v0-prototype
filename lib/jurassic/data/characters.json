@@ -2,247 +2,11 @@
   "@context": "https://gogreenlight.com/schemas/context/v1",
   "@graph": [
     {
-      "@id": "gg:character/jb2-arnold",
+      "@id": "gg:character/jb2-alan-grant",
       "@type": "omc:Character",
       "entityType": "omc:Character",
-      "name": "Arnold",
-      "description": "Intro: OVER RADIO. Extracted from script dialogue/action evidence. Dialogue cues: 39.",
-      "gg:characterLevel": "supporting",
-      "gg:firstAppearance": {
-        "@id": "gg:scene/jb2-scene-033"
-      },
-      "gg:scenes": [
-        {
-          "@id": "gg:scene/jb2-scene-033"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-037"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-039"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-041"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-043"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-045"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-047"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-050"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-053"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-055"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-079"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-080"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-083"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-100"
-        }
-      ],
-      "isPartOf": {
-        "@id": "gg:project/jurassic-park-1992-jb2"
-      }
-    },
-    {
-      "@id": "gg:character/jb2-dna",
-      "@type": "omc:Character",
-      "entityType": "omc:Character",
-      "name": "Dna",
-      "description": "Intro: ON SCREEN. Extracted from script dialogue/action evidence. Dialogue cues: 5.",
-      "gg:characterLevel": "dayPlayer",
-      "gg:firstAppearance": {
-        "@id": "gg:scene/jb2-scene-022"
-      },
-      "gg:scenes": [
-        {
-          "@id": "gg:scene/jb2-scene-022"
-        }
-      ],
-      "isPartOf": {
-        "@id": "gg:project/jurassic-park-1992-jb2"
-      }
-    },
-    {
-      "@id": "gg:character/jb2-dodgson",
-      "@type": "omc:Character",
-      "entityType": "omc:Character",
-      "name": "Dodgson",
-      "description": "Extracted from script dialogue/action evidence. Dialogue cues: 5.",
-      "gg:characterLevel": "dayPlayer",
-      "gg:firstAppearance": {
-        "@id": "gg:scene/jb2-scene-011"
-      },
-      "gg:scenes": [
-        {
-          "@id": "gg:scene/jb2-scene-011"
-        }
-      ],
-      "isPartOf": {
-        "@id": "gg:project/jurassic-park-1992-jb2"
-      }
-    },
-    {
-      "@id": "gg:character/jb2-donald-gennaro",
-      "@type": "omc:Character",
-      "entityType": "omc:Character",
-      "name": "Donald Gennaro",
-      "description": "Intro: 40s, a lawyer. Extracted from script dialogue/action evidence. Dialogue cues: 16.",
-      "gg:characterLevel": "supporting",
-      "gg:firstAppearance": {
-        "@id": "gg:scene/jb2-scene-002"
-      },
-      "gg:scenes": [
-        {
-          "@id": "gg:scene/jb2-scene-002"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-003"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-014"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-031"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-036"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-038"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-045"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-051"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-067"
-        }
-      ],
-      "isPartOf": {
-        "@id": "gg:project/jurassic-park-1992-jb2"
-      }
-    },
-    {
-      "@id": "gg:character/jb2-ellie",
-      "@type": "omc:Character",
-      "entityType": "omc:Character",
-      "name": "Ellie",
-      "description": "Intro: CONT'D. Extracted from script dialogue/action evidence. Dialogue cues: 51.",
-      "gg:characterLevel": "lead",
-      "gg:firstAppearance": {
-        "@id": "gg:scene/jb2-scene-005"
-      },
-      "gg:scenes": [
-        {
-          "@id": "gg:scene/jb2-scene-005"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-006"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-010"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-014"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-015"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-016"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-023"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-026"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-029"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-038"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-040"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-042"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-045"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-047"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-083"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-084"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-085"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-089"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-097"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-103"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-109"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-116"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-127"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-128"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-129"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-133"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-140"
-        }
-      ],
-      "isPartOf": {
-        "@id": "gg:project/jurassic-park-1992-jb2"
-      }
-    },
-    {
-      "@id": "gg:character/jb2-grant",
-      "@type": "omc:Character",
-      "entityType": "omc:Character",
-      "name": "Grant",
-      "description": "Intro: CONT'D. Extracted from script dialogue/action evidence. Dialogue cues: 131.",
+      "name": "Alan Grant",
+      "description": "Intro: mid-thirties, a ragged-looking guy with intense. Extracted from script dialogue/action evidence. Dialogue cues: 131.",
       "gg:characterLevel": "lead",
       "gg:firstAppearance": {
         "@id": "gg:scene/jb2-scene-005"
@@ -339,9 +103,6 @@
           "@id": "gg:scene/jb2-scene-070"
         },
         {
-          "@id": "gg:scene/jb2-scene-071"
-        },
-        {
           "@id": "gg:scene/jb2-scene-073"
         },
         {
@@ -434,11 +195,314 @@
       }
     },
     {
-      "@id": "gg:character/jb2-hammond",
+      "@id": "gg:character/jb2-dennis-nedry",
       "@type": "omc:Character",
       "entityType": "omc:Character",
-      "name": "Hammond",
-      "description": "Intro: CONT'D. Extracted from script dialogue/action evidence. Dialogue cues: 78.",
+      "name": "Dennis Nedry",
+      "description": "Extracted from script dialogue/action evidence. Dialogue cues: 17.",
+      "gg:characterLevel": "dayPlayer",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-011"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-011"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-033"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-046"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-052"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-081"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-082"
+        }
+      ],
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:character/jb2-donald-gennaro",
+      "@type": "omc:Character",
+      "entityType": "omc:Character",
+      "name": "Donald Gennaro",
+      "description": "Intro: 40s, a lawyer) makes his way down the slope,. Extracted from script dialogue/action evidence. Dialogue cues: 16.",
+      "gg:characterLevel": "supporting",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-002"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-002"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-003"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-014"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-031"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-036"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-038"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-045"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-051"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-067"
+        }
+      ],
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:character/jb2-ellie-sattler",
+      "@type": "omc:Character",
+      "entityType": "omc:Character",
+      "name": "Ellie Sattler",
+      "description": "Intro: late twenties, athletic-looking; there's an. Extracted from script dialogue/action evidence. Dialogue cues: 51.",
+      "gg:characterLevel": "lead",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-005"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-005"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-006"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-010"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-014"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-015"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-016"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-023"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-026"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-029"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-038"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-040"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-042"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-045"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-047"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-083"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-084"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-085"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-089"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-097"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-103"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-109"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-116"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-127"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-128"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-129"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-133"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-140"
+        }
+      ],
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:character/jb2-gerry-harding",
+      "@type": "omc:Character",
+      "entityType": "omc:Character",
+      "name": "Gerry Harding",
+      "description": "Extracted from script dialogue/action evidence. Dialogue cues: 8.",
+      "gg:characterLevel": "dayPlayer",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-042"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-042"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-045"
+        }
+      ],
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:character/jb2-henry-wu",
+      "@type": "omc:Character",
+      "entityType": "omc:Character",
+      "name": "Henry Wu",
+      "description": "Intro: 30s, calm, precise) meets them at the door.. Extracted from script dialogue/action evidence. Dialogue cues: 11.",
+      "gg:characterLevel": "dayPlayer",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-026"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-026"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-027"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-029"
+        }
+      ],
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:character/jb2-ian-malcolm",
+      "@type": "omc:Character",
+      "entityType": "omc:Character",
+      "name": "Ian Malcolm",
+      "description": "Extracted from script dialogue/action evidence. Dialogue cues: 47.",
+      "gg:characterLevel": "lead",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-014"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-014"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-026"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-027"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-029"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-031"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-036"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-038"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-040"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-042"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-045"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-051"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-057"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-060"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-061"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-066"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-085"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-089"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-091"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-093"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-100"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-103"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-136"
+        }
+      ],
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:character/jb2-john-hammond",
+      "@type": "omc:Character",
+      "entityType": "omc:Character",
+      "name": "John Hammond",
+      "description": "Extracted from script dialogue/action evidence. Dialogue cues: 76.",
       "gg:characterLevel": "lead",
       "gg:firstAppearance": {
         "@id": "gg:scene/jb2-scene-009"
@@ -464,9 +528,6 @@
         },
         {
           "@id": "gg:scene/jb2-scene-019"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-020"
         },
         {
           "@id": "gg:scene/jb2-scene-024"
@@ -546,21 +607,21 @@
       }
     },
     {
-      "@id": "gg:character/jb2-harding",
+      "@id": "gg:character/jb2-juanito-rostagno",
       "@type": "omc:Character",
       "entityType": "omc:Character",
-      "name": "Harding",
-      "description": "Intro: CONT'D. Extracted from script dialogue/action evidence. Dialogue cues: 8.",
+      "name": "Juanito Rostagno",
+      "description": "Extracted from script dialogue/action evidence. Dialogue cues: 7.",
       "gg:characterLevel": "dayPlayer",
       "gg:firstAppearance": {
-        "@id": "gg:scene/jb2-scene-042"
+        "@id": "gg:scene/jb2-scene-002"
       },
       "gg:scenes": [
         {
-          "@id": "gg:scene/jb2-scene-042"
+          "@id": "gg:scene/jb2-scene-002"
         },
         {
-          "@id": "gg:scene/jb2-scene-045"
+          "@id": "gg:scene/jb2-scene-003"
         }
       ],
       "isPartOf": {
@@ -568,24 +629,18 @@
       }
     },
     {
-      "@id": "gg:character/jb2-henry-wu",
+      "@id": "gg:character/jb2-lewis-dodgson",
       "@type": "omc:Character",
       "entityType": "omc:Character",
-      "name": "Henry Wu",
-      "description": "Intro: 30s, calm, precise. Extracted from script dialogue/action evidence. Dialogue cues: 11.",
+      "name": "Lewis Dodgson",
+      "description": "Extracted from script dialogue/action evidence. Dialogue cues: 5.",
       "gg:characterLevel": "dayPlayer",
       "gg:firstAppearance": {
-        "@id": "gg:scene/jb2-scene-026"
+        "@id": "gg:scene/jb2-scene-011"
       },
       "gg:scenes": [
         {
-          "@id": "gg:scene/jb2-scene-026"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-027"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-029"
+          "@id": "gg:scene/jb2-scene-011"
         }
       ],
       "isPartOf": {
@@ -593,11 +648,11 @@
       }
     },
     {
-      "@id": "gg:character/jb2-lex",
+      "@id": "gg:character/jb2-lex-murphy",
       "@type": "omc:Character",
       "entityType": "omc:Character",
-      "name": "Lex",
-      "description": "Intro: CONT'D. Extracted from script dialogue/action evidence. Dialogue cues: 25.",
+      "name": "Lex Murphy",
+      "description": "Extracted from script dialogue/action evidence. Dialogue cues: 25.",
       "gg:characterLevel": "supporting",
       "gg:firstAppearance": {
         "@id": "gg:scene/jb2-scene-031"
@@ -651,93 +706,11 @@
       }
     },
     {
-      "@id": "gg:character/jb2-malcolm",
-      "@type": "omc:Character",
-      "entityType": "omc:Character",
-      "name": "Malcolm",
-      "description": "Intro: CONT'D. Extracted from script dialogue/action evidence. Dialogue cues: 47.",
-      "gg:characterLevel": "lead",
-      "gg:firstAppearance": {
-        "@id": "gg:scene/jb2-scene-014"
-      },
-      "gg:scenes": [
-        {
-          "@id": "gg:scene/jb2-scene-014"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-026"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-027"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-029"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-031"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-036"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-038"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-040"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-042"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-045"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-051"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-057"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-060"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-061"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-066"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-085"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-089"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-091"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-093"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-100"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-103"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-136"
-        }
-      ],
-      "isPartOf": {
-        "@id": "gg:project/jurassic-park-1992-jb2"
-      }
-    },
-    {
       "@id": "gg:character/jb2-muldoon",
       "@type": "omc:Character",
       "entityType": "omc:Character",
       "name": "Muldoon",
-      "description": "Intro: 40s, British, when Muldoon talks, you listen. Extracted from script dialogue/action evidence. Dialogue cues: 36.",
+      "description": "Intro: 40s, British, when Muldoon talks, you listen) speaks. Extracted from script dialogue/action evidence. Dialogue cues: 36.",
       "gg:characterLevel": "supporting",
       "gg:firstAppearance": {
         "@id": "gg:scene/jb2-scene-001"
@@ -800,33 +773,57 @@
       }
     },
     {
-      "@id": "gg:character/jb2-nedry",
+      "@id": "gg:character/jb2-ray-arnold",
       "@type": "omc:Character",
       "entityType": "omc:Character",
-      "name": "Nedry",
-      "description": "Intro: CONT'D. Extracted from script dialogue/action evidence. Dialogue cues: 17.",
-      "gg:characterLevel": "dayPlayer",
+      "name": "Ray Arnold",
+      "description": "Intro: 50s, perpetually cigarette-in-mouth, a chain-smoker. Extracted from script dialogue/action evidence. Dialogue cues: 39.",
+      "gg:characterLevel": "supporting",
       "gg:firstAppearance": {
-        "@id": "gg:scene/jb2-scene-011"
+        "@id": "gg:scene/jb2-scene-033"
       },
       "gg:scenes": [
-        {
-          "@id": "gg:scene/jb2-scene-011"
-        },
         {
           "@id": "gg:scene/jb2-scene-033"
         },
         {
-          "@id": "gg:scene/jb2-scene-046"
+          "@id": "gg:scene/jb2-scene-037"
         },
         {
-          "@id": "gg:scene/jb2-scene-052"
+          "@id": "gg:scene/jb2-scene-039"
         },
         {
-          "@id": "gg:scene/jb2-scene-081"
+          "@id": "gg:scene/jb2-scene-041"
         },
         {
-          "@id": "gg:scene/jb2-scene-082"
+          "@id": "gg:scene/jb2-scene-043"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-045"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-047"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-050"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-053"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-055"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-079"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-080"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-083"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-100"
         }
       ],
       "isPartOf": {
@@ -834,33 +831,11 @@
       }
     },
     {
-      "@id": "gg:character/jb2-rostagno",
+      "@id": "gg:character/jb2-tim-murphy",
       "@type": "omc:Character",
       "entityType": "omc:Character",
-      "name": "Rostagno",
-      "description": "Extracted from script dialogue/action evidence. Dialogue cues: 7.",
-      "gg:characterLevel": "dayPlayer",
-      "gg:firstAppearance": {
-        "@id": "gg:scene/jb2-scene-002"
-      },
-      "gg:scenes": [
-        {
-          "@id": "gg:scene/jb2-scene-002"
-        },
-        {
-          "@id": "gg:scene/jb2-scene-003"
-        }
-      ],
-      "isPartOf": {
-        "@id": "gg:project/jurassic-park-1992-jb2"
-      }
-    },
-    {
-      "@id": "gg:character/jb2-tim",
-      "@type": "omc:Character",
-      "entityType": "omc:Character",
-      "name": "Tim",
-      "description": "Intro: CONT'D. Extracted from script dialogue/action evidence. Dialogue cues: 52.",
+      "name": "Tim Murphy",
+      "description": "Extracted from script dialogue/action evidence. Dialogue cues: 52.",
       "gg:characterLevel": "lead",
       "gg:firstAppearance": {
         "@id": "gg:scene/jb2-scene-031"

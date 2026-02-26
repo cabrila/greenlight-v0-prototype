@@ -46,7 +46,7 @@
           "@id": "gg:character/jb2-donald-gennaro"
         },
         {
-          "@id": "gg:character/jb2-rostagno"
+          "@id": "gg:character/jb2-juanito-rostagno"
         }
       ],
       "actionBeats": [
@@ -72,10 +72,10 @@
       ],
       "charactersInvolved": [
         {
-          "@id": "gg:character/jb2-ellie"
+          "@id": "gg:character/jb2-ellie-sattler"
         },
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-alan-grant"
         }
       ],
       "actionBeats": [
@@ -101,19 +101,19 @@
       ],
       "charactersInvolved": [
         {
-          "@id": "gg:character/jb2-ellie"
+          "@id": "gg:character/jb2-ellie-sattler"
         },
         {
           "@id": "gg:character/jb2-donald-gennaro"
         },
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-alan-grant"
         },
         {
-          "@id": "gg:character/jb2-hammond"
+          "@id": "gg:character/jb2-john-hammond"
         },
         {
-          "@id": "gg:character/jb2-malcolm"
+          "@id": "gg:character/jb2-ian-malcolm"
         }
       ],
       "actionBeats": [
@@ -139,16 +139,16 @@
       ],
       "charactersInvolved": [
         {
-          "@id": "gg:character/jb2-ellie"
+          "@id": "gg:character/jb2-ellie-sattler"
         },
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-alan-grant"
         },
         {
-          "@id": "gg:character/jb2-hammond"
+          "@id": "gg:character/jb2-john-hammond"
         },
         {
-          "@id": "gg:character/jb2-malcolm"
+          "@id": "gg:character/jb2-ian-malcolm"
         },
         {
           "@id": "gg:character/jb2-henry-wu"
@@ -177,10 +177,10 @@
       ],
       "charactersInvolved": [
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-alan-grant"
         },
         {
-          "@id": "gg:character/jb2-hammond"
+          "@id": "gg:character/jb2-john-hammond"
         },
         {
           "@id": "gg:character/jb2-muldoon"
@@ -210,13 +210,13 @@
       ],
       "charactersInvolved": [
         {
-          "@id": "gg:character/jb2-ellie"
+          "@id": "gg:character/jb2-ellie-sattler"
         },
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-alan-grant"
         },
         {
-          "@id": "gg:character/jb2-malcolm"
+          "@id": "gg:character/jb2-ian-malcolm"
         }
       ],
       "actionBeats": [
@@ -242,7 +242,7 @@
       ],
       "charactersInvolved": [
         {
-          "@id": "gg:character/jb2-nedry"
+          "@id": "gg:character/jb2-dennis-nedry"
         }
       ],
       "actionBeats": [
@@ -268,10 +268,10 @@
       ],
       "charactersInvolved": [
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-alan-grant"
         },
         {
-          "@id": "gg:character/jb2-tim"
+          "@id": "gg:character/jb2-tim-murphy"
         }
       ],
       "actionBeats": [
@@ -319,7 +319,7 @@
       ],
       "charactersInvolved": [
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-alan-grant"
         }
       ],
       "actionBeats": [
@@ -346,7 +346,7 @@
       ],
       "charactersInvolved": [
         {
-          "@id": "gg:character/jb2-malcolm"
+          "@id": "gg:character/jb2-ian-malcolm"
         }
       ],
       "actionBeats": [
@@ -398,10 +398,10 @@
       ],
       "charactersInvolved": [
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-alan-grant"
         },
         {
-          "@id": "gg:character/jb2-tim"
+          "@id": "gg:character/jb2-tim-murphy"
         }
       ],
       "actionBeats": [
@@ -429,10 +429,10 @@
       ],
       "charactersInvolved": [
         {
-          "@id": "gg:character/jb2-arnold"
+          "@id": "gg:character/jb2-ray-arnold"
         },
         {
-          "@id": "gg:character/jb2-hammond"
+          "@id": "gg:character/jb2-john-hammond"
         },
         {
           "@id": "gg:character/jb2-muldoon"
@@ -461,7 +461,7 @@
       ],
       "charactersInvolved": [
         {
-          "@id": "gg:character/jb2-nedry"
+          "@id": "gg:character/jb2-dennis-nedry"
         }
       ],
       "actionBeats": [
@@ -509,10 +509,10 @@
       ],
       "charactersInvolved": [
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-alan-grant"
         },
         {
-          "@id": "gg:character/jb2-lex"
+          "@id": "gg:character/jb2-lex-murphy"
         }
       ],
       "actionBeats": [
@@ -538,7 +538,7 @@
       ],
       "charactersInvolved": [
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-alan-grant"
         }
       ],
       "actionBeats": [
@@ -587,16 +587,16 @@
       ],
       "charactersInvolved": [
         {
-          "@id": "gg:character/jb2-ellie"
+          "@id": "gg:character/jb2-ellie-sattler"
         },
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-alan-grant"
         },
         {
-          "@id": "gg:character/jb2-lex"
+          "@id": "gg:character/jb2-lex-murphy"
         },
         {
-          "@id": "gg:character/jb2-tim"
+          "@id": "gg:character/jb2-tim-murphy"
         }
       ],
       "actionBeats": [
@@ -622,7 +622,7 @@
       ],
       "charactersInvolved": [
         {
-          "@id": "gg:character/jb2-tim"
+          "@id": "gg:character/jb2-tim-murphy"
         }
       ],
       "actionBeats": [
@@ -670,10 +670,10 @@
       ],
       "charactersInvolved": [
         {
-          "@id": "gg:character/jb2-ellie"
+          "@id": "gg:character/jb2-ellie-sattler"
         },
         {
-          "@id": "gg:character/jb2-grant"
+          "@id": "gg:character/jb2-alan-grant"
         }
       ],
       "actionBeats": [
