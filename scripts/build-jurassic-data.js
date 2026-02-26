@@ -1,10 +1,19 @@
 /**
- * Build script: fetches the 10 jb2 JSON files from blob URLs and generates lib/jurassicAIData.ts
+ * Build script: fetches the 10 jb2 JSON files from blob URLs and generates
+ * multiple smaller TS files under lib/jurassic/ plus a thin re-export index.
  * Run with: node scripts/build-jurassic-data.js
+ *
+ * Output files:
+ *   lib/jurassic/jb2Characters.ts
+ *   lib/jurassic/jb2Locations.ts
+ *   lib/jurassic/jb2Props.ts
+ *   lib/jurassic/jb2Costumes.ts
+ *   lib/jurassic/jb2ScriptBlocks.ts
+ *   lib/jurassic/jb2Beats.ts
+ *   lib/jurassic/jb2Schedule.ts
+ *   lib/jurassic/jb2Scenes.ts
+ *   lib/jurassicAIData.ts   (thin import + combine)
  */
-const { writeFileSync } = require("fs");
-
-const ROOT = "/vercel/share/v0-project";
 
 const BLOB_URLS = {
   project:       "https://blobs.vusercontent.net/blob/project-56uzHDoDPo06pj6X15XWtyx4Md1xFq.json",
@@ -43,13 +52,9 @@ const costumesJson  = data.costumes;
 const stylingJson   = data.styling;
 
 // ── Helpers ────────────────────────────────────────────────────────────────
-/** Extract short id from @id like "gg:character/jb2-grant" → "jb2-grant" */
 const shortId = (ggId) => (ggId || "").split("/").pop() || ggId;
-
-/** Escape string for TS template literal */
-const esc = (s) => (s || "").replace(/\\/g, "\\\\").replace(/`/g, "\\`").replace(/\$/g, "\\$");
-
 const now = Date.now();
+const ser = (obj) => JSON.stringify(obj, null, 2);
 
 // ── Map graph arrays to lookup maps ────────────────────────────────────────
 const scenesArr   = scenesJson["@graph"]   || [];
@@ -63,17 +68,13 @@ const costumesArr = costumesJson["@graph"] || [];
 const stylingArr  = stylingJson["@graph"]  || [];
 const projNode    = (projectJson["@graph"] || [])[0] || {};
 
-// Build lookup maps
 const sceneById    = Object.fromEntries(scenesArr.map(s => [s["@id"], s]));
 const charById     = Object.fromEntries(charsArr.map(c => [c["@id"], c]));
 const locById      = Object.fromEntries(locsArr.map(l => [l["@id"], l]));
 const propById     = Object.fromEntries(propsArr.map(p => [p["@id"], p]));
-const effectById   = Object.fromEntries(effectsArr.map(e => [e["@id"], e]));
-const actionById   = Object.fromEntries(actionsArr.map(a => [a["@id"], a]));
 const costumeByChar = Object.fromEntries(costumesArr.map(c => [c.characterAssociation?.["@id"], c]));
 const stylingByChar = Object.fromEntries(stylingArr.map(s => [s.characterAssociation?.["@id"], s]));
 
-// Build requirement lookups by character
 const reqsByChar = {};
 for (const r of reqsArr) {
   for (const rc of (r["gg:relatedCharacters"] || [])) {
@@ -97,11 +98,11 @@ function buildCharacters() {
     
     const castingNotes = [];
     if (c.description) castingNotes.push(c.description);
-    if (castingReq) castingNotes.push(`Priority: ${castingReq["gg:priority"]}`);
-    if (safetyReqs.length) castingNotes.push(`Safety: ${safetyReqs.map(r => r.name).join("; ")}`);
-    if (schedReqs.length) castingNotes.push(`Scheduling: ${schedReqs.map(r => r.name).join("; ")}`);
-    if (costume?.["gg:notes"]) castingNotes.push(`Wardrobe: ${costume["gg:notes"]}`);
-    if (styling?.["gg:notes"]) castingNotes.push(`Styling: ${styling["gg:notes"]}`);
+    if (castingReq) castingNotes.push("Priority: " + castingReq["gg:priority"]);
+    if (safetyReqs.length) castingNotes.push("Safety: " + safetyReqs.map(r => r.name).join("; "));
+    if (schedReqs.length) castingNotes.push("Scheduling: " + schedReqs.map(r => r.name).join("; "));
+    if (costume?.["gg:notes"]) castingNotes.push("Wardrobe: " + costume["gg:notes"]);
+    if (styling?.["gg:notes"]) castingNotes.push("Styling: " + styling["gg:notes"]);
 
     return {
       id: cid,
@@ -170,17 +171,14 @@ function buildCostumes() {
 function buildScriptBlocks() {
   const blocks = [];
   let blockIdx = 0;
-
-  // Sort scenes by sequence
   const sorted = [...scenesArr].sort((a, b) => (a.sequence || 0) - (b.sequence || 0));
 
   for (const scene of sorted) {
     const sid = shortId(scene["@id"]);
     const sceneNum = scene.sceneNumber || String(scene.sequence || "");
 
-    // Scene heading
     blocks.push({
-      id: `jb2-blk-${++blockIdx}`,
+      id: "jb2-blk-" + (++blockIdx),
       type: "scene-heading",
       text: scene.slugline || "",
       sceneNumber: sceneNum,
@@ -188,15 +186,12 @@ function buildScriptBlocks() {
       linkedLocationId: shortId(scene.locationRef?.["@id"] || ""),
     });
 
-    // Parse scriptText into action/character/dialogue/parenthetical blocks
     const scriptText = scene.scriptText || "";
     if (scriptText) {
       const lines = scriptText.split("\n");
-      // Skip the first line (slugline already represented as scene-heading)
       let i = 0;
-      // Skip until after the slugline
       while (i < lines.length && !lines[i].match(/^\d+\s+(INT|EXT)\./)) i++;
-      if (i < lines.length) i++; // skip the slugline line itself
+      if (i < lines.length) i++;
       
       let currentBlock = { type: "action", lines: [] };
       const flush = () => {
@@ -205,21 +200,20 @@ function buildScriptBlocks() {
         if (!text) return;
         
         if (currentBlock.type === "character") {
-          // Try to find matching character ID
           const charName = text.replace(/\s*\(CONT'D\)\s*/i, "").trim();
           const matchedChar = charsArr.find(c => 
             (c.name || "").toUpperCase() === charName.toUpperCase() ||
             (c.name || "").toUpperCase() === charName.replace(/^(DR\.\s*|MR\.\s*)/i, "").toUpperCase()
           );
           blocks.push({
-            id: `jb2-blk-${++blockIdx}`,
+            id: "jb2-blk-" + (++blockIdx),
             type: "character",
             text: charName,
             linkedCharacterId: matchedChar ? shortId(matchedChar["@id"]) : undefined,
           });
         } else {
           blocks.push({
-            id: `jb2-blk-${++blockIdx}`,
+            id: "jb2-blk-" + (++blockIdx),
             type: currentBlock.type,
             text,
           });
@@ -232,15 +226,11 @@ function buildScriptBlocks() {
         const trimmed = line.trim();
         
         if (!trimmed) {
-          // Empty line can signal block boundary
-          if (currentBlock.lines.length > 0) {
-            flush();
-          }
+          if (currentBlock.lines.length > 0) flush();
           i++;
           continue;
         }
 
-        // Character cue: all caps, indented ~20+ spaces, not starting with EXT/INT
         const charMatch = line.match(/^\s{16,}([A-Z][A-Z\s.'']+(?:\s*\(CONT'D\))?)$/);
         if (charMatch && !trimmed.startsWith("EXT") && !trimmed.startsWith("INT") && !trimmed.startsWith("SUPER")) {
           flush();
@@ -250,12 +240,11 @@ function buildScriptBlocks() {
           continue;
         }
 
-        // Parenthetical: indented, in parens
         const parenMatch = trimmed.match(/^\(.*\)$/);
         if (parenMatch && currentBlock.type !== "action") {
           flush();
           blocks.push({
-            id: `jb2-blk-${++blockIdx}`,
+            id: "jb2-blk-" + (++blockIdx),
             type: "parenthetical",
             text: trimmed,
           });
@@ -263,7 +252,6 @@ function buildScriptBlocks() {
           continue;
         }
 
-        // Dialogue: indented ~10-20 spaces (after a character cue)
         const isDialogue = line.match(/^\s{10,}/) && !charMatch;
         if (isDialogue && blocks.length > 0) {
           const lastBlock = blocks[blocks.length - 1];
@@ -278,11 +266,10 @@ function buildScriptBlocks() {
           }
         }
 
-        // Transition
         if (trimmed.match(/^(CUT TO:|FADE TO:|SMASH CUT|DISSOLVE TO:)/)) {
           flush();
           blocks.push({
-            id: `jb2-blk-${++blockIdx}`,
+            id: "jb2-blk-" + (++blockIdx),
             type: "transition",
             text: trimmed,
           });
@@ -290,7 +277,6 @@ function buildScriptBlocks() {
           continue;
         }
 
-        // Default: action
         if (currentBlock.type !== "action") {
           flush();
           currentBlock = { type: "action", lines: [] };
@@ -304,21 +290,17 @@ function buildScriptBlocks() {
   return blocks;
 }
 
-// ── Build beats from act structure ─────────────────────────────────────────
+// ── Build beats ───────────────────────────────────────────────────────────
 function buildBeats(blocks) {
   const beatColors = ["rose", "blue", "amber", "green", "purple", "pink", "sky", "stone"];
   const beats = [];
   let beatIdx = 0;
-  
-  // Create a beat for each scene heading
   const sceneHeadings = blocks.filter(b => b.type === "scene-heading");
-  
-  // Pick key scenes for beats (every ~5th scene to keep it manageable)
   const stride = Math.max(1, Math.floor(sceneHeadings.length / 15));
   for (let i = 0; i < sceneHeadings.length; i += stride) {
     const sh = sceneHeadings[i];
     beats.push({
-      id: `jb2-beat-${++beatIdx}`,
+      id: "jb2-beat-" + (++beatIdx),
       title: sh.synopsis ? sh.synopsis.substring(0, 40) : sh.text.substring(0, 40),
       description: sh.synopsis || sh.text,
       color: beatColors[beatIdx % beatColors.length],
@@ -332,7 +314,6 @@ function buildBeats(blocks) {
 
 // ── Build schedule entries ─────────────────────────────────────────────────
 function buildScheduleEntries() {
-  // Group scenes into ~10-scene shoot days
   const sorted = [...scenesArr].sort((a, b) => (a.sequence || 0) - (b.sequence || 0));
   const daysCount = Math.ceil(sorted.length / 10);
   const entries = [];
@@ -340,16 +321,14 @@ function buildScheduleEntries() {
   for (let d = 0; d < daysCount; d++) {
     const dayScenes = sorted.slice(d * 10, (d + 1) * 10);
     const sceneNums = dayScenes.map(s => s.sceneNumber || s.sequence).join(", ");
-    const locations = [...new Set(dayScenes.map(s => {
+    const locs = [...new Set(dayScenes.map(s => {
       const loc = locById[s.locationRef?.["@id"]];
       return loc?.name || "TBD";
     }))].join(" / ");
     
     const allChars = new Set();
     for (const sc of dayScenes) {
-      for (const c of (sc.charactersInScene || [])) {
-        allChars.add(shortId(c["@id"]));
-      }
+      for (const c of (sc.charactersInScene || [])) allChars.add(shortId(c["@id"]));
     }
 
     const allProps = [];
@@ -362,24 +341,23 @@ function buildScheduleEntries() {
 
     const intExt = dayScenes.some(s => s.setting === "interior") && dayScenes.some(s => s.setting === "exterior")
       ? "INT/EXT" : dayScenes.some(s => s.setting === "interior") ? "INT" : "EXT";
-    
     const dayNight = dayScenes.some(s => s.timeOfDay === "night") ? "Day-Night" : "Day";
 
     entries.push({
-      id: `jb2-sched-${d + 1}`,
-      title: `Day ${d + 1} -- Scenes ${sceneNums} (${intExt} ${dayNight})`,
-      date: `1992-08-${String(24 + d).padStart(2, "0")}`,
+      id: "jb2-sched-" + (d + 1),
+      title: "Day " + (d + 1) + " -- Scenes " + sceneNums + " (" + intExt + " " + dayNight + ")",
+      date: "1992-08-" + String(24 + d).padStart(2, "0"),
       phaseId: "jb2-principal",
       startTime: "06:00",
       endTime: "20:00",
-      location: locations,
+      location: locs,
       sceneType: intExt,
-      sceneNotes: `Scenes ${sceneNums}.`,
+      sceneNotes: "Scenes " + sceneNums + ".",
       props: [...new Set(allProps)],
       actorIds: [...allChars],
       crewMembers: [],
       redFlags: [],
-      notes: `Shoot day ${d + 1} covering scenes ${sceneNums}.`,
+      notes: "Shoot day " + (d + 1) + " covering scenes " + sceneNums + ".",
       createdAt: now,
       updatedAt: now,
     });
@@ -396,7 +374,7 @@ function buildStripboardScenes(scheduleEntries) {
     const sc = sorted[i];
     const dayIdx = Math.floor(i / 10);
     const orderInDay = (i % 10) + 1;
-    const schedId = scheduleEntries[dayIdx]?.id || `jb2-sched-${dayIdx + 1}`;
+    const schedId = scheduleEntries[dayIdx]?.id || "jb2-sched-" + (dayIdx + 1);
     const loc = locById[sc.locationRef?.["@id"]];
     const chars = (sc.charactersInScene || []).map(c => {
       const ch = charById[c["@id"]];
@@ -421,7 +399,9 @@ function buildStripboardScenes(scheduleEntries) {
   return sceneList;
 }
 
-// ── Generate the TypeScript file ───────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════════════
+// Generate all data
+// ══════════════════════════════════════════════════════════════════════════
 const characters = buildCharacters();
 const locations = buildLocations();
 const props = buildProps();
@@ -431,164 +411,181 @@ const beats = buildBeats(scriptBlocks);
 const scheduleEntries = buildScheduleEntries();
 const stripboardScenes = buildStripboardScenes(scheduleEntries);
 
-const projId = shortId(projNode["@id"] || "jurassic-park-1992-jb2");
 const projName = projNode.name || "Jurassic Park (1992)";
 const projDesc = projNode.description || "";
 
-// Serialise JS objects to TS-friendly literal strings
-const ser = (obj) => JSON.stringify(obj, null, 2);
+// ══════════════════════════════════════════════════════════════════════════
+// Output: multiple files delimited by __FILE:path__ markers
+// ══════════════════════════════════════════════════════════════════════════
+const HEADER = "// AUTO-GENERATED by scripts/build-jurassic-data.js -- DO NOT EDIT BY HAND\n";
 
-const tsContent = `// AUTO-GENERATED by scripts/build-jurassic-data.mjs -- DO NOT EDIT BY HAND
-// Source: data/jb2/*.json
-// Generated: ${new Date().toISOString()}
+const files = {};
 
-import type { CastingState, ScriptBlock, ScriptData, BeatItem } from "@/types/casting"
-import type { ScheduleEntry, Scene, ProductionPhase } from "@/types/schedule"
+// 1. Characters
+files["lib/jurassic/jb2Characters.ts"] = HEADER +
+  "export const jb2Characters = " + ser(characters) + " as any[]\n";
 
-/* ── Statuses ─────────────────────────────────────────────────────────── */
-const predefinedStatuses = [
-  { id: "new", label: "New", color: "#6B7280" },
-  { id: "contacted", label: "Contacted", color: "#3B82F6" },
-  { id: "confirmed", label: "Confirmed", color: "#10B981" },
-  { id: "declined", label: "Declined", color: "#EF4444" },
-  { id: "hold", label: "On Hold", color: "#F59E0B" },
-]
+// 2. Locations
+files["lib/jurassic/jb2Locations.ts"] = HEADER +
+  "export const jb2Locations = " + ser(locations) + " as any[]\n";
 
-/* ── Characters ───────────────────────────────────────────────────────── */
-const characters = ${ser(characters)} as any[]
+// 3. Props
+files["lib/jurassic/jb2Props.ts"] = HEADER +
+  "export const jb2Props = " + ser(props) + " as any[]\n";
 
-/* ── Locations ────────────────────────────────────────────────────────── */
-const locations = ${ser(locations)} as any[]
+// 4. Costumes
+files["lib/jurassic/jb2Costumes.ts"] = HEADER +
+  "export const jb2Costumes = " + ser(costumes) + " as any\n";
 
-/* ── Props ────────────────────────────────────────────────────────────── */
-const props = ${ser(props)} as any[]
+// 5. Script blocks (the largest file)
+files["lib/jurassic/jb2ScriptBlocks.ts"] = HEADER +
+  'import type { ScriptBlock } from "@/types/casting"\n\n' +
+  "export const jb2ScriptBlocks: ScriptBlock[] = " + ser(scriptBlocks) + " as any[]\n";
 
-/* ── Costumes ─────────────────────────────────────────────────────────── */
-const costumes = ${ser(costumes)} as any
+// 6. Beats
+files["lib/jurassic/jb2Beats.ts"] = HEADER +
+  'import type { BeatItem } from "@/types/casting"\n\n' +
+  "export const jb2Beats: BeatItem[] = " + ser(beats) + " as any[]\n";
 
-/* ── Script Blocks ────────────────────────────────────────────────────── */
-const scriptBlocks: ScriptBlock[] = ${ser(scriptBlocks)} as any[]
+// 7. Schedule entries
+files["lib/jurassic/jb2Schedule.ts"] = HEADER +
+  'import type { ScheduleEntry, ProductionPhase } from "@/types/schedule"\n\n' +
+  "export const jb2ProductionPhases: ProductionPhase[] = [\n" +
+  '  { id: "jb2-principal", name: "Principal Photography", startDate: "1992-08-24", color: "text-blue-700", bgColor: "bg-blue-500" },\n' +
+  '  { id: "jb2-second-unit", name: "Second Unit / VFX", startDate: "1992-10-05", color: "text-lime-700", bgColor: "bg-lime-500" },\n' +
+  '  { id: "jb2-pickups", name: "Pickups", startDate: "1992-11-02", color: "text-orange-700", bgColor: "bg-orange-500" },\n' +
+  "]\n\n" +
+  "export const jb2ScheduleEntries: ScheduleEntry[] = " + ser(scheduleEntries) + " as any[]\n";
 
-/* ── Beats ────────────────────────────────────────────────────────────── */
-const beats: BeatItem[] = ${ser(beats)} as any[]
+// 8. Stripboard scenes
+files["lib/jurassic/jb2Scenes.ts"] = HEADER +
+  'import type { Scene } from "@/types/schedule"\n\n' +
+  "export const jb2Scenes: Scene[] = " + ser(stripboardScenes) + " as any[]\n";
 
-/* ── Script Data ──────────────────────────────────────────────────────── */
-const JP_SCRIPT_DATA: ScriptData = {
-  blocks: scriptBlocks,
-  locked: false,
-  lockedSceneSuffixes: {},
-  currentRevision: "white",
-  lastModified: ${now},
-  beats,
+// 9. Thin index that imports everything and exports CastingState
+files["lib/jurassicAIData.ts"] = HEADER +
+'import type { CastingState, ScriptData } from "@/types/casting"\n' +
+'import { jb2Characters } from "./jurassic/jb2Characters"\n' +
+'import { jb2Locations } from "./jurassic/jb2Locations"\n' +
+'import { jb2Props } from "./jurassic/jb2Props"\n' +
+'import { jb2Costumes } from "./jurassic/jb2Costumes"\n' +
+'import { jb2ScriptBlocks } from "./jurassic/jb2ScriptBlocks"\n' +
+'import { jb2Beats } from "./jurassic/jb2Beats"\n' +
+'import { jb2ScheduleEntries, jb2ProductionPhases } from "./jurassic/jb2Schedule"\n' +
+'import { jb2Scenes } from "./jurassic/jb2Scenes"\n' +
+'\n' +
+'const JP_SCRIPT_DATA: ScriptData = {\n' +
+'  blocks: jb2ScriptBlocks,\n' +
+'  locked: false,\n' +
+'  lockedSceneSuffixes: {},\n' +
+'  currentRevision: "white",\n' +
+'  lastModified: ' + now + ',\n' +
+'  beats: jb2Beats,\n' +
+'}\n' +
+'\n' +
+'const predefinedStatuses = [\n' +
+'  { id: "new", label: "New", color: "#6B7280" },\n' +
+'  { id: "contacted", label: "Contacted", color: "#3B82F6" },\n' +
+'  { id: "confirmed", label: "Confirmed", color: "#10B981" },\n' +
+'  { id: "declined", label: "Declined", color: "#EF4444" },\n' +
+'  { id: "hold", label: "On Hold", color: "#F59E0B" },\n' +
+']\n' +
+'\n' +
+'export const jurassicAIData: Partial<CastingState> = {\n' +
+'  projects: [\n' +
+'    {\n' +
+'      id: "proj_jurassic_ai",\n' +
+'      name: ' + JSON.stringify(projName) + ',\n' +
+'      description: ' + JSON.stringify(projDesc) + ',\n' +
+'      characters: jb2Characters,\n' +
+'      createdDate: ' + now + ',\n' +
+'      modifiedDate: ' + now + ',\n' +
+'      props: jb2Props,\n' +
+'      locations: jb2Locations,\n' +
+'      costumes: jb2Costumes,\n' +
+'      script: JP_SCRIPT_DATA,\n' +
+'    } as any,\n' +
+'  ],\n' +
+'  users: [\n' +
+'    {\n' +
+'      id: "user_demo_casting",\n' +
+'      name: "Alex Rivera",\n' +
+'      email: "alex@gogreenlight.com",\n' +
+'      role: "Casting Director",\n' +
+'      avatar: "",\n' +
+'      permissions: "casting_director",\n' +
+'    },\n' +
+'  ],\n' +
+'  currentUser: {\n' +
+'    id: "user_demo_casting",\n' +
+'    name: "Alex Rivera",\n' +
+'    email: "alex@gogreenlight.com",\n' +
+'    role: "Casting Director",\n' +
+'    avatar: "",\n' +
+'    permissions: "casting_director",\n' +
+'  } as any,\n' +
+'  columnVisibility: {\n' +
+'    headshots: true,\n' +
+'    age: true,\n' +
+'    gender: true,\n' +
+'    location: true,\n' +
+'    agency: true,\n' +
+'    notes: true,\n' +
+'    status: true,\n' +
+'    showVotes: true,\n' +
+'    showActionButtons: true,\n' +
+'  } as any,\n' +
+'  currentFocus: {\n' +
+'    currentProjectId: "proj_jurassic_ai",\n' +
+'    characterId: jb2Characters[0]?.id || "",\n' +
+'    activeTabKey: "longList",\n' +
+'    cardDisplayMode: "detailed",\n' +
+'    currentSortOption: "alphabetical",\n' +
+'    searchTerm: "",\n' +
+'    searchTags: [],\n' +
+'    savedSearches: [],\n' +
+'    playerView: {\n' +
+'      isOpen: false,\n' +
+'      currentIndex: 0,\n' +
+'      currentHeadshotIndex: 0,\n' +
+'    },\n' +
+'  } as any,\n' +
+'  tabDefinitions: [\n' +
+'    { key: "longList", name: "Long List", isCustom: false },\n' +
+'    { key: "shortLists", name: "Shortlist", isCustom: false },\n' +
+'    { key: "audition", name: "Audition", isCustom: false },\n' +
+'    { key: "approval", name: "Approval", isCustom: false },\n' +
+'  ],\n' +
+'  sortOptionDefinitions: [\n' +
+'    { key: "alphabetical", label: "Alphabetical (A-Z)" },\n' +
+'    { key: "consensus", label: "By Consensus" },\n' +
+'    { key: "status", label: "By Status" },\n' +
+'  ],\n' +
+'  predefinedStatuses,\n' +
+'  notifications: [],\n' +
+'  permissionLevels: [\n' +
+'    { id: "admin", label: "Producer", description: "Full access to all features, can manage users and settings." },\n' +
+'    { id: "casting_director", label: "Casting Director", description: "Can manage actors, auditions, and make casting decisions." },\n' +
+'    { id: "producer", label: "Director", description: "Can view all data and approve final casting decisions." },\n' +
+'    { id: "viewer", label: "Viewer", description: "Read-only access to casting data." },\n' +
+'  ],\n' +
+'  modals: {},\n' +
+'  terminology: { actor: { singular: "Actor", plural: "Actors" }, character: { singular: "Character", plural: "Characters" } },\n' +
+'  tabDisplayNames: {},\n' +
+'  scheduleEntries: jb2ScheduleEntries,\n' +
+'  productionPhases: jb2ProductionPhases,\n' +
+'  scenes: jb2Scenes,\n' +
+'  tabNotifications: {},\n' +
+'}\n';
+
+// Output all files delimited by markers
+for (const [path, content] of Object.entries(files)) {
+  console.log("__FILE:" + path + "__");
+  console.log(content);
+  console.log("__ENDFILE__");
 }
 
-/* ── Production Phases ────────────────────────────────────────────────── */
-const jpProductionPhases: ProductionPhase[] = [
-  { id: "jb2-principal", name: "Principal Photography", startDate: "1992-08-24", color: "text-blue-700", bgColor: "bg-blue-500" },
-  { id: "jb2-second-unit", name: "Second Unit / VFX", startDate: "1992-10-05", color: "text-lime-700", bgColor: "bg-lime-500" },
-  { id: "jb2-pickups", name: "Pickups", startDate: "1992-11-02", color: "text-orange-700", bgColor: "bg-orange-500" },
-]
-
-/* ── Schedule Entries ─────────────────────────────────────────────────── */
-const jpScheduleEntries: ScheduleEntry[] = ${ser(scheduleEntries)} as any[]
-
-/* ── Stripboard Scenes ────────────────────────────────────────────────── */
-const jpScenes: Scene[] = ${ser(stripboardScenes)} as any[]
-
-/* ── Full CastingState Export ─────────────────────────────────────────── */
-export const jurassicAIData: Partial<CastingState> = {
-  projects: [
-    {
-      id: "proj_jurassic_ai",
-      name: ${JSON.stringify(projName)},
-      description: ${JSON.stringify(projDesc)},
-      characters,
-      createdDate: ${now},
-      modifiedDate: ${now},
-      props,
-      locations,
-      costumes,
-      script: JP_SCRIPT_DATA,
-    } as any,
-  ],
-  users: [
-    {
-      id: "user_demo_casting",
-      name: "Alex Rivera",
-      email: "alex@gogreenlight.com",
-      role: "Casting Director",
-      avatar: "",
-      permissions: "casting_director",
-    },
-  ],
-  currentUser: {
-    id: "user_demo_casting",
-    name: "Alex Rivera",
-    email: "alex@gogreenlight.com",
-    role: "Casting Director",
-    avatar: "",
-    permissions: "casting_director",
-  } as any,
-  columnVisibility: {
-    headshots: true,
-    age: true,
-    gender: true,
-    location: true,
-    agency: true,
-    notes: true,
-    status: true,
-    showVotes: true,
-    showActionButtons: true,
-  } as any,
-  currentFocus: {
-    currentProjectId: "proj_jurassic_ai",
-    characterId: characters[0]?.id || "",
-    activeTabKey: "longList",
-    cardDisplayMode: "detailed",
-    currentSortOption: "alphabetical",
-    searchTerm: "",
-    searchTags: [],
-    savedSearches: [],
-    playerView: {
-      isOpen: false,
-      currentIndex: 0,
-      currentHeadshotIndex: 0,
-    },
-  } as any,
-  tabDefinitions: [
-    { key: "longList", name: "Long List", isCustom: false },
-    { key: "shortLists", name: "Shortlist", isCustom: false },
-    { key: "audition", name: "Audition", isCustom: false },
-    { key: "approval", name: "Approval", isCustom: false },
-  ],
-  sortOptionDefinitions: [
-    { key: "alphabetical", label: "Alphabetical (A-Z)" },
-    { key: "consensus", label: "By Consensus" },
-    { key: "status", label: "By Status" },
-  ],
-  predefinedStatuses,
-  notifications: [],
-  permissionLevels: [
-    { id: "admin", label: "Producer", description: "Full access to all features, can manage users and settings." },
-    { id: "casting_director", label: "Casting Director", description: "Can manage actors, auditions, and make casting decisions." },
-    { id: "producer", label: "Director", description: "Can view all data and approve final casting decisions." },
-    { id: "viewer", label: "Viewer", description: "Read-only access to casting data." },
-  ],
-  modals: {},
-  terminology: { actor: { singular: "Actor", plural: "Actors" }, character: { singular: "Character", plural: "Characters" } },
-  tabDisplayNames: {},
-  scheduleEntries: jpScheduleEntries,
-  productionPhases: jpProductionPhases,
-  scenes: jpScenes,
-  tabNotifications: {},
-}
-`;
-
-// Write to /tmp so it can be read back
-writeFileSync("/tmp/jurassicAIData.ts", tsContent, "utf-8");
-console.log("Wrote /tmp/jurassicAIData.ts (" + tsContent.length + " chars)");
-
-console.log("Generated lib/jurassicAIData.ts");
+console.log("STATS:");
 console.log("  Characters: " + characters.length);
 console.log("  Locations:  " + locations.length);
 console.log("  Props:      " + props.length);
