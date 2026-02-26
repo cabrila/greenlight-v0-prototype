@@ -1,4 +1,4 @@
-// Jurassic Park data — imports raw JSON files, transforms to CastingState at runtime
+// Jurassic Park data -- imports raw JSON-LD files, transforms to CastingState at runtime
 import type { CastingState, ScriptBlock, ScriptData, BeatItem } from "@/types/casting"
 import type { ScheduleEntry, Scene, ProductionPhase } from "@/types/schedule"
 
@@ -10,82 +10,82 @@ import requirementsJson from "./jurassic/data/requirements.json"
 import costumesJson from "./jurassic/data/costumes.json"
 import stylingJson from "./jurassic/data/styling.json"
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                            */
 /* ------------------------------------------------------------------ */
-const extractId = (atId: string): string => {
-  if (!atId) return ""
-  const parts = atId.split("/")
-  return parts[parts.length - 1] || atId
+const extractId = (ref: any): string => {
+  if (!ref) return ""
+  if (typeof ref === "string") return ref.split("/").pop() || ref
+  if (ref["@id"]) return (ref["@id"] as string).split("/").pop() || ref["@id"]
+  return ""
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const unwrap = (json: any, key: string): any[] => {
+const graph = (json: any): any[] => {
+  if (Array.isArray(json?.["@graph"])) return json["@graph"]
   if (Array.isArray(json)) return json
-  if (json?.["@graph"]?.[0]?.[key]) return json["@graph"][0][key]
-  if (json?.[key]) return json[key]
   return []
 }
 
 /* ------------------------------------------------------------------ */
-/*  Extract arrays from JSON-LD                                        */
+/*  Extract flat arrays from @graph                                    */
 /* ------------------------------------------------------------------ */
-const charsArr = unwrap(charactersJson, "gg:characters")
-const locsArr = unwrap(locationsJson, "gg:locations")
-const propsArr = unwrap(propsJson, "gg:objects")
-const scenesArr = unwrap(scenesJson, "gg:scenes")
-const reqsArr = unwrap(requirementsJson, "gg:requirements")
-const costumesArr = unwrap(costumesJson, "gg:wardrobes")
-const stylingArr = unwrap(stylingJson, "gg:stylings")
+const charsArr = graph(charactersJson)
+const locsArr = graph(locationsJson)
+const propsArr = graph(propsJson)
+const scenesArr = graph(scenesJson)
+const reqsArr = graph(requirementsJson)
+const costumesArr = graph(costumesJson)
+const stylingArr = graph(stylingJson)
 
 /* ------------------------------------------------------------------ */
-/*  Lookup maps                                                        */
+/*  Lookup maps by character ID                                        */
 /* ------------------------------------------------------------------ */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const reqMap: Record<string, any[]> = {}
 for (const r of reqsArr) {
-  const cId = extractId(r["gg:characterRef"] || "")
-  if (!cId) continue
-  if (!reqMap[cId]) reqMap[cId] = []
-  reqMap[cId].push(r)
+  const chars = r["gg:relatedCharacters"] || []
+  for (const ref of (Array.isArray(chars) ? chars : [chars])) {
+    const cId = extractId(ref)
+    if (!cId) continue
+    if (!reqMap[cId]) reqMap[cId] = []
+    reqMap[cId].push(r)
+  }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const costumeMap: Record<string, any> = {}
 for (const c of costumesArr) {
-  const cId = extractId(c["gg:characterRef"] || "")
+  const cId = extractId(c["characterAssociation"])
   if (cId) costumeMap[cId] = c
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const stylingMap: Record<string, any> = {}
 for (const s of stylingArr) {
-  const cId = extractId(s["gg:characterRef"] || "")
+  const cId = extractId(s["characterAssociation"])
   if (cId) stylingMap[cId] = s
 }
 
 /* ------------------------------------------------------------------ */
 /*  Characters                                                         */
 /* ------------------------------------------------------------------ */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const characters = charsArr.map((c: any) => {
-  const id = extractId(c["@id"])
-  const name: string = c["schema:name"] || id
-  const desc: string = c["schema:description"] || ""
+  const id = extractId(c)
+  const name: string = c["name"] || id
+  const desc: string = c["description"] || ""
   const level: string = c["gg:characterLevel"] || "dayPlayer"
-  const sceneRefs = (c["gg:sceneRefs"] || []).map(extractId)
+  const scenes = c["gg:scenes"] || []
+  const sceneRefs = (Array.isArray(scenes) ? scenes : [scenes]).map(extractId).filter(Boolean)
   const reqs = reqMap[id] || []
   const costume = costumeMap[id]
   const styling = stylingMap[id]
 
   let notes = desc
   for (const r of reqs) {
-    const cat = r["gg:requirementCategory"] || ""
-    const rDesc = r["schema:description"] || r["schema:name"] || ""
-    if (rDesc) notes += " | " + (cat ? cat + ": " : "") + rDesc
+    const rDesc = r["description"] || r["name"] || ""
+    if (rDesc) notes += " | " + rDesc
   }
-  if (costume) notes += " | Wardrobe: " + (costume["schema:description"] || costume["schema:name"] || "")
-  if (styling) notes += " | Styling: " + (styling["schema:description"] || styling["schema:name"] || "")
+  if (costume) notes += " | Wardrobe: " + (costume["gg:notes"] || costume["name"] || "")
+  if (styling) notes += " | Styling: " + (styling["gg:notes"] || styling["name"] || "")
 
   return {
     id,
@@ -102,44 +102,42 @@ const characters = charsArr.map((c: any) => {
 /* ------------------------------------------------------------------ */
 /*  Locations                                                          */
 /* ------------------------------------------------------------------ */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const locations = locsArr.map((l: any) => {
-  const id = extractId(l["@id"])
-  const name: string = l["schema:name"] || id
-  const desc: string = l["schema:description"] || "Derived directly from scene sluglines."
-  const sceneRefs = (l["gg:sceneRefs"] || []).map(extractId)
+  const id = extractId(l)
+  const name: string = l["name"] || id
+  const desc: string = l["description"] || "Derived from scene sluglines."
+  const scenes = l["gg:scenes"] || []
+  const sceneRefs = (Array.isArray(scenes) ? scenes : [scenes]).map(extractId).filter(Boolean)
   return { id, name, description: desc, sceneIds: sceneRefs, sceneTags: sceneRefs }
 })
 
 /* ------------------------------------------------------------------ */
 /*  Props                                                              */
 /* ------------------------------------------------------------------ */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const props = propsArr.map((p: any) => {
-  const id = extractId(p["@id"])
-  const name: string = p["schema:name"] || id
-  const desc: string = p["schema:description"] || ""
-  const sceneRefs = (p["gg:sceneRefs"] || []).map(extractId)
+  const id = extractId(p)
+  const name: string = p["name"] || id
+  const desc: string = p["description"] || p["gg:evidence"] || ""
+  const scenes = p["gg:scenes"] || []
+  const sceneRefs = (Array.isArray(scenes) ? scenes : [scenes]).map(extractId).filter(Boolean)
   return { id, name, description: desc, sceneIds: sceneRefs }
 })
 
 /* ------------------------------------------------------------------ */
 /*  Costumes                                                           */
 /* ------------------------------------------------------------------ */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const costumeInventory = characters.map((ch: any) => {
   const c = costumeMap[ch.id]
   return {
     id: ch.id,
     name: ch.name + " Wardrobe",
     characterId: ch.id,
-    wardrobeScope: "individual",
+    wardrobeScope: c?.["wardrobeScope"] || "individual",
     characterLevel: ch.characterLevel,
-    notes: c ? (c["schema:description"] || c["schema:name"] || "") : "",
+    notes: c ? (c["gg:notes"] || c["name"] || "") : "",
   }
 })
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const actorHMU = characters.map((ch: any) => {
   const s = stylingMap[ch.id]
   return {
@@ -147,11 +145,11 @@ const actorHMU = characters.map((ch: any) => {
     name: ch.name + " Styling",
     characterId: ch.id,
     characterLevel: ch.characterLevel,
-    notes: s ? (s["schema:description"] || s["schema:name"] || "") : "",
+    notes: s ? (s["gg:notes"] || s["name"] || "") : "",
   }
 })
 
-const jpCostumes = { inventory: costumeInventory, looks: [], actorHMU }
+const jpCostumes = { inventory: costumeInventory, looks: [] as any[], actorHMU }
 
 /* ------------------------------------------------------------------ */
 /*  Character name map (for script parsing)                            */
@@ -160,21 +158,27 @@ const charNameMap: Record<string, string> = {}
 for (const c of characters) charNameMap[c.id] = c.name
 
 /* ------------------------------------------------------------------ */
-/*  Script blocks                                                      */
+/*  Script blocks from scriptText in scenes                            */
 /* ------------------------------------------------------------------ */
 let blkIdx = 0
 const scriptBlocks: ScriptBlock[] = []
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 for (const scene of scenesArr as any[]) {
-  const sceneNum: string = scene["gg:sceneNumber"] || ""
-  const heading: string = scene["gg:slugline"] || ("SCENE " + sceneNum)
-  const synopsis: string = scene["schema:description"] || ""
-  const scriptText: string = scene["gg:scriptText"] || ""
-  const charRefs: string[] = (scene["gg:characterRefs"] || []).map(extractId)
+  const sceneNum: string = scene["sceneNumber"] || ""
+  const heading: string = scene["slugline"] || ("SCENE " + sceneNum)
+  const synopsis: string = scene["synopsis"] || scene["description"] || ""
+  const scriptText: string = scene["scriptText"] || ""
+  const charRefsRaw = scene["charactersInScene"] || []
+  const charRefs: string[] = (Array.isArray(charRefsRaw) ? charRefsRaw : [charRefsRaw]).map(extractId).filter(Boolean)
 
   blkIdx++
-  scriptBlocks.push({ id: "jb2-blk-" + blkIdx, type: "scene-heading", text: heading, sceneNumber: sceneNum, synopsis })
+  scriptBlocks.push({
+    id: "jb2-blk-" + blkIdx,
+    type: "scene-heading",
+    text: heading,
+    sceneNumber: sceneNum,
+    synopsis,
+  } as any)
 
   if (scriptText) {
     const lines = scriptText.split("\n")
@@ -183,21 +187,25 @@ for (const scene of scenesArr as any[]) {
       const line = lines[i].trim()
       if (!line) { i++; continue }
 
+      // Skip the scene heading echo (e.g. "1   EXT. JUNGLE - NIGHT")
+      if (i < 3 && /^\d+\s/.test(line)) { i++; continue }
+
       const upper = line.toUpperCase()
       const isCharLine = charRefs.some((cId) => {
         const cName = (charNameMap[cId] || cId).toUpperCase()
-        return upper === cName || upper.startsWith(cName + " (")
+        return upper === cName || upper.startsWith(cName + " (") || upper === cName + " (CONT'D)"
       })
 
       if (isCharLine) {
         const matchedChar = charRefs.find((cId) => {
           const cName = (charNameMap[cId] || cId).toUpperCase()
-          return upper === cName || upper.startsWith(cName + " (")
+          return upper === cName || upper.startsWith(cName + " (") || upper === cName + " (CONT'D)"
         })
         blkIdx++
         scriptBlocks.push({ id: "jb2-blk-" + blkIdx, type: "character", text: line, linkedCharacterId: matchedChar || undefined })
         i++
 
+        // Parenthetical
         if (i < lines.length) {
           const next = lines[i].trim()
           if (next.startsWith("(") && next.endsWith(")")) {
@@ -207,6 +215,7 @@ for (const scene of scenesArr as any[]) {
           }
         }
 
+        // Dialogue lines
         const dLines: string[] = []
         while (i < lines.length) {
           const dl = lines[i].trim()
@@ -214,7 +223,7 @@ for (const scene of scenesArr as any[]) {
           const dlUpper = dl.toUpperCase()
           const isNextChar = charRefs.some((cId) => {
             const cName = (charNameMap[cId] || cId).toUpperCase()
-            return dlUpper === cName || dlUpper.startsWith(cName + " (")
+            return dlUpper === cName || dlUpper.startsWith(cName + " (") || dlUpper === cName + " (CONT'D)"
           })
           if (isNextChar) break
           dLines.push(dl)
@@ -225,6 +234,7 @@ for (const scene of scenesArr as any[]) {
           scriptBlocks.push({ id: "jb2-blk-" + blkIdx, type: "dialogue", text: dLines.join("\n") })
         }
       } else {
+        // Action block
         const actionLines = [line]
         i++
         while (i < lines.length) {
@@ -233,7 +243,7 @@ for (const scene of scenesArr as any[]) {
           const nlUpper = nl.toUpperCase()
           const isChar = charRefs.some((cId) => {
             const cName = (charNameMap[cId] || cId).toUpperCase()
-            return nlUpper === cName || nlUpper.startsWith(cName + " (")
+            return nlUpper === cName || nlUpper.startsWith(cName + " (") || nlUpper === cName + " (CONT'D)"
           })
           if (isChar) break
           actionLines.push(nl)
@@ -247,27 +257,25 @@ for (const scene of scenesArr as any[]) {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Beats                                                              */
+/*  Beats (sample across the screenplay for the beat board)            */
 /* ------------------------------------------------------------------ */
 const beatColors: BeatItem["color"][] = ["blue", "green", "amber", "rose", "purple", "sky", "pink", "stone"]
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const scenesWithNumbers = scenesArr.filter((s: any) => s["gg:sceneNumber"] && parseInt(s["gg:sceneNumber"]) > 0)
-const beatStep = Math.max(1, Math.floor(scenesWithNumbers.length / 17))
+const scenesWithNums = scenesArr.filter((s: any) => s["sceneNumber"] && parseInt(s["sceneNumber"]) > 0)
+const beatStep = Math.max(1, Math.floor(scenesWithNums.length / 17))
 const beats: BeatItem[] = []
-for (let bi = 0; bi < 17 && bi * beatStep < scenesWithNumbers.length; bi++) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const s = scenesWithNumbers[bi * beatStep] as any
-  const desc: string = s["schema:description"] || s["gg:slugline"] || ""
+for (let bi = 0; bi < 17 && bi * beatStep < scenesWithNums.length; bi++) {
+  const s = scenesWithNums[bi * beatStep] as any
+  const desc: string = s["synopsis"] || s["slugline"] || ""
   const title = desc.substring(0, 40)
   const act = bi < 5 ? "Act 1" : bi < 11 ? "Act 2" : "Act 3"
-  const matchBlock = scriptBlocks.find((b) => b.type === "scene-heading" && b.synopsis === s["schema:description"])
+  const matchBlock = scriptBlocks.find((b) => b.type === "scene-heading" && (b as any).synopsis === (s["synopsis"] || s["description"] || ""))
   beats.push({
     id: "jb2-beat-" + (bi + 1),
     title,
     description: desc,
     color: beatColors[bi % beatColors.length],
     act,
-    linkedSceneId: matchBlock?.id || extractId(s["@id"]),
+    linkedSceneId: matchBlock?.id || extractId(s),
     order: bi + 1,
   })
 }
@@ -296,19 +304,18 @@ const jpProductionPhases: ProductionPhase[] = [
 ]
 
 /* ------------------------------------------------------------------ */
-/*  Schedule entries                                                   */
+/*  Schedule entries (group scenes into shoot days)                    */
 /* ------------------------------------------------------------------ */
 const SCENES_PER_DAY = 10
 const jpScheduleEntries: ScheduleEntry[] = []
 
 for (let d = 0; d * SCENES_PER_DAY < scenesArr.length; d++) {
   const dayScenes = scenesArr.slice(d * SCENES_PER_DAY, (d + 1) * SCENES_PER_DAY)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const firstNum = (dayScenes[0] as any)?.["gg:sceneNumber"] || "?"
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const lastNum = (dayScenes[dayScenes.length - 1] as any)?.["gg:sceneNumber"] || "?"
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const allChars = [...new Set(dayScenes.flatMap((s: any) => (s["gg:characterRefs"] || []).map(extractId)))]
+  const firstNum = (dayScenes[0] as any)?.["sceneNumber"] || "?"
+  const lastNum = (dayScenes[dayScenes.length - 1] as any)?.["sceneNumber"] || "?"
+  const allChars = [...new Set(dayScenes.flatMap((s: any) =>
+    ((s["charactersInScene"] || []) as any[]).map(extractId).filter(Boolean)
+  ))]
   const dateStr = "1992-08-" + String(24 + d).padStart(2, "0")
 
   jpScheduleEntries.push({
@@ -318,13 +325,11 @@ for (let d = 0; d * SCENES_PER_DAY < scenesArr.length; d++) {
     phaseId: "jb2-principal",
     startTime: "06:00",
     endTime: "20:00",
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    location: dayScenes.map((s: any) => s["gg:slugline"] || "").filter(Boolean).slice(0, 3).join(" / "),
+    location: dayScenes.map((s: any) => s["slugline"] || "").filter(Boolean).slice(0, 3).join(" / "),
     sceneType: "INT/EXT",
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    sceneNotes: dayScenes.map((s: any) => "Sc " + (s["gg:sceneNumber"] || "?") + ": " + (s["schema:description"] || "")).join(". "),
+    sceneNotes: dayScenes.map((s: any) => "Sc " + (s["sceneNumber"] || "?") + ": " + (s["synopsis"] || "")).join(". "),
     props: [],
-    actorIds: allChars as string[],
+    actorIds: allChars,
     crewMembers: [],
     redFlags: [],
     notes: "Scenes " + firstNum + " through " + lastNum,
@@ -336,18 +341,17 @@ for (let d = 0; d * SCENES_PER_DAY < scenesArr.length; d++) {
 /* ------------------------------------------------------------------ */
 /*  Stripboard scenes                                                  */
 /* ------------------------------------------------------------------ */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const jpScenes: Scene[] = scenesArr.map((s: any, idx: number) => {
-  const id = extractId(s["@id"])
-  const num = s["gg:sceneNumber"] || String(idx + 1)
-  const slugline: string = s["gg:slugline"] || ""
+  const id = extractId(s)
+  const num = s["sceneNumber"] || String(idx + 1)
+  const slugline: string = s["slugline"] || ""
   const intExt = slugline.startsWith("INT/EXT") ? "INT/EXT" : slugline.startsWith("INT") ? "INT" : "EXT"
   const locName = slugline
     .replace(/^(INT\.|EXT\.|INT\/EXT\.?)\s*/i, "")
     .replace(/\s*-\s*(DAY|NIGHT|DAWN|DUSK|CONTINUOUS|LATER|MOMENTS LATER).*$/i, "")
     .trim() || "UNKNOWN"
   const dayNight = /NIGHT/i.test(slugline) ? "Night" : "Day"
-  const charRefs = (s["gg:characterRefs"] || []).map((ref: string) => {
+  const charRefs = ((s["charactersInScene"] || []) as any[]).map((ref: any) => {
     const cId = extractId(ref)
     return charNameMap[cId] || cId
   })
@@ -361,7 +365,7 @@ const jpScenes: Scene[] = scenesArr.map((s: any, idx: number) => {
     location: locName,
     dayNight: dayNight as Scene["dayNight"],
     cast: charRefs,
-    description: s["schema:description"] || "",
+    description: s["synopsis"] || s["description"] || "",
     shootDayId: shootDay,
     order: idx + 1,
     createdAt: NOW,
@@ -385,7 +389,7 @@ export const jurassicAIData: Partial<CastingState> = {
     {
       id: "proj_jurassic_ai",
       name: "Jurassic Park",
-      description: "Jurassic Park screenplay — generated from Greenlight JSON-LD scene data.",
+      description: "Jurassic Park screenplay -- generated from Greenlight JSON-LD scene data.",
       characters,
       createdDate: NOW,
       modifiedDate: NOW,
