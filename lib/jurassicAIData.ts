@@ -106,15 +106,64 @@ const characters = charsArr.map((c: any) => {
 })
 
 /* ------------------------------------------------------------------ */
-/*  Locations                                                          */
+/*  Build scene-number lookup (sceneId -> sceneNumber/slugline)        */
 /* ------------------------------------------------------------------ */
-const locations = locsArr.map((l: any) => {
+const sceneNumMap: Record<string, { sceneNumber: string; slugline: string }> = {}
+for (const s of scenesArr) {
+  const sId = extractId(s)
+  const sNum: string = String(s["sceneNumber"] ?? "")
+  const slug: string = s["slugline"] ?? ""
+  sceneNumMap[sId] = { sceneNumber: sNum, slugline: slug }
+}
+
+/* ------------------------------------------------------------------ */
+/*  Locations  (produce full ProjectLocation objects)                   */
+/* ------------------------------------------------------------------ */
+const locations: any[] = locsArr.map((l: any, idx: number) => {
   const id = extractId(l)
   const name: string = l["name"] || id
   const desc: string = l["description"] || "Derived from scene sluglines."
   const scenes = l["gg:scenes"] || []
-  const sceneRefs = (Array.isArray(scenes) ? scenes : [scenes]).map(extractId).filter(Boolean)
-  return { id, name, description: desc, sceneIds: sceneRefs, sceneTags: sceneRefs }
+  const sceneRefs: string[] = (Array.isArray(scenes) ? scenes : [scenes]).map(extractId).filter(Boolean)
+
+  // Build LocationSceneTag[] from referenced scenes
+  const sceneTags = sceneRefs.map((sId: string) => {
+    const info = sceneNumMap[sId]
+    return info
+      ? { sceneNumber: info.sceneNumber, sceneTitle: info.slugline }
+      : { sceneNumber: sId }
+  })
+
+  // Infer locationType from sluglines of referenced scenes
+  const sluglines = sceneRefs.map((sId: string) => sceneNumMap[sId]?.slugline || "").join(" ")
+  const hasInt = /\bINT\b/i.test(sluglines)
+  const hasExt = /\bEXT\b/i.test(sluglines)
+  const locationType = hasInt && !hasExt ? "studio" : "on-location"
+
+  const code = "LOC-" + String(idx + 1).padStart(3, "0")
+
+  return {
+    id,
+    code,
+    name,
+    locationType,
+    status: "scouted" as const,
+    lat: 0,
+    lng: 0,
+    address: "",
+    vibeTags: [] as string[],
+    media: [] as any[],
+    notes: desc,
+    dailyRate: "",
+    overtimeRate: "",
+    securityDeposit: "",
+    sceneTags,
+    scheduleBlocks: [] as any[],
+    blackoutDates: [] as any[],
+    bookedTo: null,
+    votes: [] as any[],
+    comments: [] as any[],
+  }
 })
 
 /* ------------------------------------------------------------------ */
@@ -436,6 +485,7 @@ export const jurassicAIData: Partial<CastingState> = {
       modifiedDate: NOW,
       props,
       locations,
+      locationInventory: locations,
       costumes: jpCostumes,
       script: jpScriptData,
     } as any,
