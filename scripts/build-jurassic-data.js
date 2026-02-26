@@ -1,12 +1,10 @@
 /**
  * Build script: reads the 10 jb2 JSON files and generates lib/jurassicAIData.ts
- * Run with: node scripts/build-jurassic-data.mjs
+ * Run with: node scripts/build-jurassic-data.js
  */
-import { readFileSync, writeFileSync } from "fs";
-import { join, dirname } from "path";
-import { fileURLToPath } from "url";
+const { readFileSync, writeFileSync } = require("fs");
+const { join } = require("path");
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, "..");
 const DATA = join(ROOT, "data", "jb2");
 
