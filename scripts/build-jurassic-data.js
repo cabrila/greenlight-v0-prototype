@@ -1,26 +1,46 @@
 /**
- * Build script: reads the 10 jb2 JSON files and generates lib/jurassicAIData.ts
+ * Build script: fetches the 10 jb2 JSON files from blob URLs and generates lib/jurassicAIData.ts
  * Run with: node scripts/build-jurassic-data.js
  */
-const { readFileSync, writeFileSync } = require("fs");
-const { join } = require("path");
+const { writeFileSync } = require("fs");
 
-const ROOT = join(__dirname, "..");
-const DATA = join(ROOT, "data", "jb2");
+const ROOT = "/vercel/share/v0-project";
 
-const read = (name) => JSON.parse(readFileSync(join(DATA, name), "utf-8"));
+const BLOB_URLS = {
+  project:       "https://blobs.vusercontent.net/blob/project-56uzHDoDPo06pj6X15XWtyx4Md1xFq.json",
+  scenes:        "https://blobs.vusercontent.net/blob/scenes-WN5BNK1WWsyVwqRYCtOXf0552n2dsL.json",
+  characters:    "https://blobs.vusercontent.net/blob/characters-dZf9e9RX7CO61o96pyTSriW7AazYFI.json",
+  locations:     "https://blobs.vusercontent.net/blob/locations-X8pkmwNukw12NZOYbmDOHrGBHKHLb8.json",
+  props:         "https://blobs.vusercontent.net/blob/props-UZsbCINaXV7ANe45af8pEN2MJt0dUs.json",
+  effects:       "https://blobs.vusercontent.net/blob/effects-9QErdpxrCjWGWjSWKP51EwYNFRWhnd.json",
+  specialActions:"https://blobs.vusercontent.net/blob/special_actions-ypeWrpkU6IdrdAB5tJWAl3SRlsY4nN.json",
+  requirements:  "https://blobs.vusercontent.net/blob/requirements-yKlhZAdEkcCH5EZgHjxlnYU8MxylBK.json",
+  costumes:      "https://blobs.vusercontent.net/blob/costumes-5miSpyHvgQuOE5RlPeiYWodHXxUI3j.json",
+  styling:       "https://blobs.vusercontent.net/blob/styling-AygKDRz7YHSBOk5nEpHctQUaMIJHX1.json",
+};
 
-// ── Load all JSON sources ──────────────────────────────────────────────────
-const projectJson   = read("project.json");
-const scenesJson    = read("scenes.json");
-const charsJson     = read("characters.json");
-const locsJson      = read("locations.json");
-const propsJson     = read("props.json");
-const effectsJson   = read("effects.json");
-const actionsJson   = read("special_actions.json");
-const reqsJson      = read("requirements.json");
-const costumesJson  = read("costumes.json");
-const stylingJson   = read("styling.json");
+async function main() {
+
+console.log("Fetching JSON files...");
+const entries = Object.entries(BLOB_URLS);
+const results = await Promise.all(entries.map(async ([key, url]) => {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error("Failed to fetch " + key + ": " + res.status);
+  return [key, await res.json()];
+}));
+const data = Object.fromEntries(results);
+console.log("All " + entries.length + " JSON files fetched.");
+
+const projectJson   = data.project;
+const scenesJson    = data.scenes;
+const charsJson     = data.characters;
+const locsJson      = data.locations;
+const propsJson     = data.props;
+const effectsJson   = data.effects;
+const actionsJson   = data.specialActions;
+const reqsJson      = data.requirements;
+const costumesJson  = data.costumes;
+const stylingJson   = data.styling;
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 /** Extract short id from @id like "gg:character/jb2-grant" → "jb2-grant" */
@@ -564,16 +584,20 @@ export const jurassicAIData: Partial<CastingState> = {
 }
 `;
 
-const outPath = join(ROOT, "lib", "jurassicAIData.ts");
-writeFileSync(outPath, tsContent, "utf-8");
+// Write to /tmp so it can be read back
+writeFileSync("/tmp/jurassicAIData.ts", tsContent, "utf-8");
+console.log("Wrote /tmp/jurassicAIData.ts (" + tsContent.length + " chars)");
 
 console.log("Generated lib/jurassicAIData.ts");
-console.log(\`  Characters: \${characters.length}\`);
-console.log(\`  Locations:  \${locations.length}\`);
-console.log(\`  Props:      \${props.length}\`);
-console.log(\`  Costumes:   \${costumes.inventory.length} inventory, \${costumes.actorHMU.length} HMU\`);
-console.log(\`  Scenes:     \${scenesArr.length} (JSON) -> \${stripboardScenes.length} (stripboard)\`);
-console.log(\`  Script:     \${scriptBlocks.length} blocks, \${beats.length} beats\`);
-console.log(\`  Schedule:   \${scheduleEntries.length} shoot days\`);
-console.log(\`  Requirements: \${reqsArr.length}\`);
-`;
+console.log("  Characters: " + characters.length);
+console.log("  Locations:  " + locations.length);
+console.log("  Props:      " + props.length);
+console.log("  Costumes:   " + costumes.inventory.length + " inventory, " + costumes.actorHMU.length + " HMU");
+console.log("  Scenes:     " + scenesArr.length + " (JSON) -> " + stripboardScenes.length + " (stripboard)");
+console.log("  Script:     " + scriptBlocks.length + " blocks, " + beats.length + " beats");
+console.log("  Schedule:   " + scheduleEntries.length + " shoot days");
+console.log("  Requirements: " + reqsArr.length);
+
+} // end main()
+
+main().catch(err => { console.error(err); process.exit(1); });
