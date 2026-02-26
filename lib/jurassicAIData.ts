@@ -225,8 +225,12 @@ characters.forEach((ch: any, idx: number) => {
     type: "costume-piece",
     status: "in-stock",
     size: "",
+    imageUrl: "",
+    vibeTags: [],
     notes: wardrobeNotes,
-  } as CostumeInventoryItem)
+    votes: [],
+    comments: [],
+  })
 
   // Create an HMU consumable inventory item per character
   const hmuItemId = "inv-hmu-" + ch.id
@@ -236,8 +240,12 @@ characters.forEach((ch: any, idx: number) => {
     type: "hmu-consumable",
     status: "in-stock",
     size: "",
+    imageUrl: "",
+    vibeTags: [],
     notes: stylingNotes,
-  } as CostumeInventoryItem)
+    votes: [],
+    comments: [],
+  })
 
   // Create a look linking the character to their costume + HMU items
   costumeLooks.push({
