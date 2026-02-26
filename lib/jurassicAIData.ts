@@ -2,7 +2,8 @@
 // Jurassic Park (1993) script-driven data mapped from ontology JSON files.
 // No generated / placeholder actors -- only the data from the JSON source files.
 
-import type { CastingState } from "@/types/casting"
+import type { CastingState, ScriptBlock, ScriptData, BeatItem } from "@/types/casting"
+import type { ScheduleEntry, Scene, ProductionPhase } from "@/types/schedule"
 
 /* ------------------------------------------------------------------ */
 /*  Predefined statuses (same as mockData)                             */
@@ -1231,6 +1232,617 @@ const costumes: any = {
 }
 
 /* ------------------------------------------------------------------ */
+/*  Character name → ID mapping for script blocks                      */
+/* ------------------------------------------------------------------ */
+const CHAR_MAP: Record<string, string> = {
+  "DR. ALAN GRANT":    "jb-alan-grant",
+  "DR. ELLIE SATTLER": "jb-ellie-sattler",
+  "DR. IAN MALCOLM":   "jb-ian-malcolm",
+  "JOHN HAMMOND":      "jb-john-hammond",
+  "TIM MURPHY":        "jb-tim-murphy",
+  "LEX MURPHY":        "jb-lex-murphy",
+  "DENNIS NEDRY":      "jb-dennis-nedry",
+  "ROBERT MULDOON":    "jb-robert-muldoon",
+  "RAY ARNOLD":        "jb-ray-arnold",
+  "DR. HENRY WU":      "jb-henry-wu",
+  "DONALD GENNARO":    "jb-donald-gennaro",
+  "DR. HARDING":       "jb-dr-harding",
+  "MR. DNA":           "jb-mr-dna",
+  "ROSTAGNO":          "jb-rostagno",
+}
+
+/* ------------------------------------------------------------------ */
+/*  Location @id → readable name mapping                               */
+/* ------------------------------------------------------------------ */
+const LOC_NAME: Record<string, string> = {
+  "gg:location/jb-raptor-holding-pen":          "RAPTOR HOLDING PEN",
+  "gg:location/jb-amber-mine-dominican-republic":"AMBER MINE - DOMINICAN REPUBLIC",
+  "gg:location/jb-montana-dig-site":            "MONTANA DIG SITE",
+  "gg:location/jb-dig-base-camp-trailer":       "DIG BASE CAMP - TRAILER",
+  "gg:location/jb-cafe-san-jose":               "CAFE - SAN JOSE, COSTA RICA",
+  "gg:location/jb-ingen-helicopter":            "INGEN HELICOPTER",
+  "gg:location/jb-hilltop-park-entrance":       "HILLTOP - PARK ENTRANCE",
+  "gg:location/jb-vc-lobby-rotunda":            "VISITOR CENTER - LOBBY ROTUNDA",
+  "gg:location/jb-vc-showroom-auditorium":      "VISITOR CENTER - SHOWROOM AUDITORIUM",
+  "gg:location/jb-hatchery-nursery":            "HATCHERY / NURSERY",
+  "gg:location/jb-raptor-paddock":              "RAPTOR PADDOCK",
+  "gg:location/jb-vc-restaurant":               "VISITOR CENTER - RESTAURANT",
+  "gg:location/jb-visitors-center":             "VISITOR CENTER - EXTERIOR",
+  "gg:location/jb-control-room":                "CONTROL ROOM",
+  "gg:location/jb-tyrannosaur-paddock":         "TYRANNOSAUR PADDOCK",
+  "gg:location/jb-triceratops-field":           "TRICERATOPS FIELD",
+  "gg:location/jb-fertilization-lab-cold-storage":"FERTILIZATION LAB - COLD STORAGE",
+  "gg:location/jb-park-road-tour-route":        "PARK ROAD - TOUR ROUTE",
+  "gg:location/jb-cement-block-restroom":       "CEMENT BLOCK RESTROOM",
+  "gg:location/jb-tree-shelter":                "TREE SHELTER",
+  "gg:location/jb-jungle-park-grounds":         "JUNGLE - PARK GROUNDS",
+  "gg:location/jb-emergency-bunker":            "EMERGENCY BUNKER",
+  "gg:location/jb-main-compound":               "MAIN COMPOUND",
+  "gg:location/jb-maintenance-shed-power-shed": "MAINTENANCE SHED / POWER SHED",
+  "gg:location/jb-vc-kitchen":                  "VISITOR CENTER - KITCHEN",
+  "gg:location/jb-air-duct-crawl-space":        "AIR DUCT / CRAWL SPACE",
+}
+
+/* ------------------------------------------------------------------ */
+/*  Character @id → display name mapping                               */
+/* ------------------------------------------------------------------ */
+const CHAR_NAME_FROM_ID: Record<string, string> = {
+  "gg:character/jb-alan-grant":    "DR. ALAN GRANT",
+  "gg:character/jb-ellie-sattler": "DR. ELLIE SATTLER",
+  "gg:character/jb-ian-malcolm":   "DR. IAN MALCOLM",
+  "gg:character/jb-john-hammond":  "JOHN HAMMOND",
+  "gg:character/jb-tim-murphy":    "TIM MURPHY",
+  "gg:character/jb-lex-murphy":    "LEX MURPHY",
+  "gg:character/jb-dennis-nedry":  "DENNIS NEDRY",
+  "gg:character/jb-robert-muldoon":"ROBERT MULDOON",
+  "gg:character/jb-ray-arnold":    "RAY ARNOLD",
+  "gg:character/jb-henry-wu":      "DR. HENRY WU",
+  "gg:character/jb-donald-gennaro":"DONALD GENNARO",
+  "gg:character/jb-dr-harding":    "DR. HARDING",
+  "gg:character/jb-mr-dna":        "MR. DNA",
+  "gg:character/jb-rostagno":      "ROSTAGNO",
+  "gg:character/jb-the-mate":      "THE MATE",
+}
+
+/* ------------------------------------------------------------------ */
+/*  Script data (ScriptBlock[] built from scenes JSON)                 */
+/* ------------------------------------------------------------------ */
+const jbId = (prefix: string, n: number | string) => `jb-${prefix}-${n}`
+let blkIdx = 0
+
+const sb = (
+  type: ScriptBlock["type"],
+  text: string,
+  extras?: Partial<ScriptBlock>,
+): ScriptBlock => ({
+  id: jbId("blk", ++blkIdx),
+  type,
+  text,
+  ...extras,
+})
+
+const SCRIPT_BLOCKS: ScriptBlock[] = [
+  // Scene 1 — Raptor Transfer Cold Open
+  sb("scene-heading", "EXT. RAPTOR HOLDING PEN - NIGHT", { synopsis: "Raptor transfer — cold open" }),
+  sb("action", "A velociraptor is transferred in a heavy wooden crate. The gate slides. Taser lights pulse in the darkness. A WORKER feeds the crate toward the pen entrance."),
+  sb("character", "ROBERT MULDOON", { linkedCharacterId: "jb-robert-muldoon" }),
+  sb("dialogue", "Pushing team of twelve, I want tasers on full charge."),
+  sb("action", "The worker is grabbed through the slats and dragged in. Muldoon commands the guards but cannot save the man. The raptor's inhuman yellowish eye peers between the slats — only glimpsed, never fully seen."),
+
+  // Scene 2 — Amber Mine
+  sb("scene-heading", "EXT. AMBER MINE - DOMINICAN REPUBLIC - DAY", { synopsis: "Gennaro arrives at the amber mine" }),
+  sb("action", "Workers chip at rock faces in tropical heat. A new amber specimen — containing a preserved prehistoric mosquito — generates excitement."),
+  sb("character", "DONALD GENNARO", { linkedCharacterId: "jb-donald-gennaro" }),
+  sb("dialogue", "The worker who was killed — how much are they asking?"),
+  sb("character", "ROSTAGNO", { linkedCharacterId: "jb-rostagno" }),
+  sb("dialogue", "Twenty thousand. You can't put a price on it."),
+
+  // Scene 5 — Montana Dig Site
+  sb("scene-heading", "EXT. MONTANA DIG SITE - DAY", { synopsis: "Grant and Ellie introduction" }),
+  sb("action", "The Montana badlands. DR. ALAN GRANT and DR. ELLIE SATTLER work their paleontology excavation. Computer imaging equipment maps the fossil site."),
+  sb("character", "DR. ALAN GRANT", { linkedCharacterId: "jb-alan-grant" }),
+  sb("parenthetical", "(to an annoying kid, wielding a raptor claw)"),
+  sb("dialogue", "Try to imagine yourself in the Cretaceous Period... That's the point, kid. You are alive when they start to eat you."),
+  sb("action", "Ellie watches, half-amused, half-horrified. Grant has demonstrated his expertise — and his profound discomfort with children."),
+
+  // Scene 10 — Hammond Arrives
+  sb("scene-heading", "INT/EXT. DIG BASE CAMP - TRAILER - DAY", { synopsis: "Hammond arrives at the dig site" }),
+  sb("action", "A helicopter lands. JOHN HAMMOND emerges — white suit, amber-topped cane, grandfatherly enthusiasm. He opens Grant's champagne without invitation."),
+  sb("character", "JOHN HAMMOND", { linkedCharacterId: "jb-john-hammond" }),
+  sb("dialogue", "I'll fund your dig for a further three years. All you have to do is visit my island for the weekend."),
+  sb("character", "DR. ALAN GRANT", { linkedCharacterId: "jb-alan-grant" }),
+  sb("parenthetical", "(to Ellie)"),
+  sb("dialogue", "What kind of park is this?"),
+  sb("character", "JOHN HAMMOND", { linkedCharacterId: "jb-john-hammond" }),
+  sb("dialogue", "It's right up your alley."),
+
+  // Scene 11 — Nedry and Dodgson
+  sb("scene-heading", "EXT. CAFE - SAN JOSE, COSTA RICA - DAY", { synopsis: "Nedry and Dodgson — the conspiracy" }),
+  sb("action", "An outdoor cafe. DODGSON — straw hat as inadequate disguise — announces himself at the top of his lungs."),
+  sb("character", "DENNIS NEDRY", { linkedCharacterId: "jb-dennis-nedry" }),
+  sb("dialogue", "Dodgson! We've got Dodgson here! See, nobody cares."),
+  sb("action", "He hands Nedry a modified Barbasol shaving cream can with hidden embryo compartments, and an attache case: $750,000 total, $50K up front."),
+
+  // Scene 14 — Helicopter to Isla Nublar
+  sb("scene-heading", "INT. INGEN HELICOPTER - DAY", { synopsis: "Helicopter descent — Malcolm introduced" }),
+  sb("action", "The InGen helicopter drops through thick clouds. Inside, DR. IAN MALCOLM is introduced — all black, sardonic, flirtatious. Hammond is cheerfully chatty during violent turbulence."),
+  sb("character", "DR. IAN MALCOLM", { linkedCharacterId: "jb-ian-malcolm" }),
+  sb("dialogue", "God creates dinosaurs. God destroys dinosaurs. God creates man. Man destroys God. Man creates dinosaurs."),
+  sb("character", "DR. ELLIE SATTLER", { linkedCharacterId: "jb-ellie-sattler" }),
+  sb("dialogue", "Dinosaurs eat man... woman inherits the earth."),
+
+  // Scene 15 — First Brachiosaurus Reveal
+  sb("scene-heading", "EXT. HILLTOP - PARK ENTRANCE - DAY", { synopsis: "Welcome to Jurassic Park" }),
+  sb("action", "Grant follows what appears to be a tree trunk upward — it is a brachiosaur's leg. Full reveal: a living brachiosaurus 35 feet tall, chomping treetop branches. A herd moves across the plain in the distance."),
+  sb("character", "JOHN HAMMOND", { linkedCharacterId: "jb-john-hammond" }),
+  sb("dialogue", "Welcome to Jurassic Park."),
+  sb("action", "Grant and Ellie are overwhelmed. Grant's knees buckle. He sits down hard on the ground."),
+
+  // Scene 17 — Visitor Center Arrival
+  sb("scene-heading", "INT. VISITOR CENTER - LOBBY ROTUNDA - DAY", { synopsis: "Visitor Center — first arrival" }),
+  sb("action", "The grand rotunda is still under construction — scaffolding, workers, an unfinished massive dinosaur skeleton installation. Hammond's vision is vast."),
+
+  // Scene 18 — Mr. DNA Film
+  sb("scene-heading", "INT. VISITOR CENTER - SHOWROOM AUDITORIUM - DAY", { synopsis: "Mr. DNA orientation film" }),
+  sb("action", "The group watches Hammond's in-park orientation film. Mr. DNA — an animated cartoon double helix — cheerfully explains how dinosaur DNA was recovered from amber-preserved mosquitoes."),
+  sb("character", "MR. DNA", { linkedCharacterId: "jb-mr-dna" }),
+  sb("dialogue", "A DNA strand, like me, is a blueprint for building a living thing!"),
+
+  // Scene 25 — Genetics Lab / Hatchery
+  sb("scene-heading", "INT. HATCHERY / NURSERY - DAY", { synopsis: "Wu explains — 'Life finds a way'" }),
+  sb("action", "DR. HENRY WU leads the group through the genetics lab and into the hatchery. He explains how frog DNA fills gaps in the dinosaur genome. All dinosaurs are female — population control."),
+  sb("character", "DR. IAN MALCOLM", { linkedCharacterId: "jb-ian-malcolm" }),
+  sb("dialogue", "Life, uh... finds a way."),
+
+  // Scene 29A — Baby Raptor Hatching
+  sb("scene-heading", "INT. HATCHERY / NURSERY - DAY", { synopsis: "Baby raptor hatching — Grant identifies species" }),
+  sb("action", "A robotic arm steadies a hatching egg. Hammond chips shell fragments away. Grant holds the infant on his palm — spreads it on the back of his hand, counts vertebrae."),
+  sb("character", "DR. ALAN GRANT", { linkedCharacterId: "jb-alan-grant" }),
+  sb("parenthetical", "(alarmed)"),
+  sb("dialogue", "You bred raptors?"),
+
+  // Scene 29B — Raptor Feeding
+  sb("scene-heading", "EXT. RAPTOR PADDOCK - DAY", { synopsis: "Raptor feeding demonstration" }),
+  sb("action", "A steer is lowered by crane into the pen foliage — then erupts: growling, snapping, wet crunching sounds. The crane returns with only a tattered, bloody harness."),
+  sb("character", "ROBERT MULDOON", { linkedCharacterId: "jb-robert-muldoon" }),
+  sb("dialogue", "They should all be destroyed. They remember."),
+
+  // Scene 30 — Lunch / Chaos Theory Debate
+  sb("scene-heading", "INT. VISITOR CENTER - RESTAURANT - DAY", { synopsis: "Malcolm's chaos theory debate" }),
+  sb("action", "Group lunch in the restaurant. Hammond presents park projections. Malcolm delivers his full critique."),
+  sb("character", "DR. IAN MALCOLM", { linkedCharacterId: "jb-ian-malcolm" }),
+  sb("dialogue", "Your scientists were so preoccupied with whether they could, they didn't stop to think if they should."),
+
+  // Scene 31 — Tour Begins
+  sb("scene-heading", "EXT. VISITOR CENTER - DAY", { synopsis: "Tour begins — Tim and Lex join" }),
+  sb("action", "The tour departs in electric Explorer vehicles. TIM MURPHY has read Grant's book and hero-worships him; Grant is visibly pained. LEX MURPHY is older, dismissive of her brother's obsessions."),
+  sb("character", "TIM MURPHY", { linkedCharacterId: "jb-tim-murphy" }),
+  sb("dialogue", "I read your book! Did you really find a whole skeleton?"),
+  sb("character", "DR. ALAN GRANT", { linkedCharacterId: "jb-alan-grant" }),
+  sb("parenthetical", "(pained)"),
+  sb("dialogue", "Yeah. Yeah, I did."),
+
+  // Scene 32 — Control Room
+  sb("scene-heading", "INT. CONTROL ROOM - DAY", { synopsis: "Control room established — Arnold and Nedry" }),
+  sb("action", "Banks of monitors, island tracker map, RAY ARNOLD at his station chain-smoking. Nedry's workstation is visible — junk food, soda cans, a cartoon-Nedry screensaver. A tropical storm approaches."),
+  sb("character", "RAY ARNOLD", { linkedCharacterId: "jb-ray-arnold" }),
+  sb("dialogue", "We're tracking the tour now. Storm system's moving in from the southeast."),
+
+  // Scene 36 — T-Rex Paddock No Show
+  sb("scene-heading", "EXT. TYRANNOSAUR PADDOCK - DAY", { synopsis: "T-Rex paddock — no show / goat bait" }),
+  sb("action", "Tour cars stop at the T-Rex paddock. The T-Rex doesn't appear. A hydraulic cage rises and releases a goat, tethered and bleating as bait. Nothing happens."),
+  sb("character", "DR. IAN MALCOLM", { linkedCharacterId: "jb-ian-malcolm" }),
+  sb("dialogue", "T-Rex doesn't want to be fed. He wants to hunt."),
+
+  // Scene 40 — Sick Triceratops
+  sb("scene-heading", "EXT. TRICERATOPS FIELD - DAY", { synopsis: "Sick triceratops — field scene" }),
+  sb("action", "Grant cannot contain himself — jumps from the moving Explorer. A full-size triceratops lies sick in the field, being treated by DR. HARDING. Ellie examines its dark purple tongue and dilated pupils."),
+  sb("character", "DR. ELLIE SATTLER", { linkedCharacterId: "jb-ellie-sattler" }),
+  sb("dialogue", "Microvesicles. That's pharmacological. From local plant life."),
+
+  // Scene 49 — Nedry's Sabotage
+  sb("scene-heading", "INT. FERTILIZATION LAB - COLD STORAGE - NIGHT", { synopsis: "Nedry's sabotage — embryo theft" }),
+  sb("action", "Nedry fills the Barbasol shaving cream can's hidden compartments with fifteen dinosaur embryos. He sets his digital stopwatch: 18 minutes. Triggers the 'white rabbit object' code."),
+  sb("character", "DENNIS NEDRY", { linkedCharacterId: "jb-dennis-nedry" }),
+  sb("parenthetical", "(taunting Arnold's screen)"),
+  sb("dialogue", "Ah ah ah — you didn't say the magic word."),
+  sb("transition", "SMASH CUT TO:", {}),
+
+  // Scene 58 — Tour Cars Stall
+  sb("scene-heading", "EXT. TYRANNOSAUR PADDOCK - NIGHT", { synopsis: "Tour cars stall — power cuts" }),
+  sb("action", "The storm is at full force. Nedry's sabotage has cut power to the park. The Explorer vehicles are dead on the road directly in front of the T-Rex paddock. The fence is down."),
+  sb("character", "DONALD GENNARO", { linkedCharacterId: "jb-donald-gennaro" }),
+  sb("parenthetical", "(panicking)"),
+  sb("dialogue", "Where does he think he's going?"),
+  sb("action", "Gennaro bolts from the car and runs to the concrete restroom. The children watch him go."),
+
+  // Scene 61 — Water Cup / T-Rex Reveal
+  sb("scene-heading", "EXT. PARK ROAD - TOUR ROUTE - NIGHT", { synopsis: "Water cup vibration / goat leg on sunroof" }),
+  sb("action", "BOOM. BOOM. BOOM. The water in the dashboard cups forms rhythmic concentric circles. Then BANG — a bloody, disembodied goat leg drops on the Plexiglas sunroof."),
+  sb("action", "The T-Rex is directly above, looking down through the glass past the goat's leg. It steps over the broken cable of the now-powerless electric fence."),
+
+  // Scene 73 — Gennaro Killed / Malcolm Injured
+  sb("scene-heading", "EXT. CEMENT BLOCK RESTROOM - NIGHT", { synopsis: "Gennaro killed on toilet / Malcolm injured" }),
+  sb("action", "The T-Rex head EXPLODES through the cement block toilet wall. Malcolm, who had approached with a flare to distract it, is thrown through a wooden wall section."),
+  sb("character", "DR. IAN MALCOLM", { linkedCharacterId: "jb-ian-malcolm" }),
+  sb("parenthetical", "(thrown by T-Rex)"),
+  sb("dialogue", "Must... go... faster..."),
+  sb("action", "The T-Rex finds Gennaro sitting on the toilet — lunges. His scream cuts off."),
+
+  // Scene 79 — Grant Cable-Slides with Lex
+  sb("scene-heading", "EXT. TREE SHELTER - NIGHT", { synopsis: "Grant cable-slides with Lex from wrecked Explorer" }),
+  sb("action", "The Explorer is lodged high in the tree. Lex is inside. Grant fashions a cable loop and lowers himself — with Lex clinging to his neck during the descent. A parental instinct Grant didn't know he had."),
+
+  // Scene 81 — Nedry Killed
+  sb("scene-heading", "EXT. JUNGLE - PARK GROUNDS - NIGHT", { synopsis: "Dilophosaurus kills Nedry" }),
+  sb("action", "Nedry's jeep is stuck in the jungle mud. A dilophosaurus plays hide-and-seek around a tree. The crest flares, neck sacs inflate. It SPITS — venom hits Nedry's face. He's blinded and screaming. The shaving cream can washes away in the rain."),
+
+  // Scene 84 — Explorer Falls Through Tree
+  sb("scene-heading", "EXT. TREE SHELTER - NIGHT", { synopsis: "Explorer falls through tree" }),
+  sb("action", "The Explorer lodged high in the tree with Tim inside begins to fall — branch by branch. Grant climbs to reach him as the car descends. It lands on Grant and Tim, but the open sunroof saves them."),
+
+  // Scene 88 — T-Rex Puddle Footprint
+  sb("scene-heading", "EXT. JUNGLE - PARK GROUNDS - NIGHT", { synopsis: "T-Rex puddle footprint" }),
+  sb("action", "Malcolm, recovering in the back of Muldoon's jeep, sees a vast T-Rex footprint in the road — filled with standing water. The water vibrates rhythmically: BOOM. BOOM. BOOM."),
+
+  // Scene 90 — T-Rex Chases Jeep
+  sb("scene-heading", "EXT. JUNGLE - PARK GROUNDS - NIGHT", { synopsis: "T-Rex chases Muldoon/Ellie jeep" }),
+  sb("action", "The T-Rex pursues the open-top jeep at 30+ mph. The side mirror reads: 'Objects are closer than they appear.' The T-Rex is still gaining."),
+  sb("character", "DR. IAN MALCOLM", { linkedCharacterId: "jb-ian-malcolm" }),
+  sb("dialogue", "Must go faster. Must go faster!"),
+  sb("transition", "CUT TO:", {}),
+
+  // Scene 91 — Gallimimus Stampede
+  sb("scene-heading", "EXT. JUNGLE - PARK GROUNDS - DAY", { synopsis: "Gallimimus stampede" }),
+  sb("action", "Grant, Tim, and Lex cross open ground when a herd of 40+ gallimimus stampedes toward them — changing direction simultaneously like a flock of birds. They dive behind a fallen log. Then the T-Rex bursts from the tree line and takes one gallimimus down."),
+  sb("character", "DR. ALAN GRANT", { linkedCharacterId: "jb-alan-grant" }),
+  sb("dialogue", "They're flocking this way."),
+
+  // Scene 94 — Hammond and Ellie Ice Cream
+  sb("scene-heading", "INT. VISITOR CENTER - RESTAURANT - NIGHT", { synopsis: "Hammond and Ellie — ice cream scene" }),
+  sb("action", "Hammond sits alone in the darkened restaurant eating tubs of melting ice cream. Ellie joins him. Hammond tells the story of his first enterprise: a flea circus in Petticoat Lane."),
+  sb("character", "DR. ELLIE SATTLER", { linkedCharacterId: "jb-ellie-sattler" }),
+  sb("dialogue", "You never had control! That's the illusion."),
+
+  // Scene 96 — Brachiosaur at Dawn
+  sb("scene-heading", "EXT. JUNGLE - PARK GROUNDS - DAWN", { synopsis: "Brachiosaur visits tree at dawn" }),
+  sb("action", "Grant, Tim, and Lex have fallen asleep in a tree. A brachiosaur head pushes into the branches. It HONKS. Tim pets its head. The brachiosaur SNEEZES on Lex."),
+
+  // Scene 98 — System Shutdown
+  sb("scene-heading", "INT. CONTROL ROOM - DAY", { synopsis: "System shutdown — 'Hold onto your butts'" }),
+  sb("action", "Arnold cannot crack Nedry's 'white rabbit object' code. Hammond orders a full system shutdown."),
+  sb("character", "RAY ARNOLD", { linkedCharacterId: "jb-ray-arnold" }),
+  sb("dialogue", "Hold onto your butts."),
+  sb("action", "Arnold volunteers to go to the maintenance shed personally and flip the breakers. He does not come back."),
+
+  // Scene 100 — Bunker
+  sb("scene-heading", "INT. EMERGENCY BUNKER - DAY", { synopsis: "Bunker — survivors wait / Muldoon arms up" }),
+  sb("action", "Arnold has not returned. Ellie decides to go to the shed herself. Hammond objects."),
+  sb("character", "DR. ELLIE SATTLER", { linkedCharacterId: "jb-ellie-sattler" }),
+  sb("dialogue", "We can discuss the sexism in survival situations when I get back."),
+
+  // Scene 102 — Ellie Sprints
+  sb("scene-heading", "EXT. MAIN COMPOUND - DAY", { synopsis: "Ellie's sprint to the maintenance shed" }),
+  sb("action", "Muldoon covers Ellie as she makes a broken-field sprint across the compound toward the maintenance shed. Muldoon tracks a raptor through the jungle in parallel. He raises his rifle — certain he has it."),
+
+  // Scene 102A — Raptor Fence Escape
+  sb("scene-heading", "EXT. RAPTOR PADDOCK - DAY", { synopsis: "Raptor pen fence gnawed through — raptors escaped" }),
+  sb("action", "Muldoon and Ellie discover the raptor pen fence: metal twisted and gnawed through. Three sets of velociraptor footprints lead away in different directions."),
+
+  // Scene 106b — Electric Fence Climb
+  sb("scene-heading", "EXT. JUNGLE - PARK GROUNDS - DAY", { synopsis: "Electrified fence climb" }),
+  sb("action", "Grant, Tim, and Lex reach the park's perimeter fence — power is cut; the fence is dead. Grant tests it with a fake-out. They begin climbing."),
+  sb("character", "DR. ALAN GRANT", { linkedCharacterId: "jb-alan-grant" }),
+  sb("parenthetical", "(grabbing the wire, faking electrocution)"),
+  sb("dialogue", "AAAARRGH!"),
+  sb("action", "The kids panic — then Grant grins. They resume climbing."),
+
+  // Scene 118 — Fence Warning
+  sb("scene-heading", "EXT. JUNGLE - PARK GROUNDS - DAY", { synopsis: "Fence reactivation warning — Tim still on fence" }),
+  sb("action", "The fence warning light begins to FLASH — power is returning. Grant shouts at Tim to get off. Tim is near the top, just a few feet from safety. The fence begins to HUM."),
+
+  // Scene 119 — Tim Electrocuted
+  sb("scene-heading", "EXT. JUNGLE - PARK GROUNDS - DAY", { synopsis: "Tim electrocuted on fence" }),
+  sb("action", "With a low, loud BUZZ — the fence comes alive. POW — Tim is cut off mid-sentence and thrown from the fence. He SLAMS into Grant. Both fall hard. Tim is not breathing. His hair stands straight up."),
+
+  // Scene A121 — CPR
+  sb("scene-heading", "EXT. JUNGLE - PARK GROUNDS - DAY", { synopsis: "Grant performs CPR on Tim" }),
+  sb("action", "Tim lies on the ground, not breathing. Grant performs CPR — fifteen compressions, two breaths — Lex watching in horror."),
+  sb("character", "TIM MURPHY", { linkedCharacterId: "jb-tim-murphy" }),
+  sb("parenthetical", "(gasps awake)"),
+  sb("dialogue", "Three."),
+
+  // Scene B121 — Muldoon's Death
+  sb("scene-heading", "EXT. JUNGLE - PARK GROUNDS - DAY", { synopsis: "Muldoon killed — 'Clever girl'" }),
+  sb("action", "Muldoon tracks a raptor through the jungle — rifle up, certain he has it. Then the realization: the raptor he's been tracking is the decoy. A second raptor has been flanking him."),
+  sb("character", "ROBERT MULDOON", { linkedCharacterId: "jb-robert-muldoon" }),
+  sb("dialogue", "Clever girl."),
+
+  // Scene 120 — Ellie in Maintenance Shed
+  sb("scene-heading", "INT. MAINTENANCE SHED / POWER SHED - DAY", { synopsis: "Arnold's arm / raptor in the shed" }),
+  sb("action", "Ellie navigates the near-dark maintenance shed. She reaches the breaker panel, begins throwing switches. A raptor appears behind the control panel. Arnold's severed arm falls from the pipes onto her shoulder. She escapes."),
+
+  // Scene 124 — Kitchen Raptor Chase
+  sb("scene-heading", "INT. VISITOR CENTER - KITCHEN - DAY", { synopsis: "Kitchen raptor chase" }),
+  sb("action", "Two raptors enter the industrial kitchen. Tim and Lex split — hiding behind counters, under tables. A raptor's tail sweeps pots to the floor."),
+
+  // Scene 127 — Freezer Trap
+  sb("scene-heading", "INT. VISITOR CENTER - KITCHEN - DAY", { synopsis: "Raptor in kitchen / freezer trap" }),
+  sb("action", "Lex uses reflective stainless steel to confuse one raptor — it slams into its own reflection. Tim lures the second toward the walk-in freezer; Lex slams and locks the door."),
+
+  // Scene 130 — Lex Hacks Unix
+  sb("scene-heading", "INT. CONTROL ROOM - DAY", { synopsis: "Lex hacks Unix — door locks restored" }),
+  sb("action", "The group reaches the control room. Lex takes the terminal."),
+  sb("character", "LEX MURPHY", { linkedCharacterId: "jb-lex-murphy" }),
+  sb("dialogue", "It's a Unix system! I know this!"),
+  sb("action", "She navigates the 3D file system and restores the door lock controls: LOCKED."),
+
+  // Scene 134 — Raptor Smashes Into Control Room
+  sb("scene-heading", "INT. CONTROL ROOM - DAY", { synopsis: "Raptor smashes into control room" }),
+  sb("action", "A raptor EXPLODES through the control room's front window — shattering glass, landing on the console. The group barely escapes into the ceiling crawl space."),
+
+  // Scene 135 — Raptor Through Ceiling
+  sb("scene-heading", "INT. AIR DUCT / CRAWL SPACE - DAY", { synopsis: "Raptor bursts through ceiling panels / Lex lifted" }),
+  sb("action", "In the ceiling crawl space. A raptor head SMASHES up through a panel. It erupts beneath Lex — she is LIFTED on its head, pinned against the ceiling. Grant smashes his boot into the raptor's skull."),
+
+  // Scene 136 — Crawl Space Traverse
+  sb("scene-heading", "INT. AIR DUCT / CRAWL SPACE - DAY", { synopsis: "Group crawls through air duct" }),
+  sb("action", "The group crawls urgently through the ceiling air duct toward the rotunda. Tim is visibly slower — weakened from his electrocution. They descend toward the final confrontation."),
+
+  // Scene 137 — T-Rex Enters Rotunda
+  sb("scene-heading", "INT. VISITOR CENTER - LOBBY ROTUNDA - DAY", { synopsis: "T-Rex enters rotunda, kills raptors — escape" }),
+  sb("action", "The group descends the fossil skeleton scaffold. Two raptors corner them. Then: the T-Rex's head descends from above and CLAMPS onto one raptor — lifted 20 feet, neck broken. The 'When Dinosaurs Ruled the Earth' banner falls."),
+  sb("action", "The group sprints out. Hammond arrives with the jeep. They escape to the helicopter."),
+  sb("transition", "FADE TO BLACK.", {}),
+]
+
+/** Beat-board items for three-act structure */
+const JP_BEATS: BeatItem[] = [
+  { id: jbId("beat", 1),  title: "Raptor Transfer",        description: "A worker is killed during raptor transfer. Muldoon established.",                  color: "rose",   act: "Act 1", linkedSceneId: jbId("blk", 1),  order: 1 },
+  { id: jbId("beat", 2),  title: "Montana Dig",            description: "Grant and Ellie introduced at the dig site. Grant hates kids.",                    color: "blue",   act: "Act 1", linkedSceneId: jbId("blk", 13), order: 2 },
+  { id: jbId("beat", 3),  title: "Hammond's Invitation",   description: "Hammond arrives and funds the dig in exchange for a weekend visit.",                color: "amber",  act: "Act 1", linkedSceneId: jbId("blk", 19), order: 3 },
+  { id: jbId("beat", 4),  title: "Welcome to Jurassic Park", description: "The brachiosaur reveal. Grant's knees buckle. 'Welcome to Jurassic Park.'",     color: "green",  act: "Act 1", linkedSceneId: jbId("blk", 35), order: 4 },
+  { id: jbId("beat", 5),  title: "Life Finds a Way",       description: "Lab tour. Frog DNA. All female population. Malcolm challenges: 'Life finds a way.'", color: "purple", act: "Act 1", linkedSceneId: jbId("blk", 45), order: 5 },
+  { id: jbId("beat", 6),  title: "Nedry's Sabotage",       description: "Nedry steals embryos and disables security. 18-minute countdown.",                 color: "stone",  act: "Act 2", linkedSceneId: jbId("blk", 69), order: 6 },
+  { id: jbId("beat", 7),  title: "T-Rex Attack",           description: "Water cup vibration. Goat leg on sunroof. The T-Rex is here.",                     color: "pink",   act: "Act 2", linkedSceneId: jbId("blk", 76), order: 7 },
+  { id: jbId("beat", 8),  title: "Nedry's Death",          description: "Dilophosaurus kills Nedry. Embryos lost in the rain.",                             color: "rose",   act: "Act 2", linkedSceneId: jbId("blk", 85), order: 8 },
+  { id: jbId("beat", 9),  title: "Hold Onto Your Butts",   description: "Arnold can't fix Nedry's code. Full system shutdown. Arnold doesn't return.",       color: "amber",  act: "Act 3", linkedSceneId: jbId("blk", 99), order: 9 },
+  { id: jbId("beat", 10), title: "Clever Girl",            description: "Muldoon tracks a raptor — but the second one flanks him.",                          color: "sky",    act: "Act 3", linkedSceneId: jbId("blk", 113), order: 10 },
+  { id: jbId("beat", 11), title: "It's a Unix System",     description: "Lex restores door locks. Raptor crashes through window.",                           color: "blue",   act: "Act 3", linkedSceneId: jbId("blk", 121), order: 11 },
+  { id: jbId("beat", 12), title: "When Dinosaurs Ruled",   description: "T-Rex saves the group from raptors. Banner falls. Escape by helicopter.",           color: "green",  act: "Act 3", linkedSceneId: jbId("blk", 131), order: 12 },
+]
+
+const JP_SCRIPT_DATA: ScriptData = {
+  blocks: SCRIPT_BLOCKS,
+  locked: false,
+  lockedSceneSuffixes: {},
+  currentRevision: "white",
+  lastModified: Date.now(),
+  beats: JP_BEATS,
+}
+
+/* ------------------------------------------------------------------ */
+/*  Production Phases                                                   */
+/* ------------------------------------------------------------------ */
+const jpProductionPhases: ProductionPhase[] = [
+  { id: "jp-principal",   name: "Principal Photography", startDate: "1992-08-24", color: "text-blue-700",   bgColor: "bg-blue-500" },
+  { id: "jp-second-unit", name: "Second Unit / VFX",    startDate: "1992-10-05", color: "text-lime-700",   bgColor: "bg-lime-500" },
+  { id: "jp-pickups",     name: "Pickups",               startDate: "1992-11-02", color: "text-orange-700", bgColor: "bg-orange-500" },
+  { id: "jp-rehearsals",  name: "Rehearsals",            startDate: "1992-08-17", color: "text-purple-700", bgColor: "bg-purple-500" },
+]
+
+/* ------------------------------------------------------------------ */
+/*  Schedule Entries (shoot days from scenes JSON)                      */
+/* ------------------------------------------------------------------ */
+const jpNow = Date.now()
+
+const jpScheduleEntries: ScheduleEntry[] = [
+  {
+    id: "jp-sched-1",
+    title: "Day 1 — Cold Open / Amber Mine / Dig Site (Ext Day-Night)",
+    date: "1992-08-24",
+    phaseId: "jp-principal",
+    startTime: "06:00",
+    endTime: "21:00",
+    location: "Kualoa Ranch / Backlot — Raptor Pen / Amber Mine / Montana Dig",
+    sceneType: "EXT",
+    sceneNotes: "AM: Raptor transfer cold open — raptor crate practical w/ mechanical eye insert. MID: Amber mine — extras as miners. PM: Montana dig site — fossil mapping equipment, raptor claw prop.",
+    props: ["Raptor crate (mechanical eye)", "Raptor claw fossil", "Computer imaging equipment", "Amber specimen"],
+    actorIds: ["jb-robert-muldoon", "jb-donald-gennaro", "jb-rostagno", "jb-alan-grant", "jb-ellie-sattler"],
+    crewMembers: ["Director — Steven Spielberg", "1st AD — John T. Kretchmer", "DP — Dean Cundey", "SFX — Michael Lantieri"],
+    redFlags: [
+      { id: "jp-rf-1", type: "important", message: "Raptor crate mechanical eye — pre-rig and test morning of. SFX on standby.", color: "bg-blue-500" },
+    ],
+    notes: "Scenes 1, 2 & 5. Start with raptor transfer at dawn for dark-to-light continuity. Flip to amber mine after Sc 1 wraps. PM: Montana dig site with Grant and Ellie intro.",
+    createdAt: jpNow,
+    updatedAt: jpNow,
+  },
+  {
+    id: "jp-sched-2",
+    title: "Day 2 — Hammond / Nedry / Helicopter / Brachiosaur (Int-Ext Day)",
+    date: "1992-08-25",
+    phaseId: "jp-principal",
+    startTime: "07:00",
+    endTime: "20:00",
+    location: "Stage 24 — Trailer Int / Cafe Ext / Helicopter Int / Kualoa Ranch Hilltop",
+    sceneType: "INT/EXT",
+    sceneNotes: "AM: Trailer interior (Hammond arrives). Stage cafe exterior (Nedry/Dodgson). MID: Helicopter interior on gimbal. PM: Brachiosaur reveal at hilltop — VFX plates required.",
+    props: ["Hammond's amber-topped cane", "Barbasol can (modified)", "Champagne bottle"],
+    actorIds: ["jb-alan-grant", "jb-ellie-sattler", "jb-john-hammond", "jb-dennis-nedry", "jb-ian-malcolm", "jb-donald-gennaro"],
+    crewMembers: ["Director — Steven Spielberg", "1st AD — John T. Kretchmer", "DP — Dean Cundey", "VFX Sup — Dennis Muren"],
+    redFlags: [
+      { id: "jp-rf-2", type: "warning", message: "Brachiosaur VFX plates at golden hour — limited window. Chrome balls + HDRI captures first.", color: "bg-amber-500" },
+    ],
+    notes: "Scenes 10, 11, 14, 15. Hammond's arrival, Nedry conspiracy, helicopter descent, brachiosaur reveal. Big cast day — all leads.",
+    createdAt: jpNow,
+    updatedAt: jpNow,
+  },
+  {
+    id: "jp-sched-3",
+    title: "Day 3 — Visitor Center / Lab / Raptor Paddock / Tour (Int-Ext Day)",
+    date: "1992-08-27",
+    phaseId: "jp-principal",
+    startTime: "06:00",
+    endTime: "19:00",
+    location: "Stage 12 — Visitor Center Sets / Backlot — Raptor Paddock",
+    sceneType: "INT/EXT",
+    sceneNotes: "AM: Visitor center rotunda, showroom, Mr. DNA film playback. MID: Hatchery set w/ robotic arm + hatching egg (VFX puppet). PM: Raptor paddock feeding (steer crane rig), restaurant lunch debate. Tour departure exterior.",
+    props: ["Robotic arm (egg hatch)", "Hatching egg practical", "Raptor claw fossil", "Amber-topped cane"],
+    actorIds: ["jb-alan-grant", "jb-ellie-sattler", "jb-john-hammond", "jb-ian-malcolm", "jb-donald-gennaro", "jb-henry-wu", "jb-robert-muldoon", "jb-mr-dna", "jb-tim-murphy", "jb-lex-murphy"],
+    crewMembers: ["Director — Steven Spielberg", "1st AD — John T. Kretchmer", "DP — Dean Cundey", "Creature FX — Stan Winston"],
+    redFlags: [
+      { id: "jp-rf-3", type: "important", message: "Baby raptor puppet — Stan Winston team on set for hatchery. 45-min reset between takes.", color: "bg-red-500" },
+      { id: "jp-rf-4", type: "warning", message: "Tim and Lex first day on set — child labor hours apply, wrap by 18:00.", color: "bg-amber-500" },
+    ],
+    notes: "Scenes 17, 18, 25, 29A, 29B, 30, 31. Visitor center tour through lab/hatchery/raptor paddock/lunch. All 14 characters represented across the day.",
+    createdAt: jpNow,
+    updatedAt: jpNow,
+  },
+  {
+    id: "jp-sched-4",
+    title: "Day 4 — Control Room / T-Rex Paddock / Triceratops / Sabotage (Int-Ext Day-Night)",
+    date: "1992-08-28",
+    phaseId: "jp-principal",
+    startTime: "10:00",
+    endTime: "03:00",
+    location: "Stage 12 — Control Room / Backlot — T-Rex Paddock / Kualoa Ranch — Triceratops Field / Stage 24 — Cold Storage",
+    sceneType: "INT/EXT",
+    sceneNotes: "AM: Control room (Arnold/Nedry). MID: T-Rex paddock no-show (goat bait hydraulic rig). PM: Triceratops field — full-size animatronic. NIGHT: Cold storage embryo theft (Barbasol can).",
+    props: ["Herbal prop cigarettes", "Computer terminals", "Barbasol can (modified)", "Ford Explorer tour vehicles", "Goat bait rig"],
+    actorIds: ["jb-ray-arnold", "jb-robert-muldoon", "jb-john-hammond", "jb-dennis-nedry", "jb-alan-grant", "jb-ian-malcolm", "jb-donald-gennaro", "jb-tim-murphy", "jb-lex-murphy", "jb-ellie-sattler", "jb-dr-harding"],
+    crewMembers: ["Director — Steven Spielberg", "1st AD — John T. Kretchmer", "DP — Dean Cundey", "Creature FX — Stan Winston", "SFX — Michael Lantieri"],
+    redFlags: [
+      { id: "jp-rf-5", type: "important", message: "Full-size triceratops animatronic — pre-position overnight. Hydraulics check at dawn.", color: "bg-red-500" },
+      { id: "jp-rf-6", type: "warning", message: "Night shoot for cold storage — overtime probable. Nedry wraps after Sc 49.", color: "bg-amber-500" },
+    ],
+    notes: "Scenes 32, 36, 40, 49. Control room established, T-Rex paddock no-show, sick triceratops, Nedry's sabotage. Long day — turnaround before Day 5 night shoot.",
+    createdAt: jpNow,
+    updatedAt: jpNow,
+  },
+  {
+    id: "jp-sched-5",
+    title: "Day 5 — T-Rex Attack / Gennaro Death / Tree Rescue / Nedry Death (Ext Night)",
+    date: "1992-09-01",
+    phaseId: "jp-principal",
+    startTime: "16:00",
+    endTime: "06:00",
+    location: "Kualoa Ranch — T-Rex Paddock Road / Backlot — Restroom / Tree Rig / Jungle Trail",
+    sceneType: "EXT",
+    sceneNotes: "Full night shoot. Rain towers x8. T-Rex animatronic on track for road sequence. Restroom destruction rig. Explorer-in-tree stunt rig. Dilophosaurus puppet for Nedry death.",
+    props: ["Ford Explorer tour vehicles", "Flare (practical)", "Night-vision goggles", "Barbasol can", "Jeep Wrangler"],
+    actorIds: ["jb-alan-grant", "jb-ian-malcolm", "jb-tim-murphy", "jb-lex-murphy", "jb-donald-gennaro", "jb-dennis-nedry"],
+    crewMembers: ["Director — Steven Spielberg", "1st AD — John T. Kretchmer", "DP — Dean Cundey", "Creature FX — Stan Winston", "SFX — Michael Lantieri", "Stunt Coord — Gary Hymes"],
+    redFlags: [
+      { id: "jp-rf-7", type: "important", message: "T-Rex animatronic — 9 ton unit on track, safety zone 15ft minimum. Rain causes skin absorption issues, towel crew on standby.", color: "bg-red-500" },
+      { id: "jp-rf-8", type: "warning", message: "Full night shoot — 14 hrs. Child actors Tim/Lex require welfare worker and strict turnaround.", color: "bg-amber-500" },
+      { id: "jp-rf-9", type: "important", message: "Explorer tree-fall stunt rig — safety inspection before first take. Stunt doubles for Tim.", color: "bg-red-500" },
+    ],
+    notes: "Scenes 58, 61, 73, 79, 81, 84. The entire T-Rex attack sequence through Nedry's death. Massive night shoot with rain, animatronics, and stunt work.",
+    createdAt: jpNow,
+    updatedAt: jpNow,
+  },
+  {
+    id: "jp-sched-6",
+    title: "Day 6 — Jeep Chase / Gallimimus / Ice Cream / System Shutdown (Ext-Int Day-Night)",
+    date: "1992-09-03",
+    phaseId: "jp-principal",
+    startTime: "04:30",
+    endTime: "19:00",
+    location: "Kualoa Ranch — Jungle Roads / Stage 12 — Restaurant Int / Control Room",
+    sceneType: "INT/EXT",
+    sceneNotes: "PRE-DAWN: T-Rex jeep chase (Muldoon driving, Malcolm in back). AM: Gallimimus stampede VFX plates. MID: Brachiosaur dawn scene in tree (Grant/Tim/Lex). PM: Ice cream scene (Hammond/Ellie). Control room shutdown (Arnold).",
+    props: ["Jeep Wrangler", "Melting ice cream containers", "Herbal prop cigarettes", "Satellite phone"],
+    actorIds: ["jb-robert-muldoon", "jb-ellie-sattler", "jb-ian-malcolm", "jb-alan-grant", "jb-tim-murphy", "jb-lex-murphy", "jb-john-hammond", "jb-ray-arnold"],
+    crewMembers: ["Director — Steven Spielberg", "1st AD — John T. Kretchmer", "DP — Dean Cundey", "VFX Sup — Dennis Muren"],
+    redFlags: [
+      { id: "jp-rf-10", type: "warning", message: "Pre-dawn call for jeep chase — talent in works by 03:30. Coffee/craft at base by 03:00.", color: "bg-amber-500" },
+    ],
+    notes: "Scenes 88, 90, 91, 94, 96, 98. Jeep chase, gallimimus, brachiosaur dawn, ice cream scene, and system shutdown. Wide tonal range — action to intimate drama.",
+    createdAt: jpNow,
+    updatedAt: jpNow,
+  },
+  {
+    id: "jp-sched-7",
+    title: "Day 7 — Bunker / Shed / Muldoon / Fence / Kitchen / Rotunda (Int-Ext Day)",
+    date: "1992-09-05",
+    phaseId: "jp-principal",
+    startTime: "06:00",
+    endTime: "22:00",
+    location: "Stage 24 — Bunker / Maintenance Shed / Stage 12 — Kitchen / Control Room / Rotunda / Backlot — Fence / Compound",
+    sceneType: "INT/EXT",
+    sceneNotes: "AM: Bunker scene, Ellie sprint, Muldoon death. MID: Ellie in maintenance shed (raptor + severed arm). Fence climb + Tim electrocution. PM: Kitchen raptor chase, freezer trap. EVENING: Control room (Unix), crawl space, rotunda climax.",
+    props: ["Shotgun (Muldoon)", "Arnold's severed arm prosthetic", "Computer terminals", "Jell-O", "'When Dinosaurs Ruled the Earth' banner"],
+    actorIds: ["jb-ellie-sattler", "jb-robert-muldoon", "jb-john-hammond", "jb-ian-malcolm", "jb-alan-grant", "jb-tim-murphy", "jb-lex-murphy", "jb-ray-arnold"],
+    crewMembers: ["Director — Steven Spielberg", "1st AD — John T. Kretchmer", "DP — Dean Cundey", "Creature FX — Stan Winston", "SFX — Michael Lantieri", "Stunt Coord — Gary Hymes"],
+    redFlags: [
+      { id: "jp-rf-11", type: "important", message: "Raptor kitchen sequence — 3 raptor puppets on set simultaneously. Stan Winston team full crew.", color: "bg-red-500" },
+      { id: "jp-rf-12", type: "important", message: "T-Rex rotunda climax — full-size head rig through set wall. Pre-rig overnight.", color: "bg-red-500" },
+      { id: "jp-rf-13", type: "warning", message: "Tim electrocution stunt — wire harness for throw. Safety mat below camera line. Stunt double available.", color: "bg-amber-500" },
+    ],
+    notes: "Scenes 100, 102, 102A, 106b, 118, 119, A121, B121, 120, 124, 127, 130, 134, 135, 136, 137. The entire Act 3 in one massive day. Long day — overtime guaranteed.",
+    createdAt: jpNow,
+    updatedAt: jpNow,
+  },
+]
+
+/** Stripboard scenes — one per script scene */
+const jpScenes: Scene[] = [
+  // Day 1
+  { id: "jp-sc-001",  sceneNumber: "1",    pages: "1 2/8", intExt: "EXT",     location: "RAPTOR HOLDING PEN",                    dayNight: "Night", cast: ["ROBERT MULDOON"],                                                         description: "Raptor transfer — cold open",                      shootDayId: "jp-sched-1", order: 1, createdAt: jpNow, updatedAt: jpNow },
+  { id: "jp-sc-002",  sceneNumber: "2",    pages: "6/8",   intExt: "EXT",     location: "AMBER MINE - DOMINICAN REPUBLIC",        dayNight: "Day",   cast: ["DONALD GENNARO", "ROSTAGNO"],                                            description: "Gennaro arrives at the amber mine",               shootDayId: "jp-sched-1", order: 2, createdAt: jpNow, updatedAt: jpNow },
+  { id: "jp-sc-005",  sceneNumber: "5",    pages: "1 4/8", intExt: "EXT",     location: "MONTANA DIG SITE",                       dayNight: "Day",   cast: ["DR. ALAN GRANT", "DR. ELLIE SATTLER"],                                   description: "Grant and Ellie introduction",                     shootDayId: "jp-sched-1", order: 3, createdAt: jpNow, updatedAt: jpNow },
+  // Day 2
+  { id: "jp-sc-010",  sceneNumber: "10",   pages: "1 2/8", intExt: "INT/EXT", location: "DIG BASE CAMP - TRAILER",                dayNight: "Day",   cast: ["DR. ALAN GRANT", "DR. ELLIE SATTLER", "JOHN HAMMOND"],                   description: "Hammond arrives at the dig site",                  shootDayId: "jp-sched-2", order: 1, createdAt: jpNow, updatedAt: jpNow },
+  { id: "jp-sc-011",  sceneNumber: "11",   pages: "1",     intExt: "EXT",     location: "CAFE - SAN JOSE, COSTA RICA",            dayNight: "Day",   cast: ["DENNIS NEDRY"],                                                          description: "Nedry and Dodgson — the conspiracy",               shootDayId: "jp-sched-2", order: 2, createdAt: jpNow, updatedAt: jpNow },
+  { id: "jp-sc-014",  sceneNumber: "14",   pages: "1",     intExt: "INT",     location: "INGEN HELICOPTER",                       dayNight: "Day",   cast: ["DR. ALAN GRANT", "DR. ELLIE SATTLER", "JOHN HAMMOND", "DR. IAN MALCOLM", "DONALD GENNARO"], description: "Helicopter descent — Malcolm introduced",   shootDayId: "jp-sched-2", order: 3, createdAt: jpNow, updatedAt: jpNow },
+  { id: "jp-sc-015",  sceneNumber: "15",   pages: "1 2/8", intExt: "EXT",     location: "HILLTOP - PARK ENTRANCE",                dayNight: "Day",   cast: ["DR. ALAN GRANT", "DR. ELLIE SATTLER", "JOHN HAMMOND", "DR. IAN MALCOLM", "DONALD GENNARO"], description: "First brachiosaurus reveal",                shootDayId: "jp-sched-2", order: 4, createdAt: jpNow, updatedAt: jpNow },
+  // Day 3
+  { id: "jp-sc-017",  sceneNumber: "17",   pages: "4/8",   intExt: "INT",     location: "VISITOR CENTER - LOBBY ROTUNDA",          dayNight: "Day",   cast: ["DR. ALAN GRANT", "DR. ELLIE SATTLER", "JOHN HAMMOND", "DR. IAN MALCOLM", "DONALD GENNARO"], description: "Visitor Center — first arrival",               shootDayId: "jp-sched-3", order: 1, createdAt: jpNow, updatedAt: jpNow },
+  { id: "jp-sc-018",  sceneNumber: "18",   pages: "1",     intExt: "INT",     location: "VISITOR CENTER - SHOWROOM AUDITORIUM",    dayNight: "Day",   cast: ["DR. ALAN GRANT", "DR. ELLIE SATTLER", "JOHN HAMMOND", "DR. IAN MALCOLM", "DONALD GENNARO", "MR. DNA"], description: "Mr. DNA orientation film",            shootDayId: "jp-sched-3", order: 2, createdAt: jpNow, updatedAt: jpNow },
+  { id: "jp-sc-025",  sceneNumber: "25",   pages: "1 4/8", intExt: "INT",     location: "HATCHERY / NURSERY",                     dayNight: "Day",   cast: ["DR. ALAN GRANT", "DR. ELLIE SATTLER", "JOHN HAMMOND", "DR. IAN MALCOLM", "DONALD GENNARO", "DR. HENRY WU"], description: "Genetics lab / hatchery tour — Wu explains", shootDayId: "jp-sched-3", order: 3, createdAt: jpNow, updatedAt: jpNow },
+  { id: "jp-sc-029a", sceneNumber: "29A",  pages: "1",     intExt: "INT",     location: "HATCHERY / NURSERY",                     dayNight: "Day",   cast: ["DR. ALAN GRANT", "DR. ELLIE SATTLER", "JOHN HAMMOND", "DR. HENRY WU"],    description: "Baby raptor hatching",                            shootDayId: "jp-sched-3", order: 4, createdAt: jpNow, updatedAt: jpNow },
+  { id: "jp-sc-029b", sceneNumber: "29B",  pages: "1",     intExt: "EXT",     location: "RAPTOR PADDOCK",                          dayNight: "Day",   cast: ["DR. ALAN GRANT", "DR. ELLIE SATTLER", "ROBERT MULDOON"],                 description: "Raptor feeding demonstration",                    shootDayId: "jp-sched-3", order: 5, createdAt: jpNow, updatedAt: jpNow },
+  { id: "jp-sc-030",  sceneNumber: "30",   pages: "1 6/8", intExt: "INT",     location: "VISITOR CENTER - RESTAURANT",             dayNight: "Day",   cast: ["DR. ALAN GRANT", "DR. ELLIE SATTLER", "JOHN HAMMOND", "DR. IAN MALCOLM", "DONALD GENNARO"], description: "Lunch / Malcolm's chaos theory debate", shootDayId: "jp-sched-3", order: 6, createdAt: jpNow, updatedAt: jpNow },
+  { id: "jp-sc-031",  sceneNumber: "31",   pages: "1",     intExt: "EXT",     location: "VISITOR CENTER - EXTERIOR",               dayNight: "Day",   cast: ["DR. ALAN GRANT", "DR. ELLIE SATTLER", "DR. IAN MALCOLM", "DONALD GENNARO", "TIM MURPHY", "LEX MURPHY"], description: "Tour begins — Tim and Lex join", shootDayId: "jp-sched-3", order: 7, createdAt: jpNow, updatedAt: jpNow },
+  // Day 4
+  { id: "jp-sc-032",  sceneNumber: "32",   pages: "1",     intExt: "INT",     location: "CONTROL ROOM",                            dayNight: "Day",   cast: ["RAY ARNOLD", "ROBERT MULDOON", "JOHN HAMMOND", "DENNIS NEDRY"],          description: "Control room established",                        shootDayId: "jp-sched-4", order: 1, createdAt: jpNow, updatedAt: jpNow },
+  { id: "jp-sc-036",  sceneNumber: "36",   pages: "1",     intExt: "EXT",     location: "TYRANNOSAUR PADDOCK",                     dayNight: "Day",   cast: ["DR. ALAN GRANT", "DR. IAN MALCOLM", "DONALD GENNARO", "TIM MURPHY", "LEX MURPHY"], description: "T-Rex paddock — no show / goat bait", shootDayId: "jp-sched-4", order: 2, createdAt: jpNow, updatedAt: jpNow },
+  { id: "jp-sc-040",  sceneNumber: "40",   pages: "1 4/8", intExt: "EXT",     location: "TRICERATOPS FIELD",                       dayNight: "Day",   cast: ["DR. ALAN GRANT", "DR. ELLIE SATTLER", "DR. IAN MALCOLM", "TIM MURPHY", "LEX MURPHY", "DR. HARDING"], description: "Sick triceratops — field scene", shootDayId: "jp-sched-4", order: 3, createdAt: jpNow, updatedAt: jpNow },
+  { id: "jp-sc-049",  sceneNumber: "49",   pages: "1",     intExt: "INT",     location: "FERTILIZATION LAB - COLD STORAGE",        dayNight: "Night", cast: ["DENNIS NEDRY"],                                                          description: "Nedry's sabotage — embryo theft",                 shootDayId: "jp-sched-4", order: 4, createdAt: jpNow, updatedAt: jpNow },
+  // Day 5
+  { id: "jp-sc-058",  sceneNumber: "58",   pages: "1",     intExt: "EXT",     location: "TYRANNOSAUR PADDOCK",                     dayNight: "Night", cast: ["DR. ALAN GRANT", "DR. IAN MALCOLM", "TIM MURPHY", "LEX MURPHY", "DONALD GENNARO"], description: "Tour cars stall — power cuts",            shootDayId: "jp-sched-5", order: 1, createdAt: jpNow, updatedAt: jpNow },
+  { id: "jp-sc-061",  sceneNumber: "61",   pages: "2",     intExt: "EXT",     location: "PARK ROAD - TOUR ROUTE",                  dayNight: "Night", cast: ["DR. ALAN GRANT", "DR. IAN MALCOLM", "TIM MURPHY", "LEX MURPHY"],         description: "Water cup vibration / goat leg on sunroof",       shootDayId: "jp-sched-5", order: 2, createdAt: jpNow, updatedAt: jpNow },
+  { id: "jp-sc-073",  sceneNumber: "73",   pages: "1 2/8", intExt: "EXT",     location: "CEMENT BLOCK RESTROOM",                   dayNight: "Night", cast: ["DONALD GENNARO", "DR. IAN MALCOLM"],                                     description: "Gennaro killed on toilet / Malcolm injured",      shootDayId: "jp-sched-5", order: 3, createdAt: jpNow, updatedAt: jpNow },
+  { id: "jp-sc-079",  sceneNumber: "79",   pages: "1",     intExt: "EXT",     location: "TREE SHELTER",                             dayNight: "Night", cast: ["DR. ALAN GRANT", "LEX MURPHY"],                                          description: "Grant cable-slides with Lex",                     shootDayId: "jp-sched-5", order: 4, createdAt: jpNow, updatedAt: jpNow },
+  { id: "jp-sc-081",  sceneNumber: "81",   pages: "1 4/8", intExt: "EXT",     location: "JUNGLE - PARK GROUNDS",                   dayNight: "Night", cast: ["DENNIS NEDRY"],                                                          description: "Dilophosaurus kills Nedry",                       shootDayId: "jp-sched-5", order: 5, createdAt: jpNow, updatedAt: jpNow },
+  { id: "jp-sc-084",  sceneNumber: "84",   pages: "1",     intExt: "EXT",     location: "TREE SHELTER",                             dayNight: "Night", cast: ["DR. ALAN GRANT", "TIM MURPHY"],                                          description: "Explorer falls through tree",                     shootDayId: "jp-sched-5", order: 6, createdAt: jpNow, updatedAt: jpNow },
+  // Day 6
+  { id: "jp-sc-088",  sceneNumber: "88",   pages: "4/8",   intExt: "EXT",     location: "JUNGLE - PARK GROUNDS",                   dayNight: "Night", cast: ["DR. IAN MALCOLM", "ROBERT MULDOON", "DR. ELLIE SATTLER"],               description: "T-Rex puddle footprint",                          shootDayId: "jp-sched-6", order: 1, createdAt: jpNow, updatedAt: jpNow },
+  { id: "jp-sc-090",  sceneNumber: "90",   pages: "1",     intExt: "EXT",     location: "JUNGLE - PARK GROUNDS",                   dayNight: "Night", cast: ["ROBERT MULDOON", "DR. ELLIE SATTLER", "DR. IAN MALCOLM"],               description: "T-Rex chases Muldoon/Ellie jeep",                 shootDayId: "jp-sched-6", order: 2, createdAt: jpNow, updatedAt: jpNow },
+  { id: "jp-sc-091",  sceneNumber: "91",   pages: "1",     intExt: "EXT",     location: "JUNGLE - PARK GROUNDS",                   dayNight: "Day",   cast: ["DR. ALAN GRANT", "TIM MURPHY", "LEX MURPHY"],                            description: "Gallimimus stampede",                             shootDayId: "jp-sched-6", order: 3, createdAt: jpNow, updatedAt: jpNow },
+  { id: "jp-sc-094",  sceneNumber: "94",   pages: "2",     intExt: "INT",     location: "VISITOR CENTER - RESTAURANT",             dayNight: "Night", cast: ["JOHN HAMMOND", "DR. ELLIE SATTLER"],                                     description: "Hammond and Ellie — ice cream scene",             shootDayId: "jp-sched-6", order: 4, createdAt: jpNow, updatedAt: jpNow },
+  { id: "jp-sc-096",  sceneNumber: "96",   pages: "1",     intExt: "EXT",     location: "JUNGLE - PARK GROUNDS",                   dayNight: "Day",   cast: ["DR. ALAN GRANT", "TIM MURPHY", "LEX MURPHY"],                            description: "Brachiosaur visits tree at dawn",                 shootDayId: "jp-sched-6", order: 5, createdAt: jpNow, updatedAt: jpNow },
+  { id: "jp-sc-098",  sceneNumber: "98",   pages: "1 4/8", intExt: "INT",     location: "CONTROL ROOM",                            dayNight: "Day",   cast: ["RAY ARNOLD", "JOHN HAMMOND", "DR. IAN MALCOLM", "DR. ELLIE SATTLER", "ROBERT MULDOON"], description: "System shutdown — 'Hold onto your butts'", shootDayId: "jp-sched-6", order: 6, createdAt: jpNow, updatedAt: jpNow },
+  // Day 7
+  { id: "jp-sc-100",  sceneNumber: "100",  pages: "1",     intExt: "INT",     location: "EMERGENCY BUNKER",                        dayNight: "Day",   cast: ["DR. ELLIE SATTLER", "ROBERT MULDOON", "JOHN HAMMOND", "DR. IAN MALCOLM"], description: "Bunker — survivors wait / Muldoon arms up",       shootDayId: "jp-sched-7", order: 1, createdAt: jpNow, updatedAt: jpNow },
+  { id: "jp-sc-102",  sceneNumber: "102",  pages: "6/8",   intExt: "EXT",     location: "MAIN COMPOUND",                           dayNight: "Day",   cast: ["DR. ELLIE SATTLER", "ROBERT MULDOON"],                                   description: "Ellie's sprint to the maintenance shed",          shootDayId: "jp-sched-7", order: 2, createdAt: jpNow, updatedAt: jpNow },
+  { id: "jp-sc-102a", sceneNumber: "102A", pages: "4/8",   intExt: "EXT",     location: "RAPTOR PADDOCK",                           dayNight: "Day",   cast: ["ROBERT MULDOON", "DR. ELLIE SATTLER"],                                   description: "Raptor pen fence gnawed through",                 shootDayId: "jp-sched-7", order: 3, createdAt: jpNow, updatedAt: jpNow },
+  { id: "jp-sc-106b", sceneNumber: "106b", pages: "1 2/8", intExt: "EXT",     location: "JUNGLE - PARK GROUNDS",                   dayNight: "Day",   cast: ["DR. ALAN GRANT", "TIM MURPHY", "LEX MURPHY"],                            description: "Electrified fence climb",                         shootDayId: "jp-sched-7", order: 4, createdAt: jpNow, updatedAt: jpNow },
+  { id: "jp-sc-118",  sceneNumber: "118",  pages: "4/8",   intExt: "EXT",     location: "JUNGLE - PARK GROUNDS",                   dayNight: "Day",   cast: ["DR. ALAN GRANT", "TIM MURPHY", "LEX MURPHY"],                            description: "Fence reactivation warning",                      shootDayId: "jp-sched-7", order: 5, createdAt: jpNow, updatedAt: jpNow },
+  { id: "jp-sc-119",  sceneNumber: "119",  pages: "4/8",   intExt: "EXT",     location: "JUNGLE - PARK GROUNDS",                   dayNight: "Day",   cast: ["DR. ALAN GRANT", "TIM MURPHY", "LEX MURPHY"],                            description: "Tim electrocuted on fence",                       shootDayId: "jp-sched-7", order: 6, createdAt: jpNow, updatedAt: jpNow },
+  { id: "jp-sc-a121", sceneNumber: "A121", pages: "1",     intExt: "EXT",     location: "JUNGLE - PARK GROUNDS",                   dayNight: "Day",   cast: ["DR. ALAN GRANT", "TIM MURPHY", "LEX MURPHY"],                            description: "Grant performs CPR on Tim",                       shootDayId: "jp-sched-7", order: 7, createdAt: jpNow, updatedAt: jpNow },
+  { id: "jp-sc-b121", sceneNumber: "B121", pages: "4/8",   intExt: "EXT",     location: "JUNGLE - PARK GROUNDS",                   dayNight: "Day",   cast: ["ROBERT MULDOON"],                                                         description: "Muldoon killed — 'Clever girl'",                  shootDayId: "jp-sched-7", order: 8, createdAt: jpNow, updatedAt: jpNow },
+  { id: "jp-sc-120",  sceneNumber: "120",  pages: "2",     intExt: "INT",     location: "MAINTENANCE SHED / POWER SHED",            dayNight: "Day",   cast: ["DR. ELLIE SATTLER", "RAY ARNOLD"],                                       description: "Arnold's arm / raptor in the shed",               shootDayId: "jp-sched-7", order: 9, createdAt: jpNow, updatedAt: jpNow },
+  { id: "jp-sc-124",  sceneNumber: "124",  pages: "1 4/8", intExt: "INT",     location: "VISITOR CENTER - KITCHEN",                dayNight: "Day",   cast: ["TIM MURPHY", "LEX MURPHY"],                                              description: "Kitchen raptor chase",                            shootDayId: "jp-sched-7", order: 10, createdAt: jpNow, updatedAt: jpNow },
+  { id: "jp-sc-127",  sceneNumber: "127",  pages: "1 2/8", intExt: "INT",     location: "VISITOR CENTER - KITCHEN",                dayNight: "Day",   cast: ["TIM MURPHY", "LEX MURPHY"],                                              description: "Raptor in kitchen / freezer trap",                shootDayId: "jp-sched-7", order: 11, createdAt: jpNow, updatedAt: jpNow },
+  { id: "jp-sc-130",  sceneNumber: "130",  pages: "1",     intExt: "INT",     location: "CONTROL ROOM",                            dayNight: "Day",   cast: ["DR. ALAN GRANT", "DR. ELLIE SATTLER", "TIM MURPHY", "LEX MURPHY"],       description: "Lex hacks Unix — door locks restored",            shootDayId: "jp-sched-7", order: 12, createdAt: jpNow, updatedAt: jpNow },
+  { id: "jp-sc-134",  sceneNumber: "134",  pages: "6/8",   intExt: "INT",     location: "CONTROL ROOM",                            dayNight: "Day",   cast: ["DR. ALAN GRANT", "DR. ELLIE SATTLER", "TIM MURPHY", "LEX MURPHY"],       description: "Raptor smashes into control room",                shootDayId: "jp-sched-7", order: 13, createdAt: jpNow, updatedAt: jpNow },
+  { id: "jp-sc-135",  sceneNumber: "135",  pages: "6/8",   intExt: "INT",     location: "AIR DUCT / CRAWL SPACE",                  dayNight: "Day",   cast: ["DR. ALAN GRANT", "DR. ELLIE SATTLER", "TIM MURPHY", "LEX MURPHY"],       description: "Raptor bursts through ceiling panels",            shootDayId: "jp-sched-7", order: 14, createdAt: jpNow, updatedAt: jpNow },
+  { id: "jp-sc-136",  sceneNumber: "136",  pages: "4/8",   intExt: "INT",     location: "AIR DUCT / CRAWL SPACE",                  dayNight: "Day",   cast: ["DR. ALAN GRANT", "DR. ELLIE SATTLER", "TIM MURPHY", "LEX MURPHY"],       description: "Group crawls through air duct",                   shootDayId: "jp-sched-7", order: 15, createdAt: jpNow, updatedAt: jpNow },
+  { id: "jp-sc-137",  sceneNumber: "137",  pages: "2",     intExt: "INT",     location: "VISITOR CENTER - LOBBY ROTUNDA",           dayNight: "Day",   cast: ["DR. ALAN GRANT", "DR. ELLIE SATTLER", "TIM MURPHY", "LEX MURPHY", "JOHN HAMMOND"], description: "T-Rex enters rotunda, kills raptors — escape", shootDayId: "jp-sched-7", order: 16, createdAt: jpNow, updatedAt: jpNow },
+]
+
+/* ------------------------------------------------------------------ */
 /*  Full CastingState export                                           */
 /* ------------------------------------------------------------------ */
 export const jurassicAIData: CastingState = {
@@ -1245,6 +1857,7 @@ export const jurassicAIData: CastingState = {
       props,
       locations,
       costumes,
+      script: JP_SCRIPT_DATA,
     } as any,
   ],
   users: [
@@ -1326,8 +1939,8 @@ export const jurassicAIData: CastingState = {
   modals: {},
   terminology: { actor: { singular: "Actor", plural: "Actors" }, character: { singular: "Character", plural: "Characters" } },
   tabDisplayNames: {},
-  scheduleEntries: [],
-  productionPhases: [],
-  scenes: [],
+  scheduleEntries: jpScheduleEntries,
+  productionPhases: jpProductionPhases,
+  scenes: jpScenes,
   tabNotifications: {},
 }
