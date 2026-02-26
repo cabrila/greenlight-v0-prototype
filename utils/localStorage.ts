@@ -62,6 +62,7 @@ export function clearLocalStorage(): void {
   try {
     if (typeof window === "undefined") return
     localStorage.removeItem(STORAGE_KEY)
+    localStorage.removeItem("greenlight-production-design-sets")
   } catch (error) {
     console.warn("Failed to clear localStorage:", error)
   }

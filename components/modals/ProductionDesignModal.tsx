@@ -384,16 +384,46 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
 
   const [activeTab, setActiveTab] = useState<ModalTab>("sets")
   const [searchTerm, setSearchTerm] = useState("")
-  const [sets, setSets] = useState<ProductionDesignSet[]>(() => loadSavedSets() || MOCK_SETS)
-  const [tasks, setTasks] = useState<ConstructionTask[]>(MOCK_TASKS)
+  const [sets, setSets] = useState<ProductionDesignSet[]>(() => {
+    // 1. Try project-level PD data (from Jurassic AI load)
+    const projSets = (currentProject as any)?.productionDesignSets
+    if (Array.isArray(projSets) && projSets.length > 0) return projSets
+    // 2. Try localStorage
+    const saved = loadSavedSets()
+    if (saved) return saved
+    // 3. Fallback to mocks
+    return MOCK_SETS
+  })
+  const [tasks, setTasks] = useState<ConstructionTask[]>(() => {
+    const projTasks = (currentProject as any)?.constructionTasks
+    if (Array.isArray(projTasks) && projTasks.length > 0) return projTasks
+    return MOCK_TASKS
+  })
+
+  // Sync from project state when Jurassic AI data is loaded
+  useEffect(() => {
+    const projSets = (currentProject as any)?.productionDesignSets
+    if (Array.isArray(projSets) && projSets.length > 0) {
+      setSets(projSets)
+      const projTasks = (currentProject as any)?.constructionTasks
+      if (Array.isArray(projTasks) && projTasks.length > 0) setTasks(projTasks)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentProject?.id])
 
   // Persist sets to localStorage on every change
   useEffect(() => {
-    try {
-      localStorage.setItem(PD_STORAGE_KEY, JSON.stringify(sets))
-    } catch { /* quota exceeded or unavailable */ }
+  try {
+  localStorage.setItem(PD_STORAGE_KEY, JSON.stringify(sets))
+  } catch { /* quota exceeded or unavailable */ }
   }, [sets])
-  const [selectedSetId, setSelectedSetId] = useState<string | null>("set-1")
+  const [selectedSetId, setSelectedSetId] = useState<string | null>(() => {
+    const projSets = (currentProject as any)?.productionDesignSets
+    if (Array.isArray(projSets) && projSets.length > 0) return projSets[0].id
+    const saved = loadSavedSets()
+    if (saved && saved.length > 0) return saved[0].id
+    return "set-1"
+  })
   const [statusFilter, setStatusFilter] = useState<SetStatusPhase | "all">("all")
   const [setDetailTab, setSetDetailTab] = useState<SetDetailTab>("elements")
   const [kanbanSetFilter, setKanbanSetFilter] = useState<string>("all")

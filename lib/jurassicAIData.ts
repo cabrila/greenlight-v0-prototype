@@ -3,6 +3,7 @@ import type {
   CastingState, ScriptBlock, ScriptData, BeatItem,
   CostumeInventoryItem, CostumeLook, CostumeShoppingItem,
   ActorMeasurements, ActorHMUSpecs, ProjectCostumes,
+  ProductionDesignSet, ConstructionTask,
 } from "@/types/casting"
 import type { ScheduleEntry, Scene, ProductionPhase } from "@/types/schedule"
 
@@ -563,6 +564,61 @@ const jpScenes: Scene[] = scenesArr.map((s: any, idx: number) => {
 })
 
 /* ------------------------------------------------------------------ */
+/*  Production Design Sets  (one set per location)                     */
+/* ------------------------------------------------------------------ */
+const STATUS_CYCLE: Array<ProductionDesignSet["status"]> = [
+  "concept", "design", "drafting", "approved", "construction", "dressing", "camera-ready",
+]
+
+const productionDesignSets: ProductionDesignSet[] = locations.map((loc: any, idx: number) => {
+  const locSceneTags: Array<{ sceneNumber: string; sceneTitle?: string }> = loc.sceneTags || []
+  const locSceneIds: string[] = locSceneTags.map((st: any) => st.sceneNumber).filter(Boolean)
+  const dominantCues: string[] = loc.vibeTags || []
+  const evidence: string[] = locsArr[idx]?.["gg:evidence"] || []
+
+  // Build decorations from dominant cues
+  const decorations = dominantCues.slice(0, 4).map((cue: string, i: number) => ({
+    id: `sd-${loc.id}-${i}`,
+    name: cue.charAt(0).toUpperCase() + cue.slice(1) + " set dressing",
+    source: (["inventory", "rental", "fabricated", "purchase"] as const)[i % 4],
+    quantity: 1 + (i % 3),
+  }))
+
+  // Build elements from evidence lines
+  const buildElements = evidence.slice(0, 3).map((ev: string, i: number) => ({
+    id: `be-${loc.id}-${i}`,
+    name: ev.length > 60 ? ev.slice(0, 57) + "..." : ev,
+    material: "TBD",
+    dimensions: "TBD",
+    quantity: 1,
+    notes: "From script: " + ev,
+  }))
+
+  return {
+    id: "pdset-" + loc.id,
+    name: loc.name,
+    description: loc.notes || "Production design set for " + loc.name,
+    status: STATUS_CYCLE[idx % STATUS_CYCLE.length],
+    locationId: loc.id,
+    sceneIds: locSceneIds,
+    buildElements,
+    decorations,
+    lighting: [],
+    moodBoard: [],
+    estimatedBudget: "",
+    notes: evidence.join("\n"),
+    createdAt: NOW,
+    updatedAt: NOW,
+  } as ProductionDesignSet
+})
+
+const constructionTasks: ConstructionTask[] = productionDesignSets.flatMap((s) => [
+  { id: `ct-${s.id}-1`, title: `Build elements for ${s.name}`, phase: "carpentry" as const, priority: "high" as const, completed: false, setId: s.id },
+  { id: `ct-${s.id}-2`, title: `Paint & finish ${s.name}`, phase: "paint" as const, priority: "medium" as const, completed: false, setId: s.id },
+  { id: `ct-${s.id}-3`, title: `Dress ${s.name}`, phase: "set-dec" as const, priority: "high" as const, completed: false, setId: s.id },
+])
+
+/* ------------------------------------------------------------------ */
 /*  Export                                                             */
 /* ------------------------------------------------------------------ */
 const predefinedStatuses = [
@@ -589,6 +645,8 @@ export const jurassicAIData: Partial<CastingState> = {
       locationInventory: locations,
       costumes: jpCostumes,
       script: jpScriptData,
+      productionDesignSets,
+      constructionTasks,
     } as any,
   ],
   users: [
