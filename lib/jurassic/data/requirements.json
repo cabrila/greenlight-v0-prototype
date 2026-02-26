@@ -1,0 +1,2188 @@
+{
+  "@context": "https://gogreenlight.com/schemas/context/v1",
+  "@graph": [
+    {
+      "@id": "gg:requirement/jb2-arnold-casting",
+      "@type": "gg:Requirement",
+      "entityType": "gg:Requirement",
+      "name": "Arnold Casting Requirement",
+      "gg:requirementType": "casting",
+      "gg:priority": "high",
+      "gg:relatedCharacters": [
+        {
+          "@id": "gg:character/jb2-arnold"
+        }
+      ],
+      "gg:relatedScenes": [
+        {
+          "@id": "gg:scene/jb2-scene-033"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-037"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-039"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-041"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-043"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-045"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-047"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-050"
+        }
+      ],
+      "gg:criteriaTags": [
+        "scene-context-completeness"
+      ],
+      "description": "Derived from script evidence only. Use scene context packs for final casting decisions.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:requirement/jb2-brachiosaurus-appearance-technical",
+      "@type": "gg:Requirement",
+      "entityType": "gg:Requirement",
+      "name": "Brachiosaurus Appearance Technical Requirement",
+      "gg:requirementType": "technical",
+      "gg:priority": "high",
+      "gg:relatedScenes": [
+        {
+          "@id": "gg:scene/jb2-scene-016"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-052"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-099"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-121"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-133"
+        }
+      ],
+      "gg:criteriaTags": [
+        "effects-comfort",
+        "scene-context-completeness"
+      ],
+      "gg:evidence": "valley \u2014 moving slowly, impossibly large, a BRACHIOSAURUS.",
+      "description": "Technical planning requirement derived from explicit effect evidence in script scenes.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:requirement/jb2-child-actor-labor-compliance",
+      "@type": "gg:Requirement",
+      "entityType": "gg:Requirement",
+      "name": "Child Actor Labor Compliance",
+      "gg:requirementType": "legal",
+      "gg:priority": "critical",
+      "gg:relatedCharacters": [
+        {
+          "@id": "gg:character/jb2-lex"
+        },
+        {
+          "@id": "gg:character/jb2-tim"
+        }
+      ],
+      "gg:relatedScenes": [
+        {
+          "@id": "gg:scene/jb2-scene-031"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-032"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-035"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-036"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-038"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-042"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-047"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-049"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-051"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-056"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-061"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-073"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-074"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-075"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-086"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-087"
+        }
+      ],
+      "gg:criteriaTags": [
+        "scene-context-completeness",
+        "child-welfare-compliance"
+      ],
+      "description": "Child-performer scenes require labor-law compliant scheduling and supervision.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:requirement/jb2-child-stunt-safety",
+      "@type": "gg:Requirement",
+      "entityType": "gg:Requirement",
+      "name": "Child Stunt Safety Requirement",
+      "gg:requirementType": "safety",
+      "gg:priority": "critical",
+      "gg:relatedCharacters": [
+        {
+          "@id": "gg:character/jb2-lex"
+        },
+        {
+          "@id": "gg:character/jb2-tim"
+        }
+      ],
+      "gg:relatedScenes": [
+        {
+          "@id": "gg:scene/jb2-scene-031"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-049"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-051"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-061"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-073"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-075"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-094"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-099"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-122"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-124"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-128"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-132"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-134"
+        }
+      ],
+      "gg:criteriaTags": [
+        "child-welfare-compliance",
+        "scene-context-completeness"
+      ],
+      "description": "Action scenes involving child characters require dedicated stunt and welfare controls.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:requirement/jb2-control-room-technical-operations",
+      "@type": "gg:Requirement",
+      "entityType": "gg:Requirement",
+      "name": "Control Room Technical Operations",
+      "gg:requirementType": "technical",
+      "gg:priority": "high",
+      "gg:relatedScenes": [
+        {
+          "@id": "gg:scene/jb2-scene-033"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-037"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-039"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-041"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-043"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-044"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-046"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-050"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-053"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-055"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-079"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-080"
+        }
+      ],
+      "gg:criteriaTags": [
+        "scene-context-completeness"
+      ],
+      "gg:evidence": "INT. CONTROL ROOM - DAY",
+      "description": "Location-driven production requirement derived from repeated scripted location usage.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:requirement/jb2-control-system-terminal-operational",
+      "@type": "gg:Requirement",
+      "entityType": "gg:Requirement",
+      "name": "Control System Terminal Operational Requirement",
+      "gg:requirementType": "technical",
+      "gg:priority": "high",
+      "gg:relatedScenes": [
+        {
+          "@id": "gg:scene/jb2-scene-005"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-006"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-018"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-100"
+        }
+      ],
+      "gg:criteriaTags": [
+        "scene-context-completeness"
+      ],
+      "gg:evidence": "concentration) is crouched over a computer display. The screen",
+      "description": "Operational requirement derived from recurring prop/system usage in scripted scenes.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:requirement/jb2-dilophosaurus-appearance-technical",
+      "@type": "gg:Requirement",
+      "entityType": "gg:Requirement",
+      "name": "Dilophosaurus Appearance Technical Requirement",
+      "gg:requirementType": "technical",
+      "gg:priority": "high",
+      "gg:relatedScenes": [
+        {
+          "@id": "gg:scene/jb2-scene-036"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-037"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-052"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-082"
+        }
+      ],
+      "gg:criteriaTags": [
+        "effects-comfort",
+        "scene-context-completeness"
+      ],
+      "gg:evidence": "A sign: DILOPHOSAURUS - THE SPITTER.",
+      "description": "Technical planning requirement derived from explicit effect evidence in script scenes.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:requirement/jb2-dna-casting",
+      "@type": "gg:Requirement",
+      "entityType": "gg:Requirement",
+      "name": "Dna Casting Requirement",
+      "gg:requirementType": "casting",
+      "gg:priority": "normal",
+      "gg:relatedCharacters": [
+        {
+          "@id": "gg:character/jb2-dna"
+        }
+      ],
+      "gg:relatedScenes": [
+        {
+          "@id": "gg:scene/jb2-scene-022"
+        }
+      ],
+      "gg:criteriaTags": [
+        "scene-context-completeness"
+      ],
+      "description": "Derived from script evidence only. Use scene context packs for final casting decisions.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:requirement/jb2-dodgson-casting",
+      "@type": "gg:Requirement",
+      "entityType": "gg:Requirement",
+      "name": "Dodgson Casting Requirement",
+      "gg:requirementType": "casting",
+      "gg:priority": "normal",
+      "gg:relatedCharacters": [
+        {
+          "@id": "gg:character/jb2-dodgson"
+        }
+      ],
+      "gg:relatedScenes": [
+        {
+          "@id": "gg:scene/jb2-scene-011"
+        }
+      ],
+      "gg:criteriaTags": [
+        "scene-context-completeness"
+      ],
+      "description": "Derived from script evidence only. Use scene context packs for final casting decisions.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:requirement/jb2-donald-gennaro-casting",
+      "@type": "gg:Requirement",
+      "entityType": "gg:Requirement",
+      "name": "Donald Gennaro Casting Requirement",
+      "gg:requirementType": "casting",
+      "gg:priority": "high",
+      "gg:relatedCharacters": [
+        {
+          "@id": "gg:character/jb2-donald-gennaro"
+        }
+      ],
+      "gg:relatedScenes": [
+        {
+          "@id": "gg:scene/jb2-scene-002"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-003"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-014"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-031"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-036"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-038"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-045"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-051"
+        }
+      ],
+      "gg:criteriaTags": [
+        "scene-context-completeness"
+      ],
+      "description": "Derived from script evidence only. Use scene context packs for final casting decisions.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:requirement/jb2-donald-gennaro-physical-action",
+      "@type": "gg:Requirement",
+      "entityType": "gg:Requirement",
+      "name": "Donald Gennaro Physical Action Requirement",
+      "gg:requirementType": "safety",
+      "gg:priority": "high",
+      "gg:relatedCharacters": [
+        {
+          "@id": "gg:character/jb2-donald-gennaro"
+        }
+      ],
+      "gg:relatedScenes": [
+        {
+          "@id": "gg:scene/jb2-scene-002"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-014"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-067"
+        }
+      ],
+      "gg:criteriaTags": [
+        "scene-context-completeness",
+        "stunt-capability"
+      ],
+      "description": "Action-heavy scenes indicate physical-performance and stunt-coordination requirements.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:requirement/jb2-electrified-fence-effect-technical",
+      "@type": "gg:Requirement",
+      "entityType": "gg:Requirement",
+      "name": "Electrified Fence Effect Technical Requirement",
+      "gg:requirementType": "technical",
+      "gg:priority": "high",
+      "gg:relatedScenes": [
+        {
+          "@id": "gg:scene/jb2-scene-001"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-061"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-102"
+        }
+      ],
+      "gg:criteriaTags": [
+        "effects-comfort",
+        "scene-context-completeness"
+      ],
+      "gg:evidence": "pen. It's surrounded by high fences, alive with electricity and",
+      "description": "Technical planning requirement derived from explicit effect evidence in script scenes.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:requirement/jb2-ellie-availability",
+      "@type": "gg:Requirement",
+      "entityType": "gg:Requirement",
+      "name": "Ellie Extended Availability Requirement",
+      "gg:requirementType": "scheduling",
+      "gg:priority": "high",
+      "gg:relatedCharacters": [
+        {
+          "@id": "gg:character/jb2-ellie"
+        }
+      ],
+      "gg:relatedScenes": [
+        {
+          "@id": "gg:scene/jb2-scene-005"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-006"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-010"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-014"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-015"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-016"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-023"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-026"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-029"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-038"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-040"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-042"
+        }
+      ],
+      "gg:criteriaTags": [
+        "availability",
+        "scene-context-completeness"
+      ],
+      "description": "Lead-role scene volume implies extended schedule availability across acts.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:requirement/jb2-ellie-casting",
+      "@type": "gg:Requirement",
+      "entityType": "gg:Requirement",
+      "name": "Ellie Casting Requirement",
+      "gg:requirementType": "casting",
+      "gg:priority": "critical",
+      "gg:relatedCharacters": [
+        {
+          "@id": "gg:character/jb2-ellie"
+        }
+      ],
+      "gg:relatedScenes": [
+        {
+          "@id": "gg:scene/jb2-scene-005"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-006"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-010"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-014"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-015"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-016"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-023"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-026"
+        }
+      ],
+      "gg:criteriaTags": [
+        "scene-context-completeness"
+      ],
+      "description": "Derived from script evidence only. Use scene context packs for final casting decisions.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:requirement/jb2-ellie-physical-action",
+      "@type": "gg:Requirement",
+      "entityType": "gg:Requirement",
+      "name": "Ellie Physical Action Requirement",
+      "gg:requirementType": "safety",
+      "gg:priority": "high",
+      "gg:relatedCharacters": [
+        {
+          "@id": "gg:character/jb2-ellie"
+        }
+      ],
+      "gg:relatedScenes": [
+        {
+          "@id": "gg:scene/jb2-scene-005"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-014"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-029"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-040"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-085"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-128"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-140"
+        }
+      ],
+      "gg:criteriaTags": [
+        "scene-context-completeness",
+        "stunt-capability"
+      ],
+      "description": "Action-heavy scenes indicate physical-performance and stunt-coordination requirements.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:requirement/jb2-ford-explorer-tour-vehicle-operational",
+      "@type": "gg:Requirement",
+      "entityType": "gg:Requirement",
+      "name": "Ford Explorer Tour Vehicle Operational Requirement",
+      "gg:requirementType": "technical",
+      "gg:priority": "high",
+      "gg:relatedScenes": [
+        {
+          "@id": "gg:scene/jb2-scene-032"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-033"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-034"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-039"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-040"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-045"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-046"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-048"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-051"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-055"
+        }
+      ],
+      "gg:criteriaTags": [
+        "scene-context-completeness"
+      ],
+      "gg:evidence": "Four FORD EXPLORER XLT tour vehicles wait in front of the",
+      "description": "Operational requirement derived from recurring prop/system usage in scripted scenes.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:requirement/jb2-gallimimus-appearance-technical",
+      "@type": "gg:Requirement",
+      "entityType": "gg:Requirement",
+      "name": "Gallimimus Appearance Technical Requirement",
+      "gg:requirementType": "technical",
+      "gg:priority": "high",
+      "gg:relatedScenes": [
+        {
+          "@id": "gg:scene/jb2-scene-094"
+        }
+      ],
+      "gg:criteriaTags": [
+        "effects-comfort",
+        "scene-context-completeness"
+      ],
+      "gg:evidence": "The grassland is FULL of movement. A HERD of GALLIMIMUS \u2014",
+      "description": "Technical planning requirement derived from explicit effect evidence in script scenes.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:requirement/jb2-grant-availability",
+      "@type": "gg:Requirement",
+      "entityType": "gg:Requirement",
+      "name": "Grant Extended Availability Requirement",
+      "gg:requirementType": "scheduling",
+      "gg:priority": "high",
+      "gg:relatedCharacters": [
+        {
+          "@id": "gg:character/jb2-grant"
+        }
+      ],
+      "gg:relatedScenes": [
+        {
+          "@id": "gg:scene/jb2-scene-005"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-006"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-009"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-010"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-014"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-015"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-016"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-018"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-023"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-026"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-029"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-030"
+        }
+      ],
+      "gg:criteriaTags": [
+        "availability",
+        "scene-context-completeness"
+      ],
+      "description": "Lead-role scene volume implies extended schedule availability across acts.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:requirement/jb2-grant-casting",
+      "@type": "gg:Requirement",
+      "entityType": "gg:Requirement",
+      "name": "Grant Casting Requirement",
+      "gg:requirementType": "casting",
+      "gg:priority": "critical",
+      "gg:relatedCharacters": [
+        {
+          "@id": "gg:character/jb2-grant"
+        }
+      ],
+      "gg:relatedScenes": [
+        {
+          "@id": "gg:scene/jb2-scene-005"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-006"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-009"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-010"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-014"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-015"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-016"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-018"
+        }
+      ],
+      "gg:criteriaTags": [
+        "scene-context-completeness"
+      ],
+      "description": "Derived from script evidence only. Use scene context packs for final casting decisions.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:requirement/jb2-grant-physical-action",
+      "@type": "gg:Requirement",
+      "entityType": "gg:Requirement",
+      "name": "Grant Physical Action Requirement",
+      "gg:requirementType": "safety",
+      "gg:priority": "high",
+      "gg:relatedCharacters": [
+        {
+          "@id": "gg:character/jb2-grant"
+        }
+      ],
+      "gg:relatedScenes": [
+        {
+          "@id": "gg:scene/jb2-scene-005"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-014"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-029"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-030"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-040"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-049"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-063"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-075"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-094"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-095"
+        }
+      ],
+      "gg:criteriaTags": [
+        "scene-context-completeness",
+        "stunt-capability"
+      ],
+      "description": "Action-heavy scenes indicate physical-performance and stunt-coordination requirements.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:requirement/jb2-hammond-availability",
+      "@type": "gg:Requirement",
+      "entityType": "gg:Requirement",
+      "name": "Hammond Extended Availability Requirement",
+      "gg:requirementType": "scheduling",
+      "gg:priority": "high",
+      "gg:relatedCharacters": [
+        {
+          "@id": "gg:character/jb2-hammond"
+        }
+      ],
+      "gg:relatedScenes": [
+        {
+          "@id": "gg:scene/jb2-scene-009"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-010"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-014"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-015"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-016"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-018"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-019"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-020"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-024"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-026"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-029"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-030"
+        }
+      ],
+      "gg:criteriaTags": [
+        "availability",
+        "scene-context-completeness"
+      ],
+      "description": "Lead-role scene volume implies extended schedule availability across acts.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:requirement/jb2-hammond-casting",
+      "@type": "gg:Requirement",
+      "entityType": "gg:Requirement",
+      "name": "Hammond Casting Requirement",
+      "gg:requirementType": "casting",
+      "gg:priority": "critical",
+      "gg:relatedCharacters": [
+        {
+          "@id": "gg:character/jb2-hammond"
+        }
+      ],
+      "gg:relatedScenes": [
+        {
+          "@id": "gg:scene/jb2-scene-009"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-010"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-014"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-015"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-016"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-018"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-019"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-020"
+        }
+      ],
+      "gg:criteriaTags": [
+        "scene-context-completeness"
+      ],
+      "description": "Derived from script evidence only. Use scene context packs for final casting decisions.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:requirement/jb2-hammond-physical-action",
+      "@type": "gg:Requirement",
+      "entityType": "gg:Requirement",
+      "name": "Hammond Physical Action Requirement",
+      "gg:requirementType": "safety",
+      "gg:priority": "high",
+      "gg:relatedCharacters": [
+        {
+          "@id": "gg:character/jb2-hammond"
+        }
+      ],
+      "gg:relatedScenes": [
+        {
+          "@id": "gg:scene/jb2-scene-014"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-029"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-030"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-079"
+        }
+      ],
+      "gg:criteriaTags": [
+        "scene-context-completeness",
+        "stunt-capability"
+      ],
+      "description": "Action-heavy scenes indicate physical-performance and stunt-coordination requirements.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:requirement/jb2-harding-casting",
+      "@type": "gg:Requirement",
+      "entityType": "gg:Requirement",
+      "name": "Harding Casting Requirement",
+      "gg:requirementType": "casting",
+      "gg:priority": "normal",
+      "gg:relatedCharacters": [
+        {
+          "@id": "gg:character/jb2-harding"
+        }
+      ],
+      "gg:relatedScenes": [
+        {
+          "@id": "gg:scene/jb2-scene-042"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-045"
+        }
+      ],
+      "gg:criteriaTags": [
+        "scene-context-completeness"
+      ],
+      "description": "Derived from script evidence only. Use scene context packs for final casting decisions.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:requirement/jb2-helicopter-arrival-descent-effect-technical",
+      "@type": "gg:Requirement",
+      "entityType": "gg:Requirement",
+      "name": "Helicopter Arrival / Descent Effect Technical Requirement",
+      "gg:requirementType": "technical",
+      "gg:priority": "high",
+      "gg:relatedScenes": [
+        {
+          "@id": "gg:scene/jb2-scene-006"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-007"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-008"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-009"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-013"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-014"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-015"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-127"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-137"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-138"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-139"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-140"
+        }
+      ],
+      "gg:criteriaTags": [
+        "effects-comfort",
+        "scene-context-completeness"
+      ],
+      "gg:evidence": "In the distance: the sound of a HELICOPTER approaching.",
+      "description": "Technical planning requirement derived from explicit effect evidence in script scenes.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:requirement/jb2-helicopter-unit-logistics",
+      "@type": "gg:Requirement",
+      "entityType": "gg:Requirement",
+      "name": "Helicopter Unit Logistics",
+      "gg:requirementType": "location",
+      "gg:priority": "high",
+      "gg:relatedScenes": [
+        {
+          "@id": "gg:scene/jb2-scene-014"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-015"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-138"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-140"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-141"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-142"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-143"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-145"
+        }
+      ],
+      "gg:criteriaTags": [
+        "scene-context-completeness"
+      ],
+      "gg:evidence": "EXT. HELICOPTER - DAY",
+      "description": "Location-driven production requirement derived from repeated scripted location usage.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:requirement/jb2-henry-wu-casting",
+      "@type": "gg:Requirement",
+      "entityType": "gg:Requirement",
+      "name": "Henry Wu Casting Requirement",
+      "gg:requirementType": "casting",
+      "gg:priority": "normal",
+      "gg:relatedCharacters": [
+        {
+          "@id": "gg:character/jb2-henry-wu"
+        }
+      ],
+      "gg:relatedScenes": [
+        {
+          "@id": "gg:scene/jb2-scene-026"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-027"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-029"
+        }
+      ],
+      "gg:criteriaTags": [
+        "scene-context-completeness"
+      ],
+      "description": "Derived from script evidence only. Use scene context packs for final casting decisions.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:requirement/jb2-kitchen-chase-safety-planning",
+      "@type": "gg:Requirement",
+      "entityType": "gg:Requirement",
+      "name": "Kitchen Chase Safety Planning",
+      "gg:requirementType": "safety",
+      "gg:priority": "high",
+      "gg:relatedScenes": [
+        {
+          "@id": "gg:scene/jb2-scene-122"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-123"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-124"
+        }
+      ],
+      "gg:criteriaTags": [
+        "scene-context-completeness"
+      ],
+      "gg:evidence": "INT. VISITOR'S CENTER KITCHEN - DAY",
+      "description": "Location-driven production requirement derived from repeated scripted location usage.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:requirement/jb2-lex-casting",
+      "@type": "gg:Requirement",
+      "entityType": "gg:Requirement",
+      "name": "Lex Casting Requirement",
+      "gg:requirementType": "casting",
+      "gg:priority": "high",
+      "gg:relatedCharacters": [
+        {
+          "@id": "gg:character/jb2-lex"
+        }
+      ],
+      "gg:relatedScenes": [
+        {
+          "@id": "gg:scene/jb2-scene-031"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-032"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-086"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-087"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-095"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-099"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-102"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-105"
+        }
+      ],
+      "gg:criteriaTags": [
+        "scene-context-completeness"
+      ],
+      "description": "Derived from script evidence only. Use scene context packs for final casting decisions.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:requirement/jb2-lex-physical-action",
+      "@type": "gg:Requirement",
+      "entityType": "gg:Requirement",
+      "name": "Lex Physical Action Requirement",
+      "gg:requirementType": "safety",
+      "gg:priority": "high",
+      "gg:relatedCharacters": [
+        {
+          "@id": "gg:character/jb2-lex"
+        }
+      ],
+      "gg:relatedScenes": [
+        {
+          "@id": "gg:scene/jb2-scene-095"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-128"
+        }
+      ],
+      "gg:criteriaTags": [
+        "scene-context-completeness",
+        "stunt-capability"
+      ],
+      "description": "Action-heavy scenes indicate physical-performance and stunt-coordination requirements.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:requirement/jb2-maintenance-shed-stunt-coordination",
+      "@type": "gg:Requirement",
+      "entityType": "gg:Requirement",
+      "name": "Maintenance Shed Stunt Coordination",
+      "gg:requirementType": "safety",
+      "gg:priority": "high",
+      "gg:relatedScenes": [
+        {
+          "@id": "gg:scene/jb2-scene-108"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-109"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-110"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-112"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-113"
+        }
+      ],
+      "gg:criteriaTags": [
+        "scene-context-completeness"
+      ],
+      "gg:evidence": "EXT. MAINTENANCE SHED - DAY",
+      "description": "Location-driven production requirement derived from repeated scripted location usage.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:requirement/jb2-malcolm-availability",
+      "@type": "gg:Requirement",
+      "entityType": "gg:Requirement",
+      "name": "Malcolm Extended Availability Requirement",
+      "gg:requirementType": "scheduling",
+      "gg:priority": "high",
+      "gg:relatedCharacters": [
+        {
+          "@id": "gg:character/jb2-malcolm"
+        }
+      ],
+      "gg:relatedScenes": [
+        {
+          "@id": "gg:scene/jb2-scene-014"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-026"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-027"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-029"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-031"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-036"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-038"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-040"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-042"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-045"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-051"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-057"
+        }
+      ],
+      "gg:criteriaTags": [
+        "availability",
+        "scene-context-completeness"
+      ],
+      "description": "Lead-role scene volume implies extended schedule availability across acts.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:requirement/jb2-malcolm-casting",
+      "@type": "gg:Requirement",
+      "entityType": "gg:Requirement",
+      "name": "Malcolm Casting Requirement",
+      "gg:requirementType": "casting",
+      "gg:priority": "critical",
+      "gg:relatedCharacters": [
+        {
+          "@id": "gg:character/jb2-malcolm"
+        }
+      ],
+      "gg:relatedScenes": [
+        {
+          "@id": "gg:scene/jb2-scene-014"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-026"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-027"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-029"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-031"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-036"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-038"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-040"
+        }
+      ],
+      "gg:criteriaTags": [
+        "scene-context-completeness"
+      ],
+      "description": "Derived from script evidence only. Use scene context packs for final casting decisions.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:requirement/jb2-malcolm-physical-action",
+      "@type": "gg:Requirement",
+      "entityType": "gg:Requirement",
+      "name": "Malcolm Physical Action Requirement",
+      "gg:requirementType": "safety",
+      "gg:priority": "high",
+      "gg:relatedCharacters": [
+        {
+          "@id": "gg:character/jb2-malcolm"
+        }
+      ],
+      "gg:relatedScenes": [
+        {
+          "@id": "gg:scene/jb2-scene-014"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-029"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-040"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-066"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-085"
+        }
+      ],
+      "gg:criteriaTags": [
+        "scene-context-completeness",
+        "stunt-capability"
+      ],
+      "description": "Action-heavy scenes indicate physical-performance and stunt-coordination requirements.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:requirement/jb2-muldoon-casting",
+      "@type": "gg:Requirement",
+      "entityType": "gg:Requirement",
+      "name": "Muldoon Casting Requirement",
+      "gg:requirementType": "casting",
+      "gg:priority": "high",
+      "gg:relatedCharacters": [
+        {
+          "@id": "gg:character/jb2-muldoon"
+        }
+      ],
+      "gg:relatedScenes": [
+        {
+          "@id": "gg:scene/jb2-scene-001"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-030"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-033"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-043"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-055"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-079"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-083"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-084"
+        }
+      ],
+      "gg:criteriaTags": [
+        "scene-context-completeness"
+      ],
+      "description": "Derived from script evidence only. Use scene context packs for final casting decisions.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:requirement/jb2-muldoon-physical-action",
+      "@type": "gg:Requirement",
+      "entityType": "gg:Requirement",
+      "name": "Muldoon Physical Action Requirement",
+      "gg:requirementType": "safety",
+      "gg:priority": "high",
+      "gg:relatedCharacters": [
+        {
+          "@id": "gg:character/jb2-muldoon"
+        }
+      ],
+      "gg:relatedScenes": [
+        {
+          "@id": "gg:scene/jb2-scene-001"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-030"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-079"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-085"
+        }
+      ],
+      "gg:criteriaTags": [
+        "scene-context-completeness",
+        "stunt-capability"
+      ],
+      "description": "Action-heavy scenes indicate physical-performance and stunt-coordination requirements.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:requirement/jb2-nedry-casting",
+      "@type": "gg:Requirement",
+      "entityType": "gg:Requirement",
+      "name": "Nedry Casting Requirement",
+      "gg:requirementType": "casting",
+      "gg:priority": "normal",
+      "gg:relatedCharacters": [
+        {
+          "@id": "gg:character/jb2-nedry"
+        }
+      ],
+      "gg:relatedScenes": [
+        {
+          "@id": "gg:scene/jb2-scene-011"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-033"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-046"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-052"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-081"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-082"
+        }
+      ],
+      "gg:criteriaTags": [
+        "scene-context-completeness"
+      ],
+      "description": "Derived from script evidence only. Use scene context packs for final casting decisions.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:requirement/jb2-night-shoot-schedule",
+      "@type": "gg:Requirement",
+      "entityType": "gg:Requirement",
+      "name": "Night Shoot Scheduling Requirement",
+      "gg:requirementType": "scheduling",
+      "gg:priority": "high",
+      "gg:relatedScenes": [
+        {
+          "@id": "gg:scene/jb2-scene-001"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-051"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-052"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-053"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-054"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-055"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-056"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-065"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-067"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-074"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-076"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-077"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-078"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-079"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-081"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-083"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-084"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-086"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-087"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-088"
+        }
+      ],
+      "gg:criteriaTags": [
+        "schedule-flexibility",
+        "scene-context-completeness"
+      ],
+      "description": "High volume of night scenes requires coordinated cast/crew scheduling and turnaround planning.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:requirement/jb2-perimeter-fence-operational",
+      "@type": "gg:Requirement",
+      "entityType": "gg:Requirement",
+      "name": "Perimeter Fence Operational Requirement",
+      "gg:requirementType": "technical",
+      "gg:priority": "high",
+      "gg:relatedScenes": [
+        {
+          "@id": "gg:scene/jb2-scene-030"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-038"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-051"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-056"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-058"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-063"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-077"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-084"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-098"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-099"
+        }
+      ],
+      "gg:criteriaTags": [
+        "scene-context-completeness"
+      ],
+      "gg:evidence": "A high electric fence encloses a thick area of jungle. Warning",
+      "description": "Operational requirement derived from recurring prop/system usage in scripted scenes.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:requirement/jb2-rain-effects-coordination",
+      "@type": "gg:Requirement",
+      "entityType": "gg:Requirement",
+      "name": "Rain / Storm Effects Coordination",
+      "gg:requirementType": "technical",
+      "gg:priority": "high",
+      "gg:relatedScenes": [
+        {
+          "@id": "gg:scene/jb2-scene-001"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-033"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-039"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-043"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-045"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-046"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-049"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-050"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-051"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-054"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-056"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-058"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-060"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-061"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-064"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-067"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-077"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-078"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-079"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-081"
+        }
+      ],
+      "gg:criteriaTags": [
+        "effects-comfort",
+        "scene-context-completeness"
+      ],
+      "description": "Recurring rain/storm scenes require coordinated practical-effects and continuity planning.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:requirement/jb2-rain-storm-practical-effect-technical",
+      "@type": "gg:Requirement",
+      "entityType": "gg:Requirement",
+      "name": "Rain / Storm Practical Effect Technical Requirement",
+      "gg:requirementType": "technical",
+      "gg:priority": "high",
+      "gg:relatedScenes": [
+        {
+          "@id": "gg:scene/jb2-scene-001"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-033"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-039"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-043"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-045"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-046"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-049"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-050"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-051"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-054"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-056"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-058"
+        }
+      ],
+      "gg:criteriaTags": [
+        "effects-comfort",
+        "scene-context-completeness"
+      ],
+      "gg:evidence": "The box is still. The jungle is quiet again except for rain.",
+      "description": "Technical planning requirement derived from explicit effect evidence in script scenes.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:requirement/jb2-raptor-appearance-technical",
+      "@type": "gg:Requirement",
+      "entityType": "gg:Requirement",
+      "name": "Raptor Appearance Technical Requirement",
+      "gg:requirementType": "technical",
+      "gg:priority": "high",
+      "gg:relatedScenes": [
+        {
+          "@id": "gg:scene/jb2-scene-001"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-005"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-006"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-009"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-019"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-029"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-030"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-031"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-032"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-099"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-100"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-106"
+        }
+      ],
+      "gg:criteriaTags": [
+        "effects-comfort",
+        "scene-context-completeness"
+      ],
+      "gg:evidence": "darkness. The SOUND of the raptor is horrible. The other workers",
+      "description": "Technical planning requirement derived from explicit effect evidence in script scenes.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:requirement/jb2-rostagno-casting",
+      "@type": "gg:Requirement",
+      "entityType": "gg:Requirement",
+      "name": "Rostagno Casting Requirement",
+      "gg:requirementType": "casting",
+      "gg:priority": "normal",
+      "gg:relatedCharacters": [
+        {
+          "@id": "gg:character/jb2-rostagno"
+        }
+      ],
+      "gg:relatedScenes": [
+        {
+          "@id": "gg:scene/jb2-scene-002"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-003"
+        }
+      ],
+      "gg:criteriaTags": [
+        "scene-context-completeness"
+      ],
+      "description": "Derived from script evidence only. Use scene context packs for final casting decisions.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:requirement/jb2-rotunda-skeleton-collapse-effect-technical",
+      "@type": "gg:Requirement",
+      "entityType": "gg:Requirement",
+      "name": "Rotunda Skeleton Collapse Effect Technical Requirement",
+      "gg:requirementType": "technical",
+      "gg:priority": "high",
+      "gg:relatedScenes": [
+        {
+          "@id": "gg:scene/jb2-scene-133"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-134"
+        }
+      ],
+      "gg:criteriaTags": [
+        "effects-comfort",
+        "scene-context-completeness"
+      ],
+      "gg:evidence": "130 INT. LOBBY / ROTUNDA - DAY",
+      "description": "Technical planning requirement derived from explicit effect evidence in script scenes.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:requirement/jb2-tim-availability",
+      "@type": "gg:Requirement",
+      "entityType": "gg:Requirement",
+      "name": "Tim Extended Availability Requirement",
+      "gg:requirementType": "scheduling",
+      "gg:priority": "high",
+      "gg:relatedCharacters": [
+        {
+          "@id": "gg:character/jb2-tim"
+        }
+      ],
+      "gg:relatedScenes": [
+        {
+          "@id": "gg:scene/jb2-scene-031"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-032"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-035"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-036"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-038"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-042"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-047"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-049"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-051"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-056"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-061"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-073"
+        }
+      ],
+      "gg:criteriaTags": [
+        "availability",
+        "scene-context-completeness"
+      ],
+      "description": "Lead-role scene volume implies extended schedule availability across acts.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:requirement/jb2-tim-casting",
+      "@type": "gg:Requirement",
+      "entityType": "gg:Requirement",
+      "name": "Tim Casting Requirement",
+      "gg:requirementType": "casting",
+      "gg:priority": "critical",
+      "gg:relatedCharacters": [
+        {
+          "@id": "gg:character/jb2-tim"
+        }
+      ],
+      "gg:relatedScenes": [
+        {
+          "@id": "gg:scene/jb2-scene-031"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-032"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-035"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-036"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-038"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-042"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-047"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-049"
+        }
+      ],
+      "gg:criteriaTags": [
+        "scene-context-completeness"
+      ],
+      "description": "Derived from script evidence only. Use scene context packs for final casting decisions.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:requirement/jb2-tim-physical-action",
+      "@type": "gg:Requirement",
+      "entityType": "gg:Requirement",
+      "name": "Tim Physical Action Requirement",
+      "gg:requirementType": "safety",
+      "gg:priority": "high",
+      "gg:relatedCharacters": [
+        {
+          "@id": "gg:character/jb2-tim"
+        }
+      ],
+      "gg:relatedScenes": [
+        {
+          "@id": "gg:scene/jb2-scene-049"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-075"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-094"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-128"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-134"
+        }
+      ],
+      "gg:criteriaTags": [
+        "scene-context-completeness",
+        "stunt-capability"
+      ],
+      "description": "Action-heavy scenes indicate physical-performance and stunt-coordination requirements.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:requirement/jb2-triceratops-appearance-technical",
+      "@type": "gg:Requirement",
+      "entityType": "gg:Requirement",
+      "name": "Triceratops Appearance Technical Requirement",
+      "gg:requirementType": "technical",
+      "gg:priority": "high",
+      "gg:relatedScenes": [
+        {
+          "@id": "gg:scene/jb2-scene-032"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-042"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-045"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-052"
+        }
+      ],
+      "gg:criteriaTags": [
+        "effects-comfort",
+        "scene-context-completeness"
+      ],
+      "gg:evidence": "window, Tim at his side, talking already about the triceratops",
+      "description": "Technical planning requirement derived from explicit effect evidence in script scenes.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:requirement/jb2-tyrannosaur-appearance-technical",
+      "@type": "gg:Requirement",
+      "entityType": "gg:Requirement",
+      "name": "Tyrannosaur Appearance Technical Requirement",
+      "gg:requirementType": "technical",
+      "gg:priority": "high",
+      "gg:relatedScenes": [
+        {
+          "@id": "gg:scene/jb2-scene-005"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-019"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-038"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-039"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-049"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-051"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-052"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-055"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-056"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-057"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-058"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-059"
+        }
+      ],
+      "gg:criteriaTags": [
+        "effects-comfort",
+        "scene-context-completeness"
+      ],
+      "gg:evidence": "movement \u2014 like a T-Rex \u2014 he'll lose you",
+      "description": "Technical planning requirement derived from explicit effect evidence in script scenes.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:requirement/jb2-venom-spitter-effect-technical",
+      "@type": "gg:Requirement",
+      "entityType": "gg:Requirement",
+      "name": "Venom / Spitter Effect Technical Requirement",
+      "gg:requirementType": "technical",
+      "gg:priority": "high",
+      "gg:relatedScenes": [
+        {
+          "@id": "gg:scene/jb2-scene-036"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-082"
+        }
+      ],
+      "gg:criteriaTags": [
+        "effects-comfort",
+        "scene-context-completeness"
+      ],
+      "gg:evidence": "A sign: DILOPHOSAURUS - THE SPITTER.",
+      "description": "Technical planning requirement derived from explicit effect evidence in script scenes.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    }
+  ]
+}

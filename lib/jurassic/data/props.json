@@ -1,0 +1,507 @@
+{
+  "@context": "https://gogreenlight.com/schemas/context/v1",
+  "@graph": [
+    {
+      "@id": "gg:object/jb2-attach-case",
+      "@type": "omc:NarrativeObject",
+      "entityType": "omc:NarrativeObject",
+      "name": "Attach\u00e9 Case",
+      "propScope": "character-prop",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-011"
+      },
+      "gg:scenes": [
+        "gg:scene/jb2-scene-011"
+      ],
+      "gg:evidence": "Dodgson sets a briefcase on the table and opens it toward Nedry.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:object/jb2-barbasol-canister",
+      "@type": "omc:NarrativeObject",
+      "entityType": "omc:NarrativeObject",
+      "name": "Barbasol Canister",
+      "propScope": "character-prop",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-011"
+      },
+      "gg:scenes": [
+        "gg:scene/jb2-scene-011",
+        "gg:scene/jb2-scene-050",
+        "gg:scene/jb2-scene-052",
+        "gg:scene/jb2-scene-082"
+      ],
+      "gg:evidence": "Dodgson produces a BARBASOL SHAVING CREAM CAN and slides it",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:object/jb2-blueprints-schematics",
+      "@type": "omc:NarrativeObject",
+      "entityType": "omc:NarrativeObject",
+      "name": "Blueprints / Schematics",
+      "propScope": "set-dressing",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-022"
+      },
+      "gg:scenes": [
+        "gg:scene/jb2-scene-022"
+      ],
+      "gg:evidence": "And it's the blueprint for life.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:object/jb2-cane",
+      "@type": "omc:NarrativeObject",
+      "entityType": "omc:NarrativeObject",
+      "name": "Cane",
+      "propScope": "character-prop",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-009"
+      },
+      "gg:scenes": [
+        "gg:scene/jb2-scene-009",
+        "gg:scene/jb2-scene-020",
+        "gg:scene/jb2-scene-029",
+        "gg:scene/jb2-scene-139",
+        "gg:scene/jb2-scene-141"
+      ],
+      "gg:evidence": "He uses a walking cane with a top made from the clearest amber",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:object/jb2-champagne-bottle",
+      "@type": "omc:NarrativeObject",
+      "entityType": "omc:NarrativeObject",
+      "name": "Champagne Bottle",
+      "propScope": "character-prop",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-010"
+      },
+      "gg:scenes": [
+        "gg:scene/jb2-scene-010"
+      ],
+      "gg:evidence": "Hammond has produced a bottle of CHAMPAGNE from his bag and is",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:object/jb2-control-system-terminal",
+      "@type": "omc:NarrativeObject",
+      "entityType": "omc:NarrativeObject",
+      "name": "Control System Terminal",
+      "propScope": "set-dressing",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-005"
+      },
+      "gg:scenes": [
+        "gg:scene/jb2-scene-005",
+        "gg:scene/jb2-scene-006",
+        "gg:scene/jb2-scene-018",
+        "gg:scene/jb2-scene-100"
+      ],
+      "gg:evidence": "concentration) is crouched over a computer display. The screen",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:object/jb2-dinosaur-egg",
+      "@type": "omc:NarrativeObject",
+      "entityType": "omc:NarrativeObject",
+      "name": "Dinosaur Egg",
+      "propScope": "creature-prop",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-026"
+      },
+      "gg:scenes": [
+        "gg:scene/jb2-scene-026",
+        "gg:scene/jb2-scene-029",
+        "gg:scene/jb2-scene-099",
+        "gg:scene/jb2-scene-123"
+      ],
+      "gg:evidence": "Wu moves to a large incubation unit. Inside: EGGS.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:object/jb2-dinosaur-skeleton-display",
+      "@type": "omc:NarrativeObject",
+      "entityType": "omc:NarrativeObject",
+      "name": "Dinosaur Skeleton Display",
+      "propScope": "set-dressing",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-005"
+      },
+      "gg:scenes": [
+        "gg:scene/jb2-scene-005",
+        "gg:scene/jb2-scene-006",
+        "gg:scene/jb2-scene-018",
+        "gg:scene/jb2-scene-019",
+        "gg:scene/jb2-scene-031",
+        "gg:scene/jb2-scene-118",
+        "gg:scene/jb2-scene-133",
+        "gg:scene/jb2-scene-134"
+      ],
+      "gg:evidence": "shows a three-dimensional model of a velociraptor skeleton,",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:object/jb2-dinosaur-themed-plate-and-cup",
+      "@type": "omc:NarrativeObject",
+      "entityType": "omc:NarrativeObject",
+      "name": "Dinosaur-Themed Plate and Cup",
+      "propScope": "set-dressing",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-123"
+      },
+      "gg:scenes": [
+        "gg:scene/jb2-scene-123"
+      ],
+      "gg:evidence": "egg cup \u2014 from the food display, untouched. The raptor's",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:object/jb2-embryo-sample",
+      "@type": "omc:NarrativeObject",
+      "entityType": "omc:NarrativeObject",
+      "name": "Embryo Sample",
+      "propScope": "character-prop",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-011"
+      },
+      "gg:scenes": [
+        "gg:scene/jb2-scene-011",
+        "gg:scene/jb2-scene-041",
+        "gg:scene/jb2-scene-052"
+      ],
+      "gg:evidence": "How do you plan to get the embryos off the",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:object/jb2-embryo-slides-vials",
+      "@type": "omc:NarrativeObject",
+      "entityType": "omc:NarrativeObject",
+      "name": "Embryo Slides / Vials",
+      "propScope": "character-prop",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-011"
+      },
+      "gg:scenes": [
+        "gg:scene/jb2-scene-011",
+        "gg:scene/jb2-scene-031",
+        "gg:scene/jb2-scene-032",
+        "gg:scene/jb2-scene-052",
+        "gg:scene/jb2-scene-070",
+        "gg:scene/jb2-scene-071",
+        "gg:scene/jb2-scene-072"
+      ],
+      "gg:evidence": "Dodgson produces a BARBASOL SHAVING CREAM CAN and slides it",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:object/jb2-flare",
+      "@type": "omc:NarrativeObject",
+      "entityType": "omc:NarrativeObject",
+      "name": "Flare",
+      "propScope": "character-prop",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-061"
+      },
+      "gg:scenes": [
+        "gg:scene/jb2-scene-061"
+      ],
+      "gg:evidence": "In car one: Grant has found a ROAD FLARE. He lights it. Jabs it",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:object/jb2-ford-explorer-tour-vehicle",
+      "@type": "omc:NarrativeObject",
+      "entityType": "omc:NarrativeObject",
+      "name": "Ford Explorer Tour Vehicle",
+      "propScope": "scene-prop",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-032"
+      },
+      "gg:scenes": [
+        "gg:scene/jb2-scene-032",
+        "gg:scene/jb2-scene-033",
+        "gg:scene/jb2-scene-034",
+        "gg:scene/jb2-scene-039",
+        "gg:scene/jb2-scene-040",
+        "gg:scene/jb2-scene-045",
+        "gg:scene/jb2-scene-046",
+        "gg:scene/jb2-scene-048",
+        "gg:scene/jb2-scene-051",
+        "gg:scene/jb2-scene-055",
+        "gg:scene/jb2-scene-056",
+        "gg:scene/jb2-scene-079"
+      ],
+      "gg:evidence": "Four FORD EXPLORER XLT tour vehicles wait in front of the",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:object/jb2-ice-cream-bucket",
+      "@type": "omc:NarrativeObject",
+      "entityType": "omc:NarrativeObject",
+      "name": "Ice Cream Bucket",
+      "propScope": "scene-prop",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-031"
+      },
+      "gg:scenes": [
+        "gg:scene/jb2-scene-031",
+        "gg:scene/jb2-scene-097"
+      ],
+      "gg:evidence": "ice cream. He beams at all of it.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:object/jb2-jeep",
+      "@type": "omc:NarrativeObject",
+      "entityType": "omc:NarrativeObject",
+      "name": "Jeep",
+      "propScope": "scene-prop",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-001"
+      },
+      "gg:scenes": [
+        "gg:scene/jb2-scene-001",
+        "gg:scene/jb2-scene-015",
+        "gg:scene/jb2-scene-016",
+        "gg:scene/jb2-scene-017",
+        "gg:scene/jb2-scene-018",
+        "gg:scene/jb2-scene-050",
+        "gg:scene/jb2-scene-054",
+        "gg:scene/jb2-scene-081",
+        "gg:scene/jb2-scene-082",
+        "gg:scene/jb2-scene-083",
+        "gg:scene/jb2-scene-084",
+        "gg:scene/jb2-scene-089",
+        "gg:scene/jb2-scene-090",
+        "gg:scene/jb2-scene-091",
+        "gg:scene/jb2-scene-092",
+        "gg:scene/jb2-scene-093",
+        "gg:scene/jb2-scene-101",
+        "gg:scene/jb2-scene-135",
+        "gg:scene/jb2-scene-136"
+      ],
+      "gg:evidence": "There are JEEPS, a BULLDOZER, and several large, equipment-laden",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:object/jb2-jurassic-park-tourist-map",
+      "@type": "omc:NarrativeObject",
+      "entityType": "omc:NarrativeObject",
+      "name": "Jurassic Park Tourist Map",
+      "propScope": "set-dressing",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-043"
+      },
+      "gg:scenes": [
+        "gg:scene/jb2-scene-043",
+        "gg:scene/jb2-scene-081",
+        "gg:scene/jb2-scene-098"
+      ],
+      "gg:evidence": "the map.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:object/jb2-night-vision-goggles",
+      "@type": "omc:NarrativeObject",
+      "entityType": "omc:NarrativeObject",
+      "name": "Night Vision Goggles",
+      "propScope": "character-prop",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-056"
+      },
+      "gg:scenes": [
+        "gg:scene/jb2-scene-056"
+      ],
+      "gg:evidence": "Tim reaches forward and picks up a pair of NIGHT VISION GOGGLES",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:object/jb2-penlight",
+      "@type": "omc:NarrativeObject",
+      "entityType": "omc:NarrativeObject",
+      "name": "Penlight",
+      "propScope": "character-prop",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-052"
+      },
+      "gg:scenes": [
+        "gg:scene/jb2-scene-052",
+        "gg:scene/jb2-scene-084",
+        "gg:scene/jb2-scene-085",
+        "gg:scene/jb2-scene-089",
+        "gg:scene/jb2-scene-109"
+      ],
+      "gg:evidence": "Dark. Nedry moves quickly through the lab with a penlight,",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:object/jb2-perimeter-fence",
+      "@type": "omc:NarrativeObject",
+      "entityType": "omc:NarrativeObject",
+      "name": "Perimeter Fence",
+      "propScope": "set-dressing",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-030"
+      },
+      "gg:scenes": [
+        "gg:scene/jb2-scene-030",
+        "gg:scene/jb2-scene-038",
+        "gg:scene/jb2-scene-051",
+        "gg:scene/jb2-scene-056",
+        "gg:scene/jb2-scene-058",
+        "gg:scene/jb2-scene-063",
+        "gg:scene/jb2-scene-077",
+        "gg:scene/jb2-scene-084",
+        "gg:scene/jb2-scene-098",
+        "gg:scene/jb2-scene-099",
+        "gg:scene/jb2-scene-100",
+        "gg:scene/jb2-scene-101",
+        "gg:scene/jb2-scene-102",
+        "gg:scene/jb2-scene-104",
+        "gg:scene/jb2-scene-105",
+        "gg:scene/jb2-scene-106",
+        "gg:scene/jb2-scene-114",
+        "gg:scene/jb2-scene-115",
+        "gg:scene/jb2-scene-137"
+      ],
+      "gg:evidence": "A high electric fence encloses a thick area of jungle. Warning",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:object/jb2-portable-toilet",
+      "@type": "omc:NarrativeObject",
+      "entityType": "omc:NarrativeObject",
+      "name": "Portable Toilet",
+      "propScope": "set-dressing",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-060"
+      },
+      "gg:scenes": [
+        "gg:scene/jb2-scene-060",
+        "gg:scene/jb2-scene-067",
+        "gg:scene/jb2-scene-084"
+      ],
+      "gg:evidence": "He sprints for the porta-potty shelter at the edge of the",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:object/jb2-shotgun",
+      "@type": "omc:NarrativeObject",
+      "entityType": "omc:NarrativeObject",
+      "name": "Shotgun",
+      "propScope": "character-prop",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-083"
+      },
+      "gg:scenes": [
+        "gg:scene/jb2-scene-083",
+        "gg:scene/jb2-scene-103",
+        "gg:scene/jb2-scene-106"
+      ],
+      "gg:evidence": "drives, headlights cutting through the rain. He has a shotgun",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:object/jb2-spoon-ladle",
+      "@type": "omc:NarrativeObject",
+      "entityType": "omc:NarrativeObject",
+      "name": "Spoon / Ladle",
+      "propScope": "character-prop",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-097"
+      },
+      "gg:scenes": [
+        "gg:scene/jb2-scene-097"
+      ],
+      "gg:evidence": "He looks at his spoon.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:object/jb2-velociraptor-fossil-claw",
+      "@type": "omc:NarrativeObject",
+      "entityType": "omc:NarrativeObject",
+      "name": "Velociraptor Fossil Claw",
+      "propScope": "character-prop",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-005"
+      },
+      "gg:scenes": [
+        "gg:scene/jb2-scene-005",
+        "gg:scene/jb2-scene-031"
+      ],
+      "gg:evidence": "He holds up a fossilized raptor CLAW.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:object/jb2-walkie-talkie-radio",
+      "@type": "omc:NarrativeObject",
+      "entityType": "omc:NarrativeObject",
+      "name": "Walkie-Talkie / Radio",
+      "propScope": "character-prop",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-001"
+      },
+      "gg:scenes": [
+        "gg:scene/jb2-scene-001",
+        "gg:scene/jb2-scene-043",
+        "gg:scene/jb2-scene-045",
+        "gg:scene/jb2-scene-047",
+        "gg:scene/jb2-scene-053",
+        "gg:scene/jb2-scene-100",
+        "gg:scene/jb2-scene-103",
+        "gg:scene/jb2-scene-109"
+      ],
+      "gg:evidence": "into his radio.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    }
+  ]
+}
