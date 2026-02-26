@@ -12,6 +12,10 @@ import stylingJson from "./jurassic/data/styling.json"
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+console.log("[v0] jurassicAIData.ts: module loading started")
+console.log("[v0] charactersJson type:", typeof charactersJson, "has @graph:", !!charactersJson?.["@graph"])
+console.log("[v0] scenesJson type:", typeof scenesJson, "has @graph:", !!scenesJson?.["@graph"])
+
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                            */
 /* ------------------------------------------------------------------ */
@@ -38,6 +42,16 @@ const scenesArr = graph(scenesJson)
 const reqsArr = graph(requirementsJson)
 const costumesArr = graph(costumesJson)
 const stylingArr = graph(stylingJson)
+
+console.log("[v0] arrays extracted:", {
+  chars: charsArr.length,
+  locs: locsArr.length,
+  props: propsArr.length,
+  scenes: scenesArr.length,
+  reqs: reqsArr.length,
+  costumes: costumesArr.length,
+  styling: stylingArr.length,
+})
 
 /* ------------------------------------------------------------------ */
 /*  Lookup maps by character ID                                        */
@@ -383,6 +397,9 @@ const predefinedStatuses = [
   { id: "declined", label: "Declined", color: "#EF4444" },
   { id: "hold", label: "On Hold", color: "#F59E0B" },
 ]
+
+console.log("[v0] jurassicAIData.ts: building export object now")
+console.log("[v0] characters count:", characters.length, "scenes:", jpScenes.length, "scriptBlocks:", scriptBlocks.length)
 
 export const jurassicAIData: Partial<CastingState> = {
   projects: [

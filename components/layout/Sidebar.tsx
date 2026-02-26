@@ -31,7 +31,7 @@ import {
 import { openModal } from "@/components/modals/ModalManager"
 import { useState, useEffect, useRef } from "react"
 import { mockData } from "@/lib/mockData"
-import { jurassicAIData } from "@/lib/jurassicAIData"
+// jurassicAIData is loaded lazily on button click to avoid bundling large JSON at page load
 import UserMenu from "./UserMenu"
 
 export default function Sidebar() {
@@ -172,11 +172,13 @@ const [isLoadingJurassic, setIsLoadingJurassic] = useState(false)
     setIsLoadingJurassic(true)
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500))
+      console.log("[v0] Starting lazy import of jurassicAIData...")
+      const { jurassicAIData } = await import("@/lib/jurassicAIData")
+      console.log("[v0] jurassicAIData imported, keys:", Object.keys(jurassicAIData))
       dispatch({ type: "LOAD_DEMO_DATA", payload: jurassicAIData })
-      console.log("Jurassic AI data loaded successfully")
+      console.log("[v0] Jurassic AI data dispatched successfully")
     } catch (error) {
-      console.error("Error loading Jurassic AI data:", error)
+      console.error("[v0] Error loading Jurassic AI data:", error)
     } finally {
       setIsLoadingJurassic(false)
     }
