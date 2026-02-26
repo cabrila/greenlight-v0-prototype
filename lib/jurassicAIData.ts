@@ -1,5 +1,9 @@
 // Jurassic Park data -- imports raw JSON-LD files, transforms to CastingState at runtime
-import type { CastingState, ScriptBlock, ScriptData, BeatItem } from "@/types/casting"
+import type {
+  CastingState, ScriptBlock, ScriptData, BeatItem,
+  CostumeInventoryItem, CostumeLook, CostumeShoppingItem,
+  ActorMeasurements, ActorHMUSpecs, ProjectCostumes,
+} from "@/types/casting"
 import type { ScheduleEntry, Scene, ProductionPhase } from "@/types/schedule"
 
 import charactersJson from "./jurassic/data/characters.json"
@@ -11,10 +15,6 @@ import costumesJson from "./jurassic/data/costumes.json"
 import stylingJson from "./jurassic/data/styling.json"
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-
-console.log("[v0] jurassicAIData.ts: module loading started")
-console.log("[v0] charactersJson type:", typeof charactersJson, "has @graph:", !!charactersJson?.["@graph"])
-console.log("[v0] scenesJson type:", typeof scenesJson, "has @graph:", !!scenesJson?.["@graph"])
 
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                            */
@@ -43,15 +43,7 @@ const reqsArr = graph(requirementsJson)
 const costumesArr = graph(costumesJson)
 const stylingArr = graph(stylingJson)
 
-console.log("[v0] arrays extracted:", {
-  chars: charsArr.length,
-  locs: locsArr.length,
-  props: propsArr.length,
-  scenes: scenesArr.length,
-  reqs: reqsArr.length,
-  costumes: costumesArr.length,
-  styling: stylingArr.length,
-})
+
 
 /* ------------------------------------------------------------------ */
 /*  Lookup maps by character ID                                        */
@@ -138,32 +130,67 @@ const props = propsArr.map((p: any) => {
 })
 
 /* ------------------------------------------------------------------ */
-/*  Costumes                                                           */
+/*  Costumes  (map narrative wardrobe+styling -> ProjectCostumes)       */
 /* ------------------------------------------------------------------ */
-const costumeInventory = characters.map((ch: any) => {
+const costumeInventory: CostumeInventoryItem[] = []
+const costumeLooks: CostumeLook[] = []
+const actorSpecs: Record<string, { measurements: ActorMeasurements; hmuSpecs: ActorHMUSpecs }> = {}
+
+characters.forEach((ch: any, idx: number) => {
   const c = costumeMap[ch.id]
-  return {
-    id: ch.id,
-    name: ch.name + " Wardrobe",
-    characterId: ch.id,
-    wardrobeScope: c?.["wardrobeScope"] || "individual",
-    characterLevel: ch.characterLevel,
-    notes: c ? (c["gg:notes"] || c["name"] || "") : "",
-  }
-})
-
-const actorHMU = characters.map((ch: any) => {
   const s = stylingMap[ch.id]
-  return {
-    id: ch.id,
-    name: ch.name + " Styling",
+  const wardrobeNotes = c ? (c["gg:notes"] || c["name"] || "") : ""
+  const stylingNotes = s ? (s["gg:notes"] || s["name"] || "") : ""
+
+  // Create a costume-piece inventory item per character
+  const costumeItemId = "inv-costume-" + ch.id
+  costumeInventory.push({
+    id: costumeItemId,
+    name: ch.name + " -- Hero Costume",
+    type: "costume-piece",
+    status: "in-stock",
+    size: "",
+    notes: wardrobeNotes,
+  } as CostumeInventoryItem)
+
+  // Create an HMU consumable inventory item per character
+  const hmuItemId = "inv-hmu-" + ch.id
+  costumeInventory.push({
+    id: hmuItemId,
+    name: ch.name + " -- HMU Kit",
+    type: "hmu-consumable",
+    status: "in-stock",
+    size: "",
+    notes: stylingNotes,
+  } as CostumeInventoryItem)
+
+  // Create a look linking the character to their costume + HMU items
+  costumeLooks.push({
+    id: "look-" + ch.id,
+    name: ch.name + " -- Main Look",
     characterId: ch.id,
-    characterLevel: ch.characterLevel,
-    notes: s ? (s["gg:notes"] || s["name"] || "") : "",
+    changeNumber: "Change 1",
+    scriptDays: ch.sceneIds.length > 0 ? ["Day 1"] : [],
+    sceneNumbers: ch.sceneIds.slice(0, 5),
+    itemIds: [costumeItemId, hmuItemId],
+    continuityNotes: wardrobeNotes,
+    referencePhotos: [],
+    matchPhotos: [],
+  })
+
+  // Placeholder actorSpecs (empty measurements + HMU)
+  actorSpecs["actor-" + ch.id] = {
+    measurements: { chest: "", waist: "", inseam: "", hat: "", ring: "", glove: "", shoe: "" },
+    hmuSpecs: { skinToneCode: "", hairType: "", hairColor: "", allergies: [], tattoos: [] },
   }
 })
 
-const jpCostumes = { inventory: costumeInventory, looks: [] as any[], actorHMU }
+const jpCostumes: ProjectCostumes = {
+  actorSpecs,
+  inventory: costumeInventory,
+  looks: costumeLooks,
+  shoppingList: [] as CostumeShoppingItem[],
+}
 
 /* ------------------------------------------------------------------ */
 /*  Character name map (for script parsing)                            */
@@ -397,9 +424,6 @@ const predefinedStatuses = [
   { id: "declined", label: "Declined", color: "#EF4444" },
   { id: "hold", label: "On Hold", color: "#F59E0B" },
 ]
-
-console.log("[v0] jurassicAIData.ts: building export object now")
-console.log("[v0] characters count:", characters.length, "scenes:", jpScenes.length, "scriptBlocks:", scriptBlocks.length)
 
 export const jurassicAIData: Partial<CastingState> = {
   projects: [
