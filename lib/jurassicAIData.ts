@@ -208,16 +208,52 @@ const locations: any[] = locsArr.map((l: any, idx: number) => {
 })
 
 /* ------------------------------------------------------------------ */
-/*  Props                                                              */
+/*  Props  (produce full PropInventoryItem / ProjectProp objects)       */
 /* ------------------------------------------------------------------ */
-const props = propsArr.map((p: any) => {
+const propScope2Category: Record<string, string> = {
+  "character-prop": "Action Props",
+  "set-dressing": "Decorations",
+  "vehicle": "Sci-Fi",
+  "consumable": "Household Items",
+}
+
+const propInventory = propsArr.map((p: any, idx: number) => {
   const id = extractId(p)
   const name: string = p["name"] || id
-  const desc: string = p["description"] || p["gg:evidence"] || ""
+  const evidence: string = typeof p["gg:evidence"] === "string" ? p["gg:evidence"] : ""
+  const desc: string = p["description"] || evidence
+  const scope: string = p["propScope"] || ""
+  const category = propScope2Category[scope] || "Household Items"
   const scenes = p["gg:scenes"] || []
-  const sceneRefs = (Array.isArray(scenes) ? scenes : [scenes]).map(extractId).filter(Boolean)
-  return { id, name, description: desc, sceneIds: sceneRefs }
+  const sceneRefs: string[] = (Array.isArray(scenes) ? scenes : [scenes]).map(extractId).filter(Boolean)
+
+  return {
+    id,
+    name,
+    model: "",
+    category,
+    brand: "",
+    serialNumber: "PROP-" + String(idx + 1).padStart(4, "0"),
+    skuBarcode: "",
+    notes: desc,
+    imageUrl: "",
+    purchaseType: "TBD",
+    unitPrice: "",
+    quantity: 1,
+    bookedTo: null,
+    availability: [] as any[],
+    status: "available" as const,
+    sceneIds: sceneRefs,
+    characterId: null as string | null,
+    requiresArmorySupervision: false,
+  }
 })
+
+const projectProps = propInventory.map((p: any) => ({
+  ...p,
+  votes: [] as any[],
+  comments: [] as any[],
+}))
 
 /* ------------------------------------------------------------------ */
 /*  Costumes  (map narrative wardrobe+styling -> ProjectCostumes)       */
@@ -482,7 +518,9 @@ for (let d = 0; d * SCENES_PER_DAY < scenesArr.length; d++) {
     location: dayScenes.map((s: any) => s["slugline"] || "").filter(Boolean).slice(0, 3).join(" / "),
     sceneType: "INT/EXT",
     sceneNotes: dayScenes.map((s: any) => "Sc " + (s["sceneNumber"] || "?") + ": " + (s["synopsis"] || "")).join(". "),
-    props: [],
+      props: projectProps,
+      propInventory: propInventory,
+      propPurchaseRequests: [],
     actorIds: allChars,
     crewMembers: [],
     redFlags: [],
