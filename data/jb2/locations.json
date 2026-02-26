@@ -1,0 +1,1445 @@
+{
+  "@context": "https://gogreenlight.com/schemas/context/v1",
+  "@graph": [
+    {
+      "@id": "gg:location/jb2-jungle",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "JUNGLE",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-001"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-001"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-082"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-mountainside",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "MOUNTAINSIDE",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-002"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-002"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-cave",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "CAVE",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-003"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-003"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-the-dig-establishing",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "THE DIG - ESTABLISHING",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-004"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-004"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-the-dig",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "THE DIG",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-005"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-005"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-006"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-the-dig-moments-later",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "THE DIG - MOMENTS LATER",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-007"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-007"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-base-camp",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "BASE CAMP",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-008"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-008"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-009"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-trailer",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "TRAILER",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-010"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-010"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-cafe",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "CAFE",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-011"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-011"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-open-sea",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "OPEN SEA",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-012"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-012"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-013"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-144"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-helicopter",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "HELICOPTER",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-014"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-014"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-140"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-141"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-143"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-helicopter-landing-pad",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "HELICOPTER LANDING PAD",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-015"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-015"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-hilltop",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "HILLTOP",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-016"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-016"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-park-road",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "PARK ROAD",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-017"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-017"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-051"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-066"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-089"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-091"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-092"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-093"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-main-compound",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "MAIN COMPOUND",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-018"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-018"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-visitor-s-center",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "VISITOR'S CENTER",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-019"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-019"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-032"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-034"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-054"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-116"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-118"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-121"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-136"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-show-room",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "SHOW ROOM",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-020"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-020"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-021"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-022"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-023"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-024"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-hallway",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "HALLWAY",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-025"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-025"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-genetics-lab",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "GENETICS LAB",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-026"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-026"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-027"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-hallway-stairs",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "HALLWAY / STAIRS",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-028"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-028"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-hallway-stairs",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "HALLWAY/STAIRS",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-029"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-029"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-raptor-pen",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "RAPTOR PEN",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-030"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-030"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-visitor-center-presentation-room",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "VISITOR CENTER PRESENTATION ROOM",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-031"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-031"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-control-room",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "CONTROL ROOM",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-033"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-033"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-037"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-039"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-041"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-043"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-046"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-050"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-053"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-055"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-079"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-083"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-100"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-111"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-126"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-127"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-128"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-129"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-main-gates",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "MAIN GATES",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-035"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-035"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-jurassic-park",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "JURASSIC PARK",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-036"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-036"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-tyrannosaur-paddock",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "TYRANNOSAUR PADDOCK",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-038"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-038"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-056"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-057"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-058"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-061"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-062"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-063"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-064"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-076"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-park",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "PARK",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-040"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-040"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-042"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-049"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-078"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-099"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-control-room-across-the-room",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "CONTROL ROOM - ACROSS THE ROOM",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-044"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-044"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-field",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "FIELD",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-045"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-045"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-047"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-048"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-fertilization-lab",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "FERTILIZATION LAB",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-052"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-052"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-car-one",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "CAR ONE",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-059"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-059"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-car-two",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "CAR TWO",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-060"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-060"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-tyrannosaur-paddock-base-of-barrier",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "TYRANNOSAUR PADDOCK - BASE OF BARRIER",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-065"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-065"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-tyrannosaur-paddock-road",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "TYRANNOSAUR PADDOCK - ROAD",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-067"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-067"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-068"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-077"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-base-of-barrier-wall",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "BASE OF BARRIER WALL",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-069"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-069"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-070"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-wrecked-car",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "WRECKED CAR",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-071"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-071"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-base-of-barrier",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "BASE OF BARRIER",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-072"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-072"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-073"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-tree",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "TREE",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-074"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-074"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-075"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-087"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-095"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-control-room-night",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "CONTROL ROOM - NIGHT",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-080"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-080"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-visitor-s-center-road",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "VISITOR'S CENTER ROAD",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-081"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-081"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-tyrannosaur-paddock-road",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "TYRANNOSAUR PADDOCK ROAD",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-084"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-084"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-085"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-park-grounds",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "PARK GROUNDS",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-086"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-086"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-101"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-culvert",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "CULVERT",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-088"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-088"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-clearing",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "CLEARING",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-090"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-090"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-park-ground",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "PARK GROUND",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-094"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-094"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-tree-later-that-night",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "TREE - LATER THAT NIGHT",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-096"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-096"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-visitor-s-center-restaurant",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "VISITOR'S CENTER RESTAURANT",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-097"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-097"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-119"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-park-dawn-ground-level",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "PARK - DAWN - GROUND LEVEL",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-098"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-098"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-fence",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "FENCE",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-102"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-102"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-104"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-105"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-114"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-115"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-bunker",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "BUNKER",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-103"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-103"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-jungle-path",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "JUNGLE PATH",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-106"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-106"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-107"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-maintenance-shed",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "MAINTENANCE SHED",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-108"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-108"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-109"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-110"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-112"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-113"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-visitor-s-center-entrance",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "VISITOR'S CENTER ENTRANCE",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-117"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-117"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-visitor-s-center-corridor",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "VISITOR'S CENTER - CORRIDOR",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-120"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-120"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-125"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-visitor-s-center-kitchen",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "VISITOR'S CENTER KITCHEN",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-122"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-122"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-kitchen",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "KITCHEN",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-123"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-123"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-124"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-atrium-crawl-space",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "ATRIUM / CRAWL SPACE",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-130"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-130"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-crawl-space",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "CRAWL SPACE",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-131"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-131"
+        },
+        {
+          "@id": "gg:scene/jb2-scene-132"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-lobby-rotunda",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "LOBBY / ROTUNDA",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-133"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-133"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-rotunda",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "ROTUNDA",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-134"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-134"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-lobby",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "LOBBY",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-135"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-135"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-helipad",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "HELIPAD",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-137"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-137"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-park-helicopter-approach",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "PARK / HELICOPTER APPROACH",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-138"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-138"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-air",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "AIR",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-139"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-139"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-open-sea-helicopter",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "OPEN SEA - HELICOPTER",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-142"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-142"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:location/jb2-helicopter-final",
+      "@type": "omc:NarrativeLocation",
+      "entityType": "omc:NarrativeLocation",
+      "name": "HELICOPTER - FINAL",
+      "gg:firstAppearance": {
+        "@id": "gg:scene/jb2-scene-145"
+      },
+      "gg:scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-145"
+        }
+      ],
+      "description": "Derived directly from scene sluglines.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "@context": "https://gogreenlight.com/schemas/context/v1",
+  "@graph": [
+    {
+      "@id": "gg:project/jurassic-park-1992-jb2",
+      "@type": "schema:Movie",
+      "entityType": "Project",
+      "projectType": "film",
+      "name": "Jurassic Park",
+      "description": "Jurassic Park screenplay analysis generated strictly from script text using chunking strategy phases.",
+      "gg:scriptDate": "1992-12-11",
+      "gg:totalScenes": 145,
+      "gg:acts": [
+        "Act 1",
+        "Act 2a",
+        "Act 2b",
+        "Act 3"
+      ],
+      "gg:entityFiles": {
+        "characters": "characters.jsonld",
+        "locations": "locations.jsonld",
+        "scenes": "scenes.jsonld",
+        "props": "props.jsonld",
+        "costumes": "costumes.jsonld",
+        "styling": "styling.jsonld",
+        "effects": "effects.jsonld",
+        "specialActions": "special_actions.jsonld",
+        "requirements": "requirements.jsonld",
+        "sceneManifest": "scenes.manifest.json",
+        "sceneIndex": "scenes.index.json"
+      },
+      "gg:chunkingStrategy": "/Users/cbl/projects/Greenlight/code/gl-documentation/creative_platform/script_chunking_strategy.md",
+      "gg:processedAt": "2026-02-26T09:51:20.143236+00:00",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    }
+  ]
+}

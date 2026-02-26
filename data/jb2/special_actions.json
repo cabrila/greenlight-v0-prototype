@@ -1,0 +1,710 @@
+{
+  "@context": "https://gogreenlight.com/schemas/context/v1",
+  "@graph": [
+    {
+      "@id": "gg:special-action/jb2-scene-001-action",
+      "@type": "omc:SpecialAction",
+      "entityType": "omc:SpecialAction",
+      "name": "Scene 1 Action",
+      "specialActionType": [
+        "other"
+      ],
+      "scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-001"
+        }
+      ],
+      "charactersInvolved": [
+        {
+          "@id": "gg:character/jb2-muldoon"
+        }
+      ],
+      "actionBeats": [
+        "drags",
+        "shoot"
+      ],
+      "gg:evidence": "Shoot her! Shoot her!",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:special-action/jb2-scene-002-action",
+      "@type": "omc:SpecialAction",
+      "entityType": "omc:SpecialAction",
+      "name": "Scene 2 Action",
+      "specialActionType": [
+        "other"
+      ],
+      "scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-002"
+        }
+      ],
+      "charactersInvolved": [
+        {
+          "@id": "gg:character/jb2-donald-gennaro"
+        },
+        {
+          "@id": "gg:character/jb2-rostagno"
+        }
+      ],
+      "actionBeats": [
+        "killed"
+      ],
+      "gg:evidence": "that was killed \u2014",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:special-action/jb2-scene-005-action",
+      "@type": "omc:SpecialAction",
+      "entityType": "omc:SpecialAction",
+      "name": "Scene 5 Action",
+      "specialActionType": [
+        "other"
+      ],
+      "scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-005"
+        }
+      ],
+      "charactersInvolved": [
+        {
+          "@id": "gg:character/jb2-ellie"
+        },
+        {
+          "@id": "gg:character/jb2-grant"
+        }
+      ],
+      "actionBeats": [
+        "attack"
+      ],
+      "gg:evidence": "back. And that's when the attack comes. Not",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:special-action/jb2-scene-014-action",
+      "@type": "omc:SpecialAction",
+      "entityType": "omc:SpecialAction",
+      "name": "Scene 14 Action",
+      "specialActionType": [
+        "other"
+      ],
+      "scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-014"
+        }
+      ],
+      "charactersInvolved": [
+        {
+          "@id": "gg:character/jb2-ellie"
+        },
+        {
+          "@id": "gg:character/jb2-donald-gennaro"
+        },
+        {
+          "@id": "gg:character/jb2-grant"
+        },
+        {
+          "@id": "gg:character/jb2-hammond"
+        },
+        {
+          "@id": "gg:character/jb2-malcolm"
+        }
+      ],
+      "actionBeats": [
+        "crashes"
+      ],
+      "gg:evidence": "new territories and crashes through barriers,",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:special-action/jb2-scene-029-action",
+      "@type": "omc:SpecialAction",
+      "entityType": "omc:SpecialAction",
+      "name": "Scene 28 Action",
+      "specialActionType": [
+        "other"
+      ],
+      "scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-029"
+        }
+      ],
+      "charactersInvolved": [
+        {
+          "@id": "gg:character/jb2-ellie"
+        },
+        {
+          "@id": "gg:character/jb2-grant"
+        },
+        {
+          "@id": "gg:character/jb2-hammond"
+        },
+        {
+          "@id": "gg:character/jb2-malcolm"
+        },
+        {
+          "@id": "gg:character/jb2-henry-wu"
+        }
+      ],
+      "actionBeats": [
+        "falls"
+      ],
+      "gg:evidence": "The egg rocks. A piece of shell falls away. Then another. A",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:special-action/jb2-scene-030-action",
+      "@type": "omc:SpecialAction",
+      "entityType": "omc:SpecialAction",
+      "name": "Scene 29 Action",
+      "specialActionType": [
+        "other"
+      ],
+      "scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-030"
+        }
+      ],
+      "charactersInvolved": [
+        {
+          "@id": "gg:character/jb2-grant"
+        },
+        {
+          "@id": "gg:character/jb2-hammond"
+        },
+        {
+          "@id": "gg:character/jb2-muldoon"
+        }
+      ],
+      "actionBeats": [
+        "attack",
+        "killed"
+      ],
+      "gg:evidence": "The worker who was killed \u2014",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:special-action/jb2-scene-040-action",
+      "@type": "omc:SpecialAction",
+      "entityType": "omc:SpecialAction",
+      "name": "Scene 38 Action",
+      "specialActionType": [
+        "other"
+      ],
+      "scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-040"
+        }
+      ],
+      "charactersInvolved": [
+        {
+          "@id": "gg:character/jb2-ellie"
+        },
+        {
+          "@id": "gg:character/jb2-grant"
+        },
+        {
+          "@id": "gg:character/jb2-malcolm"
+        }
+      ],
+      "actionBeats": [
+        "falls"
+      ],
+      "gg:evidence": "A drop of water falls on your hand, and",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:special-action/jb2-scene-046-action",
+      "@type": "omc:SpecialAction",
+      "entityType": "omc:SpecialAction",
+      "name": "Scene 43 Action",
+      "specialActionType": [
+        "other"
+      ],
+      "scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-046"
+        }
+      ],
+      "charactersInvolved": [
+        {
+          "@id": "gg:character/jb2-nedry"
+        }
+      ],
+      "actionBeats": [
+        "fall"
+      ],
+      "gg:evidence": "On his screen: access protocols begin to fall one by one.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:special-action/jb2-scene-049-action",
+      "@type": "omc:SpecialAction",
+      "entityType": "omc:SpecialAction",
+      "name": "Scene 46 Action",
+      "specialActionType": [
+        "other"
+      ],
+      "scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-049"
+        }
+      ],
+      "charactersInvolved": [
+        {
+          "@id": "gg:character/jb2-grant"
+        },
+        {
+          "@id": "gg:character/jb2-tim"
+        }
+      ],
+      "actionBeats": [
+        "fall"
+      ],
+      "gg:evidence": "fast. The first raindrops begin to fall. Through the trees,",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:special-action/jb2-scene-062-action",
+      "@type": "omc:SpecialAction",
+      "entityType": "omc:SpecialAction",
+      "name": "Scene 59 Action",
+      "specialActionType": [
+        "other"
+      ],
+      "scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-062"
+        }
+      ],
+      "charactersInvolved": [],
+      "actionBeats": [
+        "falls"
+      ],
+      "gg:evidence": "paddock. The car falls, tumbles, drops out of sight.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:special-action/jb2-scene-063-action",
+      "@type": "omc:SpecialAction",
+      "entityType": "omc:SpecialAction",
+      "name": "Scene 60 Action",
+      "specialActionType": [
+        "other"
+      ],
+      "scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-063"
+        }
+      ],
+      "charactersInvolved": [
+        {
+          "@id": "gg:character/jb2-grant"
+        }
+      ],
+      "actionBeats": [
+        "crashes",
+        "drags"
+      ],
+      "gg:evidence": "Malcolm drags himself along the barrier. His leg is bad \u2014",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:special-action/jb2-scene-066-action",
+      "@type": "omc:SpecialAction",
+      "entityType": "omc:SpecialAction",
+      "name": "Scene 63 Action",
+      "specialActionType": [
+        "other"
+      ],
+      "scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-066"
+        }
+      ],
+      "charactersInvolved": [
+        {
+          "@id": "gg:character/jb2-malcolm"
+        }
+      ],
+      "actionBeats": [
+        "dragged"
+      ],
+      "gg:evidence": "MALCOLM is down. He dragged himself to a cluster of large",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:special-action/jb2-scene-067-action",
+      "@type": "omc:SpecialAction",
+      "entityType": "omc:SpecialAction",
+      "name": "Scene 64 Action",
+      "specialActionType": [
+        "other"
+      ],
+      "scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-067"
+        }
+      ],
+      "charactersInvolved": [
+        {
+          "@id": "gg:character/jb2-donald-gennaro"
+        }
+      ],
+      "actionBeats": [
+        "crash"
+      ],
+      "gg:evidence": "the idea. There's a tremendous crash of wood and a brief",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:special-action/jb2-scene-075-action",
+      "@type": "omc:SpecialAction",
+      "entityType": "omc:SpecialAction",
+      "name": "Scene 72 Action",
+      "specialActionType": [
+        "other"
+      ],
+      "scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-075"
+        }
+      ],
+      "charactersInvolved": [
+        {
+          "@id": "gg:character/jb2-grant"
+        },
+        {
+          "@id": "gg:character/jb2-tim"
+        }
+      ],
+      "actionBeats": [
+        "crash",
+        "crashing",
+        "falls"
+      ],
+      "gg:evidence": "The car slips and FALLS \u2014 crashing through the branches below,",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:special-action/jb2-scene-079-action",
+      "@type": "omc:SpecialAction",
+      "entityType": "omc:SpecialAction",
+      "name": "Scene 76 Action",
+      "specialActionType": [
+        "other"
+      ],
+      "scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-079"
+        }
+      ],
+      "charactersInvolved": [
+        {
+          "@id": "gg:character/jb2-arnold"
+        },
+        {
+          "@id": "gg:character/jb2-hammond"
+        },
+        {
+          "@id": "gg:character/jb2-muldoon"
+        }
+      ],
+      "actionBeats": [
+        "kill"
+      ],
+      "gg:evidence": "I will kill Nedry! I will personally kill",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:special-action/jb2-scene-082-action",
+      "@type": "omc:SpecialAction",
+      "entityType": "omc:SpecialAction",
+      "name": "Scene 79 Action",
+      "specialActionType": [
+        "other"
+      ],
+      "scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-082"
+        }
+      ],
+      "charactersInvolved": [
+        {
+          "@id": "gg:character/jb2-nedry"
+        }
+      ],
+      "actionBeats": [
+        "falls"
+      ],
+      "gg:evidence": "falls. He grabs for it, blind, finds it, clutches it.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:special-action/jb2-scene-088-action",
+      "@type": "omc:SpecialAction",
+      "entityType": "omc:SpecialAction",
+      "name": "Scene 85 Action",
+      "specialActionType": [
+        "other"
+      ],
+      "scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-088"
+        }
+      ],
+      "charactersInvolved": [],
+      "actionBeats": [
+        "attack"
+      ],
+      "gg:evidence": "Earlier. Shortly after the T-Rex attack. LEX had hidden in",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:special-action/jb2-scene-095-action",
+      "@type": "omc:SpecialAction",
+      "entityType": "omc:SpecialAction",
+      "name": "Scene 92 Action",
+      "specialActionType": [
+        "other"
+      ],
+      "scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-095"
+        }
+      ],
+      "charactersInvolved": [
+        {
+          "@id": "gg:character/jb2-grant"
+        },
+        {
+          "@id": "gg:character/jb2-lex"
+        }
+      ],
+      "actionBeats": [
+        "fallen"
+      ],
+      "gg:evidence": "branches. Tim has fallen asleep against Grant's arm.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:special-action/jb2-scene-104-action",
+      "@type": "omc:SpecialAction",
+      "entityType": "omc:SpecialAction",
+      "name": "Scene 101 Action",
+      "specialActionType": [
+        "other"
+      ],
+      "scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-104"
+        }
+      ],
+      "charactersInvolved": [
+        {
+          "@id": "gg:character/jb2-grant"
+        }
+      ],
+      "actionBeats": [
+        "falls"
+      ],
+      "gg:evidence": "snap and flash \u2014 he convulses on the fence and then falls,",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:special-action/jb2-scene-123-action",
+      "@type": "omc:SpecialAction",
+      "entityType": "omc:SpecialAction",
+      "name": "Scene 120 Action",
+      "specialActionType": [
+        "other"
+      ],
+      "scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-123"
+        }
+      ],
+      "charactersInvolved": [],
+      "actionBeats": [
+        "crash",
+        "fallen"
+      ],
+      "gg:evidence": "fallen from a rack. He reaches for it slowly, slowly \u2014",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:special-action/jb2-scene-128-action",
+      "@type": "omc:SpecialAction",
+      "entityType": "omc:SpecialAction",
+      "name": "Scene 125 Action",
+      "specialActionType": [
+        "other"
+      ],
+      "scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-128"
+        }
+      ],
+      "charactersInvolved": [
+        {
+          "@id": "gg:character/jb2-ellie"
+        },
+        {
+          "@id": "gg:character/jb2-grant"
+        },
+        {
+          "@id": "gg:character/jb2-lex"
+        },
+        {
+          "@id": "gg:character/jb2-tim"
+        }
+      ],
+      "actionBeats": [
+        "crash"
+      ],
+      "gg:evidence": "A crash. The ceiling vent above the door BUCKLES and tears",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:special-action/jb2-scene-134-action",
+      "@type": "omc:SpecialAction",
+      "entityType": "omc:SpecialAction",
+      "name": "Scene 131 Action",
+      "specialActionType": [
+        "other"
+      ],
+      "scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-134"
+        }
+      ],
+      "charactersInvolved": [
+        {
+          "@id": "gg:character/jb2-tim"
+        }
+      ],
+      "actionBeats": [
+        "falls"
+      ],
+      "gg:evidence": "the broken wall falls on her in golden shafts.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:special-action/jb2-scene-139-action",
+      "@type": "omc:SpecialAction",
+      "entityType": "omc:SpecialAction",
+      "name": "Scene 136 Action",
+      "specialActionType": [
+        "other"
+      ],
+      "scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-139"
+        }
+      ],
+      "charactersInvolved": [],
+      "actionBeats": [
+        "fall"
+      ],
+      "gg:evidence": "Tim is on Grant's other side, beginning to fall asleep despite",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:special-action/jb2-scene-140-action",
+      "@type": "omc:SpecialAction",
+      "entityType": "omc:SpecialAction",
+      "name": "Scene 137 Action",
+      "specialActionType": [
+        "other"
+      ],
+      "scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-140"
+        }
+      ],
+      "charactersInvolved": [
+        {
+          "@id": "gg:character/jb2-ellie"
+        },
+        {
+          "@id": "gg:character/jb2-grant"
+        }
+      ],
+      "actionBeats": [
+        "falling"
+      ],
+      "gg:evidence": "seconds before falling behind.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:special-action/jb2-scene-143-action",
+      "@type": "omc:SpecialAction",
+      "entityType": "omc:SpecialAction",
+      "name": "Scene 139 Action",
+      "specialActionType": [
+        "other"
+      ],
+      "scenes": [
+        {
+          "@id": "gg:scene/jb2-scene-143"
+        }
+      ],
+      "charactersInvolved": [],
+      "actionBeats": [
+        "fallen"
+      ],
+      "gg:evidence": "He looks down at Tim \u2014 the boy's dinosaur book has fallen",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    }
+  ]
+}

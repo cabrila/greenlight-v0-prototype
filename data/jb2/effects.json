@@ -1,0 +1,299 @@
+{
+  "@context": "https://gogreenlight.com/schemas/context/v1",
+  "@graph": [
+    {
+      "@id": "gg:effect/jb2-brachiosaurus-appearance",
+      "@type": "omc:Effect",
+      "entityType": "omc:Effect",
+      "name": "Brachiosaurus Appearance",
+      "effectType": [
+        "other"
+      ],
+      "gg:scenes": [
+        "gg:scene/jb2-scene-016",
+        "gg:scene/jb2-scene-052",
+        "gg:scene/jb2-scene-099",
+        "gg:scene/jb2-scene-121",
+        "gg:scene/jb2-scene-133"
+      ],
+      "gg:evidence": "valley \u2014 moving slowly, impossibly large, a BRACHIOSAURUS.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:effect/jb2-dilophosaurus-appearance",
+      "@type": "omc:Effect",
+      "entityType": "omc:Effect",
+      "name": "Dilophosaurus Appearance",
+      "effectType": [
+        "other"
+      ],
+      "gg:scenes": [
+        "gg:scene/jb2-scene-036",
+        "gg:scene/jb2-scene-037",
+        "gg:scene/jb2-scene-052",
+        "gg:scene/jb2-scene-082"
+      ],
+      "gg:evidence": "A sign: DILOPHOSAURUS - THE SPITTER.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:effect/jb2-electrified-fence-effect",
+      "@type": "omc:Effect",
+      "entityType": "omc:Effect",
+      "name": "Electrified Fence Effect",
+      "effectType": [
+        "other"
+      ],
+      "gg:scenes": [
+        "gg:scene/jb2-scene-001",
+        "gg:scene/jb2-scene-061",
+        "gg:scene/jb2-scene-102"
+      ],
+      "gg:evidence": "pen. It's surrounded by high fences, alive with electricity and",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:effect/jb2-gallimimus-appearance",
+      "@type": "omc:Effect",
+      "entityType": "omc:Effect",
+      "name": "Gallimimus Appearance",
+      "effectType": [
+        "other"
+      ],
+      "gg:scenes": [
+        "gg:scene/jb2-scene-094"
+      ],
+      "gg:evidence": "The grassland is FULL of movement. A HERD of GALLIMIMUS \u2014",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:effect/jb2-helicopter-arrival-descent-effect",
+      "@type": "omc:Effect",
+      "entityType": "omc:Effect",
+      "name": "Helicopter Arrival / Descent Effect",
+      "effectType": [
+        "other"
+      ],
+      "gg:scenes": [
+        "gg:scene/jb2-scene-006",
+        "gg:scene/jb2-scene-007",
+        "gg:scene/jb2-scene-008",
+        "gg:scene/jb2-scene-009",
+        "gg:scene/jb2-scene-013",
+        "gg:scene/jb2-scene-014",
+        "gg:scene/jb2-scene-015",
+        "gg:scene/jb2-scene-127",
+        "gg:scene/jb2-scene-137",
+        "gg:scene/jb2-scene-138",
+        "gg:scene/jb2-scene-139",
+        "gg:scene/jb2-scene-140",
+        "gg:scene/jb2-scene-141",
+        "gg:scene/jb2-scene-142",
+        "gg:scene/jb2-scene-143",
+        "gg:scene/jb2-scene-144",
+        "gg:scene/jb2-scene-145"
+      ],
+      "gg:evidence": "In the distance: the sound of a HELICOPTER approaching.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:effect/jb2-rain-storm-practical-effect",
+      "@type": "omc:Effect",
+      "entityType": "omc:Effect",
+      "name": "Rain / Storm Practical Effect",
+      "effectType": [
+        "other"
+      ],
+      "gg:scenes": [
+        "gg:scene/jb2-scene-001",
+        "gg:scene/jb2-scene-033",
+        "gg:scene/jb2-scene-039",
+        "gg:scene/jb2-scene-043",
+        "gg:scene/jb2-scene-045",
+        "gg:scene/jb2-scene-046",
+        "gg:scene/jb2-scene-049",
+        "gg:scene/jb2-scene-050",
+        "gg:scene/jb2-scene-051",
+        "gg:scene/jb2-scene-054",
+        "gg:scene/jb2-scene-056",
+        "gg:scene/jb2-scene-058",
+        "gg:scene/jb2-scene-060",
+        "gg:scene/jb2-scene-061",
+        "gg:scene/jb2-scene-064",
+        "gg:scene/jb2-scene-067",
+        "gg:scene/jb2-scene-077",
+        "gg:scene/jb2-scene-078",
+        "gg:scene/jb2-scene-079",
+        "gg:scene/jb2-scene-081",
+        "gg:scene/jb2-scene-082",
+        "gg:scene/jb2-scene-083",
+        "gg:scene/jb2-scene-084",
+        "gg:scene/jb2-scene-086",
+        "gg:scene/jb2-scene-093",
+        "gg:scene/jb2-scene-099"
+      ],
+      "gg:evidence": "The box is still. The jungle is quiet again except for rain.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:effect/jb2-raptor-appearance",
+      "@type": "omc:Effect",
+      "entityType": "omc:Effect",
+      "name": "Raptor Appearance",
+      "effectType": [
+        "other"
+      ],
+      "gg:scenes": [
+        "gg:scene/jb2-scene-001",
+        "gg:scene/jb2-scene-005",
+        "gg:scene/jb2-scene-006",
+        "gg:scene/jb2-scene-009",
+        "gg:scene/jb2-scene-019",
+        "gg:scene/jb2-scene-029",
+        "gg:scene/jb2-scene-030",
+        "gg:scene/jb2-scene-031",
+        "gg:scene/jb2-scene-032",
+        "gg:scene/jb2-scene-099",
+        "gg:scene/jb2-scene-100",
+        "gg:scene/jb2-scene-106",
+        "gg:scene/jb2-scene-107",
+        "gg:scene/jb2-scene-109",
+        "gg:scene/jb2-scene-110",
+        "gg:scene/jb2-scene-112",
+        "gg:scene/jb2-scene-116",
+        "gg:scene/jb2-scene-121",
+        "gg:scene/jb2-scene-122",
+        "gg:scene/jb2-scene-123",
+        "gg:scene/jb2-scene-124",
+        "gg:scene/jb2-scene-125",
+        "gg:scene/jb2-scene-128",
+        "gg:scene/jb2-scene-129",
+        "gg:scene/jb2-scene-130",
+        "gg:scene/jb2-scene-131",
+        "gg:scene/jb2-scene-132",
+        "gg:scene/jb2-scene-133",
+        "gg:scene/jb2-scene-134",
+        "gg:scene/jb2-scene-143"
+      ],
+      "gg:evidence": "darkness. The SOUND of the raptor is horrible. The other workers",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:effect/jb2-rotunda-skeleton-collapse-effect",
+      "@type": "omc:Effect",
+      "entityType": "omc:Effect",
+      "name": "Rotunda Skeleton Collapse Effect",
+      "effectType": [
+        "other"
+      ],
+      "gg:scenes": [
+        "gg:scene/jb2-scene-133",
+        "gg:scene/jb2-scene-134"
+      ],
+      "gg:evidence": "130 INT. LOBBY / ROTUNDA - DAY",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:effect/jb2-triceratops-appearance",
+      "@type": "omc:Effect",
+      "entityType": "omc:Effect",
+      "name": "Triceratops Appearance",
+      "effectType": [
+        "other"
+      ],
+      "gg:scenes": [
+        "gg:scene/jb2-scene-032",
+        "gg:scene/jb2-scene-042",
+        "gg:scene/jb2-scene-045",
+        "gg:scene/jb2-scene-052"
+      ],
+      "gg:evidence": "window, Tim at his side, talking already about the triceratops",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:effect/jb2-tyrannosaur-appearance",
+      "@type": "omc:Effect",
+      "entityType": "omc:Effect",
+      "name": "Tyrannosaur Appearance",
+      "effectType": [
+        "other"
+      ],
+      "gg:scenes": [
+        "gg:scene/jb2-scene-005",
+        "gg:scene/jb2-scene-019",
+        "gg:scene/jb2-scene-038",
+        "gg:scene/jb2-scene-039",
+        "gg:scene/jb2-scene-049",
+        "gg:scene/jb2-scene-051",
+        "gg:scene/jb2-scene-052",
+        "gg:scene/jb2-scene-055",
+        "gg:scene/jb2-scene-056",
+        "gg:scene/jb2-scene-057",
+        "gg:scene/jb2-scene-058",
+        "gg:scene/jb2-scene-059",
+        "gg:scene/jb2-scene-061",
+        "gg:scene/jb2-scene-062",
+        "gg:scene/jb2-scene-063",
+        "gg:scene/jb2-scene-064",
+        "gg:scene/jb2-scene-065",
+        "gg:scene/jb2-scene-066",
+        "gg:scene/jb2-scene-067",
+        "gg:scene/jb2-scene-068",
+        "gg:scene/jb2-scene-070",
+        "gg:scene/jb2-scene-071",
+        "gg:scene/jb2-scene-072",
+        "gg:scene/jb2-scene-073",
+        "gg:scene/jb2-scene-076",
+        "gg:scene/jb2-scene-077",
+        "gg:scene/jb2-scene-079",
+        "gg:scene/jb2-scene-084",
+        "gg:scene/jb2-scene-085",
+        "gg:scene/jb2-scene-088",
+        "gg:scene/jb2-scene-091",
+        "gg:scene/jb2-scene-092",
+        "gg:scene/jb2-scene-093",
+        "gg:scene/jb2-scene-094",
+        "gg:scene/jb2-scene-134"
+      ],
+      "gg:evidence": "movement \u2014 like a T-Rex \u2014 he'll lose you",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    },
+    {
+      "@id": "gg:effect/jb2-venom-spitter-effect",
+      "@type": "omc:Effect",
+      "entityType": "omc:Effect",
+      "name": "Venom / Spitter Effect",
+      "effectType": [
+        "other"
+      ],
+      "gg:scenes": [
+        "gg:scene/jb2-scene-036",
+        "gg:scene/jb2-scene-082"
+      ],
+      "gg:evidence": "A sign: DILOPHOSAURUS - THE SPITTER.",
+      "isPartOf": {
+        "@id": "gg:project/jurassic-park-1992-jb2"
+      }
+    }
+  ]
+}
