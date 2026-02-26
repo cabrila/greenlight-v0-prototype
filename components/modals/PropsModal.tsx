@@ -445,26 +445,27 @@ function AddItemModal({ onClose, onAdd, scenes, characters, characterActorMap }:
 /* ------------------------------------------------------------------ */
 
 function EditItemModal({ item, onClose, onSave, scenes, characters, characterActorMap }: { item: InventoryItem | ProjectProp; onClose: () => void; onSave: (updated: InventoryItem | ProjectProp) => void; scenes: Scene[]; characters: Character[]; characterActorMap: { character: Character; castActor: Actor | null }[] }) {
+  const safeAvailability = Array.isArray(item.availability) ? item.availability : []
   const [form, setForm] = useState({
-    name: item.name,
-    model: item.model,
-    category: item.category,
-    serialNumber: item.serialNumber,
-    skuBarcode: item.skuBarcode,
-    brand: item.brand,
-    notes: item.notes,
-    purchaseType: item.purchaseType,
-    unitPrice: item.unitPrice,
-    quantity: item.quantity,
-    status: item.status,
+    name: item.name ?? "",
+    model: item.model ?? "",
+    category: item.category ?? "",
+    serialNumber: item.serialNumber ?? "",
+    skuBarcode: item.skuBarcode ?? "",
+    brand: item.brand ?? "",
+    notes: item.notes ?? "",
+    purchaseType: item.purchaseType ?? "TBD",
+    unitPrice: item.unitPrice ?? "",
+    quantity: item.quantity ?? 1,
+    status: item.status ?? "available",
   })
-  const [imageUrl, setImageUrl] = useState(item.imageUrl)
+  const [imageUrl, setImageUrl] = useState(item.imageUrl ?? "")
   const [selectedSceneIds, setSelectedSceneIds] = useState<string[]>(item.sceneIds || [])
   const [selectedCharacterId, setSelectedCharacterId] = useState<string | null>(item.characterId ?? null)
   const [sceneSearch, setSceneSearch] = useState("")
   const [requiresArmorySupervision, setRequiresArmorySupervision] = useState(!!item.requiresArmorySupervision)
   const [availSlots, setAvailSlots] = useState<{ id: string; day: string; startTime: string; endTime: string }[]>(
-    item.availability.length > 0 ? item.availability.map((a) => ({ id: "id" in a ? (a as any).id : uid(), day: a.day, startTime: a.startTime, endTime: a.endTime })) : [{ id: uid(), day: "", startTime: "09:00", endTime: "17:00" }]
+    safeAvailability.length > 0 ? safeAvailability.map((a) => ({ id: "id" in a ? (a as any).id : uid(), day: a.day, startTime: a.startTime, endTime: a.endTime })) : [{ id: uid(), day: "", startTime: "09:00", endTime: "17:00" }]
   )
 
   const update = (field: string, value: string | number) => setForm((f) => ({ ...f, [field]: value }))
@@ -994,10 +995,12 @@ function ProjectPropCard({ item, onVote, onAddComment, onRemove, onAddToCanvas, 
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
 
-  const userVote = item.votes.find((v) => v.userId === currentUserId)?.vote
-  const yesCt = item.votes.filter((v) => v.vote === "yes").length
-  const noCt = item.votes.filter((v) => v.vote === "no").length
-  const maybeCt = item.votes.filter((v) => v.vote === "maybe").length
+  const safeVotes = Array.isArray(item.votes) ? item.votes : []
+  const safeComments = Array.isArray(item.comments) ? item.comments : []
+  const userVote = safeVotes.find((v) => v.userId === currentUserId)?.vote
+  const yesCt = safeVotes.filter((v) => v.vote === "yes").length
+  const noCt = safeVotes.filter((v) => v.vote === "no").length
+  const maybeCt = safeVotes.filter((v) => v.vote === "maybe").length
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 hover:border-gray-300 transition-all duration-200 overflow-hidden hover:shadow-sm">
@@ -1096,9 +1099,9 @@ function ProjectPropCard({ item, onVote, onAddComment, onRemove, onAddToCanvas, 
       </div>
 
       {/* Comments */}
-      {item.comments.length > 0 && (
+      {safeComments.length > 0 && (
         <div className="border-t border-gray-100 px-4 py-2.5">
-          <CommentSection comments={item.comments} onAddComment={(text) => onAddComment(item.id, text)} />
+          <CommentSection comments={safeComments} onAddComment={(text) => onAddComment(item.id, text)} />
         </div>
       )}
     </div>
