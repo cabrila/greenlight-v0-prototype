@@ -85,13 +85,13 @@ const MOCK_SETS: ProductionDesignSet[] = [
       { id: "sd-4", name: "Amber Specimen Display", source: "fabricated", quantity: 1, notes: "Hero prop, close-up ready" },
     ],
     lighting: [
-      { id: "lf-1", name: "Desert Sun Rig (18K HMI)", type: "motivated", wattage: "18,000W", dimmable: false, notes: "Primary key through diffusion", fixtureImage: "/placeholder.svg?height=120&width=120", lightExampleImage: "/placeholder.svg?height=120&width=120" },
-      { id: "lf-2", name: "Tent Practicals (Lanterns)", type: "practical", wattage: "60W", dimmable: true, fixtureImage: "/placeholder.svg?height=120&width=120" },
+      { id: "lf-1", name: "Desert Sun Rig (18K HMI)", type: "motivated", wattage: "18,000W", dimmable: false, notes: "Primary key through diffusion", fixtureImage: "", lightExampleImage: "" },
+      { id: "lf-2", name: "Tent Practicals (Lanterns)", type: "practical", wattage: "60W", dimmable: true, fixtureImage: "" },
     ],
     moodBoard: [
-      { id: "mb-1", url: "/placeholder.svg?height=300&width=400", caption: "Badlands rock formation reference", tags: ["terrain", "color"], addedAt: Date.now() - 14 * 86400000 },
-      { id: "mb-2", url: "/placeholder.svg?height=300&width=400", caption: "Excavation camp layout", tags: ["layout", "camp"], addedAt: Date.now() - 12 * 86400000 },
-      { id: "mb-3", url: "/placeholder.svg?height=300&width=400", caption: "Fossil bed texture detail", tags: ["texture", "prop"], addedAt: Date.now() - 10 * 86400000 },
+      { id: "mb-1", url: "", caption: "Badlands rock formation reference", tags: ["terrain", "color"], addedAt: Date.now() - 14 * 86400000 },
+      { id: "mb-2", url: "", caption: "Excavation camp layout", tags: ["layout", "camp"], addedAt: Date.now() - 12 * 86400000 },
+      { id: "mb-3", url: "", caption: "Fossil bed texture detail", tags: ["texture", "prop"], addedAt: Date.now() - 10 * 86400000 },
     ],
     estimatedBudget: "$45,000",
     actualBudget: "$42,300",
@@ -124,8 +124,8 @@ const MOCK_SETS: ProductionDesignSet[] = [
       { id: "lf-5", name: "Emergency Red Lights", type: "effect", wattage: "40W", dimmable: false, notes: "Triggered by power-failure scene" },
     ],
     moodBoard: [
-      { id: "mb-4", url: "/placeholder.svg?height=300&width=400", caption: "Museum rotunda inspiration", tags: ["architecture", "grand"], addedAt: Date.now() - 20 * 86400000 },
-      { id: "mb-5", url: "/placeholder.svg?height=300&width=400", caption: "Amber lighting mood", tags: ["lighting", "warm"], addedAt: Date.now() - 18 * 86400000 },
+      { id: "mb-4", url: "", caption: "Museum rotunda inspiration", tags: ["architecture", "grand"], addedAt: Date.now() - 20 * 86400000 },
+      { id: "mb-5", url: "", caption: "Amber lighting mood", tags: ["lighting", "warm"], addedAt: Date.now() - 18 * 86400000 },
     ],
     estimatedBudget: "$120,000",
     actualBudget: "$95,500",
@@ -154,7 +154,7 @@ const MOCK_SETS: ProductionDesignSet[] = [
       { id: "lf-7", name: "Freezer Interior Light", type: "motivated", wattage: "60W", dimmable: true },
     ],
     moodBoard: [
-      { id: "mb-6", url: "/placeholder.svg?height=300&width=400", caption: "Industrial kitchen reference", tags: ["steel", "industrial"], addedAt: Date.now() - 8 * 86400000 },
+      { id: "mb-6", url: "", caption: "Industrial kitchen reference", tags: ["steel", "industrial"], addedAt: Date.now() - 8 * 86400000 },
     ],
     estimatedBudget: "$35,000",
     notes: "Animatronic clearance: minimum 9ft ceiling required. Floor protection for raptor feet mechanisms.",
@@ -181,7 +181,7 @@ const MOCK_SETS: ProductionDesignSet[] = [
       { id: "lf-9", name: "Overhead Fluorescent Grid", type: "ambient", wattage: "240W", dimmable: true, notes: "Flickers during power cut" },
     ],
     moodBoard: [
-      { id: "mb-7", url: "/placeholder.svg?height=300&width=400", caption: "90s control room aesthetic", tags: ["tech", "retro"], addedAt: Date.now() - 5 * 86400000 },
+      { id: "mb-7", url: "", caption: "90s control room aesthetic", tags: ["tech", "retro"], addedAt: Date.now() - 5 * 86400000 },
     ],
     estimatedBudget: "$65,000",
     notes: "All monitors need functional screen content. Coordinate with VFX for park tracking UI.",
@@ -239,12 +239,28 @@ const MOCK_TASKS: ConstructionTask[] = [
 
 const PD_STORAGE_KEY = "greenlight-production-design-sets"
 
+function sanitizeUrl(url?: string): string {
+  if (!url || url.includes("placeholder.svg")) return ""
+  return url
+}
+
 function loadSavedSets(): ProductionDesignSet[] | null {
   try {
     const raw = localStorage.getItem(PD_STORAGE_KEY)
     if (raw) {
       const parsed = JSON.parse(raw)
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        // Sanitize any placeholder.svg URLs from old saved data
+        return parsed.map((set: ProductionDesignSet) => ({
+          ...set,
+          moodBoard: set.moodBoard.map((img) => ({ ...img, url: sanitizeUrl(img.url) })),
+          lighting: set.lighting.map((lf) => ({
+            ...lf,
+            fixtureImage: sanitizeUrl(lf.fixtureImage),
+            lightExampleImage: sanitizeUrl(lf.lightExampleImage),
+          })),
+        }))
+      }
     }
   } catch { /* ignore corrupt data */ }
   return null
@@ -1866,7 +1882,7 @@ function SubItemFormOverlay({ type, existingItem, onSave, onClose }: {
   /* Lighting form */
   const [lfForm, setLfForm] = useState({ name: existingItem?.name || "", type: existingItem?.type || "practical", wattage: existingItem?.wattage || "", dimmable: existingItem?.dimmable ?? true, notes: existingItem?.notes || "" })
   /* Mood board form */
-  const [mbForm, setMbForm] = useState({ caption: existingItem?.caption || "", tags: existingItem?.tags?.join(", ") || "", url: existingItem?.url || "/placeholder.svg?height=300&width=400" })
+  const [mbForm, setMbForm] = useState({ caption: existingItem?.caption || "", tags: existingItem?.tags?.join(", ") || "", url: existingItem?.url || "" })
 
   const handleSave = () => {
     const id = existingItem?.id || uid()
