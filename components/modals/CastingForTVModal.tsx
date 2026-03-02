@@ -1441,6 +1441,322 @@ export default function CastingForTVModal({ onClose }: CastingForTVModalProps) {
           </div>
         </>
       )}
+
+      {/* Add New List Modal */}
+      {showAddListModal && (
+        <>
+          <div className="fixed inset-0 bg-black/40 z-50" onClick={() => setShowAddListModal(false)} />
+          <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-white rounded-2xl shadow-2xl z-50">
+            <div className="p-4 border-b border-gray-200 flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                <FolderPlus className="w-5 h-5 text-cyan-600" />
+                Create New List
+              </h3>
+              <button onClick={() => setShowAddListModal(false)} className="p-1 rounded hover:bg-gray-100 text-gray-400">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-4 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">List Name</label>
+                <input
+                  type="text"
+                  value={newListName}
+                  onChange={(e) => setNewListName(e.target.value)}
+                  placeholder="e.g., Final Candidates"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                  autoFocus
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Description (optional)</label>
+                <textarea
+                  value={newListDescription}
+                  onChange={(e) => setNewListDescription(e.target.value)}
+                  placeholder="Brief description of this list..."
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent resize-none"
+                  rows={2}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Color</label>
+                <div className="flex gap-2 flex-wrap">
+                  {["bg-cyan-500", "bg-emerald-500", "bg-blue-500", "bg-purple-500", "bg-pink-500", "bg-amber-500", "bg-red-500", "bg-gray-500"].map((color) => (
+                    <button
+                      key={color}
+                      onClick={() => setNewListColor(color)}
+                      className={`w-8 h-8 rounded-full ${color} transition-transform ${newListColor === color ? "ring-2 ring-offset-2 ring-gray-400 scale-110" : "hover:scale-105"}`}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="p-4 border-t border-gray-200 flex gap-2">
+              <button
+                onClick={() => setShowAddListModal(false)}
+                className="flex-1 px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleAddList}
+                disabled={!newListName.trim()}
+                className="flex-1 px-4 py-2 bg-cyan-600 text-white rounded-lg text-sm font-medium hover:bg-cyan-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Create List
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Edit Participant Modal */}
+      {showEditModal && editingParticipant && (
+        <>
+          <div className="fixed inset-0 bg-black/40 z-50" onClick={() => setShowEditModal(false)} />
+          <div className="fixed inset-y-4 left-1/2 -translate-x-1/2 w-full max-w-2xl bg-white rounded-2xl shadow-2xl z-50 flex flex-col max-h-[calc(100vh-2rem)]">
+            <div className="p-4 border-b border-gray-200 flex items-center justify-between shrink-0">
+              <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                <Edit3 className="w-5 h-5 text-cyan-600" />
+                Edit Participant
+              </h3>
+              <button onClick={() => setShowEditModal(false)} className="p-1 rounded hover:bg-gray-100 text-gray-400">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-4 space-y-6">
+              {/* Basic Info */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                  <input
+                    type="text"
+                    value={editingParticipant.name}
+                    onChange={(e) => setEditingParticipant({ ...editingParticipant, name: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Age</label>
+                  <input
+                    type="number"
+                    value={editingParticipant.age}
+                    onChange={(e) => setEditingParticipant({ ...editingParticipant, age: parseInt(e.target.value) || 0 })}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                  <input
+                    type="text"
+                    value={editingParticipant.location}
+                    onChange={(e) => setEditingParticipant({ ...editingParticipant, location: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Occupation</label>
+                  <input
+                    type="text"
+                    value={editingParticipant.occupation}
+                    onChange={(e) => setEditingParticipant({ ...editingParticipant, occupation: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  />
+                </div>
+              </div>
+
+              {/* Contact Info */}
+              <div>
+                <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                  <Phone className="w-4 h-4" />
+                  Contact Information
+                </h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs text-gray-500 mb-1">Email</label>
+                    <input
+                      type="email"
+                      value={editingParticipant.email || ""}
+                      onChange={(e) => setEditingParticipant({ ...editingParticipant, email: e.target.value })}
+                      placeholder="email@example.com"
+                      className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-500 mb-1">Phone</label>
+                    <input
+                      type="tel"
+                      value={editingParticipant.phone || ""}
+                      onChange={(e) => setEditingParticipant({ ...editingParticipant, phone: e.target.value })}
+                      placeholder="+1 (555) 123-4567"
+                      className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Archetypes */}
+              <div>
+                <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                  <Tag className="w-4 h-4" />
+                  Archetypes
+                </h4>
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {editingParticipant.archetype.map((arch) => (
+                    <span
+                      key={arch}
+                      className="px-2 py-1 bg-cyan-50 text-cyan-700 rounded-lg text-xs font-medium flex items-center gap-1"
+                    >
+                      {arch}
+                      <button
+                        onClick={() => setEditingParticipant({
+                          ...editingParticipant,
+                          archetype: editingParticipant.archetype.filter((a) => a !== arch)
+                        })}
+                        className="hover:text-red-500"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+                <select
+                  value=""
+                  onChange={(e) => {
+                    if (e.target.value && !editingParticipant.archetype.includes(e.target.value)) {
+                      setEditingParticipant({
+                        ...editingParticipant,
+                        archetype: [...editingParticipant.archetype, e.target.value]
+                      })
+                    }
+                  }}
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                >
+                  <option value="">Add archetype...</option>
+                  {customArchetypes.filter((a) => !editingParticipant.archetype.includes(a)).map((arch) => (
+                    <option key={arch} value={arch}>{arch}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Social Media Links */}
+              <div>
+                <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                  <Globe className="w-4 h-4" />
+                  Social Media Links
+                </h4>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Instagram className="w-4 h-4 text-pink-600 shrink-0" />
+                    <input
+                      type="text"
+                      value={editingParticipant.socialHandles.instagram || ""}
+                      onChange={(e) => setEditingParticipant({
+                        ...editingParticipant,
+                        socialHandles: { ...editingParticipant.socialHandles, instagram: e.target.value }
+                      })}
+                      placeholder="@username"
+                      className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                    />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Video className="w-4 h-4 text-gray-800 shrink-0" />
+                    <input
+                      type="text"
+                      value={editingParticipant.socialHandles.tiktok || ""}
+                      onChange={(e) => setEditingParticipant({
+                        ...editingParticipant,
+                        socialHandles: { ...editingParticipant.socialHandles, tiktok: e.target.value }
+                      })}
+                      placeholder="@username"
+                      className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                    />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Twitter className="w-4 h-4 text-blue-500 shrink-0" />
+                    <input
+                      type="text"
+                      value={editingParticipant.socialHandles.twitter || ""}
+                      onChange={(e) => setEditingParticipant({
+                        ...editingParticipant,
+                        socialHandles: { ...editingParticipant.socialHandles, twitter: e.target.value }
+                      })}
+                      placeholder="@username"
+                      className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                    />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Youtube className="w-4 h-4 text-red-600 shrink-0" />
+                    <input
+                      type="text"
+                      value={editingParticipant.socialHandles.youtube || ""}
+                      onChange={(e) => setEditingParticipant({
+                        ...editingParticipant,
+                        socialHandles: { ...editingParticipant.socialHandles, youtube: e.target.value }
+                      })}
+                      placeholder="https://youtube.com/..."
+                      className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                    />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Globe className="w-4 h-4 text-cyan-600 shrink-0" />
+                    <input
+                      type="text"
+                      value={editingParticipant.socialHandles.website || ""}
+                      onChange={(e) => setEditingParticipant({
+                        ...editingParticipant,
+                        socialHandles: { ...editingParticipant.socialHandles, website: e.target.value }
+                      })}
+                      placeholder="https://..."
+                      className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                    />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Users className="w-4 h-4 text-gray-500 shrink-0" />
+                    <input
+                      type="number"
+                      value={editingParticipant.socialHandles.followerCount || ""}
+                      onChange={(e) => setEditingParticipant({
+                        ...editingParticipant,
+                        socialHandles: { ...editingParticipant.socialHandles, followerCount: parseInt(e.target.value) || undefined }
+                      })}
+                      placeholder="Total follower count"
+                      className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Notes */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+                <textarea
+                  value={editingParticipant.notes || ""}
+                  onChange={(e) => setEditingParticipant({ ...editingParticipant, notes: e.target.value })}
+                  placeholder="Additional notes about this participant..."
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 resize-none"
+                  rows={3}
+                />
+              </div>
+            </div>
+            <div className="p-4 border-t border-gray-200 flex gap-2 shrink-0">
+              <button
+                onClick={() => setShowEditModal(false)}
+                className="flex-1 px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleUpdateParticipant(editingParticipant)}
+                className="flex-1 px-4 py-2 bg-cyan-600 text-white rounded-lg text-sm font-medium hover:bg-cyan-700 flex items-center justify-center gap-2"
+              >
+                <Save className="w-4 h-4" />
+                Save Changes
+              </button>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   )
 }
