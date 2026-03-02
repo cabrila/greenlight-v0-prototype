@@ -218,7 +218,7 @@ export default function ActorCard({
         .toUpperCase()
 
     const size = viewMode === "list-view" ? "48x48" : viewMode === "simple" ? "120x120" : "200x240"
-    return `/placeholder.svg?height=${size.split("x")[0]}&width=${size.split("x")[1]}&text=${encodeURIComponent(placeholderSeed)}`
+    return ""
   }
 
   const handleImageLoad = (index: number) => {
@@ -989,7 +989,7 @@ export default function ActorCard({
         {/* Actor Image */}
         <div className="relative w-16 h-16 flex-shrink-0">
           <img
-            src={getCurrentImageUrl() || "/placeholder.svg"}
+            src={getCurrentImageUrl() || ""}
             alt={actor.name}
             className="w-full h-full object-cover rounded-lg"
             onLoad={() => handleImageLoad(currentHeadshotIndex)}
@@ -1091,7 +1091,7 @@ export default function ActorCard({
             onDrop={handleImageDrop}
           >
             <img
-              src={getCurrentImageUrl() || "/placeholder.svg"}
+              src={getCurrentImageUrl() || ""}
               alt={actor.name}
               className="w-full h-full object-cover"
               onLoad={() => handleImageLoad(currentHeadshotIndex)}
@@ -1299,7 +1299,7 @@ export default function ActorCard({
               onDrop={handleImageDrop}
             >
               <img
-                src={getCurrentImageUrl() || "/placeholder.svg"}
+                src={getCurrentImageUrl() || ""}
                 alt={actor.name}
                 className="w-full h-full object-cover"
                 onLoad={() => handleImageLoad(currentHeadshotIndex)}

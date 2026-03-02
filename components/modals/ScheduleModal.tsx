@@ -1212,7 +1212,7 @@ export default function ScheduleModal({ onClose }: ScheduleModalProps) {
                         <div className="relative flex-shrink-0">
                           {actor.headshots?.[0] ? (
                             <img
-                              src={actor.headshots[0] || "/placeholder.svg"}
+                              src={actor.headshots[0] || ""}
                               alt={actor.name}
                               className="w-16 h-16 rounded-lg object-cover"
                             />

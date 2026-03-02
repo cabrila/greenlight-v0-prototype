@@ -830,7 +830,7 @@ export default function EditActorModal({ onClose, actor, characterId }: EditActo
                   {headshotPreviews.map((preview, index) => (
                     <div key={index} className="relative group">
                       <img
-                        src={preview || "/placeholder.svg"}
+                        src={preview || ""}
                         alt={`Headshot ${index + 1}`}
                         className="w-full h-24 object-cover rounded-lg border border-gray-200"
                       />

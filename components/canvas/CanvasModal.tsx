@@ -1631,7 +1631,7 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
                         >
                           <div className="aspect-[3/4] relative rounded-t-lg overflow-hidden">
                             <img
-                              src={actor.headshots?.[0] || '/placeholder.svg?height=200&width=150'}
+                              src={actor.headshots?.[0] || ""}
                               alt={actor.name}
                               className="w-full h-full object-cover"
                             />
@@ -2081,7 +2081,7 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
                           // Collapsed view: Just thumbnail
                           <div className="flex justify-center">
                             <img
-                              src={actor.headshots?.[0] || "/placeholder.svg?height=40&width=40"}
+                              src={actor.headshots?.[0] || ""}
                               alt={actor.name}
                               className="w-12 h-12 rounded-full object-cover border border-gray-200"
                               title={`${actor.name} - From: ${actor.sourceCharacter}`}
@@ -2091,7 +2091,7 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
                           // Expanded view: Full details
                           <div className="flex items-center space-x-3">
                             <img
-                              src={actor.headshots?.[0] || "/placeholder.svg?height=40&width=40"}
+                              src={actor.headshots?.[0] || ""}
                               alt={actor.name}
                               className="w-10 h-10 rounded-full object-cover border border-gray-200"
                             />

@@ -372,7 +372,7 @@ export default function CanvasActorCard({
         <div className="flex">
           <div className={`${imageWidth} relative`}>
             <img
-              src={canvasActor.actor.headshots?.[currentImageIndex] || "/placeholder.svg?height=120&width=96"}
+              src={canvasActor.actor.headshots?.[currentImageIndex] || ""}
               alt={canvasActor.actor.name}
               className="w-full h-full object-cover"
               style={{ aspectRatio: "1/1.2" }}
@@ -528,7 +528,7 @@ export default function CanvasActorCard({
 
         <div className="w-full relative">
           <img
-            src={canvasActor.actor.headshots?.[currentImageIndex] || "/placeholder.svg?height=120&width=120"}
+            src={canvasActor.actor.headshots?.[currentImageIndex] || ""}
             alt={canvasActor.actor.name}
             className="w-full h-full object-cover"
             style={{ aspectRatio: "1/1" }}
@@ -601,7 +601,7 @@ export default function CanvasActorCard({
 
       <div className={`${imageWidth} h-full relative`}>
         <img
-          src={canvasActor.actor.headshots?.[currentImageIndex] || "/placeholder.svg?height=160&width=140"}
+          src={canvasActor.actor.headshots?.[currentImageIndex] || ""}
           alt={canvasActor.actor.name}
           className="w-full h-full object-cover"
           style={{ aspectRatio: "1/1.2" }}

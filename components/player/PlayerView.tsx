@@ -165,12 +165,12 @@ export default function PlayerView() {
 
   const getCurrentImageUrl = () => {
     if (!currentActor?.headshots || currentActor.headshots.length === 0) {
-      return `/placeholder.svg?height=400&width=300&text=${encodeURIComponent(currentActor?.name?.charAt(0) || "?")}`
+      return ""
     }
 
     const headshot = currentActor.headshots[currentHeadshotIndex]
     if (!headshot) {
-      return `/placeholder.svg?height=400&width=300&text=${encodeURIComponent(currentActor?.name?.charAt(0) || "?")}`
+      return ""
     }
 
     return headshot
@@ -235,7 +235,7 @@ export default function PlayerView() {
             {/* Actor Image */}
             <div className="relative max-w-full max-h-full">
               <img
-                src={getCurrentImageUrl() || "/placeholder.svg"}
+                src={getCurrentImageUrl() || ""}
                 alt={currentActor.name}
                 className="max-w-full max-h-full object-contain rounded-lg shadow-lg"
               />

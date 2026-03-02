@@ -647,7 +647,7 @@ export default function FormPreviewModal({
                     {photoPreviews.map((preview, index) => (
                       <div key={index} className="relative group">
                         <img
-                          src={preview || "/placeholder.svg"}
+                          src={preview || ""}
                           alt={`Photo ${index + 1}`}
                           className="w-full h-32 object-cover rounded-lg border border-gray-200"
                         />

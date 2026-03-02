@@ -585,8 +585,8 @@ export default function CharactersModal({ onClose }: CharactersModalProps) {
     // Simulate AI generation delay
     await new Promise((resolve) => setTimeout(resolve, 1500))
 
-    // Generate a placeholder image URL based on character name
-    const placeholderUrl = `/placeholder.svg?height=400&width=600&query=${encodeURIComponent(`concept art portrait of ${characterName} character cinematic dramatic lighting`)}`
+    // Generate a simple placeholder for AI-generated concept art
+    const placeholderUrl = ""
 
     dispatch({
       type: "UPDATE_CHARACTER_CONCEPT_ART",

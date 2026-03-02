@@ -837,7 +837,7 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
                     onClick={() => handleOpenPhotoViewer(currentHeadshotIndex)}
                   >
                     <img
-                      src={getCurrentImageUrl() || "/placeholder.svg"}
+                      src={getCurrentImageUrl() || ""}
                       alt={currentActor.name}
                       className="w-full h-full rounded-xl object-cover border-2 border-white dark:border-gray-700 shadow-lg group-hover:shadow-xl transition-all duration-300"
                       onLoad={() => handleImageLoad(currentHeadshotIndex)}

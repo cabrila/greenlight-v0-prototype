@@ -141,9 +141,9 @@ const processImageUrl = async (imageUrl: string): Promise<string | null> => {
       throw new Error("URL does not point to a valid image")
     }
 
-    // For local file paths, we'll use a placeholder since we can't access local files
+    // For local file paths, return null since we can't access local files
     // In a real implementation, this would handle file uploads differently
-    return `/placeholder.svg?height=400&width=300&text=${encodeURIComponent("Headshot")}`
+    return null
   } catch (error) {
     console.warn("Failed to process image URL:", imageUrl, error)
     return null
@@ -983,7 +983,7 @@ export default function UploadCSVModal({ onClose, characterId }: UploadCSVModalP
                   alt={actor.name}
                   className="w-full h-full object-cover"
                   onError={(e) => {
-                    ;(e.target as HTMLImageElement).src = "/placeholder.svg?height=40&width=40"
+                    ;(e.target as HTMLImageElement).style.display = "none"
                   }}
                 />
               ) : (
@@ -1090,7 +1090,7 @@ export default function UploadCSVModal({ onClose, characterId }: UploadCSVModalP
                           alt={actor.name}
                           className="w-full h-full object-cover"
                           onError={(e) => {
-                            ;(e.target as HTMLImageElement).src = "/placeholder.svg?height=96&width=80"
+                            ;(e.target as HTMLImageElement).style.display = "none"
                           }}
                         />
                       ) : (

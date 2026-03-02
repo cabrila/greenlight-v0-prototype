@@ -1001,7 +1001,7 @@ export default function AddActorModal({ onClose, characterId }: AddActorModalPro
                   {headshotPreviews.map((preview, index) => (
                     <div key={index} className="relative">
                       <img
-                        src={preview || "/placeholder.svg"}
+                        src={preview || ""}
                         alt={`Headshot ${index + 1}`}
                         className="w-full h-32 object-cover rounded-lg"
                       />
