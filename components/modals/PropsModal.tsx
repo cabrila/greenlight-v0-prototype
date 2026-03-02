@@ -144,7 +144,7 @@ function FloatingSelect({ label, value, onChange, options }: { label: string; va
 
 function ImageUploadBox({ imageUrl, onImageChange, className }: { imageUrl: string; onImageChange: (url: string) => void; className?: string }) {
   const inputRef = useRef<HTMLInputElement>(null)
-  const isPlaceholder = imageUrl.includes("placeholder.svg")
+  const isPlaceholder = !imageUrl || imageUrl.includes("placeholder.svg")
 
   const handleFile = async (file: File) => {
     if (!file.type.startsWith("image/")) return

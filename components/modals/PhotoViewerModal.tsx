@@ -106,8 +106,8 @@ export default function PhotoViewerModal({ photos, initialIndex, actorName, onCl
       return photo
     }
 
-    // If it's just a name/identifier, generate placeholder
-    return `/placeholder.svg?height=600&width=600&text=${encodeURIComponent(photo)}`
+    // If it's just a name/identifier, return empty string
+    return ""
   }
 
   const currentPhoto = getImageUrl(currentIndex)
