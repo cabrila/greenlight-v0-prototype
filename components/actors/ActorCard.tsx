@@ -1097,14 +1097,12 @@ export default function ActorCard({
             onDrop={handleImageDrop}
           >
             <img
-src={getCurrentImageUrl() || undefined}
-            alt={actor.name}
-            className={`w-full h-full object-cover transition-opacity duration-200 ${
-              imageStates[currentHeadshotIndex]?.loading ? "opacity-50" : "opacity-100"
-            }`}
-            onLoad={() => handleImageLoad(currentHeadshotIndex)}
-            onError={() => handleImageError(currentHeadshotIndex)}
-            onLoadStart={() => handleImageLoadStart(currentHeadshotIndex)}
+              src={getCurrentImageUrl() || undefined}
+              alt={actor.name}
+              className="w-full h-full object-cover transition-opacity duration-200"
+              onLoad={() => handleImageLoad(currentHeadshotIndex)}
+              onError={() => handleImageError(currentHeadshotIndex)}
+              onLoadStart={() => handleImageLoadStart(currentHeadshotIndex)}
             />
 
             {/* Upload Overlay */}
@@ -1307,11 +1305,9 @@ src={getCurrentImageUrl() || undefined}
               onDrop={handleImageDrop}
             >
               <img
-src={getCurrentImageUrl() || undefined}
+                src={getCurrentImageUrl() || undefined}
                 alt={actor.name}
-                className={`w-full h-full object-cover transition-opacity duration-200 ${
-                  imageStates[currentHeadshotIndex]?.loading ? "opacity-50" : "opacity-100"
-                }`}
+                className="w-full h-full object-cover transition-opacity duration-200"
                 onLoad={() => handleImageLoad(currentHeadshotIndex)}
                 onError={() => handleImageError(currentHeadshotIndex)}
                 onLoadStart={() => handleImageLoadStart(currentHeadshotIndex)}
