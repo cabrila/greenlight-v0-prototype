@@ -12,6 +12,23 @@ import CreateGroupModal from "./CreateGroupModal"
 import CanvasChatbot from "./CanvasChatbot"
 import { openModal, closeAllModals } from "../modals/ModalManager"
 
+// Helper to sanitize placeholder.svg URLs from loaded data
+function sanitizeUrl(url?: string): string {
+  if (!url || url.includes("placeholder.svg")) return ""
+  return url
+}
+
+function sanitizeCanvasActors(actors: any[]): any[] {
+  return actors.map((actor) => ({
+    ...actor,
+    actor: actor.actor ? {
+      ...actor.actor,
+      headshots: actor.actor.headshots?.map(sanitizeUrl).filter(Boolean) || [],
+      photo: sanitizeUrl(actor.actor.photo),
+    } : actor.actor,
+  }))
+}
+
 interface CanvasActor {
   id: string
   actorId: string
@@ -907,7 +924,7 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
     const saved = localStorage.getItem(canvasId)
     if (saved) {
       const canvasData = JSON.parse(saved)
-      setCanvasActors(canvasData.actors || [])
+      setCanvasActors(sanitizeCanvasActors(canvasData.actors || []))
       setCanvasGroups(canvasData.groups || [])
       setZoom(canvasData.zoom || 1)
       setPan(canvasData.pan || { x: 0, y: 0 })
@@ -943,7 +960,7 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
     const saved = localStorage.getItem(`canvas-${state.currentFocus.currentProjectId}`)
     if (saved) {
       const canvasData = JSON.parse(saved)
-      setCanvasActors(canvasData.actors || [])
+      setCanvasActors(sanitizeCanvasActors(canvasData.actors || []))
       setCanvasGroups(canvasData.groups || [])
       setZoom(canvasData.zoom || 1)
       setPan(canvasData.pan || { x: 0, y: 0 })
