@@ -988,14 +988,20 @@ export default function ActorCard({
 
         {/* Actor Image */}
         <div className="relative w-16 h-16 flex-shrink-0">
-          <img
-            src={getCurrentImageUrl() || ""}
-            alt={actor.name}
-            className="w-full h-full object-cover rounded-lg"
-            onLoad={() => handleImageLoad(currentHeadshotIndex)}
-            onError={() => handleImageError(currentHeadshotIndex)}
-            onLoadStart={() => handleImageLoadStart(currentHeadshotIndex)}
-          />
+          {getCurrentImageUrl() ? (
+            <img
+              src={getCurrentImageUrl()}
+              alt={actor.name}
+              className="w-full h-full object-cover rounded-lg"
+              onLoad={() => handleImageLoad(currentHeadshotIndex)}
+              onError={() => handleImageError(currentHeadshotIndex)}
+              onLoadStart={() => handleImageLoadStart(currentHeadshotIndex)}
+            />
+          ) : (
+            <div className="w-full h-full rounded-lg bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center text-slate-400 text-xl font-bold">
+              {actor.name.charAt(0).toUpperCase()}
+            </div>
+          )}
           {actor.headshots && actor.headshots.length > 1 && (
             <div className="absolute -bottom-1 -right-1 bg-slate-600 text-white text-xs px-1 rounded">
               {currentHeadshotIndex + 1}/{actor.headshots.length}
@@ -1091,12 +1097,14 @@ export default function ActorCard({
             onDrop={handleImageDrop}
           >
             <img
-              src={getCurrentImageUrl() || ""}
-              alt={actor.name}
-              className="w-full h-full object-cover"
-              onLoad={() => handleImageLoad(currentHeadshotIndex)}
-              onError={() => handleImageError(currentHeadshotIndex)}
-              onLoadStart={() => handleImageLoadStart(currentHeadshotIndex)}
+src={getCurrentImageUrl() || undefined}
+            alt={actor.name}
+            className={`w-full h-full object-cover transition-opacity duration-200 ${
+              imageStates[currentHeadshotIndex]?.loading ? "opacity-50" : "opacity-100"
+            }`}
+            onLoad={() => handleImageLoad(currentHeadshotIndex)}
+            onError={() => handleImageError(currentHeadshotIndex)}
+            onLoadStart={() => handleImageLoadStart(currentHeadshotIndex)}
             />
 
             {/* Upload Overlay */}
@@ -1299,9 +1307,11 @@ export default function ActorCard({
               onDrop={handleImageDrop}
             >
               <img
-                src={getCurrentImageUrl() || ""}
+src={getCurrentImageUrl() || undefined}
                 alt={actor.name}
-                className="w-full h-full object-cover"
+                className={`w-full h-full object-cover transition-opacity duration-200 ${
+                  imageStates[currentHeadshotIndex]?.loading ? "opacity-50" : "opacity-100"
+                }`}
                 onLoad={() => handleImageLoad(currentHeadshotIndex)}
                 onError={() => handleImageError(currentHeadshotIndex)}
                 onLoadStart={() => handleImageLoadStart(currentHeadshotIndex)}

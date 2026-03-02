@@ -187,19 +187,26 @@ export default function PhotoViewerModal({ photos, initialIndex, actorName, onCl
 
           {/* Main Image */}
           <div className="w-full h-full flex items-center justify-center p-4">
-            <img
-              src={currentPhoto || ""}
-              alt={`${actorName} - Photo ${currentIndex + 1}`}
-              className={`max-w-full max-h-full object-contain transition-all duration-300 ${
-                isZoomed ? "scale-150 cursor-zoom-out" : "cursor-zoom-in"
-              }`}
-              style={{
-                transform: `rotate(${rotation}deg) ${isZoomed ? "scale(1.5)" : "scale(1)"}`,
-              }}
-              onClick={() => setIsZoomed(!isZoomed)}
-              onLoad={() => handleImageLoad(currentIndex)}
-              onError={() => handleImageError(currentIndex)}
-            />
+            {currentPhoto ? (
+              <img
+                src={currentPhoto}
+                alt={`${actorName} - Photo ${currentIndex + 1}`}
+                className={`max-w-full max-h-full object-contain transition-all duration-300 ${
+                  isZoomed ? "scale-150 cursor-zoom-out" : "cursor-zoom-in"
+                }`}
+                style={{
+                  transform: `rotate(${rotation}deg) ${isZoomed ? "scale(1.5)" : "scale(1)"}`,
+                }}
+                onClick={() => setIsZoomed(!isZoomed)}
+                onLoad={() => handleImageLoad(currentIndex)}
+                onError={() => handleImageError(currentIndex)}
+              />
+            ) : (
+              <div className="text-slate-400 text-center">
+                <div className="text-6xl mb-4">📷</div>
+                <p>No image available</p>
+              </div>
+            )}
           </div>
 
           {/* Thumbnail Strip */}

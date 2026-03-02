@@ -420,7 +420,7 @@ export default function DatabaseModal({ onClose }: DatabaseModalProps) {
           <div className="flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden bg-slate-100 border border-slate-200">
             {actorImage && !imageError ? (
               <img
-                src={actorImage || ""}
+                src={actorImage}
                 alt={actor.name}
                 className="w-full h-full object-cover"
                 onError={() => setImageError(true)}

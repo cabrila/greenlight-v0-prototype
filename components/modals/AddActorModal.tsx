@@ -1000,11 +1000,17 @@ export default function AddActorModal({ onClose, characterId }: AddActorModalPro
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
                   {headshotPreviews.map((preview, index) => (
                     <div key={index} className="relative">
-                      <img
-                        src={preview || ""}
-                        alt={`Headshot ${index + 1}`}
-                        className="w-full h-32 object-cover rounded-lg"
-                      />
+                      {preview ? (
+                        <img
+                          src={preview}
+                          alt={`Headshot ${index + 1}`}
+                          className="w-full h-32 object-cover rounded-lg"
+                        />
+                      ) : (
+                        <div className="w-full h-32 rounded-lg bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center text-slate-400">
+                          No image
+                        </div>
+                      )}
                       <button
                         onClick={() => handleRemoveHeadshot(index)}
                         className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"

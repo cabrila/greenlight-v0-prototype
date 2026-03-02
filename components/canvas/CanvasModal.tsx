@@ -1647,11 +1647,17 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
                           onClick={() => !isOnCanvas && handleAddActorToCanvas(actor)}
                         >
                           <div className="aspect-[3/4] relative rounded-t-lg overflow-hidden">
-                            <img
-                              src={actor.headshots?.[0] || ""}
-                              alt={actor.name}
-                              className="w-full h-full object-cover"
-                            />
+                            {actor.headshots?.[0] ? (
+                              <img
+                                src={actor.headshots[0]}
+                                alt={actor.name}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center text-slate-400 text-xl font-bold">
+                                {actor.name?.charAt(0)?.toUpperCase() || "?"}
+                              </div>
+                            )}
                             {isOnCanvas && (
                               <div className="absolute inset-0 bg-emerald-500/20 flex items-center justify-center">
                                 <div className="bg-emerald-500 text-white px-2 py-1 rounded-full text-xs font-medium">

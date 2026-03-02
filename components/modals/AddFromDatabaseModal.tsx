@@ -565,9 +565,9 @@ export default function AddFromDatabaseModal({ onClose, characterId }: AddFromDa
 
                     {/* Actor Image */}
                     <div className="aspect-[3/4] bg-muted">
-                      {actor.headshots && actor.headshots.length > 0 ? (
+                      {actor.headshots && actor.headshots.length > 0 && actor.headshots[0] ? (
                         <img
-                          src={actor.headshots[0] || ""}
+                          src={actor.headshots[0]}
                           alt={actor.name}
                           className="w-full h-full object-cover"
                         />
@@ -635,9 +635,9 @@ export default function AddFromDatabaseModal({ onClose, characterId }: AddFromDa
 
                     {/* Actor Image */}
                     <div className="w-14 h-14 rounded-lg overflow-hidden bg-muted flex-shrink-0">
-                      {actor.headshots && actor.headshots.length > 0 ? (
+                      {actor.headshots && actor.headshots.length > 0 && actor.headshots[0] ? (
                         <img
-                          src={actor.headshots[0] || ""}
+                          src={actor.headshots[0]}
                           alt={actor.name}
                           className="w-full h-full object-cover"
                         />

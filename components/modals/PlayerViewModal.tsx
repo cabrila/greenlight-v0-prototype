@@ -836,13 +836,19 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
                     className="w-32 h-32 sm:w-36 sm:h-36 lg:w-40 lg:h-40 xl:w-44 xl:h-44 mx-auto relative cursor-pointer group"
                     onClick={() => handleOpenPhotoViewer(currentHeadshotIndex)}
                   >
-                    <img
-                      src={getCurrentImageUrl() || ""}
-                      alt={currentActor.name}
-                      className="w-full h-full rounded-xl object-cover border-2 border-white dark:border-gray-700 shadow-lg group-hover:shadow-xl transition-all duration-300"
-                      onLoad={() => handleImageLoad(currentHeadshotIndex)}
-                      onError={() => handleImageError(currentHeadshotIndex)}
-                    />
+                    {getCurrentImageUrl() ? (
+                      <img
+                        src={getCurrentImageUrl()}
+                        alt={currentActor.name}
+                        className="w-full h-full rounded-xl object-cover border-2 border-white dark:border-gray-700 shadow-lg group-hover:shadow-xl transition-all duration-300"
+                        onLoad={() => handleImageLoad(currentHeadshotIndex)}
+                        onError={() => handleImageError(currentHeadshotIndex)}
+                      />
+                    ) : (
+                      <div className="w-full h-full rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center text-slate-400 text-3xl font-bold border-2 border-white shadow-lg">
+                        {currentActor.name?.charAt(0)?.toUpperCase() || "?"}
+                      </div>
+                    )}
 
                     {/* Navigation for Headshots - Responsive */}
                     {headshots.length > 1 && (
