@@ -42,6 +42,7 @@ import LocationsModal from "./LocationsModal"
 import CostumesModal from "./CostumesModal"
 import ScriptModal from "./ScriptModal"
 import ProductionDesignModal from "./ProductionDesignModal"
+import CastingForTVModal from "./CastingForTVModal"
 
 export interface ModalState {
   type: string | null
@@ -275,6 +276,8 @@ export default function ModalManager() {
           return <ScriptModal onClose={handleClose} />
         case "productionDesign":
           return <ProductionDesignModal onClose={handleClose} />
+        case "castingForTV":
+          return <CastingForTVModal onClose={handleClose} />
         default:
           return null
       }
@@ -293,7 +296,8 @@ export default function ModalManager() {
       modal.type === "costumes" ||
       modal.type === "script" ||
       modal.type === "schedule" ||
-      modal.type === "productionDesign"
+      modal.type === "productionDesign" ||
+      modal.type === "castingForTV"
     ) {
       return <div key={`modal-${index}`}>{modalContent}</div>
     }

@@ -1393,6 +1393,7 @@ Please ensure you're importing a file exported from this application, or check t
               <option value="">Select type...</option>
               <option value="Feature Film">Feature Film</option>
               <option value="TV Series">TV Series</option>
+              <option value="Non-Fiction TV">Non-Fiction TV</option>
               <option value="Short Film">Short Film</option>
               <option value="Commercial">Commercial</option>
               <option value="Theater">Theater</option>
@@ -1516,6 +1517,7 @@ Please ensure you're importing a file exported from this application, or check t
               >
                 <option value="Feature Film">Feature Film</option>
                 <option value="TV Series">TV Series</option>
+                <option value="Non-Fiction TV">Non-Fiction TV</option>
                 <option value="Short Film">Short Film</option>
                 <option value="Commercial">Commercial</option>
                 <option value="Theater">Theater</option>
