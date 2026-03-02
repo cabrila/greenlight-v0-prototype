@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useRef, useEffect } from "react"
 import { useCasting } from "@/components/casting/CastingContext"
 import { openModal } from "./ModalManager"
 import {
@@ -39,6 +39,16 @@ import {
   Send,
   SlidersHorizontal,
   Sparkles,
+  Upload,
+  Database,
+  Link,
+  UserPlus,
+  Columns,
+  LayoutGrid,
+  Settings,
+  Shuffle,
+  PieChart,
+  Target,
 } from "lucide-react"
 
 interface CastingForTVModalProps {
@@ -58,6 +68,16 @@ const FUNNEL_STAGES = [
 ] as const
 
 type FunnelStage = (typeof FUNNEL_STAGES)[number]["id"]
+
+// Cast lists for organization
+interface CastList {
+  id: string
+  name: string
+  description?: string
+  participantIds: string[]
+  color: string
+  createdAt: number
+}
 
 // Mock participant data for Non-Fiction TV
 interface Participant {
@@ -81,6 +101,7 @@ interface Participant {
   appliedDate: number
   lastContact?: number
   notes?: string
+  listIds?: string[]
 }
 
 const MOCK_PARTICIPANTS: Participant[] = [
