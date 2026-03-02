@@ -49,6 +49,15 @@ import {
   Shuffle,
   PieChart,
   Target,
+  Save,
+  Twitter,
+  Youtube,
+  Facebook,
+  Globe,
+  Camera,
+  Tag,
+  FolderPlus,
+  Check,
 } from "lucide-react"
 
 interface CastingForTVModalProps {
@@ -91,6 +100,10 @@ interface Participant {
   socialHandles: {
     instagram?: string
     tiktok?: string
+    twitter?: string
+    youtube?: string
+    facebook?: string
+    website?: string
     followerCount?: number
   }
   stage: FunnelStage
@@ -102,6 +115,8 @@ interface Participant {
   lastContact?: number
   notes?: string
   listIds?: string[]
+  email?: string
+  phone?: string
 }
 
 const MOCK_PARTICIPANTS: Participant[] = [
@@ -248,6 +263,27 @@ export default function CastingForTVModal({ onClose }: CastingForTVModalProps) {
     { id: "list-3", name: "Social Stars", description: "High follower count", participantIds: ["p2", "p4", "p8"], color: "bg-pink-500", createdAt: Date.now() - 86400000 },
   ])
   const addDropdownRef = useRef<HTMLDivElement>(null)
+  
+  // Edit participant modal state
+  const [editingParticipant, setEditingParticipant] = useState<Participant | null>(null)
+  const [showEditModal, setShowEditModal] = useState(false)
+  
+  // Add new list state
+  const [showAddListModal, setShowAddListModal] = useState(false)
+  const [newListName, setNewListName] = useState("")
+  const [newListDescription, setNewListDescription] = useState("")
+  const [newListColor, setNewListColor] = useState("bg-cyan-500")
+  
+  // Custom archetypes state
+  const [customArchetypes, setCustomArchetypes] = useState<string[]>([
+    "The Heartthrob", "The Competitor", "The Expert", "The Peacemaker", 
+    "The Villain", "The Wild Card", "The Underdog", "The Hero", 
+    "The Fish out of Water", "The Nerd", "The Diva", "The Artist", 
+    "The Romantic", "The Strategist", "The Comedic Relief"
+  ])
+  const [showArchetypeDropdown, setShowArchetypeDropdown] = useState(false)
+  const [newArchetypeName, setNewArchetypeName] = useState("")
+  const [showAddArchetypeInput, setShowAddArchetypeInput] = useState(false)
 
   const currentProject = state.projects.find((p) => p.id === state.currentFocus.currentProjectId)
   const isNonFictionProject = currentProject?.details.type === "Non-Fiction TV"
@@ -313,6 +349,74 @@ export default function CastingForTVModal({ onClose }: CastingForTVModalProps) {
     setParticipants((prev) =>
       prev.map((p) => (p.id === participantId ? { ...p, starred: !p.starred } : p))
     )
+  }
+
+  // Add new list
+  const handleAddList = () => {
+    if (!newListName.trim()) return
+    const newList: CastList = {
+      id: `list-${Date.now()}`,
+      name: newListName.trim(),
+      description: newListDescription.trim() || undefined,
+      participantIds: [],
+      color: newListColor,
+      createdAt: Date.now(),
+    }
+    setLists((prev) => [...prev, newList])
+    setNewListName("")
+    setNewListDescription("")
+    setNewListColor("bg-cyan-500")
+    setShowAddListModal(false)
+  }
+
+  // Add new archetype
+  const handleAddArchetype = () => {
+    if (!newArchetypeName.trim()) return
+    if (!customArchetypes.includes(newArchetypeName.trim())) {
+      setCustomArchetypes((prev) => [...prev, newArchetypeName.trim()])
+    }
+    setNewArchetypeName("")
+    setShowAddArchetypeInput(false)
+  }
+
+  // Update participant
+  const handleUpdateParticipant = (updated: Participant) => {
+    setParticipants((prev) =>
+      prev.map((p) => (p.id === updated.id ? updated : p))
+    )
+    setEditingParticipant(null)
+    setShowEditModal(false)
+    if (selectedParticipant?.id === updated.id) {
+      setSelectedParticipant(updated)
+    }
+  }
+
+  // Add participant to list
+  const addParticipantToList = (participantId: string, listId: string) => {
+    setLists((prev) =>
+      prev.map((list) =>
+        list.id === listId && !list.participantIds.includes(participantId)
+          ? { ...list, participantIds: [...list.participantIds, participantId] }
+          : list
+      )
+    )
+  }
+
+  // Remove participant from list
+  const removeParticipantFromList = (participantId: string, listId: string) => {
+    setLists((prev) =>
+      prev.map((list) =>
+        list.id === listId
+          ? { ...list, participantIds: list.participantIds.filter((id) => id !== participantId) }
+          : list
+      )
+    )
+  }
+
+  // Open edit modal
+  const openEditModal = (participant: Participant) => {
+    setEditingParticipant({ ...participant })
+    setShowEditModal(true)
   }
 
   const formatDate = (timestamp: number) => {
@@ -488,12 +592,21 @@ export default function CastingForTVModal({ onClose }: CastingForTVModalProps) {
       <div className="w-96 border-l border-gray-200 bg-white flex flex-col">
         <div className="p-4 border-b border-gray-200 flex items-center justify-between">
           <h3 className="font-semibold text-gray-900">Participant Details</h3>
-          <button
-            onClick={() => setSelectedParticipant(null)}
-            className="p-1 rounded hover:bg-gray-100 text-gray-400"
-          >
-            <X className="w-4 h-4" />
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => openEditModal(p)}
+              className="p-1 rounded hover:bg-gray-100 text-gray-400 hover:text-cyan-600"
+              title="Edit participant"
+            >
+              <Edit3 className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setSelectedParticipant(null)}
+              className="p-1 rounded hover:bg-gray-100 text-gray-400"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
@@ -543,28 +656,102 @@ export default function CastingForTVModal({ onClose }: CastingForTVModalProps) {
             </div>
           </div>
 
+          {/* Lists */}
+          <div>
+            <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Lists</h4>
+            <div className="space-y-1.5">
+              {lists.filter((list) => list.participantIds.includes(p.id)).map((list) => (
+                <div key={list.id} className="flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2">
+                  <div className="flex items-center gap-2">
+                    <div className={`w-2.5 h-2.5 rounded-full ${list.color}`} />
+                    <span className="text-xs text-gray-700">{list.name}</span>
+                  </div>
+                  <button
+                    onClick={() => removeParticipantFromList(p.id, list.id)}
+                    className="text-gray-400 hover:text-red-500"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              ))}
+              {/* Add to list dropdown */}
+              <div className="relative">
+                <button
+                  onClick={() => setShowArchetypeDropdown(!showArchetypeDropdown)}
+                  className="w-full flex items-center gap-2 px-3 py-2 border border-dashed border-gray-200 rounded-lg text-xs text-gray-400 hover:text-cyan-600 hover:border-cyan-300 transition-colors"
+                >
+                  <Plus className="w-3 h-3" />
+                  Add to list
+                </button>
+                {showArchetypeDropdown && (
+                  <>
+                    <div className="fixed inset-0 z-10" onClick={() => setShowArchetypeDropdown(false)} />
+                    <div className="absolute top-full left-0 mt-1 w-full bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-20">
+                      {lists.filter((list) => !list.participantIds.includes(p.id)).map((list) => (
+                        <button
+                          key={list.id}
+                          onClick={() => { addParticipantToList(p.id, list.id); setShowArchetypeDropdown(false) }}
+                          className="w-full flex items-center gap-2 px-3 py-2 text-xs text-gray-700 hover:bg-gray-50"
+                        >
+                          <div className={`w-2 h-2 rounded-full ${list.color}`} />
+                          {list.name}
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+
           {/* Social Vibe */}
           <div>
-            <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Social Vibe</h4>
+            <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Social Media</h4>
             <div className="bg-gray-50 rounded-lg p-3 space-y-2">
               {p.socialHandles.instagram && (
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-sm text-gray-700">
+                  <a href={`https://instagram.com/${p.socialHandles.instagram.replace("@", "")}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-gray-700 hover:text-pink-600">
                     <Instagram className="w-4 h-4 text-pink-600" />
                     {p.socialHandles.instagram}
-                  </div>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
                   {p.socialHandles.followerCount && (
                     <span className="text-xs font-semibold text-gray-600">
-                      {formatFollowers(p.socialHandles.followerCount)} followers
+                      {formatFollowers(p.socialHandles.followerCount)}
                     </span>
                   )}
                 </div>
               )}
               {p.socialHandles.tiktok && (
-                <div className="flex items-center gap-2 text-sm text-gray-700">
+                <a href={`https://tiktok.com/${p.socialHandles.tiktok.replace("@", "")}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900">
                   <Video className="w-4 h-4 text-gray-800" />
                   {p.socialHandles.tiktok}
-                </div>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              )}
+              {p.socialHandles.twitter && (
+                <a href={`https://twitter.com/${p.socialHandles.twitter.replace("@", "")}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-gray-700 hover:text-blue-500">
+                  <Twitter className="w-4 h-4 text-blue-500" />
+                  {p.socialHandles.twitter}
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              )}
+              {p.socialHandles.youtube && (
+                <a href={p.socialHandles.youtube} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-gray-700 hover:text-red-600">
+                  <Youtube className="w-4 h-4 text-red-600" />
+                  YouTube
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              )}
+              {p.socialHandles.website && (
+                <a href={p.socialHandles.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-gray-700 hover:text-cyan-600">
+                  <Globe className="w-4 h-4 text-cyan-600" />
+                  Website
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              )}
+              {!p.socialHandles.instagram && !p.socialHandles.tiktok && !p.socialHandles.twitter && !p.socialHandles.youtube && !p.socialHandles.website && (
+                <p className="text-xs text-gray-400 italic">No social links added</p>
               )}
             </div>
           </div>
@@ -760,22 +947,57 @@ export default function CastingForTVModal({ onClose }: CastingForTVModalProps) {
             {showFilters && (
               <>
                 <div className="fixed inset-0 z-10" onClick={() => setShowFilters(false)} />
-                <div className="absolute top-full left-0 mt-1 w-56 bg-white rounded-xl shadow-lg border border-gray-200 py-1 z-20">
+                <div className="absolute top-full left-0 mt-1 w-64 bg-white rounded-xl shadow-lg border border-gray-200 py-1 z-20 max-h-80 overflow-y-auto">
                   <button
                     onClick={() => { setFilterArchetype(null); setShowFilters(false) }}
                     className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-50 ${!filterArchetype ? "text-cyan-600 font-medium" : "text-gray-700"}`}
                   >
                     All Archetypes
                   </button>
-                  {allArchetypes.map((arch) => (
+                  <div className="border-t border-gray-100 my-1" />
+                  {customArchetypes.map((arch) => (
                     <button
                       key={arch}
                       onClick={() => { setFilterArchetype(arch); setShowFilters(false) }}
-                      className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-50 ${filterArchetype === arch ? "text-cyan-600 font-medium" : "text-gray-700"}`}
+                      className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center justify-between ${filterArchetype === arch ? "text-cyan-600 font-medium" : "text-gray-700"}`}
                     >
                       {arch}
+                      {filterArchetype === arch && <Check className="w-4 h-4" />}
                     </button>
                   ))}
+                  <div className="border-t border-gray-100 my-1" />
+                  {showAddArchetypeInput ? (
+                    <div className="px-3 py-2">
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={newArchetypeName}
+                          onChange={(e) => setNewArchetypeName(e.target.value)}
+                          placeholder="New archetype name..."
+                          className="flex-1 px-2 py-1 text-sm border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-cyan-500"
+                          autoFocus
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") handleAddArchetype()
+                            if (e.key === "Escape") setShowAddArchetypeInput(false)
+                          }}
+                        />
+                        <button
+                          onClick={handleAddArchetype}
+                          className="px-2 py-1 bg-cyan-600 text-white rounded text-xs hover:bg-cyan-700"
+                        >
+                          Add
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setShowAddArchetypeInput(true)}
+                      className="w-full px-3 py-2 text-left text-sm text-cyan-600 hover:bg-cyan-50 flex items-center gap-2"
+                    >
+                      <Plus className="w-4 h-4" />
+                      Create New Archetype
+                    </button>
+                  )}
                 </div>
               </>
             )}
@@ -837,7 +1059,11 @@ export default function CastingForTVModal({ onClose }: CastingForTVModalProps) {
             <div className="p-3 border-b border-gray-100">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider">Lists</h3>
-                <button className="p-1 rounded hover:bg-gray-100 text-gray-400 hover:text-cyan-600">
+                <button 
+                  onClick={() => setShowAddListModal(true)}
+                  className="p-1 rounded hover:bg-gray-100 text-gray-400 hover:text-cyan-600"
+                  title="Add new list"
+                >
                   <Plus className="w-3.5 h-3.5" />
                 </button>
               </div>
@@ -866,6 +1092,14 @@ export default function CastingForTVModal({ onClose }: CastingForTVModalProps) {
                   <span className="ml-auto text-xs text-gray-400">{list.participantIds.length}</span>
                 </button>
               ))}
+              {/* Add new list button at bottom */}
+              <button
+                onClick={() => setShowAddListModal(true)}
+                className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-400 hover:text-cyan-600 hover:bg-cyan-50/50 transition-colors border border-dashed border-gray-200 hover:border-cyan-300 mt-2"
+              >
+                <FolderPlus className="w-4 h-4" />
+                <span>Add New List</span>
+              </button>
             </div>
           </div>
         )}
@@ -935,9 +1169,27 @@ export default function CastingForTVModal({ onClose }: CastingForTVModalProps) {
                         <td className="px-4 py-3 text-xs text-gray-500">{formatDate(p.appliedDate)}</td>
                         <td className="px-4 py-3 text-right">
                           <div className="flex items-center justify-end gap-1">
-                            <button className="p-1 rounded hover:bg-gray-100 text-gray-400 hover:text-cyan-600"><Eye className="w-3.5 h-3.5" /></button>
-                            <button className="p-1 rounded hover:bg-gray-100 text-gray-400 hover:text-cyan-600"><Edit3 className="w-3.5 h-3.5" /></button>
-                            <button className="p-1 rounded hover:bg-gray-100 text-gray-400 hover:text-red-600"><Trash2 className="w-3.5 h-3.5" /></button>
+                            <button 
+                              onClick={(e) => { e.stopPropagation(); setSelectedParticipant(p) }}
+                              className="p-1 rounded hover:bg-gray-100 text-gray-400 hover:text-cyan-600"
+                              title="View details"
+                            >
+                              <Eye className="w-3.5 h-3.5" />
+                            </button>
+                            <button 
+                              onClick={(e) => { e.stopPropagation(); openEditModal(p) }}
+                              className="p-1 rounded hover:bg-gray-100 text-gray-400 hover:text-cyan-600"
+                              title="Edit participant"
+                            >
+                              <Edit3 className="w-3.5 h-3.5" />
+                            </button>
+                            <button 
+                              onClick={(e) => { e.stopPropagation(); setParticipants((prev) => prev.filter((x) => x.id !== p.id)) }}
+                              className="p-1 rounded hover:bg-gray-100 text-gray-400 hover:text-red-600"
+                              title="Delete participant"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
                           </div>
                         </td>
                       </tr>
