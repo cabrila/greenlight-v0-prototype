@@ -227,12 +227,18 @@ export default function PhotoViewerModal({ photos, initialIndex, actorName, onCl
                         : "border-white border-opacity-30 opacity-60 hover:opacity-80"
                     }`}
                   >
-                    <img
-                      src={getImageUrl(index) || ""}
-                      alt={`Thumbnail ${index + 1}`}
-                      className="w-full h-full object-cover rounded"
-                      onError={() => handleImageError(index)}
-                    />
+                    {getImageUrl(index) ? (
+                      <img
+                        src={getImageUrl(index)}
+                        alt={`Thumbnail ${index + 1}`}
+                        className="w-full h-full object-cover rounded"
+                        onError={() => handleImageError(index)}
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-slate-200 rounded flex items-center justify-center text-slate-400 text-xs">
+                        {index + 1}
+                      </div>
+                    )}
                   </button>
                 ))}
               </div>

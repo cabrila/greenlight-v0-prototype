@@ -77,7 +77,7 @@ export default function VideoEmbed({
         {/* Thumbnail */}
         {!hasError && thumbnailUrl ? (
           <img
-            src={thumbnailUrl || ""}
+            src={thumbnailUrl}
             alt={title}
             className="w-full h-full object-cover"
             onError={handleThumbnailError}

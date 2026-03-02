@@ -234,11 +234,17 @@ export default function PlayerView() {
 
             {/* Actor Image */}
             <div className="relative max-w-full max-h-full">
-              <img
-                src={getCurrentImageUrl() || ""}
-                alt={currentActor.name}
-                className="max-w-full max-h-full object-contain rounded-lg shadow-lg"
-              />
+              {getCurrentImageUrl() ? (
+                <img
+                  src={getCurrentImageUrl()}
+                  alt={currentActor.name}
+                  className="max-w-full max-h-full object-contain rounded-lg shadow-lg"
+                />
+              ) : (
+                <div className="w-64 h-80 rounded-lg shadow-lg bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center text-slate-400 text-4xl font-bold">
+                  {currentActor.name?.charAt(0)?.toUpperCase() || "?"}
+                </div>
+              )}
 
               {/* Headshot Navigation */}
               {currentActor.headshots && currentActor.headshots.length > 1 && (

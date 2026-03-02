@@ -2103,21 +2103,33 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
                         {sidebarCollapsed ? (
                           // Collapsed view: Just thumbnail
                           <div className="flex justify-center">
-                            <img
-                              src={actor.headshots?.[0] || ""}
-                              alt={actor.name}
-                              className="w-12 h-12 rounded-full object-cover border border-gray-200"
-                              title={`${actor.name} - From: ${actor.sourceCharacter}`}
-                            />
+                            {actor.headshots?.[0] ? (
+                              <img
+                                src={actor.headshots[0]}
+                                alt={actor.name}
+                                className="w-12 h-12 rounded-full object-cover border border-gray-200"
+                                title={`${actor.name} - From: ${actor.sourceCharacter}`}
+                              />
+                            ) : (
+                              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center text-slate-400 font-bold border border-gray-200" title={`${actor.name} - From: ${actor.sourceCharacter}`}>
+                                {actor.name?.charAt(0)?.toUpperCase() || "?"}
+                              </div>
+                            )}
                           </div>
                         ) : (
                           // Expanded view: Full details
                           <div className="flex items-center space-x-3">
-                            <img
-                              src={actor.headshots?.[0] || ""}
-                              alt={actor.name}
-                              className="w-10 h-10 rounded-full object-cover border border-gray-200"
-                            />
+                            {actor.headshots?.[0] ? (
+                              <img
+                                src={actor.headshots[0]}
+                                alt={actor.name}
+                                className="w-10 h-10 rounded-full object-cover border border-gray-200"
+                              />
+                            ) : (
+                              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center text-slate-400 font-bold border border-gray-200">
+                                {actor.name?.charAt(0)?.toUpperCase() || "?"}
+                              </div>
+                            )}
                             <div className="flex-1 min-w-0">
                               <div className="font-medium text-gray-800 truncate">{actor.name}</div>
                               <div className="text-xs text-gray-500 truncate">From: {actor.sourceCharacter}</div>
