@@ -20,6 +20,7 @@ import {
   ChevronUp,
   ChevronRight,
   ArrowUpDown,
+  ArrowRight,
   Users,
   User,
   Tv,
@@ -366,6 +367,9 @@ const [globalSortDirection, setGlobalSortDirection] = useState<"asc" | "desc">("
   const [showMoveToListMenu, setShowMoveToListMenu] = useState(false)
   const [showContactModal, setShowContactModal] = useState(false)
   const [showBookAuditionModal, setShowBookAuditionModal] = useState(false)
+  const [showAdvanceStageModal, setShowAdvanceStageModal] = useState(false)
+  const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false)
+  const [participantToDelete, setParticipantToDelete] = useState<Participant | null>(null)
   const [newListName, setNewListName] = useState("")
   const [newListDescription, setNewListDescription] = useState("")
   const [newListColor, setNewListColor] = useState("bg-cyan-500")
@@ -1289,10 +1293,16 @@ const renderGridView = () => (
 
         {/* Actions footer */}
         <div className="p-4 border-t border-gray-200 flex gap-2">
-          <button className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-red-50 text-red-700 rounded-lg text-xs font-medium hover:bg-red-100 transition-colors">
-            <Archive className="w-3.5 h-3.5" /> Reject
+          <button 
+            onClick={() => { setParticipantToDelete(p); setShowDeleteConfirmModal(true) }}
+            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-red-50 text-red-700 rounded-lg text-xs font-medium hover:bg-red-100 transition-colors"
+          >
+            <Trash2 className="w-3.5 h-3.5" /> Delete
           </button>
-          <button className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-emerald-500 text-white rounded-lg text-xs font-medium hover:bg-emerald-600 transition-colors">
+          <button 
+            onClick={() => setShowAdvanceStageModal(true)}
+            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-emerald-500 text-white rounded-lg text-xs font-medium hover:bg-emerald-600 transition-colors"
+          >
             <ChevronRight className="w-3.5 h-3.5" /> Advance
           </button>
         </div>
@@ -1481,11 +1491,6 @@ const renderGridView = () => (
             )}
           </div>
 
-          {/* Bulk actions */}
-          <button className="flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-50 transition-colors">
-            <Send className="w-4 h-4" />
-            Bulk Send
-          </button>
         </div>
 
         {/* View toggles */}
@@ -2766,6 +2771,101 @@ const renderGridView = () => (
                   className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700"
                 >
                   Book Audition
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Advance Stage Modal */}
+      {showAdvanceStageModal && selectedParticipant && (
+        <>
+          <div className="fixed inset-0 bg-black/50 z-[60]" onClick={() => setShowAdvanceStageModal(false)} />
+          <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-sm bg-white rounded-2xl shadow-2xl z-[60]">
+            <div className="p-5 border-b border-gray-100">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center">
+                  <ChevronRight className="w-5 h-5 text-emerald-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">Advance Participant</h3>
+                  <p className="text-sm text-gray-500">Move {selectedParticipant.name} to a new stage</p>
+                </div>
+              </div>
+            </div>
+            <div className="p-5">
+              <p className="text-sm text-gray-600 mb-3">Current stage: <span className="font-medium">{funnelStages.find(s => s.id === selectedParticipant.stage)?.label}</span></p>
+              <div className="space-y-2 max-h-64 overflow-y-auto">
+                {funnelStages.filter(s => s.id !== selectedParticipant.stage).map((stage) => (
+                  <button
+                    key={stage.id}
+                    onClick={() => {
+                      setParticipants(prev => prev.map(p => 
+                        p.id === selectedParticipant.id ? { ...p, stage: stage.id } : p
+                      ))
+                      setSelectedParticipant({ ...selectedParticipant, stage: stage.id })
+                      setShowAdvanceStageModal(false)
+                    }}
+                    className={`w-full flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:border-emerald-300 hover:bg-emerald-50 transition-colors text-left`}
+                  >
+                    <span className={`px-2 py-0.5 rounded text-xs font-semibold ${stage.color}`}>{stage.label}</span>
+                    <ArrowRight className="w-4 h-4 text-gray-400 ml-auto" />
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="p-4 border-t border-gray-100">
+              <button
+                onClick={() => setShowAdvanceStageModal(false)}
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirmModal && participantToDelete && (
+        <>
+          <div className="fixed inset-0 bg-black/50 z-[60]" onClick={() => { setShowDeleteConfirmModal(false); setParticipantToDelete(null) }} />
+          <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-sm bg-white rounded-2xl shadow-2xl z-[60]">
+            <div className="p-5">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
+                  <AlertTriangle className="w-5 h-5 text-red-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">Delete Participant?</h3>
+                  <p className="text-sm text-gray-500">This action cannot be undone</p>
+                </div>
+              </div>
+              <div className="p-3 bg-red-50 rounded-lg border border-red-200 mb-4">
+                <p className="text-sm text-red-800">
+                  You are about to permanently delete <strong>{participantToDelete.name}</strong> from the casting pool. All associated data will be removed.
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => { setShowDeleteConfirmModal(false); setParticipantToDelete(null) }}
+                  className="flex-1 px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    setParticipants(prev => prev.filter(p => p.id !== participantToDelete.id))
+                    if (selectedParticipant?.id === participantToDelete.id) {
+                      setSelectedParticipant(null)
+                    }
+                    setShowDeleteConfirmModal(false)
+                    setParticipantToDelete(null)
+                  }}
+                  className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors"
+                >
+                  Delete Participant
                 </button>
               </div>
             </div>
