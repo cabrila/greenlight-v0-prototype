@@ -371,13 +371,14 @@ const [globalSortDirection, setGlobalSortDirection] = useState<"asc" | "desc">("
   const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false)
   const [participantToDelete, setParticipantToDelete] = useState<Participant | null>(null)
   
-  // Cast Mix demographic filters
+  // Cast Mix filters
   const [showDemographicFilter, setShowDemographicFilter] = useState(false)
   const [demographicFilters, setDemographicFilters] = useState({
     gender: "all" as "all" | "male" | "female" | "non-binary",
     ageRange: "all" as "all" | "18-25" | "26-35" | "36-45" | "46+",
     stage: "all" as string,
   })
+  const [castMixSearchQuery, setCastMixSearchQuery] = useState("")
   const [newListName, setNewListName] = useState("")
   const [newListDescription, setNewListDescription] = useState("")
   const [newListColor, setNewListColor] = useState("bg-cyan-500")
@@ -1829,7 +1830,7 @@ const renderGridView = () => (
                     }`}
                   >
                     <Filter className="w-4 h-4" />
-                    Demographics
+                    Filters
                     {(demographicFilters.gender !== "all" || demographicFilters.ageRange !== "all" || demographicFilters.stage !== "all") && (
                       <span className="ml-1 px-1.5 py-0.5 bg-cyan-600 text-white text-[10px] font-bold rounded-full">
                         {[demographicFilters.gender !== "all", demographicFilters.ageRange !== "all", demographicFilters.stage !== "all"].filter(Boolean).length}
@@ -1839,9 +1840,12 @@ const renderGridView = () => (
                 </div>
               </div>
               
-              {/* Demographic Filters Panel */}
+              {/* Filters Panel */}
               {showDemographicFilter && (
                 <div className="mt-4 p-4 bg-gray-50 rounded-xl border border-gray-200">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-xs font-semibold text-gray-600 uppercase tracking-wider">Filter Participants</span>
+                  </div>
                   <div className="flex items-center gap-6">
                     <div className="flex items-center gap-2">
                       <span className="text-xs font-medium text-gray-500">Gender:</span>
@@ -2282,25 +2286,54 @@ const renderGridView = () => (
               {/* Available Participants - Right Side Panel */}
               <div className="w-72 shrink-0 border-l border-gray-200 bg-white flex flex-col">
                 <div className="px-4 py-3 border-b border-gray-100">
-                  <h3 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                    <Users className="w-4 h-4 text-gray-500" />
-                    Available
-                  </h3>
-                  <p className="text-xs text-gray-400 mt-0.5">
-                    {(() => {
-                      const availableParticipants = participants.filter((p) => {
-                        if (castSlots.some(s => s.assignedParticipantId === p.id)) return false
-                        if (demographicFilters.gender !== "all" && p.gender?.toLowerCase() !== demographicFilters.gender) return false
-                        if (demographicFilters.stage !== "all" && p.stage !== demographicFilters.stage) return false
-                        if (demographicFilters.ageRange !== "all") {
-                          const [min, max] = demographicFilters.ageRange === "46+" ? [46, 999] : demographicFilters.ageRange.split("-").map(Number)
-                          if (p.age < min || p.age > max) return false
-                        }
-                        return true
-                      })
-                      return availableParticipants.length
-                    })()} participants • Drag to slots
-                  </p>
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                      <Users className="w-4 h-4 text-gray-500" />
+                      Available
+                    </h3>
+                    <span className="text-xs text-gray-400">
+                      {(() => {
+                        const availableParticipants = participants.filter((p) => {
+                          if (castSlots.some(s => s.assignedParticipantId === p.id)) return false
+                          if (demographicFilters.gender !== "all" && p.gender?.toLowerCase() !== demographicFilters.gender) return false
+                          if (demographicFilters.stage !== "all" && p.stage !== demographicFilters.stage) return false
+                          if (demographicFilters.ageRange !== "all") {
+                            const [min, max] = demographicFilters.ageRange === "46+" ? [46, 999] : demographicFilters.ageRange.split("-").map(Number)
+                            if (p.age < min || p.age > max) return false
+                          }
+                          if (castMixSearchQuery) {
+                            const query = castMixSearchQuery.toLowerCase()
+                            if (!p.name.toLowerCase().includes(query) && 
+                                !p.location.toLowerCase().includes(query) && 
+                                !p.occupation.toLowerCase().includes(query) &&
+                                !p.archetype.some(a => a.toLowerCase().includes(query))) return false
+                          }
+                          return true
+                        })
+                        return availableParticipants.length
+                      })()}
+                    </span>
+                  </div>
+                  {/* Search bar */}
+                  <div className="relative">
+                    <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
+                    <input
+                      type="text"
+                      value={castMixSearchQuery}
+                      onChange={(e) => setCastMixSearchQuery(e.target.value)}
+                      placeholder="Search participants..."
+                      className="w-full pl-8 pr-8 py-1.5 text-xs border border-gray-200 rounded-lg bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-colors"
+                    />
+                    {castMixSearchQuery && (
+                      <button
+                        onClick={() => setCastMixSearchQuery("")}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 rounded text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    )}
+                  </div>
+                  <p className="text-[10px] text-gray-400 mt-1.5">Drag cards to slots</p>
                 </div>
                 <div className="flex-1 overflow-y-auto p-3 space-y-2">
                   {(() => {
@@ -2311,6 +2344,13 @@ const renderGridView = () => (
                       if (demographicFilters.ageRange !== "all") {
                         const [min, max] = demographicFilters.ageRange === "46+" ? [46, 999] : demographicFilters.ageRange.split("-").map(Number)
                         if (p.age < min || p.age > max) return false
+                      }
+                      if (castMixSearchQuery) {
+                        const query = castMixSearchQuery.toLowerCase()
+                        if (!p.name.toLowerCase().includes(query) && 
+                            !p.location.toLowerCase().includes(query) && 
+                            !p.occupation.toLowerCase().includes(query) &&
+                            !p.archetype.some(a => a.toLowerCase().includes(query))) return false
                       }
                       return true
                     })
@@ -2368,11 +2408,26 @@ const renderGridView = () => (
                       const [min, max] = demographicFilters.ageRange === "46+" ? [46, 999] : demographicFilters.ageRange.split("-").map(Number)
                       if (p.age < min || p.age > max) return false
                     }
+                    if (castMixSearchQuery) {
+                      const query = castMixSearchQuery.toLowerCase()
+                      if (!p.name.toLowerCase().includes(query) && 
+                          !p.location.toLowerCase().includes(query) && 
+                          !p.occupation.toLowerCase().includes(query) &&
+                          !p.archetype.some(a => a.toLowerCase().includes(query))) return false
+                    }
                     return true
                   }).length === 0 && (
                     <div className="flex-1 flex flex-col items-center justify-center py-12 text-center">
-                      <Users className="w-8 h-8 text-gray-300 mb-2" />
-                      <p className="text-sm text-gray-400">No participants match filters</p>
+                      <Search className="w-8 h-8 text-gray-300 mb-2" />
+                      <p className="text-sm text-gray-400">No participants match</p>
+                      {(castMixSearchQuery || demographicFilters.gender !== "all" || demographicFilters.ageRange !== "all" || demographicFilters.stage !== "all") && (
+                        <button
+                          onClick={() => { setCastMixSearchQuery(""); setDemographicFilters({ gender: "all", ageRange: "all", stage: "all" }) }}
+                          className="text-xs text-cyan-600 hover:text-cyan-700 mt-1"
+                        >
+                          Clear all filters
+                        </button>
+                      )}
                     </div>
                   )}
                 </div>
