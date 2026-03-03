@@ -2055,7 +2055,7 @@ const renderGridView = () => (
       <header className="bg-white border-b border-gray-200 px-6 py-3 shrink-0">
         <div className="flex items-center justify-between">
           {/* Left - Logo and Home */}
-          <div className="flex items-center gap-4 w-48">
+          <div className="flex items-center gap-3 min-w-[200px]">
             <img src="/images/gogreenlight-logo.png" alt="GoGreenlight" className="h-8 w-auto" />
             <button
               onClick={() => { onClose(); setTimeout(() => openModal("splashScreen"), 150) }}
@@ -2068,9 +2068,9 @@ const renderGridView = () => (
           </div>
           
           {/* Center - Section Title */}
-          <div className="flex-1 flex items-center justify-center gap-3">
-            <div className="flex items-center gap-3 bg-gradient-to-r from-cyan-50 to-white px-4 py-2 rounded-xl border border-cyan-100">
-              <div className="w-8 h-8 rounded-lg bg-cyan-600 flex items-center justify-center">
+          <div className="flex-1 flex items-center justify-center">
+            <div className="flex items-center gap-3 bg-gradient-to-r from-cyan-50 to-white px-5 py-2.5 rounded-xl border border-cyan-100">
+              <div className="w-9 h-9 rounded-lg bg-cyan-600 flex items-center justify-center shadow-sm">
                 <Tv className="w-4 h-4 text-white" />
               </div>
               <div>
@@ -2088,7 +2088,7 @@ const renderGridView = () => (
           </div>
           
           {/* Right - Close Button */}
-          <div className="flex items-center justify-end w-48">
+          <div className="flex items-center justify-end min-w-[200px]">
             <button
               onClick={onClose}
               className="p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
@@ -2335,35 +2335,25 @@ const renderGridView = () => (
           {/* Notifications icon at top */}
           <div className={`p-2 border-b border-gray-100 ${showListsPanel ? "" : "flex items-center justify-center"}`}>
             {showListsPanel ? (
-              <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 px-1">
                 <button 
-                  onClick={() => setShowContactsModal(true)}
-                  className="relative p-2 rounded-lg hover:bg-cyan-50 text-gray-500 hover:text-cyan-600 transition-colors"
-                  title="Notifications & Messages"
+                  className="relative p-2 rounded-lg hover:bg-amber-50 text-gray-500 hover:text-amber-600 transition-colors"
+                  title="Notifications"
                   aria-label="View notifications"
                 >
                   <Bell className="w-4 h-4" />
-                  {getUnreadMessageCount() > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 flex items-center justify-center px-1 bg-red-500 text-white text-[9px] font-bold rounded-full">
-                      {getUnreadMessageCount()}
-                    </span>
-                  )}
+                  <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
                 </button>
-                <span className="text-[10px] text-gray-400 font-medium">Notifications</span>
+                <span className="text-xs text-gray-500">Notifications</span>
               </div>
             ) : (
               <button 
-                onClick={() => setShowContactsModal(true)}
-                className="relative p-1.5 rounded-lg hover:bg-cyan-50 text-gray-400 hover:text-cyan-600 transition-colors"
-                title="Notifications & Messages"
+                className="relative p-1.5 rounded-lg hover:bg-amber-50 text-gray-400 hover:text-amber-600 transition-colors"
+                title="Notifications"
                 aria-label="View notifications"
               >
                 <Bell className="w-4 h-4" />
-                {getUnreadMessageCount() > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 min-w-[14px] h-3.5 flex items-center justify-center px-0.5 bg-red-500 text-white text-[8px] font-bold rounded-full">
-                    {getUnreadMessageCount()}
-                  </span>
-                )}
+                <span className="absolute top-0.5 right-0.5 w-1.5 h-1.5 bg-red-500 rounded-full" />
               </button>
             )}
           </div>
