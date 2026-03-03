@@ -1139,7 +1139,7 @@ function WardrobeTab({
             return pair ? (
               <div className="flex items-center gap-2 mb-4 bg-rose-50 border border-rose-200 rounded-xl px-4 py-2.5">
                 {isValidImageUrl(pair.castActor?.headshots?.[0]) ? (
-                  <img src={pair.castActor.headshots[0]} alt="" className="w-6 h-8 rounded object-cover" />
+                  {isValidImageUrl(pair.castActor?.headshots?.[0]) ? <img src={pair.castActor.headshots[0]} alt="" className="w-6 h-8 rounded object-cover" /> : <User className="w-3 h-3 text-gray-400" />}
                 ) : (
                   <div className="w-6 h-8 rounded bg-rose-200 flex items-center justify-center"><User className="w-3 h-3 text-rose-400" /></div>
                 )}
@@ -1437,7 +1437,7 @@ function MakeupTab({
             return pair ? (
               <div className="flex items-center gap-2 mb-4 bg-amber-50 border border-amber-200 rounded-xl px-4 py-2.5">
                 {pair.castActor?.headshots?.[0] ? (
-                  <img src={pair.castActor.headshots[0]} alt="" className="w-6 h-8 rounded object-cover" />
+                  {isValidImageUrl(pair.castActor?.headshots?.[0]) ? <img src={pair.castActor.headshots[0]} alt="" className="w-6 h-8 rounded object-cover" /> : <User className="w-3 h-3 text-gray-400" />}
                 ) : (
                   <div className="w-6 h-8 rounded bg-amber-200 flex items-center justify-center"><User className="w-3 h-3 text-amber-400" /></div>
                 )}
@@ -1638,7 +1638,7 @@ function InventoryCard({
           </div>
         )}
         {item.imageUrl ? (
-          <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" crossOrigin="anonymous" />
+          {isValidImageUrl(item.imageUrl) ? <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" crossOrigin="anonymous" /> : <div className="w-full h-full flex items-center justify-center bg-gray-100"><Shirt className="w-6 h-6 text-gray-300" /></div>}
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center gap-1.5 cursor-pointer" onClick={() => fileInputRef.current?.click()}>
             <Upload className="w-8 h-8 text-gray-300" />
@@ -1719,7 +1719,7 @@ function InventoryListRow({ item, onEdit, onDelete, onAddToCanvas }: { item: Cos
   return (
     <div className="grid grid-cols-[auto_1fr_auto_auto_auto_auto] gap-x-4 items-center px-4 py-3 hover:bg-gray-50 transition-colors">
       <div className="w-10 h-13 rounded-lg bg-gray-100 overflow-hidden shrink-0">
-        {isValidImageUrl(item.imageUrl) ? <img src={item.imageUrl} alt="" className="w-full h-full object-cover" crossOrigin="anonymous" /> : <div className="w-full h-full flex items-center justify-center"><Shirt className="w-5 h-5 text-gray-300" /></div>}
+                {isValidImageUrl(item.imageUrl) ? <img src={item.imageUrl} alt="" className="w-full h-full object-cover" crossOrigin="anonymous" /> : <div className="w-full h-full flex items-center justify-center"><Shirt className="w-5 h-5 text-gray-300" /></div>}
       </div>
       <div className="min-w-0">
         <p className="text-sm font-semibold text-gray-900 truncate">{item.name}</p>
@@ -1821,7 +1821,7 @@ function LooksTab({
                               return (
                                 <div key={iid} className="flex-1 border-r border-gray-200 last:border-r-0">
                                   {item?.imageUrl ? (
-                                    <img src={item.imageUrl} alt="" className="w-full h-full object-cover" crossOrigin="anonymous" />
+                                    {isValidImageUrl(item.imageUrl) ? <img src={item.imageUrl} alt="" className="w-full h-full object-cover" crossOrigin="anonymous" /> : <div className="w-full h-full flex items-center justify-center bg-gray-100"><Shirt className="w-6 h-6 text-gray-300" /></div>}
                                   ) : (
                                     <div className="w-full h-full flex items-center justify-center"><Shirt className="w-5 h-5 text-gray-300" /></div>
                                   )}
@@ -2160,7 +2160,7 @@ function AddItemModal({
               className="w-24 h-32 rounded-xl border-2 border-dashed border-gray-300 bg-white hover:border-rose-300 transition-colors flex flex-col items-center justify-center overflow-hidden shrink-0"
             >
               {imageUrl ? (
-                <img src={imageUrl} alt="" className="w-full h-full object-cover" crossOrigin="anonymous" />
+                {isValidImageUrl(imageUrl) ? <img src={imageUrl} alt="" className="w-full h-full object-cover" crossOrigin="anonymous" /> : <div className="w-full h-full flex items-center justify-center bg-gray-100"><Shirt className="w-6 h-6 text-gray-300" /></div>}
               ) : (
                 <>
                   <ImageIcon className="w-6 h-6 text-gray-400 mb-1" />
@@ -2398,7 +2398,7 @@ function LookBuilderModal({
                             >
                               <div className="aspect-[3/4] bg-gray-100 relative">
                                 {item.imageUrl ? (
-                                  <img src={item.imageUrl} alt="" className="w-full h-full object-cover" crossOrigin="anonymous" />
+                                  {isValidImageUrl(item.imageUrl) ? <img src={item.imageUrl} alt="" className="w-full h-full object-cover" crossOrigin="anonymous" /> : <div className="w-full h-full flex items-center justify-center bg-gray-100"><Shirt className="w-6 h-6 text-gray-300" /></div>}
                                 ) : (
                                   <div className="w-full h-full flex items-center justify-center"><Shirt className="w-5 h-5 text-gray-300" /></div>
                                 )}
@@ -2440,7 +2440,7 @@ function LookBuilderModal({
                             >
                               <div className="aspect-[3/4] bg-gray-100 relative">
                                 {item.imageUrl ? (
-                                  <img src={item.imageUrl} alt="" className="w-full h-full object-cover" crossOrigin="anonymous" />
+                                  {isValidImageUrl(item.imageUrl) ? <img src={item.imageUrl} alt="" className="w-full h-full object-cover" crossOrigin="anonymous" /> : <div className="w-full h-full flex items-center justify-center bg-gray-100"><Shirt className="w-6 h-6 text-gray-300" /></div>}
                                 ) : (
                                   <div className="w-full h-full flex items-center justify-center"><Scissors className="w-5 h-5 text-gray-300" /></div>
                                 )}

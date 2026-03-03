@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useMemo, useCallback, useRef, type ChangeEvent } from "react"
+import { isValidImageUrl } from "@/lib/utils"
 import {
   X,
   Plus,
@@ -1095,7 +1096,7 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
                                         >
                                           {imgUrl ? (
                                             <div className="relative aspect-[3/2] bg-gray-100 group/img">
-                                              <img src={imgUrl} alt={label} className={`w-full h-full object-cover transition-opacity ${dragOverImageId === dragId ? "opacity-30" : ""}`} />
+                                              {isValidImageUrl(imgUrl) ? <img src={imgUrl} alt={label} className={`w-full h-full object-cover transition-opacity ${dragOverImageId === dragId ? "opacity-30" : ""}`} /> : <div className="w-full h-full flex items-center justify-center bg-gray-100"><ImageIcon className="w-6 h-6 text-gray-300" /></div>}
                                               {dragOverImageId === dragId ? (
                                                 <div className="absolute inset-0 flex flex-col items-center justify-center">
                                                   <Upload className="w-5 h-5 text-slate-500 mb-0.5" />
@@ -1148,7 +1149,7 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
                                 onDrop={(e) => handleDropImage(e, selectedSet.id, img.id)}
                               >
                                 <div className="aspect-[4/3] bg-gray-100 overflow-hidden relative">
-                                  <img src={img.url} alt={img.caption || "Mood board"} className={`w-full h-full object-cover transition-all duration-300 ${dragOverImageId === img.id ? "opacity-30 scale-105" : "group-hover:scale-105"}`} />
+                                  {isValidImageUrl(img.url) ? <img src={img.url} alt={img.caption || "Mood board"} className={`w-full h-full object-cover transition-all duration-300 ${dragOverImageId === img.id ? "opacity-30 scale-105" : "group-hover:scale-105"}`} /> : <div className="w-full h-full flex items-center justify-center bg-gray-100"><ImageIcon className="w-6 h-6 text-gray-300" /></div>}
                                   {dragOverImageId === img.id && (
                                     <div className="absolute inset-0 flex flex-col items-center justify-center">
                                       <Upload className="w-8 h-8 text-slate-500 mb-1.5" />
@@ -1287,7 +1288,7 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
                             onDrop={(e) => handleDropImage(e, s.id, img.id)}
                           >
                             <div className="aspect-[4/3] bg-gray-100 overflow-hidden relative">
-                              <img src={img.url} alt={img.caption || ""} className={`w-full h-full object-cover transition-all duration-300 ${dragOverImageId === `ov-${img.id}` ? "opacity-30 scale-105" : "group-hover:scale-105"}`} />
+                              {isValidImageUrl(img.url) ? <img src={img.url} alt={img.caption || ""} className={`w-full h-full object-cover transition-all duration-300 ${dragOverImageId === `ov-${img.id}` ? "opacity-30 scale-105" : "group-hover:scale-105"}`} /> : <div className="w-full h-full flex items-center justify-center bg-gray-100"><ImageIcon className="w-6 h-6 text-gray-300" /></div>}
                               {dragOverImageId === `ov-${img.id}` && (
                                 <div className="absolute inset-0 flex flex-col items-center justify-center">
                                   <Upload className="w-7 h-7 text-slate-500 mb-1" />
@@ -1573,7 +1574,7 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
                                   >
                                     {imgUrl ? (
                                       <div className="relative aspect-[3/2] bg-gray-100 group/img">
-                                        <img src={imgUrl} alt={label} className={`w-full h-full object-cover transition-opacity ${dragOverImageId === dragId ? "opacity-30" : ""}`} />
+                                        {isValidImageUrl(imgUrl) ? <img src={imgUrl} alt={label} className={`w-full h-full object-cover transition-opacity ${dragOverImageId === dragId ? "opacity-30" : ""}`} /> : <div className="w-full h-full flex items-center justify-center bg-gray-100"><ImageIcon className="w-6 h-6 text-gray-300" /></div>}
                                         {dragOverImageId === dragId ? (
                                           <div className="absolute inset-0 flex flex-col items-center justify-center">
                                             <Upload className="w-5 h-5 text-slate-500 mb-0.5" />
@@ -1818,7 +1819,7 @@ function MoodBoardDropZone({ url, onUrlChange }: { url: string; onUrlChange: (v:
       onDrop={(e) => { e.preventDefault(); setDragging(false); const f = e.dataTransfer.files?.[0]; if (f) handleFile(f) }}
     >
       <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f) }} />
-      {url ? (
+      {isValidImageUrl(url) ? (
         <div className="aspect-video relative group">
           <img src={url} alt="Preview" className={`w-full h-full object-cover transition-opacity ${dragging ? "opacity-30" : ""}`} />
           {dragging ? (

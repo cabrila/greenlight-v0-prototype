@@ -360,12 +360,18 @@ function PhotoDropZone({ media, onAdd, onDelete, onUpdateCaption, showCaptions =
         <div className="grid grid-cols-4 gap-2 mb-3">
           {media.map((m) => (
             <div key={m.id} className="relative group/thumb rounded-lg overflow-hidden bg-gray-100 border border-gray-200 aspect-[4/3]">
-              <img
-                src={m.url}
-                alt={m.caption || ""}
-                className="w-full h-full object-cover cursor-pointer transition-transform group-hover/thumb:scale-105"
-                onClick={() => setPreviewId(m.id)}
-              />
+              {isValidImageUrl(m.url) ? (
+                <img
+                  src={m.url}
+                  alt={m.caption || ""}
+                  className="w-full h-full object-cover cursor-pointer transition-transform group-hover/thumb:scale-105"
+                  onClick={() => setPreviewId(m.id)}
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center cursor-pointer" onClick={() => setPreviewId(m.id)}>
+                  <ImageIcon className="w-6 h-6 text-gray-300" />
+                </div>
+              )}
               {/* Hover overlay */}
               <div className="absolute inset-0 bg-black/0 group-hover/thumb:bg-black/30 transition-all pointer-events-none" />
               <div className="absolute top-1 right-1 flex items-center gap-1 opacity-0 group-hover/thumb:opacity-100 transition-opacity">

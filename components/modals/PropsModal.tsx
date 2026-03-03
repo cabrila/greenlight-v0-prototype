@@ -166,7 +166,7 @@ function ImageUploadBox({ imageUrl, onImageChange, className }: { imageUrl: stri
         </div>
       ) : (
         <>
-          <img src={imageUrl} alt="" className="w-full h-full object-cover" />
+          {isValidImageUrl(imageUrl) ? <img src={imageUrl} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center bg-gray-100"><Package className="w-5 h-5 text-gray-300" /></div>}
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 flex items-center justify-center transition-all">
             <Upload className="w-5 h-5 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
           </div>
@@ -350,7 +350,7 @@ function AddItemModal({ onClose, onAdd, scenes, characters, characterActorMap }:
                     }`}
                   >
                     {isValidImageUrl(castActor?.headshots?.[0]) ? (
-                      <img src={castActor.headshots[0]} alt="" className={`w-7 h-8 object-cover rounded-lg shrink-0 ${isSelected ? "ring-2 ring-emerald-300" : ""}`} />
+                      {isValidImageUrl(castActor?.headshots?.[0]) ? <img src={castActor.headshots[0]} alt="" className={`w-7 h-8 object-cover rounded-lg shrink-0 ${isSelected ? "ring-2 ring-emerald-300" : ""}`} /> : <User className="w-4 h-4 text-gray-400" />}
                     ) : (
                       <div className={`w-7 h-8 rounded-lg flex items-center justify-center shrink-0 ${isSelected ? "bg-emerald-100" : "bg-gray-100"}`}>
                         <User className={`w-3.5 h-3.5 ${isSelected ? "text-emerald-500" : "text-gray-400"}`} />
@@ -621,7 +621,7 @@ function EditItemModal({ item, onClose, onSave, scenes, characters, characterAct
                     }`}
                   >
                     {isValidImageUrl(castActor?.headshots?.[0]) ? (
-                      <img src={castActor.headshots[0]} alt="" className={`w-7 h-8 object-cover rounded-lg shrink-0 ${isSelected ? "ring-2 ring-emerald-300" : ""}`} />
+                      {isValidImageUrl(castActor?.headshots?.[0]) ? <img src={castActor.headshots[0]} alt="" className={`w-7 h-8 object-cover rounded-lg shrink-0 ${isSelected ? "ring-2 ring-emerald-300" : ""}`} /> : <User className="w-4 h-4 text-gray-400" />}
                     ) : (
                       <div className={`w-7 h-8 rounded-lg flex items-center justify-center shrink-0 ${isSelected ? "bg-emerald-100" : "bg-gray-100"}`}>
                         <User className={`w-3.5 h-3.5 ${isSelected ? "text-emerald-500" : "text-gray-400"}`} />
@@ -1703,7 +1703,7 @@ export default function PropsModal({ onClose }: PropsModalProps) {
                           }`}
                         >
                           {isValidImageUrl(castActor?.headshots?.[0]) ? (
-                            <img src={castActor.headshots[0]} alt="" className={`w-9 h-11 object-cover rounded-lg shrink-0 ${isSelected ? "ring-2 ring-emerald-300" : ""}`} />
+                            {isValidImageUrl(castActor?.headshots?.[0]) ? <img src={castActor.headshots[0]} alt="" className={`w-9 h-11 object-cover rounded-lg shrink-0 ${isSelected ? "ring-2 ring-emerald-300" : ""}`} /> : <User className="w-4 h-4 text-gray-400" />}
                           ) : (
                             <div className={`w-9 h-11 rounded-lg flex items-center justify-center shrink-0 ${isSelected ? "bg-emerald-100" : "bg-gray-100"}`}>
                               <User className={`w-4 h-4 ${isSelected ? "text-emerald-400" : "text-gray-400"}`} />

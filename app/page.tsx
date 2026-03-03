@@ -48,7 +48,7 @@ function CastingAppContent() {
   useEffect(() => {
     const FIRST_VISIT_KEY = "gogreenlight-first-visit-complete"
     const CACHE_CLEARED_KEY = "gogreenlight-cache-cleared"
-    const PLACEHOLDER_SANITIZED_KEY = "gogreenlight-placeholder-sanitized-v6"
+    const PLACEHOLDER_SANITIZED_KEY = "gogreenlight-placeholder-sanitized-v7"
 
     if (typeof window !== "undefined") {
       // One-time full localStorage clear to remove any corrupted image data
