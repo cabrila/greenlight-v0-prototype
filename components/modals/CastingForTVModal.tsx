@@ -2052,40 +2052,53 @@ const renderGridView = () => (
   return (
     <div className="fixed inset-0 bg-gray-50 z-50 flex flex-col">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between shrink-0">
-        <div className="flex items-center gap-4">
-          <img src="/images/gogreenlight-logo.png" alt="GoGreenlight" className="h-8 w-auto" />
-          <button
-            onClick={() => { onClose(); setTimeout(() => openModal("splashScreen"), 150) }}
-            className="p-1.5 rounded-lg text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors"
-            title="Home"
-          >
-            <Home className="w-4 h-4" />
-          </button>
-          <div className="inline-flex items-center bg-cyan-600 text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded">
-            <Tv className="w-3 h-3 mr-1.5" />
-            Casting for TV
+      <header className="bg-white border-b border-gray-200 px-6 py-3 shrink-0">
+        <div className="flex items-center justify-between">
+          {/* Left - Logo and Home */}
+          <div className="flex items-center gap-4 w-48">
+            <img src="/images/gogreenlight-logo.png" alt="GoGreenlight" className="h-8 w-auto" />
+            <button
+              onClick={() => { onClose(); setTimeout(() => openModal("splashScreen"), 150) }}
+              className="p-2 rounded-lg text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors"
+              title="Home"
+              aria-label="Go to Home"
+            >
+              <Home className="w-4 h-4" />
+            </button>
           </div>
-          {currentProject && (
-            <span className="text-sm text-gray-500">
-              {currentProject.name}
-              {!isNonFictionProject && (
-                <span className="ml-2 text-xs text-amber-600 bg-amber-50 px-2 py-0.5 rounded">
-                  Switch to Non-Fiction TV project for full features
-                </span>
-              )}
-            </span>
-          )}
+          
+          {/* Center - Section Title */}
+          <div className="flex-1 flex items-center justify-center gap-3">
+            <div className="flex items-center gap-3 bg-gradient-to-r from-cyan-50 to-white px-4 py-2 rounded-xl border border-cyan-100">
+              <div className="w-8 h-8 rounded-lg bg-cyan-600 flex items-center justify-center">
+                <Tv className="w-4 h-4 text-white" />
+              </div>
+              <div>
+                <h1 className="text-lg font-bold text-gray-900">Casting for TV</h1>
+                {currentProject && (
+                  <p className="text-xs text-gray-500">
+                    {currentProject.name}
+                    {!isNonFictionProject && (
+                      <span className="ml-2 text-amber-600">Non-Fiction mode recommended</span>
+                    )}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+          
+          {/* Right - Close Button */}
+          <div className="flex items-center justify-end w-48">
+            <button
+              onClick={onClose}
+              className="p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+              aria-label="Close"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={onClose}
-            className="p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-      </div>
+      </header>
 
       {/* Toolbar */}
       <div className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between shrink-0">
@@ -2319,7 +2332,43 @@ const renderGridView = () => (
         {/* Collapsible Lists sidebar - hidden on mix view */}
         {activeView !== "mix" && (
         <div className={`border-r border-gray-200 bg-white flex flex-col shrink-0 transition-all duration-200 ${showListsPanel ? "w-56" : "w-12"}`}>
-          {/* Panel header */}
+          {/* Notifications icon at top */}
+          <div className={`p-2 border-b border-gray-100 ${showListsPanel ? "" : "flex items-center justify-center"}`}>
+            {showListsPanel ? (
+              <div className="flex items-center justify-between">
+                <button 
+                  onClick={() => setShowContactsModal(true)}
+                  className="relative p-2 rounded-lg hover:bg-cyan-50 text-gray-500 hover:text-cyan-600 transition-colors"
+                  title="Notifications & Messages"
+                  aria-label="View notifications"
+                >
+                  <Bell className="w-4 h-4" />
+                  {getUnreadMessageCount() > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 flex items-center justify-center px-1 bg-red-500 text-white text-[9px] font-bold rounded-full">
+                      {getUnreadMessageCount()}
+                    </span>
+                  )}
+                </button>
+                <span className="text-[10px] text-gray-400 font-medium">Notifications</span>
+              </div>
+            ) : (
+              <button 
+                onClick={() => setShowContactsModal(true)}
+                className="relative p-1.5 rounded-lg hover:bg-cyan-50 text-gray-400 hover:text-cyan-600 transition-colors"
+                title="Notifications & Messages"
+                aria-label="View notifications"
+              >
+                <Bell className="w-4 h-4" />
+                {getUnreadMessageCount() > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 min-w-[14px] h-3.5 flex items-center justify-center px-0.5 bg-red-500 text-white text-[8px] font-bold rounded-full">
+                    {getUnreadMessageCount()}
+                  </span>
+                )}
+              </button>
+            )}
+          </div>
+          
+          {/* Panel header - Lists */}
           <div className={`p-3 border-b border-gray-100 ${showListsPanel ? "" : "flex items-center justify-center"}`}>
             {showListsPanel ? (
               <div className="flex items-center justify-between">
