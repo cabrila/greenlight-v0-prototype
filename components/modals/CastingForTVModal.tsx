@@ -73,6 +73,24 @@ interface PipelineStage {
   color: string
 }
 
+// Cast Mix slot definition
+interface CastSlot {
+  id: string
+  label: string
+  color: string
+  icon: string
+  groupId: string | null
+  assignedParticipantId: string | null
+}
+
+// Cast Mix group definition
+interface CastSlotGroup {
+  id: string
+  name: string
+  allowMultiple: boolean
+  color: string
+}
+
 // Default pipeline stages for Kanban
 const DEFAULT_FUNNEL_STAGES: PipelineStage[] = [
   { id: "inbox", label: "Inbox", color: "bg-slate-100 text-slate-700 border-slate-300" },
@@ -274,14 +292,48 @@ export default function CastingForTVModal({ onClose }: CastingForTVModalProps) {
   const [showAddDropdown, setShowAddDropdown] = useState(false)
   const [showAdvancedSettings, setShowAdvancedSettings] = useState(false)
   const [selectedListId, setSelectedListId] = useState<string | null>(null)
-  const [castMixSlots, setCastMixSlots] = useState<Record<string, string | null>>({
-    "lead-male": null,
-    "lead-female": null,
-    "villain": null,
-    "wildcard": null,
-    "underdog": null,
-    "expert": null,
-  })
+  // Cast Mix slots and groups state (dynamic)
+  const [castSlotGroups, setCastSlotGroups] = useState<CastSlotGroup[]>([
+    { id: "leads", name: "Lead Roles", allowMultiple: true, color: "bg-blue-500" },
+    { id: "supporting", name: "Supporting Cast", allowMultiple: true, color: "bg-purple-500" },
+    { id: "wildcards", name: "Wild Cards", allowMultiple: false, color: "bg-amber-500" },
+  ])
+  const [castSlots, setCastSlots] = useState<CastSlot[]>([
+    { id: "lead-male", label: "Lead Male", color: "bg-blue-500", icon: "user", groupId: "leads", assignedParticipantId: null },
+    { id: "lead-female", label: "Lead Female", color: "bg-pink-500", icon: "user", groupId: "leads", assignedParticipantId: null },
+    { id: "villain", label: "The Villain", color: "bg-red-500", icon: "target", groupId: "supporting", assignedParticipantId: null },
+    { id: "wildcard", label: "Wild Card", color: "bg-purple-500", icon: "sparkles", groupId: "wildcards", assignedParticipantId: null },
+    { id: "underdog", label: "The Underdog", color: "bg-amber-500", icon: "star", groupId: "supporting", assignedParticipantId: null },
+    { id: "expert", label: "The Expert", color: "bg-emerald-500", icon: "chart", groupId: "supporting", assignedParticipantId: null },
+  ])
+  const [editingSlotId, setEditingSlotId] = useState<string | null>(null)
+  const [editingSlotLabel, setEditingSlotLabel] = useState("")
+  const [showAddSlotForm, setShowAddSlotForm] = useState(false)
+  const [newSlotName, setNewSlotName] = useState("")
+  const [newSlotGroupId, setNewSlotGroupId] = useState<string | null>(null)
+  const [newSlotColor, setNewSlotColor] = useState("bg-cyan-500")
+  const [showSlotSettings, setShowSlotSettings] = useState(false)
+  const [editingGroupId, setEditingGroupId] = useState<string | null>(null)
+  const [editingGroupName, setEditingGroupName] = useState("")
+  const [showAddGroupForm, setShowAddGroupForm] = useState(false)
+  const [newGroupName, setNewGroupName] = useState("")
+  
+  // Legacy castMixSlots for backwards compatibility
+  const castMixSlots = useMemo(() => {
+    const slots: Record<string, string | null> = {}
+    castSlots.forEach(slot => {
+      slots[slot.id] = slot.assignedParticipantId
+    })
+    return slots
+  }, [castSlots])
+  
+  const setCastMixSlots = (updater: (prev: Record<string, string | null>) => Record<string, string | null>) => {
+    const newSlots = updater(castMixSlots)
+    setCastSlots(prev => prev.map(slot => ({
+      ...slot,
+      assignedParticipantId: newSlots[slot.id] ?? null
+    })))
+  }
   const [lists, setLists] = useState<CastList[]>([
     { id: "list-1", name: "Top Picks", description: "Best candidates for final review", participantIds: ["p1", "p2", "p4"], color: "bg-emerald-500", createdAt: Date.now() - 86400000 * 5 },
     { id: "list-2", name: "Backup Options", description: "Strong alternatives", participantIds: ["p3", "p6"], color: "bg-blue-500", createdAt: Date.now() - 86400000 * 3 },
@@ -1516,7 +1568,7 @@ export default function CastingForTVModal({ onClose }: CastingForTVModalProps) {
         )}
         {activeView === "mix" && (
           <div className="flex-1 overflow-y-auto p-6">
-            <div className="max-w-5xl mx-auto">
+            <div className="max-w-6xl mx-auto">
               {/* Cast Mix header */}
               <div className="mb-6 flex items-center justify-between">
                 <div>
@@ -1527,6 +1579,15 @@ export default function CastingForTVModal({ onClose }: CastingForTVModalProps) {
                   <p className="text-sm text-gray-500 mt-1">Drag participants into slots to build your ideal cast composition</p>
                 </div>
                 <div className="flex items-center gap-2">
+                  <button 
+                    onClick={() => setShowSlotSettings(!showSlotSettings)}
+                    className={`flex items-center gap-1.5 px-3 py-2 border rounded-lg text-sm transition-colors ${
+                      showSlotSettings ? "border-cyan-300 bg-cyan-50 text-cyan-700" : "border-gray-200 text-gray-600 hover:bg-gray-50"
+                    }`}
+                  >
+                    <Settings className="w-4 h-4" />
+                    Manage Slots
+                  </button>
                   <button className="flex items-center gap-1.5 px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-50">
                     <PieChart className="w-4 h-4" />
                     Demographics
@@ -1538,82 +1599,393 @@ export default function CastingForTVModal({ onClose }: CastingForTVModalProps) {
                 </div>
               </div>
 
-              {/* Cast Mix slots */}
-              <div className="grid grid-cols-3 gap-4 mb-8">
-                {[
-                  { id: "lead-male", label: "Lead Male", icon: User, color: "bg-blue-500" },
-                  { id: "lead-female", label: "Lead Female", icon: User, color: "bg-pink-500" },
-                  { id: "villain", label: "The Villain", icon: Target, color: "bg-red-500" },
-                  { id: "wildcard", label: "Wild Card", icon: Sparkles, color: "bg-purple-500" },
-                  { id: "underdog", label: "The Underdog", icon: Star, color: "bg-amber-500" },
-                  { id: "expert", label: "The Expert", icon: BarChart3, color: "bg-emerald-500" },
-                ].map((slot) => {
-                  const assignedParticipant = castMixSlots[slot.id] ? participants.find((p) => p.id === castMixSlots[slot.id]) : null
-                  const SlotIcon = slot.icon
-                  return (
-                    <div
-                      key={slot.id}
-                      className={`relative rounded-xl border-2 border-dashed transition-all ${
-                        assignedParticipant
-                          ? "border-solid border-gray-200 bg-white"
-                          : "border-gray-300 bg-gray-50 hover:border-cyan-300 hover:bg-cyan-50/30"
-                      }`}
-                      onDragOver={(e) => { e.preventDefault(); setDragOverStage(slot.id) }}
-                      onDragLeave={() => setDragOverStage(null)}
-                      onDrop={() => {
-                        if (draggedParticipant) {
-                          setCastMixSlots((prev) => ({ ...prev, [slot.id]: draggedParticipant }))
-                        }
-                        setDraggedParticipant(null)
-                        setDragOverStage(null)
-                      }}
-                    >
-                      <div className={`absolute -top-3 left-4 px-2 py-0.5 rounded-full text-[10px] font-bold text-white ${slot.color}`}>
-                        {slot.label}
-                      </div>
-                      {assignedParticipant ? (
-                        <div className="p-4">
-                          <div className="flex items-start gap-3">
-                            <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-cyan-100 to-cyan-200 flex items-center justify-center text-cyan-700 font-bold text-lg">
-                              {assignedParticipant.name.split(" ").map((n) => n[0]).join("")}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <h4 className="text-sm font-semibold text-gray-900">{assignedParticipant.name}</h4>
-                              <p className="text-xs text-gray-500">{assignedParticipant.age} • {assignedParticipant.location}</p>
-                              <div className="flex flex-wrap gap-1 mt-1.5">
-                                {assignedParticipant.archetype.slice(0, 2).map((a) => (
-                                  <span key={a} className="px-1.5 py-0.5 bg-cyan-50 text-cyan-700 rounded text-[9px] font-medium">{a}</span>
-                                ))}
-                              </div>
-                            </div>
-                            <button
-                              onClick={() => setCastMixSlots((prev) => ({ ...prev, [slot.id]: null }))}
-                              className="p-1 rounded hover:bg-gray-100 text-gray-400 hover:text-red-500"
-                            >
-                              <X className="w-4 h-4" />
-                            </button>
-                          </div>
+              {/* Slot Settings Panel */}
+              {showSlotSettings && (
+                <div className="mb-6 p-4 bg-gray-50 rounded-xl border border-gray-200">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-sm font-semibold text-gray-700">Slot & Group Management</h3>
+                    <button onClick={() => setShowSlotSettings(false)} className="p-1 rounded hover:bg-gray-200 text-gray-400">
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                  
+                  {/* Groups */}
+                  <div className="mb-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">Groups</span>
+                      <button
+                        onClick={() => setShowAddGroupForm(true)}
+                        className="text-xs text-cyan-600 hover:text-cyan-700 font-medium flex items-center gap-1"
+                      >
+                        <Plus className="w-3 h-3" /> Add Group
+                      </button>
+                    </div>
+                    <div className="space-y-2">
+                      {castSlotGroups.map((group) => (
+                        <div key={group.id} className="flex items-center gap-2 p-2 bg-white rounded-lg border border-gray-200">
+                          <div className={`w-3 h-3 rounded-full ${group.color}`} />
+                          {editingGroupId === group.id ? (
+                            <input
+                              type="text"
+                              value={editingGroupName}
+                              onChange={(e) => setEditingGroupName(e.target.value)}
+                              onBlur={() => {
+                                if (editingGroupName.trim()) {
+                                  setCastSlotGroups(prev => prev.map(g => g.id === group.id ? { ...g, name: editingGroupName.trim() } : g))
+                                }
+                                setEditingGroupId(null)
+                              }}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                  if (editingGroupName.trim()) {
+                                    setCastSlotGroups(prev => prev.map(g => g.id === group.id ? { ...g, name: editingGroupName.trim() } : g))
+                                  }
+                                  setEditingGroupId(null)
+                                }
+                                if (e.key === "Escape") setEditingGroupId(null)
+                              }}
+                              className="flex-1 px-2 py-0.5 text-sm border border-cyan-300 rounded focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                              autoFocus
+                            />
+                          ) : (
+                            <span className="flex-1 text-sm text-gray-700">{group.name}</span>
+                          )}
+                          <span className="text-xs text-gray-400">{castSlots.filter(s => s.groupId === group.id).length} slots</span>
+                          <label className="flex items-center gap-1 text-xs text-gray-500">
+                            <input
+                              type="checkbox"
+                              checked={group.allowMultiple}
+                              onChange={(e) => setCastSlotGroups(prev => prev.map(g => g.id === group.id ? { ...g, allowMultiple: e.target.checked } : g))}
+                              className="w-3 h-3 rounded border-gray-300 text-cyan-600 focus:ring-cyan-500"
+                            />
+                            Multi
+                          </label>
+                          <button
+                            onClick={() => { setEditingGroupId(group.id); setEditingGroupName(group.name) }}
+                            className="p-1 text-gray-400 hover:text-cyan-600 hover:bg-cyan-50 rounded"
+                          >
+                            <Edit3 className="w-3 h-3" />
+                          </button>
+                          <button
+                            onClick={() => {
+                              setCastSlots(prev => prev.map(s => s.groupId === group.id ? { ...s, groupId: null } : s))
+                              setCastSlotGroups(prev => prev.filter(g => g.id !== group.id))
+                            }}
+                            className="p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </button>
                         </div>
-                      ) : (
-                        <div className={`p-8 flex flex-col items-center justify-center text-gray-400 transition-colors ${dragOverStage === slot.id ? "bg-cyan-50 text-cyan-600" : ""}`}>
-                          <SlotIcon className="w-8 h-8 mb-2 opacity-40" />
-                          <p className="text-xs font-medium">Drop participant here</p>
+                      ))}
+                      {showAddGroupForm && (
+                        <div className="flex items-center gap-2 p-2 bg-cyan-50 rounded-lg border border-cyan-200">
+                          <input
+                            type="text"
+                            value={newGroupName}
+                            onChange={(e) => setNewGroupName(e.target.value)}
+                            placeholder="Group name..."
+                            className="flex-1 px-2 py-1 text-sm border border-cyan-300 rounded focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                            autoFocus
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter" && newGroupName.trim()) {
+                                setCastSlotGroups(prev => [...prev, { id: `group-${Date.now()}`, name: newGroupName.trim(), allowMultiple: false, color: "bg-gray-500" }])
+                                setNewGroupName("")
+                                setShowAddGroupForm(false)
+                              }
+                              if (e.key === "Escape") { setShowAddGroupForm(false); setNewGroupName("") }
+                            }}
+                          />
+                          <button
+                            onClick={() => {
+                              if (newGroupName.trim()) {
+                                setCastSlotGroups(prev => [...prev, { id: `group-${Date.now()}`, name: newGroupName.trim(), allowMultiple: false, color: "bg-gray-500" }])
+                                setNewGroupName("")
+                                setShowAddGroupForm(false)
+                              }
+                            }}
+                            className="px-2 py-1 bg-cyan-600 text-white text-xs font-medium rounded hover:bg-cyan-700"
+                          >
+                            Add
+                          </button>
+                          <button onClick={() => { setShowAddGroupForm(false); setNewGroupName("") }} className="p-1 text-gray-500 hover:bg-gray-100 rounded">
+                            <X className="w-4 h-4" />
+                          </button>
                         </div>
                       )}
                     </div>
+                  </div>
+                  
+                  {/* Individual Slots */}
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">Individual Slots</span>
+                      <button
+                        onClick={() => setShowAddSlotForm(true)}
+                        className="text-xs text-cyan-600 hover:text-cyan-700 font-medium flex items-center gap-1"
+                      >
+                        <Plus className="w-3 h-3" /> Add Slot
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      {castSlots.map((slot) => (
+                        <div key={slot.id} className="flex items-center gap-2 p-2 bg-white rounded-lg border border-gray-200">
+                          <div className={`w-2.5 h-2.5 rounded-full ${slot.color}`} />
+                          {editingSlotId === slot.id ? (
+                            <input
+                              type="text"
+                              value={editingSlotLabel}
+                              onChange={(e) => setEditingSlotLabel(e.target.value)}
+                              onBlur={() => {
+                                if (editingSlotLabel.trim()) {
+                                  setCastSlots(prev => prev.map(s => s.id === slot.id ? { ...s, label: editingSlotLabel.trim() } : s))
+                                }
+                                setEditingSlotId(null)
+                              }}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                  if (editingSlotLabel.trim()) {
+                                    setCastSlots(prev => prev.map(s => s.id === slot.id ? { ...s, label: editingSlotLabel.trim() } : s))
+                                  }
+                                  setEditingSlotId(null)
+                                }
+                                if (e.key === "Escape") setEditingSlotId(null)
+                              }}
+                              className="flex-1 px-2 py-0.5 text-xs border border-cyan-300 rounded focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                              autoFocus
+                            />
+                          ) : (
+                            <span className="flex-1 text-xs text-gray-700 truncate">{slot.label}</span>
+                          )}
+                          <select
+                            value={slot.groupId || ""}
+                            onChange={(e) => setCastSlots(prev => prev.map(s => s.id === slot.id ? { ...s, groupId: e.target.value || null } : s))}
+                            className="text-[10px] px-1.5 py-0.5 border border-gray-200 rounded bg-gray-50 text-gray-600"
+                          >
+                            <option value="">No group</option>
+                            {castSlotGroups.map(g => <option key={g.id} value={g.id}>{g.name}</option>)}
+                          </select>
+                          <button
+                            onClick={() => { setEditingSlotId(slot.id); setEditingSlotLabel(slot.label) }}
+                            className="p-1 text-gray-400 hover:text-cyan-600 hover:bg-cyan-50 rounded"
+                          >
+                            <Edit3 className="w-3 h-3" />
+                          </button>
+                          <button
+                            onClick={() => setCastSlots(prev => prev.filter(s => s.id !== slot.id))}
+                            className="p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </button>
+                        </div>
+                      ))}
+                      {showAddSlotForm && (
+                        <div className="col-span-2 flex items-center gap-2 p-2 bg-cyan-50 rounded-lg border border-cyan-200">
+                          <input
+                            type="text"
+                            value={newSlotName}
+                            onChange={(e) => setNewSlotName(e.target.value)}
+                            placeholder="Slot name..."
+                            className="flex-1 px-2 py-1 text-sm border border-cyan-300 rounded focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                            autoFocus
+                          />
+                          <select
+                            value={newSlotGroupId || ""}
+                            onChange={(e) => setNewSlotGroupId(e.target.value || null)}
+                            className="text-xs px-2 py-1 border border-cyan-300 rounded bg-white"
+                          >
+                            <option value="">No group</option>
+                            {castSlotGroups.map(g => <option key={g.id} value={g.id}>{g.name}</option>)}
+                          </select>
+                          <button
+                            onClick={() => {
+                              if (newSlotName.trim()) {
+                                setCastSlots(prev => [...prev, { 
+                                  id: `slot-${Date.now()}`, 
+                                  label: newSlotName.trim(), 
+                                  color: newSlotColor, 
+                                  icon: "user", 
+                                  groupId: newSlotGroupId, 
+                                  assignedParticipantId: null 
+                                }])
+                                setNewSlotName("")
+                                setNewSlotGroupId(null)
+                                setShowAddSlotForm(false)
+                              }
+                            }}
+                            className="px-2 py-1 bg-cyan-600 text-white text-xs font-medium rounded hover:bg-cyan-700"
+                          >
+                            Add
+                          </button>
+                          <button onClick={() => { setShowAddSlotForm(false); setNewSlotName(""); setNewSlotGroupId(null) }} className="p-1 text-gray-500 hover:bg-gray-100 rounded">
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Cast Mix slots - grouped */}
+              <div className="space-y-6 mb-8">
+                {/* Grouped slots */}
+                {castSlotGroups.map((group) => {
+                  const groupSlots = castSlots.filter(s => s.groupId === group.id)
+                  if (groupSlots.length === 0) return null
+                  return (
+                    <div key={group.id} className="p-4 bg-gray-50/50 rounded-xl border border-gray-200">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <div className={`w-3 h-3 rounded-full ${group.color}`} />
+                          <h3 className="text-sm font-semibold text-gray-700">{group.name}</h3>
+                          <span className="text-xs text-gray-400">({groupSlots.filter(s => s.assignedParticipantId).length}/{groupSlots.length} filled)</span>
+                        </div>
+                        {group.allowMultiple && (
+                          <button
+                            onClick={() => {
+                              setCastSlots(prev => [...prev, {
+                                id: `slot-${Date.now()}`,
+                                label: `${group.name} ${groupSlots.length + 1}`,
+                                color: group.color,
+                                icon: "user",
+                                groupId: group.id,
+                                assignedParticipantId: null
+                              }])
+                            }}
+                            className="text-xs text-cyan-600 hover:text-cyan-700 font-medium flex items-center gap-1 px-2 py-1 hover:bg-cyan-50 rounded"
+                          >
+                            <Plus className="w-3 h-3" /> Add Slot
+                          </button>
+                        )}
+                      </div>
+                      <div className="grid grid-cols-3 gap-3">
+                        {groupSlots.map((slot) => {
+                          const assignedParticipant = slot.assignedParticipantId ? participants.find((p) => p.id === slot.assignedParticipantId) : null
+                          return (
+                            <div
+                              key={slot.id}
+                              className={`relative rounded-xl border-2 transition-all ${
+                                assignedParticipant
+                                  ? "border-solid border-gray-200 bg-white"
+                                  : "border-dashed border-gray-300 bg-white hover:border-cyan-300 hover:bg-cyan-50/30"
+                              }`}
+                              onDragOver={(e) => { e.preventDefault(); setDragOverStage(slot.id) }}
+                              onDragLeave={() => setDragOverStage(null)}
+                              onDrop={() => {
+                                if (draggedParticipant) {
+                                  setCastSlots(prev => prev.map(s => s.id === slot.id ? { ...s, assignedParticipantId: draggedParticipant } : s))
+                                }
+                                setDraggedParticipant(null)
+                                setDragOverStage(null)
+                              }}
+                            >
+                              <div className={`absolute -top-2.5 left-3 px-2 py-0.5 rounded-full text-[10px] font-bold text-white ${slot.color}`}>
+                                {slot.label}
+                              </div>
+                              {assignedParticipant ? (
+                                <div className="p-3 pt-4">
+                                  <div className="flex items-start gap-2">
+                                    <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-cyan-100 to-cyan-200 flex items-center justify-center text-cyan-700 font-bold text-sm">
+                                      {assignedParticipant.name.split(" ").map((n) => n[0]).join("")}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      <h4 className="text-xs font-semibold text-gray-900 truncate">{assignedParticipant.name}</h4>
+                                      <p className="text-[10px] text-gray-500">{assignedParticipant.age} • {assignedParticipant.location}</p>
+                                    </div>
+                                    <button
+                                      onClick={() => setCastSlots(prev => prev.map(s => s.id === slot.id ? { ...s, assignedParticipantId: null } : s))}
+                                      className="p-1 rounded hover:bg-gray-100 text-gray-400 hover:text-red-500"
+                                    >
+                                      <X className="w-3.5 h-3.5" />
+                                    </button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <div className={`p-6 pt-7 flex flex-col items-center justify-center text-gray-400 transition-colors ${dragOverStage === slot.id ? "bg-cyan-50 text-cyan-600" : ""}`}>
+                                  <User className="w-6 h-6 mb-1 opacity-40" />
+                                  <p className="text-[10px] font-medium">Drop here</p>
+                                </div>
+                              )}
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </div>
                   )
                 })}
+
+                {/* Ungrouped slots */}
+                {castSlots.filter(s => !s.groupId).length > 0 && (
+                  <div className="p-4 bg-gray-50/50 rounded-xl border border-gray-200">
+                    <div className="flex items-center gap-2 mb-3">
+                      <h3 className="text-sm font-semibold text-gray-700">Other Slots</h3>
+                      <span className="text-xs text-gray-400">({castSlots.filter(s => !s.groupId && s.assignedParticipantId).length}/{castSlots.filter(s => !s.groupId).length} filled)</span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-3">
+                      {castSlots.filter(s => !s.groupId).map((slot) => {
+                        const assignedParticipant = slot.assignedParticipantId ? participants.find((p) => p.id === slot.assignedParticipantId) : null
+                        return (
+                          <div
+                            key={slot.id}
+                            className={`relative rounded-xl border-2 transition-all ${
+                              assignedParticipant
+                                ? "border-solid border-gray-200 bg-white"
+                                : "border-dashed border-gray-300 bg-white hover:border-cyan-300 hover:bg-cyan-50/30"
+                            }`}
+                            onDragOver={(e) => { e.preventDefault(); setDragOverStage(slot.id) }}
+                            onDragLeave={() => setDragOverStage(null)}
+                            onDrop={() => {
+                              if (draggedParticipant) {
+                                setCastSlots(prev => prev.map(s => s.id === slot.id ? { ...s, assignedParticipantId: draggedParticipant } : s))
+                              }
+                              setDraggedParticipant(null)
+                              setDragOverStage(null)
+                            }}
+                          >
+                            <div className={`absolute -top-2.5 left-3 px-2 py-0.5 rounded-full text-[10px] font-bold text-white ${slot.color}`}>
+                              {slot.label}
+                            </div>
+                            {assignedParticipant ? (
+                              <div className="p-3 pt-4">
+                                <div className="flex items-start gap-2">
+                                  <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-cyan-100 to-cyan-200 flex items-center justify-center text-cyan-700 font-bold text-sm">
+                                    {assignedParticipant.name.split(" ").map((n) => n[0]).join("")}
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <h4 className="text-xs font-semibold text-gray-900 truncate">{assignedParticipant.name}</h4>
+                                    <p className="text-[10px] text-gray-500">{assignedParticipant.age} • {assignedParticipant.location}</p>
+                                  </div>
+                                  <button
+                                    onClick={() => setCastSlots(prev => prev.map(s => s.id === slot.id ? { ...s, assignedParticipantId: null } : s))}
+                                    className="p-1 rounded hover:bg-gray-100 text-gray-400 hover:text-red-500"
+                                  >
+                                    <X className="w-3.5 h-3.5" />
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className={`p-6 pt-7 flex flex-col items-center justify-center text-gray-400 transition-colors ${dragOverStage === slot.id ? "bg-cyan-50 text-cyan-600" : ""}`}>
+                                <User className="w-6 h-6 mb-1 opacity-40" />
+                                <p className="text-[10px] font-medium">Drop here</p>
+                              </div>
+                            )}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Available participants for dragging */}
               <div>
                 <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
                   <Users className="w-4 h-4" />
-                  Available Participants ({filteredParticipants.filter((p) => !Object.values(castMixSlots).includes(p.id)).length})
+                  Available Participants ({filteredParticipants.filter((p) => !castSlots.some(s => s.assignedParticipantId === p.id)).length})
                 </h3>
                 <div className="grid grid-cols-4 gap-3">
                   {filteredParticipants
-                    .filter((p) => !Object.values(castMixSlots).includes(p.id))
+                    .filter((p) => !castSlots.some(s => s.assignedParticipantId === p.id))
                     .map((p) => renderParticipantCard(p, true))}
                 </div>
               </div>
