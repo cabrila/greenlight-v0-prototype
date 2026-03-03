@@ -17,7 +17,9 @@ import {
   Mail,
   MessageSquare,
   ChevronDown,
+  ChevronUp,
   ChevronRight,
+  ArrowUpDown,
   Users,
   User,
   Tv,
@@ -121,6 +123,9 @@ const STAGE_COLORS = [
 
 type FunnelStage = string
 
+// Sorting options for lists
+type SortOption = "name" | "score" | "date" | "stage" | "custom"
+
 // Cast lists for organization
 interface CastList {
   id: string
@@ -129,6 +134,8 @@ interface CastList {
   participantIds: string[]
   color: string
   createdAt: number
+  sortBy?: SortOption
+  sortDirection?: "asc" | "desc"
 }
 
 // Mock participant data for Non-Fiction TV
@@ -334,11 +341,13 @@ export default function CastingForTVModal({ onClose }: CastingForTVModalProps) {
       assignedParticipantId: newSlots[slot.id] ?? null
     })))
   }
-  const [lists, setLists] = useState<CastList[]>([
-    { id: "list-1", name: "Top Picks", description: "Best candidates for final review", participantIds: ["p1", "p2", "p4"], color: "bg-emerald-500", createdAt: Date.now() - 86400000 * 5 },
-    { id: "list-2", name: "Backup Options", description: "Strong alternatives", participantIds: ["p3", "p6"], color: "bg-blue-500", createdAt: Date.now() - 86400000 * 3 },
-    { id: "list-3", name: "Social Stars", description: "High follower count", participantIds: ["p2", "p4", "p8"], color: "bg-pink-500", createdAt: Date.now() - 86400000 },
-  ])
+const [lists, setLists] = useState<CastList[]>([
+  { id: "list-1", name: "Top Picks", description: "Best candidates for final review", participantIds: ["p1", "p2", "p4"], color: "bg-emerald-500", createdAt: Date.now() - 86400000 * 5, sortBy: "score", sortDirection: "desc" },
+  { id: "list-2", name: "Backup Options", description: "Strong alternatives", participantIds: ["p3", "p6"], color: "bg-blue-500", createdAt: Date.now() - 86400000 * 3, sortBy: "name", sortDirection: "asc" },
+  { id: "list-3", name: "Social Stars", description: "High follower count", participantIds: ["p2", "p4", "p8"], color: "bg-pink-500", createdAt: Date.now() - 86400000, sortBy: "score", sortDirection: "desc" },
+])
+const [globalSortBy, setGlobalSortBy] = useState<SortOption>("date")
+const [globalSortDirection, setGlobalSortDirection] = useState<"asc" | "desc">("desc")
   const addDropdownRef = useRef<HTMLDivElement>(null)
   
   // Edit participant modal state
@@ -400,6 +409,74 @@ export default function CastingForTVModal({ onClose }: CastingForTVModalProps) {
       return matchesSearch && matchesArchetype
     })
   }, [participants, searchQuery, filterArchetype])
+
+  // Get current sort settings based on selected list or global
+  const currentSortBy = selectedListId 
+    ? lists.find(l => l.id === selectedListId)?.sortBy || globalSortBy 
+    : globalSortBy
+  const currentSortDirection = selectedListId 
+    ? lists.find(l => l.id === selectedListId)?.sortDirection || globalSortDirection 
+    : globalSortDirection
+
+  // Sorted and filtered participants
+  const sortedParticipants = useMemo(() => {
+    let result = [...filteredParticipants]
+    
+    // Filter by list if selected
+    if (selectedListId) {
+      const selectedList = lists.find(l => l.id === selectedListId)
+      if (selectedList) {
+        result = result.filter(p => selectedList.participantIds.includes(p.id))
+      }
+    }
+    
+    // Sort
+    result.sort((a, b) => {
+      let comparison = 0
+      switch (currentSortBy) {
+        case "name":
+          comparison = a.name.localeCompare(b.name)
+          break
+        case "score":
+          comparison = (b.score || 0) - (a.score || 0)
+          break
+        case "date":
+          comparison = b.appliedDate - a.appliedDate
+          break
+        case "stage":
+          comparison = a.stage.localeCompare(b.stage)
+          break
+        case "custom":
+          // For custom sort, use the order in the list's participantIds array
+          if (selectedListId) {
+            const list = lists.find(l => l.id === selectedListId)
+            if (list) {
+              const aIndex = list.participantIds.indexOf(a.id)
+              const bIndex = list.participantIds.indexOf(b.id)
+              comparison = aIndex - bIndex
+            }
+          }
+          break
+      }
+      return currentSortDirection === "asc" ? comparison : -comparison
+    })
+    
+    return result
+  }, [filteredParticipants, selectedListId, lists, currentSortBy, currentSortDirection])
+
+  // Update participant score
+  const updateParticipantScore = (participantId: string, score: number) => {
+    setParticipants(prev => prev.map(p => 
+      p.id === participantId ? { ...p, score: Math.max(0, Math.min(10, score)) } : p
+    ))
+  }
+
+  // Update list sort settings
+  const updateListSort = (listId: string, sortBy: SortOption, sortDirection: "asc" | "desc") => {
+    setLists(prev => prev.map(l => 
+      l.id === listId ? { ...l, sortBy, sortDirection } : l
+    ))
+  }
 
   // Group by stage for Kanban
   const participantsByStage = useMemo(() => {
@@ -781,12 +858,26 @@ export default function CastingForTVModal({ onClose }: CastingForTVModalProps) {
                 </div>
               )}
             </div>
-            {participant.score && (
-              <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 group/score">
+              <button
+                onClick={(e) => { e.stopPropagation(); updateParticipantScore(participant.id, (participant.score || 5) - 0.5) }}
+                className="p-0.5 rounded text-gray-300 hover:text-emerald-600 hover:bg-emerald-50 opacity-0 group-hover/score:opacity-100 transition-opacity"
+                title="Decrease score"
+              >
+                <ChevronDown className="w-3 h-3" />
+              </button>
+              <div className="flex items-center gap-0.5 cursor-pointer hover:bg-emerald-50 px-1 rounded transition-colors" title="Click to edit score">
                 <BarChart3 className="w-3 h-3 text-emerald-600" />
-                <span className="text-xs font-semibold text-emerald-700">{participant.score}</span>
+                <span className="text-xs font-semibold text-emerald-700">{participant.score?.toFixed(1) || "—"}</span>
               </div>
-            )}
+              <button
+                onClick={(e) => { e.stopPropagation(); updateParticipantScore(participant.id, (participant.score || 5) + 0.5) }}
+                className="p-0.5 rounded text-gray-300 hover:text-emerald-600 hover:bg-emerald-50 opacity-0 group-hover/score:opacity-100 transition-opacity"
+                title="Increase score"
+              >
+                <ChevronUp className="w-3 h-3" />
+              </button>
+            </div>
           </div>
         )}
 
@@ -848,12 +939,12 @@ export default function CastingForTVModal({ onClose }: CastingForTVModalProps) {
     </div>
   )
 
-  const renderGridView = () => (
-    <div className="flex-1 overflow-y-auto p-4">
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-        {filteredParticipants.map((p) => renderParticipantCard(p))}
-      </div>
-    </div>
+const renderGridView = () => (
+  <div className="flex-1 overflow-y-auto p-4">
+  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+  {sortedParticipants.map((p) => renderParticipantCard(p))}
+  </div>
+  </div>
   )
 
   const renderParticipantDetail = () => {
@@ -1412,18 +1503,72 @@ export default function CastingForTVModal({ onClose }: CastingForTVModalProps) {
                 <span className="ml-auto text-xs text-gray-400">{participants.length}</span>
               </button>
               {lists.map((list) => (
-                <button
-                  key={list.id}
-                  onClick={() => setSelectedListId(list.id)}
-                  className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors group ${
-                    selectedListId === list.id ? "bg-cyan-50 text-cyan-700 font-medium" : "text-gray-600 hover:bg-gray-50"
-                  }`}
-                >
-                  <div className={`w-2.5 h-2.5 rounded-full ${list.color}`} />
-                  <span className="truncate flex-1">{list.name}</span>
-                  <span className="text-xs text-gray-400">{list.participantIds.length}</span>
-                </button>
+                <div key={list.id} className="group">
+                  <button
+                    onClick={() => setSelectedListId(list.id)}
+                    className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors ${
+                      selectedListId === list.id ? "bg-cyan-50 text-cyan-700 font-medium" : "text-gray-600 hover:bg-gray-50"
+                    }`}
+                  >
+                    <div className={`w-2.5 h-2.5 rounded-full ${list.color}`} />
+                    <span className="truncate flex-1 text-left">{list.name}</span>
+                    <span className="text-xs text-gray-400">{list.participantIds.length}</span>
+                  </button>
+                  {/* Sort indicator for selected list */}
+                  {selectedListId === list.id && (
+                    <div className="px-3 py-1.5 bg-cyan-50/50 rounded-b-lg -mt-1 border-t border-cyan-100">
+                      <div className="flex items-center gap-1.5">
+                        <ArrowUpDown className="w-3 h-3 text-cyan-500" />
+                        <select
+                          value={list.sortBy || "custom"}
+                          onChange={(e) => updateListSort(list.id, e.target.value as SortOption, list.sortDirection || "desc")}
+                          className="flex-1 text-[10px] bg-white border border-cyan-200 rounded px-1.5 py-0.5 text-cyan-700 focus:outline-none focus:ring-1 focus:ring-cyan-400"
+                        >
+                          <option value="score">By Score</option>
+                          <option value="name">By Name</option>
+                          <option value="date">By Date</option>
+                          <option value="stage">By Stage</option>
+                          <option value="custom">Custom Order</option>
+                        </select>
+                        <button
+                          onClick={() => updateListSort(list.id, list.sortBy || "score", list.sortDirection === "asc" ? "desc" : "asc")}
+                          className="p-0.5 rounded hover:bg-cyan-100 text-cyan-600"
+                          title={list.sortDirection === "asc" ? "Ascending" : "Descending"}
+                        >
+                          {list.sortDirection === "asc" ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
               ))}
+              
+              {/* Global sort when no list selected */}
+              {!selectedListId && (
+                <div className="px-2 py-2 border-t border-gray-100 mt-2">
+                  <div className="text-[10px] font-medium text-gray-400 uppercase tracking-wider mb-1.5">Sort All</div>
+                  <div className="flex items-center gap-1.5">
+                    <select
+                      value={globalSortBy}
+                      onChange={(e) => setGlobalSortBy(e.target.value as SortOption)}
+                      className="flex-1 text-[10px] bg-white border border-gray-200 rounded px-1.5 py-1 text-gray-600 focus:outline-none focus:ring-1 focus:ring-cyan-400"
+                    >
+                      <option value="score">By Score</option>
+                      <option value="name">By Name</option>
+                      <option value="date">By Date</option>
+                      <option value="stage">By Stage</option>
+                    </select>
+                    <button
+                      onClick={() => setGlobalSortDirection(prev => prev === "asc" ? "desc" : "asc")}
+                      className="p-1 rounded hover:bg-gray-100 text-gray-500"
+                      title={globalSortDirection === "asc" ? "Ascending" : "Descending"}
+                    >
+                      {globalSortDirection === "asc" ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                    </button>
+                  </div>
+                </div>
+              )}
+              
               {/* Add new list button at bottom */}
               <button
                 onClick={() => setShowAddListModal(true)}
@@ -1488,10 +1633,7 @@ export default function CastingForTVModal({ onClose }: CastingForTVModalProps) {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
-                  {(selectedListId
-                    ? filteredParticipants.filter((p) => lists.find((l) => l.id === selectedListId)?.participantIds.includes(p.id))
-                    : filteredParticipants
-                  ).map((p) => {
+{sortedParticipants.map((p) => {
                     const stage = funnelStages.find((s) => s.id === p.stage)
                     return (
                       <tr
