@@ -1485,8 +1485,8 @@ const renderParticipantCard = (participant: Participant, compact = false) => {
             )}
           </div>
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-1.5">
-              <h4 className={`font-semibold text-gray-900 truncate ${compact ? "text-xs" : "text-sm"}`}>
+            <div className="flex flex-wrap items-center gap-1.5">
+              <h4 className={`font-semibold text-gray-900 leading-tight ${compact ? "text-xs" : "text-sm"}`}>
                 {participant.name}
               </h4>
               {participant.manuallyAdded && (
@@ -1498,12 +1498,27 @@ const renderParticipantCard = (participant: Participant, compact = false) => {
                 <Flag className="w-3 h-3 text-red-500 shrink-0" />
               )}
             </div>
-            <p className={`text-gray-500 truncate ${compact ? "text-[10px]" : "text-xs"}`}>
+            <p className={`text-gray-500 ${compact ? "text-[10px]" : "text-xs"}`}>
               {participant.age} • {participant.location}
             </p>
             <p className={`text-gray-600 truncate ${compact ? "text-[10px]" : "text-xs"}`}>
               {participant.occupation}
             </p>
+            {/* Video and Comment counters */}
+            <div className="flex items-center gap-2 mt-1">
+              {participant.videos && participant.videos.length > 0 && (
+                <span className="flex items-center gap-1 text-[10px] text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
+                  <Video className="w-3 h-3" />
+                  {participant.videos.length}
+                </span>
+              )}
+              {participantComments[participant.id] && participantComments[participant.id].length > 0 && (
+                <span className="flex items-center gap-1 text-[10px] text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
+                  <MessageSquare className="w-3 h-3" />
+                  {participantComments[participant.id].length}
+                </span>
+              )}
+            </div>
           </div>
           <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
             <div className="relative">

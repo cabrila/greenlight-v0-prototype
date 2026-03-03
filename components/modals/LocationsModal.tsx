@@ -169,10 +169,10 @@ function generateMockLocations(): ProjectLocation[] {
       lat: 34.0622, lng: -118.3537, address: "742 Evergreen Terrace, Los Angeles, CA",
       vibeTags: ["Suburban", "1980s", "Vintage"],
       media: [
-        { id: "m1a", url: "", type: "photo", caption: "Front exterior" },
-        { id: "m1b", url: "", type: "photo", caption: "Kitchen" },
-        { id: "m1c", url: "", type: "photo", caption: "Living room" },
-        { id: "m1d", url: "", type: "photo", caption: "Backyard" },
+        { id: "m1a", url: "", type: "photo" as const, caption: "Front exterior" },
+        { id: "m1b", url: "", type: "photo" as const, caption: "Kitchen" },
+        { id: "m1c", url: "", type: "photo" as const, caption: "Living room" },
+        { id: "m1d", url: "", type: "photo" as const, caption: "Backyard" },
       ],
       notes: "Perfect mid-century home. Owner very cooperative.", dailyRate: "$3,500", overtimeRate: "$500/hr", securityDeposit: "$5,000",
       basecampParking: "Cul-de-sac, room for 4 trucks", crewParkingCapacity: 8, cateringArea: "Backyard patio",
@@ -190,9 +190,9 @@ function generateMockLocations(): ProjectLocation[] {
       lat: 34.0400, lng: -118.2500, address: "Downtown Arts District, Los Angeles, CA",
       vibeTags: ["Gritty", "Noir", "Urban", "Dystopian"],
       media: [
-        { id: "m2a", url: "", type: "photo", caption: "Neon signs at night" },
-        { id: "m2b", url: "", type: "photo", caption: "Alley view" },
-        { id: "m2c", url: "", type: "photo", caption: "Side entrance" },
+        { id: "m2a", url: "", type: "photo" as const, caption: "Neon signs at night" },
+        { id: "m2b", url: "", type: "photo" as const, caption: "Alley view" },
+        { id: "m2c", url: "", type: "photo" as const, caption: "Side entrance" },
       ],
       notes: "Amazing neon signage at night. Permission needed from 3 businesses.", dailyRate: "$2,000", overtimeRate: "$300/hr", securityDeposit: "$1,500",
       basecampParking: "Public lot 2 blocks away", crewParkingCapacity: 4, noiseProfile: "Urban noise",
@@ -206,8 +206,8 @@ function generateMockLocations(): ProjectLocation[] {
       lat: 34.0800, lng: -118.3700, address: "Raleigh Studios, 5300 Melrose Ave, Los Angeles, CA",
       vibeTags: ["Modern", "Minimalist"],
       media: [
-        { id: "m3a", url: "", type: "photo", caption: "Stage floor" },
-        { id: "m3b", url: "", type: "photo", caption: "Grid rigging" },
+        { id: "m3a", url: "", type: "photo" as const, caption: "Stage floor" },
+        { id: "m3b", url: "", type: "photo" as const, caption: "Grid rigging" },
       ],
       notes: "Stage 12. Full soundstage.", dailyRate: "$8,500", overtimeRate: "$1,200/hr", securityDeposit: "$15,000",
       dimensionsL: 120, dimensionsW: 80, dimensionsH: 35, gridHeight: 30, floorType: "Concrete",
@@ -222,11 +222,11 @@ function generateMockLocations(): ProjectLocation[] {
       lat: 33.9800, lng: -118.3000, address: "1400 Industrial Blvd, Inglewood, CA",
       vibeTags: ["Gritty", "Industrial", "Dystopian", "Spooky"],
       media: [
-        { id: "m4a", url: "", type: "photo", caption: "Interior wide" },
-        { id: "m4b", url: "", type: "photo", caption: "Loading dock" },
-        { id: "m4c", url: "", type: "photo", caption: "Upper floor" },
-        { id: "m4d", url: "", type: "photo", caption: "Roof access" },
-        { id: "m4e", url: "", type: "photo", caption: "Exterior" },
+        { id: "m4a", url: "", type: "photo" as const, caption: "Interior wide" },
+        { id: "m4b", url: "", type: "photo" as const, caption: "Loading dock" },
+        { id: "m4c", url: "", type: "photo" as const, caption: "Upper floor" },
+        { id: "m4d", url: "", type: "photo" as const, caption: "Roof access" },
+        { id: "m4e", url: "", type: "photo" as const, caption: "Exterior" },
       ],
       notes: "Needs structural safety inspection.", dailyRate: "$1,200", overtimeRate: "$200/hr", securityDeposit: "$3,000",
       basecampParking: "Adjacent lot", crewParkingCapacity: 12, noiseProfile: "Flight path overhead",
@@ -241,8 +241,8 @@ function generateMockLocations(): ProjectLocation[] {
       lat: 37.8000, lng: -122.1800, address: "Muir Woods, Mill Valley, CA",
       vibeTags: ["Forest", "Gothic", "Spooky", "Rustic"],
       media: [
-        { id: "m5a", url: "", type: "photo", caption: "Clearing" },
-        { id: "m5b", url: "", type: "photo", caption: "Trail path" },
+        { id: "m5a", url: "", type: "photo" as const, caption: "Clearing" },
+        { id: "m5b", url: "", type: "photo" as const, caption: "Trail path" },
       ],
       notes: "NPS permit required. 6-week lead.", dailyRate: "$500", overtimeRate: "$100/hr", securityDeposit: "$2,000",
       basecampParking: "Lot 0.5mi away", crewParkingCapacity: 3,
@@ -256,7 +256,7 @@ function generateMockLocations(): ProjectLocation[] {
       lat: 34.1500, lng: -118.3400, address: "Universal Studios, 100 Universal City Plaza, CA",
       vibeTags: ["Futuristic", "Modern"],
       media: [
-        { id: "m6a", url: "", type: "photo", caption: "Empty stage" },
+        { id: "m6a", url: "", type: "photo" as const, caption: "Empty stage" },
       ],
       notes: "Available for sci-fi build. 4-week advance booking.", dailyRate: "$12,000", overtimeRate: "$1,800/hr", securityDeposit: "$25,000",
       dimensionsL: 150, dimensionsW: 100, dimensionsH: 45, gridHeight: 40, floorType: "Epoxy",
@@ -725,8 +725,8 @@ function InteractiveMap({
             <span style="margin-left:auto">${dist} mi away</span>
           </div>
           <div style="display:flex;padding:0;border-top:0">
-            <button onclick="document.dispatchEvent(new CustomEvent('loc-edit',{detail:'${loc.id}'}))" style="flex:1;padding:8px;border:none;background:none;font-size:11px;font-weight:500;color:#0d9488;cursor:pointer;border-right:1px solid #f3f4f6">Edit</button>
-            <button onclick="document.dispatchEvent(new CustomEvent('loc-delete',{detail:'${loc.id}'}))" style="flex:1;padding:8px;border:none;background:none;font-size:11px;font-weight:500;color:#ef4444;cursor:pointer">Remove</button>
+            <button data-loc-edit="${loc.id}" style="flex:1;padding:8px;border:none;background:none;font-size:11px;font-weight:500;color:#0d9488;cursor:pointer;border-right:1px solid #f3f4f6">Edit</button>
+            <button data-loc-delete="${loc.id}" style="flex:1;padding:8px;border:none;background:none;font-size:11px;font-weight:500;color:#ef4444;cursor:pointer">Remove</button>
           </div>
         </div>
       `
@@ -740,18 +740,24 @@ function InteractiveMap({
     })
   }, [locations, onSelect])
 
-  // Listen for popup button events
+  // Listen for popup button clicks via event delegation
   useEffect(() => {
-    const handleEdit = (e: any) => {
-      const loc = locations.find((l) => l.id === e.detail)
-      if (loc) onEditLocation(loc)
+    const handleClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement
+      const editId = target.getAttribute("data-loc-edit")
+      const deleteId = target.getAttribute("data-loc-delete")
+      
+      if (editId) {
+        const loc = locations.find((l) => l.id === editId)
+        if (loc) onEditLocation(loc)
+      }
+      if (deleteId) {
+        onDeleteLocation(deleteId)
+      }
     }
-    const handleDelete = (e: any) => { if (e.detail) onDeleteLocation(e.detail) }
-    document.addEventListener("loc-edit", handleEdit)
-    document.addEventListener("loc-delete", handleDelete)
+    document.addEventListener("click", handleClick)
     return () => {
-      document.removeEventListener("loc-edit", handleEdit)
-      document.removeEventListener("loc-delete", handleDelete)
+      document.removeEventListener("click", handleClick)
     }
   }, [locations, onEditLocation, onDeleteLocation])
 
