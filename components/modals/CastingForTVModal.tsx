@@ -1896,11 +1896,10 @@ const renderGridView = () => (
               )}
             </div>
             
-            {/* Split screen layout */}
-            <div className="flex-1 flex flex-col overflow-hidden">
-              {/* Cast Mix Builder - Primary Area */}
+            {/* Split screen layout - Side by Side */}
+            <div className="flex-1 flex overflow-hidden">
+              {/* Cast Mix Builder - Primary Area (Left) */}
               <div className="flex-1 overflow-y-auto p-6 bg-gray-50/30">
-                <div className="max-w-6xl mx-auto">
               {/* Slot Settings Panel */}
               {showSlotSettings && (
                 <div className="mb-6 p-4 bg-gray-50 rounded-xl border border-gray-200">
@@ -2279,36 +2278,15 @@ const renderGridView = () => (
                 )}
               </div>
               </div>
-              </div>
               
-              {/* Available Participants - Bottom Section */}
-              <div className="shrink-0 border-t border-gray-200 bg-white">
-                <div className="px-6 py-3 border-b border-gray-100 flex items-center justify-between">
+              {/* Available Participants - Right Side Panel */}
+              <div className="w-72 shrink-0 border-l border-gray-200 bg-white flex flex-col">
+                <div className="px-4 py-3 border-b border-gray-100">
                   <h3 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
                     <Users className="w-4 h-4 text-gray-500" />
-                    Available Participants
-                    <span className="text-xs font-normal text-gray-400">
-                      ({(() => {
-                        const availableParticipants = participants.filter((p) => {
-                          if (castSlots.some(s => s.assignedParticipantId === p.id)) return false
-                          if (demographicFilters.gender !== "all" && p.gender?.toLowerCase() !== demographicFilters.gender) return false
-                          if (demographicFilters.stage !== "all" && p.stage !== demographicFilters.stage) return false
-                          if (demographicFilters.ageRange !== "all") {
-                            const [min, max] = demographicFilters.ageRange === "46+" ? [46, 999] : demographicFilters.ageRange.split("-").map(Number)
-                            if (p.age < min || p.age > max) return false
-                          }
-                          return true
-                        })
-                        return availableParticipants.length
-                      })()} available)
-                    </span>
+                    Available
                   </h3>
-                  <div className="text-xs text-gray-400">
-                    Drag cards to slots above
-                  </div>
-                </div>
-                <div className="p-4 max-h-64 overflow-y-auto">
-                  <div className="flex gap-3 overflow-x-auto pb-2">
+                  <p className="text-xs text-gray-400 mt-0.5">
                     {(() => {
                       const availableParticipants = participants.filter((p) => {
                         if (castSlots.some(s => s.assignedParticipantId === p.id)) return false
@@ -2320,52 +2298,13 @@ const renderGridView = () => (
                         }
                         return true
                       })
-                      return availableParticipants.map((p, index) => {
-                        const stage = funnelStages.find(s => s.id === p.stage)
-                        return (
-                          <div
-                            key={p.id}
-                            draggable
-                            onDragStart={() => handleDragStart(p.id)}
-                            onDragEnd={() => { setDraggedParticipant(null); setDragOverStage(null) }}
-                            onClick={() => setSelectedParticipant(p)}
-                            className={`shrink-0 w-44 bg-white rounded-xl border border-gray-200 hover:border-cyan-300 hover:shadow-md transition-all cursor-pointer group ${
-                              draggedParticipant === p.id ? "opacity-50 scale-95" : ""
-                            }`}
-                          >
-                            <div className="p-3">
-                              {/* Index badge */}
-                              <div className="flex items-start justify-between mb-2">
-                                <span className="w-5 h-5 rounded-full bg-gray-100 text-gray-500 text-[10px] font-bold flex items-center justify-center">
-                                  {index + 1}
-                                </span>
-                                <span className={`px-1.5 py-0.5 rounded text-[9px] font-semibold ${stage?.color || "bg-gray-100 text-gray-600"}`}>
-                                  {stage?.label || "Unknown"}
-                                </span>
-                              </div>
-                              {/* Avatar and name */}
-                              <div className="flex items-center gap-2 mb-2">
-                                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-100 to-cyan-200 flex items-center justify-center text-cyan-700 font-bold text-xs">
-                                  {p.name.split(" ").map((n) => n[0]).join("")}
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                  <h4 className="text-xs font-semibold text-gray-900 truncate">{p.name}</h4>
-                                  <p className="text-[10px] text-gray-500">{p.age} • {p.location}</p>
-                                </div>
-                              </div>
-                              {/* Score */}
-                              {p.score && (
-                                <div className="flex items-center gap-1 text-emerald-600">
-                                  <BarChart3 className="w-3 h-3" />
-                                  <span className="text-[10px] font-semibold">{p.score.toFixed(1)}</span>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        )
-                      })
-                    })()}
-                    {participants.filter((p) => {
+                      return availableParticipants.length
+                    })()} participants • Drag to slots
+                  </p>
+                </div>
+                <div className="flex-1 overflow-y-auto p-3 space-y-2">
+                  {(() => {
+                    const availableParticipants = participants.filter((p) => {
                       if (castSlots.some(s => s.assignedParticipantId === p.id)) return false
                       if (demographicFilters.gender !== "all" && p.gender?.toLowerCase() !== demographicFilters.gender) return false
                       if (demographicFilters.stage !== "all" && p.stage !== demographicFilters.stage) return false
@@ -2374,12 +2313,68 @@ const renderGridView = () => (
                         if (p.age < min || p.age > max) return false
                       }
                       return true
-                    }).length === 0 && (
-                      <div className="flex-1 flex items-center justify-center py-8 text-gray-400 text-sm">
-                        No participants match the current filters
-                      </div>
-                    )}
-                  </div>
+                    })
+                    return availableParticipants.map((p, index) => {
+                      const stage = funnelStages.find(s => s.id === p.stage)
+                      return (
+                        <div
+                          key={p.id}
+                          draggable
+                          onDragStart={() => handleDragStart(p.id)}
+                          onDragEnd={() => { setDraggedParticipant(null); setDragOverStage(null) }}
+                          onClick={() => setSelectedParticipant(p)}
+                          className={`bg-white rounded-xl border border-gray-200 hover:border-cyan-300 hover:shadow-md transition-all cursor-grab active:cursor-grabbing ${
+                            draggedParticipant === p.id ? "opacity-50 scale-95" : ""
+                          }`}
+                        >
+                          <div className="p-3">
+                            {/* Index and Stage row */}
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="w-5 h-5 rounded-full bg-gray-100 text-gray-500 text-[10px] font-bold flex items-center justify-center">
+                                {index + 1}
+                              </span>
+                              <span className={`px-1.5 py-0.5 rounded text-[9px] font-semibold ${stage?.color || "bg-gray-100 text-gray-600"}`}>
+                                {stage?.label || "Unknown"}
+                              </span>
+                            </div>
+                            {/* Avatar and name */}
+                            <div className="flex items-center gap-2">
+                              <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-cyan-100 to-cyan-200 flex items-center justify-center text-cyan-700 font-bold text-[10px]">
+                                {p.name.split(" ").map((n) => n[0]).join("")}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <h4 className="text-xs font-semibold text-gray-900 truncate">{p.name}</h4>
+                                <div className="flex items-center gap-1.5 mt-0.5">
+                                  <span className="text-[10px] text-gray-500">{p.age}y</span>
+                                  {p.score && (
+                                    <>
+                                      <span className="text-gray-300">•</span>
+                                      <span className="text-[10px] text-emerald-600 font-medium">{p.score.toFixed(1)}</span>
+                                    </>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )
+                    })
+                  })()}
+                  {participants.filter((p) => {
+                    if (castSlots.some(s => s.assignedParticipantId === p.id)) return false
+                    if (demographicFilters.gender !== "all" && p.gender?.toLowerCase() !== demographicFilters.gender) return false
+                    if (demographicFilters.stage !== "all" && p.stage !== demographicFilters.stage) return false
+                    if (demographicFilters.ageRange !== "all") {
+                      const [min, max] = demographicFilters.ageRange === "46+" ? [46, 999] : demographicFilters.ageRange.split("-").map(Number)
+                      if (p.age < min || p.age > max) return false
+                    }
+                    return true
+                  }).length === 0 && (
+                    <div className="flex-1 flex flex-col items-center justify-center py-12 text-center">
+                      <Users className="w-8 h-8 text-gray-300 mb-2" />
+                      <p className="text-sm text-gray-400">No participants match filters</p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
