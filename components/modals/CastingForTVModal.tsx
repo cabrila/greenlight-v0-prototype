@@ -55,6 +55,13 @@ import {
   Paperclip,
   Target,
   Save,
+  Play,
+  Lock,
+  Unlock,
+  Scissors,
+  Film,
+  Eye,
+  EyeOff,
   Twitter,
   Youtube,
   Facebook,
@@ -142,6 +149,23 @@ interface CastList {
 }
 
 // Mock participant data for Non-Fiction TV
+// Video embed type for participants
+interface ParticipantVideo {
+  id: string
+  url: string
+  title: string
+  platform: "vimeo" | "youtube" | "other"
+  thumbnailUrl?: string
+  tags: string[]
+  password?: string
+  isPasswordProtected: boolean
+  crop?: {
+    startTime: number
+    endTime: number
+  }
+  addedAt: number
+}
+
 interface Participant {
   id: string
   name: string
@@ -170,6 +194,7 @@ interface Participant {
   listIds?: string[]
   email?: string
   phone?: string
+  videos?: ParticipantVideo[]
 }
 
 const MOCK_PARTICIPANTS: Participant[] = [
@@ -379,6 +404,23 @@ const [globalSortDirection, setGlobalSortDirection] = useState<"asc" | "desc">("
     stage: "all" as string,
   })
   const [castMixSearchQuery, setCastMixSearchQuery] = useState("")
+  
+  // Video management state
+  const [showVideoModal, setShowVideoModal] = useState(false)
+  const [editingVideo, setEditingVideo] = useState<ParticipantVideo | null>(null)
+  const [videoForm, setVideoForm] = useState({
+    url: "",
+    title: "",
+    tags: [] as string[],
+    tagInput: "",
+    password: "",
+    isPasswordProtected: false,
+    cropStart: 0,
+    cropEnd: 0,
+    enableCrop: false,
+  })
+  const [showPasswordFor, setShowPasswordFor] = useState<string | null>(null)
+  const [passwordInput, setPasswordInput] = useState("")
   const [newListName, setNewListName] = useState("")
   const [newListDescription, setNewListDescription] = useState("")
   const [newListColor, setNewListColor] = useState("bg-cyan-500")
@@ -542,6 +584,119 @@ const [globalSortDirection, setGlobalSortDirection] = useState<"asc" | "desc">("
       return list
     }))
     clearSelection()
+  }
+
+  // Video management functions
+  const detectVideoPlatform = (url: string): "vimeo" | "youtube" | "other" => {
+    if (url.includes("vimeo.com")) return "vimeo"
+    if (url.includes("youtube.com") || url.includes("youtu.be")) return "youtube"
+    return "other"
+  }
+
+  const openAddVideoModal = () => {
+    setEditingVideo(null)
+    setVideoForm({
+      url: "",
+      title: "",
+      tags: [],
+      tagInput: "",
+      password: "",
+      isPasswordProtected: false,
+      cropStart: 0,
+      cropEnd: 0,
+      enableCrop: false,
+    })
+    setShowVideoModal(true)
+  }
+
+  const openEditVideoModal = (video: ParticipantVideo) => {
+    setEditingVideo(video)
+    setVideoForm({
+      url: video.url,
+      title: video.title,
+      tags: video.tags,
+      tagInput: "",
+      password: video.password || "",
+      isPasswordProtected: video.isPasswordProtected,
+      cropStart: video.crop?.startTime || 0,
+      cropEnd: video.crop?.endTime || 0,
+      enableCrop: !!video.crop,
+    })
+    setShowVideoModal(true)
+  }
+
+  const saveVideo = () => {
+    if (!selectedParticipant || !videoForm.url || !videoForm.title) return
+    
+    const newVideo: ParticipantVideo = {
+      id: editingVideo?.id || `video-${Date.now()}`,
+      url: videoForm.url,
+      title: videoForm.title,
+      platform: detectVideoPlatform(videoForm.url),
+      tags: videoForm.tags,
+      password: videoForm.isPasswordProtected ? videoForm.password : undefined,
+      isPasswordProtected: videoForm.isPasswordProtected,
+      crop: videoForm.enableCrop ? { startTime: videoForm.cropStart, endTime: videoForm.cropEnd } : undefined,
+      addedAt: editingVideo?.addedAt || Date.now(),
+    }
+
+    setParticipants(prev => prev.map(p => {
+      if (p.id === selectedParticipant.id) {
+        const videos = p.videos || []
+        if (editingVideo) {
+          return { ...p, videos: videos.map(v => v.id === editingVideo.id ? newVideo : v) }
+        } else {
+          return { ...p, videos: [...videos, newVideo] }
+        }
+      }
+      return p
+    }))
+    
+    // Update selectedParticipant
+    setSelectedParticipant(prev => {
+      if (!prev) return prev
+      const videos = prev.videos || []
+      if (editingVideo) {
+        return { ...prev, videos: videos.map(v => v.id === editingVideo.id ? newVideo : v) }
+      } else {
+        return { ...prev, videos: [...videos, newVideo] }
+      }
+    })
+
+    setShowVideoModal(false)
+  }
+
+  const deleteVideo = (videoId: string) => {
+    if (!selectedParticipant) return
+    
+    setParticipants(prev => prev.map(p => {
+      if (p.id === selectedParticipant.id) {
+        return { ...p, videos: (p.videos || []).filter(v => v.id !== videoId) }
+      }
+      return p
+    }))
+    
+    setSelectedParticipant(prev => {
+      if (!prev) return prev
+      return { ...prev, videos: (prev.videos || []).filter(v => v.id !== videoId) }
+    })
+  }
+
+  const addVideoTag = () => {
+    if (videoForm.tagInput.trim() && !videoForm.tags.includes(videoForm.tagInput.trim())) {
+      setVideoForm(prev => ({
+        ...prev,
+        tags: [...prev.tags, prev.tagInput.trim()],
+        tagInput: "",
+      }))
+    }
+  }
+
+  const removeVideoTag = (tag: string) => {
+    setVideoForm(prev => ({
+      ...prev,
+      tags: prev.tags.filter(t => t !== tag),
+    }))
   }
 
   // Group by stage for Kanban
@@ -1275,6 +1430,96 @@ const renderGridView = () => (
               </div>
             </div>
           )}
+
+          {/* Videos */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1">
+                <Film className="w-3 h-3" /> Videos
+              </h4>
+              <button
+                onClick={openAddVideoModal}
+                className="text-xs text-cyan-600 hover:text-cyan-700 font-medium flex items-center gap-1"
+              >
+                <Plus className="w-3 h-3" /> Add Video
+              </button>
+            </div>
+            {(!p.videos || p.videos.length === 0) ? (
+              <div className="bg-gray-50 rounded-lg p-4 text-center">
+                <Film className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+                <p className="text-xs text-gray-400 mb-2">No videos added yet</p>
+                <button
+                  onClick={openAddVideoModal}
+                  className="text-xs text-cyan-600 hover:text-cyan-700 font-medium"
+                >
+                  Add your first video
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {p.videos.map((video) => (
+                  <div
+                    key={video.id}
+                    className="bg-gray-50 rounded-lg p-3 group hover:bg-gray-100 transition-colors"
+                  >
+                    <div className="flex items-start gap-3">
+                      {/* Thumbnail placeholder */}
+                      <div className="w-20 h-14 rounded-lg bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center shrink-0 relative overflow-hidden">
+                        <Play className="w-6 h-6 text-gray-500" />
+                        {video.isPasswordProtected && (
+                          <div className="absolute top-1 right-1 p-0.5 bg-amber-500 rounded">
+                            <Lock className="w-2.5 h-2.5 text-white" />
+                          </div>
+                        )}
+                        {video.crop && (
+                          <div className="absolute bottom-1 left-1 p-0.5 bg-purple-500 rounded">
+                            <Scissors className="w-2.5 h-2.5 text-white" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h5 className="text-xs font-semibold text-gray-900 truncate">{video.title}</h5>
+                        <p className="text-[10px] text-gray-400 capitalize">{video.platform}</p>
+                        {video.tags.length > 0 && (
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {video.tags.slice(0, 3).map((tag) => (
+                              <span key={tag} className="px-1.5 py-0.5 bg-cyan-100 text-cyan-700 rounded text-[9px]">
+                                {tag}
+                              </span>
+                            ))}
+                            {video.tags.length > 3 && (
+                              <span className="text-[9px] text-gray-400">+{video.tags.length - 3}</span>
+                            )}
+                          </div>
+                        )}
+                        {video.crop && (
+                          <p className="text-[9px] text-purple-600 mt-0.5">
+                            Cropped: {video.crop.startTime}s - {video.crop.endTime}s
+                          </p>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button
+                          onClick={() => openEditVideoModal(video)}
+                          className="p-1 rounded hover:bg-white text-gray-400 hover:text-cyan-600"
+                          title="Edit video"
+                        >
+                          <Edit3 className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => deleteVideo(video.id)}
+                          className="p-1 rounded hover:bg-white text-gray-400 hover:text-red-500"
+                          title="Delete video"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
 
           {/* Red Flags */}
           {p.redFlags && p.redFlags.length > 0 && (
@@ -3101,9 +3346,194 @@ const renderGridView = () => (
         </>
       )}
 
+      {/* Video Add/Edit Modal */}
+      {showVideoModal && (
+        <>
+          <div className="fixed inset-0 bg-black/50 z-[60]" onClick={() => setShowVideoModal(false)} />
+          <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg bg-white rounded-2xl shadow-2xl z-[60] max-h-[90vh] overflow-hidden flex flex-col">
+            <div className="p-5 border-b border-gray-100 shrink-0">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-cyan-100 flex items-center justify-center">
+                    <Film className="w-5 h-5 text-cyan-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      {editingVideo ? "Edit Video" : "Add Video"}
+                    </h3>
+                    <p className="text-sm text-gray-500">
+                      {editingVideo ? "Update video details" : "Add a video to this participant"}
+                    </p>
+                  </div>
+                </div>
+                <button onClick={() => setShowVideoModal(false)} className="p-2 rounded-lg hover:bg-gray-100 text-gray-400">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto p-5 space-y-4">
+              {/* Video URL */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Video URL *</label>
+                <input
+                  type="url"
+                  value={videoForm.url}
+                  onChange={(e) => setVideoForm(prev => ({ ...prev, url: e.target.value }))}
+                  placeholder="https://vimeo.com/... or https://youtube.com/..."
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                />
+                {videoForm.url && (
+                  <p className="text-[10px] text-gray-400 mt-1">
+                    Detected platform: <span className="font-medium capitalize">{detectVideoPlatform(videoForm.url)}</span>
+                  </p>
+                )}
+              </div>
+              
+              {/* Video Title */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Title *</label>
+                <input
+                  type="text"
+                  value={videoForm.title}
+                  onChange={(e) => setVideoForm(prev => ({ ...prev, title: e.target.value }))}
+                  placeholder="Enter video title..."
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                />
+              </div>
+              
+              {/* Tags */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Tags</label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={videoForm.tagInput}
+                    onChange={(e) => setVideoForm(prev => ({ ...prev, tagInput: e.target.value }))}
+                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addVideoTag() } }}
+                    placeholder="Add a tag..."
+                    className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  />
+                  <button
+                    onClick={addVideoTag}
+                    className="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
+                  >
+                    Add
+                  </button>
+                </div>
+                {videoForm.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 mt-2">
+                    {videoForm.tags.map((tag) => (
+                      <span key={tag} className="inline-flex items-center gap-1 px-2 py-1 bg-cyan-100 text-cyan-700 rounded-lg text-xs">
+                        {tag}
+                        <button onClick={() => removeVideoTag(tag)} className="text-cyan-500 hover:text-cyan-700">
+                          <X className="w-3 h-3" />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+              
+              {/* Crop Settings */}
+              <div className="border border-gray-200 rounded-lg p-4">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={videoForm.enableCrop}
+                    onChange={(e) => setVideoForm(prev => ({ ...prev, enableCrop: e.target.checked }))}
+                    className="w-4 h-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                  />
+                  <Scissors className="w-4 h-4 text-purple-600" />
+                  <span className="text-sm font-medium text-gray-700">Enable video cropping</span>
+                </label>
+                {videoForm.enableCrop && (
+                  <div className="mt-3 grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-500 mb-1">Start time (seconds)</label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={videoForm.cropStart}
+                        onChange={(e) => setVideoForm(prev => ({ ...prev, cropStart: parseInt(e.target.value) || 0 }))}
+                        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-500 mb-1">End time (seconds)</label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={videoForm.cropEnd}
+                        onChange={(e) => setVideoForm(prev => ({ ...prev, cropEnd: parseInt(e.target.value) || 0 }))}
+                        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              {/* Password Protection */}
+              <div className="border border-gray-200 rounded-lg p-4">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={videoForm.isPasswordProtected}
+                    onChange={(e) => setVideoForm(prev => ({ ...prev, isPasswordProtected: e.target.checked }))}
+                    className="w-4 h-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500"
+                  />
+                  <Lock className="w-4 h-4 text-amber-600" />
+                  <span className="text-sm font-medium text-gray-700">Password protection</span>
+                </label>
+                {videoForm.isPasswordProtected && (
+                  <div className="mt-3">
+                    <label className="block text-xs font-medium text-gray-500 mb-1">Video password</label>
+                    <div className="relative">
+                      <input
+                        type={showPasswordFor === "form" ? "text" : "password"}
+                        value={videoForm.password}
+                        onChange={(e) => setVideoForm(prev => ({ ...prev, password: e.target.value }))}
+                        placeholder="Enter password for this video"
+                        className="w-full px-3 py-2 pr-10 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPasswordFor(showPasswordFor === "form" ? null : "form")}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600"
+                      >
+                        {showPasswordFor === "form" ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                    <p className="text-[10px] text-gray-400 mt-1">
+                      This password will be required to view the video
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            <div className="p-4 border-t border-gray-100 flex gap-2 shrink-0">
+              <button
+                onClick={() => setShowVideoModal(false)}
+                className="flex-1 px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={saveVideo}
+                disabled={!videoForm.url || !videoForm.title}
+                className="flex-1 px-4 py-2 bg-cyan-600 text-white rounded-lg text-sm font-medium hover:bg-cyan-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {editingVideo ? "Save Changes" : "Add Video"}
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+
       {/* Add New List Modal */}
       {showAddListModal && (
-        <>
+      <>
           <div className="fixed inset-0 bg-black/40 z-50" onClick={() => setShowAddListModal(false)} />
           <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-white rounded-2xl shadow-2xl z-50">
             <div className="p-4 border-b border-gray-200 flex items-center justify-between">
