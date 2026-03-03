@@ -293,8 +293,10 @@ export default function CastingForTVModal({ onClose }: CastingForTVModalProps) {
   const [editingParticipant, setEditingParticipant] = useState<Participant | null>(null)
   const [showEditModal, setShowEditModal] = useState(false)
   
-  // Add new list state
+  // Lists panel state
+  const [showListsPanel, setShowListsPanel] = useState(true)
   const [showAddListModal, setShowAddListModal] = useState(false)
+  const [showListDropdown, setShowListDropdown] = useState(false)
   const [newListName, setNewListName] = useState("")
   const [newListDescription, setNewListDescription] = useState("")
   const [newListColor, setNewListColor] = useState("bg-cyan-500")
@@ -675,12 +677,36 @@ export default function CastingForTVModal({ onClose }: CastingForTVModalProps) {
               {participant.occupation}
             </p>
           </div>
-          <button
-            onClick={(e) => { e.stopPropagation(); toggleStar(participant.id) }}
-            className="p-1 rounded hover:bg-gray-100 opacity-0 group-hover:opacity-100 transition-opacity"
-          >
-            <Star className={`w-4 h-4 ${participant.starred ? "text-amber-500 fill-amber-500" : "text-gray-300"}`} />
-          </button>
+          <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="relative">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  const availableLists = lists.filter(l => !l.participantIds.includes(participant.id))
+                  if (availableLists.length === 1) {
+                    addParticipantToList(participant.id, availableLists[0].id)
+                  } else if (availableLists.length > 0) {
+                    setSelectedParticipant(participant)
+                    setShowListDropdown(true)
+                  }
+                }}
+                className={`p-1 rounded hover:bg-cyan-50 transition-colors ${
+                  lists.some(l => l.participantIds.includes(participant.id)) ? "text-cyan-500" : "text-gray-300 hover:text-cyan-600"
+                }`}
+                title={lists.some(l => l.participantIds.includes(participant.id)) 
+                  ? `In ${lists.filter(l => l.participantIds.includes(participant.id)).length} list(s)` 
+                  : "Add to list"}
+              >
+                <FolderPlus className="w-4 h-4" />
+              </button>
+            </div>
+            <button
+              onClick={(e) => { e.stopPropagation(); toggleStar(participant.id) }}
+              className="p-1 rounded hover:bg-amber-50 transition-colors"
+            >
+              <Star className={`w-4 h-4 ${participant.starred ? "text-amber-500 fill-amber-500" : "text-gray-300 hover:text-amber-500"}`} />
+            </button>
+          </div>
         </div>
 
         {/* Archetypes */}
@@ -882,26 +908,53 @@ export default function CastingForTVModal({ onClose }: CastingForTVModalProps) {
               {/* Add to list dropdown */}
               <div className="relative">
                 <button
-                  onClick={() => setShowArchetypeDropdown(!showArchetypeDropdown)}
-                  className="w-full flex items-center gap-2 px-3 py-2 border border-dashed border-gray-200 rounded-lg text-xs text-gray-400 hover:text-cyan-600 hover:border-cyan-300 transition-colors"
+                  onClick={() => setShowListDropdown(!showListDropdown)}
+                  className="w-full flex items-center justify-between gap-2 px-3 py-2 border border-dashed border-gray-200 rounded-lg text-xs text-gray-400 hover:text-cyan-600 hover:border-cyan-300 hover:bg-cyan-50/30 transition-colors"
                 >
-                  <Plus className="w-3 h-3" />
-                  Add to list
+                  <div className="flex items-center gap-2">
+                    <FolderPlus className="w-3.5 h-3.5" />
+                    Add to list
+                  </div>
+                  <ChevronDown className={`w-3 h-3 transition-transform ${showListDropdown ? "rotate-180" : ""}`} />
                 </button>
-                {showArchetypeDropdown && (
+                {showListDropdown && (
                   <>
-                    <div className="fixed inset-0 z-10" onClick={() => setShowArchetypeDropdown(false)} />
-                    <div className="absolute top-full left-0 mt-1 w-full bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-20">
-                      {lists.filter((list) => !list.participantIds.includes(p.id)).map((list) => (
-                        <button
-                          key={list.id}
-                          onClick={() => { addParticipantToList(p.id, list.id); setShowArchetypeDropdown(false) }}
-                          className="w-full flex items-center gap-2 px-3 py-2 text-xs text-gray-700 hover:bg-gray-50"
-                        >
-                          <div className={`w-2 h-2 rounded-full ${list.color}`} />
-                          {list.name}
-                        </button>
-                      ))}
+                    <div className="fixed inset-0 z-10" onClick={() => setShowListDropdown(false)} />
+                    <div className="absolute top-full left-0 mt-1 w-full bg-white rounded-xl shadow-xl border border-gray-200 py-1 z-20 max-h-48 overflow-y-auto">
+                      {lists.filter((list) => !list.participantIds.includes(p.id)).length === 0 ? (
+                        <div className="px-3 py-4 text-center">
+                          <p className="text-xs text-gray-400 mb-2">Already in all lists</p>
+                          <button
+                            onClick={() => { setShowListDropdown(false); setShowAddListModal(true) }}
+                            className="text-xs text-cyan-600 hover:text-cyan-700 font-medium"
+                          >
+                            Create new list
+                          </button>
+                        </div>
+                      ) : (
+                        <>
+                          {lists.filter((list) => !list.participantIds.includes(p.id)).map((list) => (
+                            <button
+                              key={list.id}
+                              onClick={() => { addParticipantToList(p.id, list.id); setShowListDropdown(false) }}
+                              className="w-full flex items-center gap-2 px-3 py-2.5 text-xs text-gray-700 hover:bg-cyan-50 transition-colors"
+                            >
+                              <div className={`w-2.5 h-2.5 rounded-full ${list.color}`} />
+                              <span className="flex-1 text-left">{list.name}</span>
+                              <Plus className="w-3 h-3 text-gray-400" />
+                            </button>
+                          ))}
+                          <div className="border-t border-gray-100 mt-1 pt-1">
+                            <button
+                              onClick={() => { setShowListDropdown(false); setShowAddListModal(true) }}
+                              className="w-full flex items-center gap-2 px-3 py-2 text-xs text-cyan-600 hover:bg-cyan-50 transition-colors"
+                            >
+                              <Plus className="w-3 h-3" />
+                              Create new list
+                            </button>
+                          </div>
+                        </>
+                      )}
                     </div>
                   </>
                 )}
@@ -1258,21 +1311,43 @@ export default function CastingForTVModal({ onClose }: CastingForTVModalProps) {
 
       {/* Main content */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Lists sidebar */}
-        {(activeView === "grid" || activeView === "list") && (
-          <div className="w-56 border-r border-gray-200 bg-white flex flex-col shrink-0">
-            <div className="p-3 border-b border-gray-100">
-              <div className="flex items-center justify-between mb-2">
+        {/* Collapsible Lists sidebar - shown on all views */}
+        <div className={`border-r border-gray-200 bg-white flex flex-col shrink-0 transition-all duration-200 ${showListsPanel ? "w-56" : "w-12"}`}>
+          {/* Panel header */}
+          <div className={`p-3 border-b border-gray-100 ${showListsPanel ? "" : "flex items-center justify-center"}`}>
+            {showListsPanel ? (
+              <div className="flex items-center justify-between">
                 <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider">Lists</h3>
-                <button 
-                  onClick={() => setShowAddListModal(true)}
-                  className="p-1 rounded hover:bg-gray-100 text-gray-400 hover:text-cyan-600"
-                  title="Add new list"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                </button>
+                <div className="flex items-center gap-1">
+                  <button 
+                    onClick={() => setShowAddListModal(true)}
+                    className="p-1 rounded hover:bg-gray-100 text-gray-400 hover:text-cyan-600"
+                    title="Add new list"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                  </button>
+                  <button 
+                    onClick={() => setShowListsPanel(false)}
+                    className="p-1 rounded hover:bg-gray-100 text-gray-400 hover:text-gray-600"
+                    title="Collapse panel"
+                  >
+                    <ChevronDown className="w-3.5 h-3.5 rotate-90" />
+                  </button>
+                </div>
               </div>
-            </div>
+            ) : (
+              <button 
+                onClick={() => setShowListsPanel(true)}
+                className="p-1.5 rounded hover:bg-cyan-50 text-gray-400 hover:text-cyan-600 transition-colors"
+                title="Expand lists panel"
+              >
+                <List className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+          
+          {/* Panel content */}
+          {showListsPanel ? (
             <div className="flex-1 overflow-y-auto p-2 space-y-1">
               <button
                 onClick={() => setSelectedListId(null)}
@@ -1288,13 +1363,13 @@ export default function CastingForTVModal({ onClose }: CastingForTVModalProps) {
                 <button
                   key={list.id}
                   onClick={() => setSelectedListId(list.id)}
-                  className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors ${
+                  className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors group ${
                     selectedListId === list.id ? "bg-cyan-50 text-cyan-700 font-medium" : "text-gray-600 hover:bg-gray-50"
                   }`}
                 >
                   <div className={`w-2.5 h-2.5 rounded-full ${list.color}`} />
-                  <span className="truncate">{list.name}</span>
-                  <span className="ml-auto text-xs text-gray-400">{list.participantIds.length}</span>
+                  <span className="truncate flex-1">{list.name}</span>
+                  <span className="text-xs text-gray-400">{list.participantIds.length}</span>
                 </button>
               ))}
               {/* Add new list button at bottom */}
@@ -1306,8 +1381,42 @@ export default function CastingForTVModal({ onClose }: CastingForTVModalProps) {
                 <span>Add New List</span>
               </button>
             </div>
-          </div>
-        )}
+          ) : (
+            <div className="flex-1 overflow-y-auto py-2 flex flex-col items-center gap-1">
+              <button
+                onClick={() => setSelectedListId(null)}
+                className={`p-2 rounded-lg transition-colors ${
+                  !selectedListId ? "bg-cyan-50 text-cyan-700" : "text-gray-400 hover:bg-gray-50 hover:text-gray-600"
+                }`}
+                title="All Participants"
+              >
+                <Users className="w-4 h-4" />
+              </button>
+              {lists.slice(0, 6).map((list) => (
+                <button
+                  key={list.id}
+                  onClick={() => setSelectedListId(list.id)}
+                  className={`p-2 rounded-lg transition-colors ${
+                    selectedListId === list.id ? "bg-cyan-50" : "hover:bg-gray-50"
+                  }`}
+                  title={`${list.name} (${list.participantIds.length})`}
+                >
+                  <div className={`w-3 h-3 rounded-full ${list.color}`} />
+                </button>
+              ))}
+              {lists.length > 6 && (
+                <span className="text-[10px] text-gray-400">+{lists.length - 6}</span>
+              )}
+              <button
+                onClick={() => setShowAddListModal(true)}
+                className="p-2 rounded-lg text-gray-400 hover:text-cyan-600 hover:bg-cyan-50 transition-colors mt-1"
+                title="Add new list"
+              >
+                <Plus className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+        </div>
 
         {activeView === "pipeline" && renderPipelineView()}
         {activeView === "grid" && renderGridView()}
