@@ -519,10 +519,16 @@ const [globalSortDirection, setGlobalSortDirection] = useState<"asc" | "desc">("
 
   // Get unique archetypes
   const allArchetypes = useMemo(() => {
-    const archetypes = new Set<string>()
-    participants.forEach((p) => p.archetype.forEach((a) => archetypes.add(a)))
-    return Array.from(archetypes).sort()
+  const archetypes = new Set<string>()
+  participants.forEach((p) => p.archetype.forEach((a) => archetypes.add(a)))
+  return Array.from(archetypes).sort()
   }, [participants])
+
+  // Available archetypes for selection (combine custom and existing)
+  const availableArchetypes = useMemo(() => {
+    const combined = new Set([...customArchetypes, ...allArchetypes])
+    return Array.from(combined).sort()
+  }, [customArchetypes, allArchetypes])
 
   // Filter participants
   const filteredParticipants = useMemo(() => {
