@@ -1139,7 +1139,7 @@ function WardrobeTab({
             return pair ? (
               <div className="flex items-center gap-2 mb-4 bg-rose-50 border border-rose-200 rounded-xl px-4 py-2.5">
                 {isValidImageUrl(pair.castActor?.headshots?.[0]) ? (
-                  {isValidImageUrl(pair.castActor?.headshots?.[0]) ? <img src={pair.castActor.headshots[0]} alt="" className="w-6 h-8 rounded object-cover" /> : <User className="w-3 h-3 text-gray-400" />}
+                  <img src={pair.castActor.headshots[0]} alt="" className="w-6 h-8 rounded object-cover" />
                 ) : (
                   <div className="w-6 h-8 rounded bg-rose-200 flex items-center justify-center"><User className="w-3 h-3 text-rose-400" /></div>
                 )}
@@ -1436,8 +1436,8 @@ function MakeupTab({
             const pair = characterActorMap.find(({ character }) => character.id === charFilter)
             return pair ? (
               <div className="flex items-center gap-2 mb-4 bg-amber-50 border border-amber-200 rounded-xl px-4 py-2.5">
-                {pair.castActor?.headshots?.[0] ? (
-                  {isValidImageUrl(pair.castActor?.headshots?.[0]) ? <img src={pair.castActor.headshots[0]} alt="" className="w-6 h-8 rounded object-cover" /> : <User className="w-3 h-3 text-gray-400" />}
+                {isValidImageUrl(pair.castActor?.headshots?.[0]) ? (
+                  <img src={pair.castActor.headshots[0]} alt="" className="w-6 h-8 rounded object-cover" />
                 ) : (
                   <div className="w-6 h-8 rounded bg-amber-200 flex items-center justify-center"><User className="w-3 h-3 text-amber-400" /></div>
                 )}
@@ -1637,14 +1637,11 @@ function InventoryCard({
             <p className="text-xs font-semibold text-rose-600">Drop image here</p>
           </div>
         )}
-        {item.imageUrl ? (
-          {isValidImageUrl(item.imageUrl) ? <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" crossOrigin="anonymous" /> : <div className="w-full h-full flex items-center justify-center bg-gray-100"><Shirt className="w-6 h-6 text-gray-300" /></div>}
-        ) : (
-          <div className="w-full h-full flex flex-col items-center justify-center gap-1.5 cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-            <Upload className="w-8 h-8 text-gray-300" />
-            <p className="text-[10px] text-gray-400 font-medium">Drop or click to upload</p>
-          </div>
-        )}
+{isValidImageUrl(item.imageUrl) ? (
+                            <img src={item.imageUrl} alt="" className="w-full h-full object-cover" crossOrigin="anonymous" />
+                          ) : (
+                            <Scissors className="w-6 h-6 text-gray-300" />
+                          )}
         <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => { handleFiles(e.target.files); e.target.value = "" }} />
         <div className="absolute top-2 left-2 flex flex-wrap gap-1">
           <span className={`${st.bg} ${st.text} text-[9px] font-bold px-1.5 py-0.5 rounded-full`}>{st.label}</span>
@@ -1820,11 +1817,11 @@ function LooksTab({
                               const item = inventory.find((i) => i.id === iid)
                               return (
                                 <div key={iid} className="flex-1 border-r border-gray-200 last:border-r-0">
-                                  {item?.imageUrl ? (
-                                    {isValidImageUrl(item.imageUrl) ? <img src={item.imageUrl} alt="" className="w-full h-full object-cover" crossOrigin="anonymous" /> : <div className="w-full h-full flex items-center justify-center bg-gray-100"><Shirt className="w-6 h-6 text-gray-300" /></div>}
-                                  ) : (
-                                    <div className="w-full h-full flex items-center justify-center"><Shirt className="w-5 h-5 text-gray-300" /></div>
-                                  )}
+{isValidImageUrl(item?.imageUrl) ? (
+                              <img src={item.imageUrl} alt="" className="w-full h-full object-cover" crossOrigin="anonymous" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center"><Shirt className="w-4 h-4 text-gray-400" /></div>
+                            )}
                                 </div>
                               )
                             })}
@@ -2159,14 +2156,11 @@ function AddItemModal({
               onClick={() => imgInputRef.current?.click()}
               className="w-24 h-32 rounded-xl border-2 border-dashed border-gray-300 bg-white hover:border-rose-300 transition-colors flex flex-col items-center justify-center overflow-hidden shrink-0"
             >
-              {imageUrl ? (
-                {isValidImageUrl(imageUrl) ? <img src={imageUrl} alt="" className="w-full h-full object-cover" crossOrigin="anonymous" /> : <div className="w-full h-full flex items-center justify-center bg-gray-100"><Shirt className="w-6 h-6 text-gray-300" /></div>}
-              ) : (
-                <>
-                  <ImageIcon className="w-6 h-6 text-gray-400 mb-1" />
-                  <span className="text-[9px] text-gray-400">Upload</span>
-                </>
-              )}
+{isValidImageUrl(imageUrl) ? (
+              <img src={imageUrl} alt="" className="w-full h-full object-cover" crossOrigin="anonymous" />
+            ) : (
+              <div className={`w-full h-full flex items-center justify-center ${isDragOver ? "bg-gray-100" : ""}`}><Shirt className="w-8 h-8 text-gray-300" /></div>
+            )}
             </button>
             <input ref={imgInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => { if (e.target.files?.[0]) handleImgUpload(e.target.files[0]) }} />
           </div>
@@ -2397,11 +2391,11 @@ function LookBuilderModal({
                               className={`rounded-lg border-2 overflow-hidden transition-all text-left ${isSelected ? "border-rose-500 ring-2 ring-rose-200" : "border-gray-200 hover:border-gray-300"}`}
                             >
                               <div className="aspect-[3/4] bg-gray-100 relative">
-                                {item.imageUrl ? (
-                                  {isValidImageUrl(item.imageUrl) ? <img src={item.imageUrl} alt="" className="w-full h-full object-cover" crossOrigin="anonymous" /> : <div className="w-full h-full flex items-center justify-center bg-gray-100"><Shirt className="w-6 h-6 text-gray-300" /></div>}
-                                ) : (
-                                  <div className="w-full h-full flex items-center justify-center"><Shirt className="w-5 h-5 text-gray-300" /></div>
-                                )}
+{isValidImageUrl(item.imageUrl) ? (
+                  <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" crossOrigin="anonymous" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center"><Shirt className="w-5 h-5 text-gray-300" /></div>
+                )}
                                 {isSelected && (
                                   <div className="absolute top-1 right-1 w-5 h-5 rounded-full bg-rose-500 flex items-center justify-center">
                                     <Check className="w-3 h-3 text-white" />
@@ -2439,11 +2433,11 @@ function LookBuilderModal({
                               className={`rounded-lg border-2 overflow-hidden transition-all text-left ${isSelected ? "border-amber-500 ring-2 ring-amber-200" : "border-gray-200 hover:border-gray-300"}`}
                             >
                               <div className="aspect-[3/4] bg-gray-100 relative">
-                                {item.imageUrl ? (
-                                  {isValidImageUrl(item.imageUrl) ? <img src={item.imageUrl} alt="" className="w-full h-full object-cover" crossOrigin="anonymous" /> : <div className="w-full h-full flex items-center justify-center bg-gray-100"><Shirt className="w-6 h-6 text-gray-300" /></div>}
-                                ) : (
-                                  <div className="w-full h-full flex items-center justify-center"><Scissors className="w-5 h-5 text-gray-300" /></div>
-                                )}
+{isValidImageUrl(item.imageUrl) ? (
+                            <img src={item.imageUrl} alt="" className="w-full h-full object-cover" crossOrigin="anonymous" />
+                          ) : (
+                            <Shirt className="w-6 h-6 text-gray-300" />
+                          )}
                                 {isSelected && (
                                   <div className="absolute top-1 right-1 w-5 h-5 rounded-full bg-amber-500 flex items-center justify-center">
                                     <Check className="w-3 h-3 text-white" />
