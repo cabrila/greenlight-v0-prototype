@@ -1702,13 +1702,13 @@ export default function PropsModal({ onClose }: PropsModalProps) {
                               : "border border-gray-200 hover:border-emerald-200 hover:bg-gray-50"
                           }`}
                         >
-                          {isValidImageUrl(castActor?.headshots?.[0]) ? (
-                            {isValidImageUrl(castActor?.headshots?.[0]) ? <img src={castActor.headshots[0]} alt="" className={`w-9 h-11 object-cover rounded-lg shrink-0 ${isSelected ? "ring-2 ring-emerald-300" : ""}`} /> : <User className="w-4 h-4 text-gray-400" />}
-                          ) : (
-                            <div className={`w-9 h-11 rounded-lg flex items-center justify-center shrink-0 ${isSelected ? "bg-emerald-100" : "bg-gray-100"}`}>
-                              <User className={`w-4 h-4 ${isSelected ? "text-emerald-400" : "text-gray-400"}`} />
-                            </div>
-                          )}
+{isValidImageUrl(castActor?.headshots?.[0]) ? (
+                      <img src={castActor.headshots[0]} alt="" className={`w-9 h-11 object-cover rounded-lg shrink-0 ${isSelected ? "ring-2 ring-emerald-300" : ""}`} />
+                    ) : (
+                      <div className={`w-9 h-11 rounded-lg flex items-center justify-center shrink-0 ${isSelected ? "bg-emerald-100" : "bg-gray-100"}`}>
+                        <User className={`w-4 h-4 ${isSelected ? "text-emerald-400" : "text-gray-400"}`} />
+                      </div>
+                    )}
                           <div className="flex-1 min-w-0">
                             <p className={`text-xs font-semibold truncate ${isSelected ? "text-emerald-800" : "text-gray-900"}`}>{character.name}</p>
                             {castActor ? (
