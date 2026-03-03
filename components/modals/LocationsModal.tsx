@@ -740,10 +740,32 @@ function InteractiveMap({
     })
   }, [locations, onSelect])
 
+  // Inject Leaflet popup styles
+  useEffect(() => {
+    const styleId = "leaflet-loc-styles"
+    if (!document.getElementById(styleId)) {
+      const style = document.createElement("style")
+      style.id = styleId
+      style.textContent = `
+        .leaflet-loc-popup .leaflet-popup-content-wrapper { padding: 0; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
+        .leaflet-loc-popup .leaflet-popup-content { margin: 0; line-height: 1.4; }
+        .leaflet-loc-popup .leaflet-popup-tip { box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .leaflet-loc-marker { background: none !important; border: none !important; }
+        .leaflet-tmp-marker { background: none !important; border: none !important; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(20,184,166,0.4); } 100% { box-shadow: 0 0 0 12px rgba(20,184,166,0); } }
+      `
+      document.head.appendChild(style)
+    }
+    return () => {
+      const el = document.getElementById(styleId)
+      if (el) el.remove()
+    }
+  }, [])
+
   // Listen for popup button clicks via event delegation
   useEffect(() => {
-    const handleClick = (e: MouseEvent) => {
-      const target = e.target as HTMLElement
+  const handleClick = (e: MouseEvent) => {
+  const target = e.target as HTMLElement
       const editId = target.getAttribute("data-loc-edit")
       const deleteId = target.getAttribute("data-loc-delete")
       
@@ -842,15 +864,6 @@ function InteractiveMap({
         <div className="flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-full bg-red-500" /><span className="text-gray-600">Burned</span></div>
       </div>
 
-      {/* Leaflet popup styles override */}
-      <style>{`
-        .leaflet-loc-popup .leaflet-popup-content-wrapper { padding: 0; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
-        .leaflet-loc-popup .leaflet-popup-content { margin: 0; line-height: 1.4; }
-        .leaflet-loc-popup .leaflet-popup-tip { box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        .leaflet-loc-marker { background: none !important; border: none !important; }
-        .leaflet-tmp-marker { background: none !important; border: none !important; }
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(20,184,166,0.4); } 100% { box-shadow: 0 0 0 12px rgba(20,184,166,0); } }
-      `}</style>
     </div>
   )
 }
