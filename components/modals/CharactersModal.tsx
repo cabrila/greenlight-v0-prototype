@@ -3,6 +3,7 @@
 import type React from "react"
 import { useState, useRef, useMemo, useEffect, useCallback } from "react"
 import { useCasting } from "@/components/casting/CastingContext"
+import { isValidImageUrl } from "@/lib/utils"
 import {
   X,
   Users,
@@ -210,7 +211,7 @@ function CharacterCardInner({
                     style={{ marginLeft: i > 0 ? "-6px" : "0", zIndex: 4 - i }}
                     title={actor.name}
                   >
-                    {actor.headshots?.[0] ? <img src={actor.headshots[0]} alt={actor.name} className="w-full h-full object-cover" crossOrigin="anonymous" /> : <div className="w-full h-full flex items-center justify-center"><User className="w-3 h-3 text-slate-500" /></div>}
+                    {isValidImageUrl(actor.headshots?.[0]) ? <img src={actor.headshots[0]} alt={actor.name} className="w-full h-full object-cover" crossOrigin="anonymous" /> : <div className="w-full h-full flex items-center justify-center"><User className="w-3 h-3 text-slate-500" /></div>}
                   </div>
                 ))}
                 {actorsWithPhotos.length > 4 && (
@@ -278,13 +279,13 @@ function CharacterCardInner({
           if (primaryGreenlit) {
             return (
               <>
-                {primaryGreenlit.headshots?.[0] ? <img src={primaryGreenlit.headshots[0]} alt={primaryGreenlit.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" crossOrigin="anonymous" /> : <div className="w-full h-full flex items-center justify-center bg-slate-100"><User className="w-12 h-12 text-slate-400" /></div>}
+                {isValidImageUrl(primaryGreenlit.headshots?.[0]) ? <img src={primaryGreenlit.headshots[0]} alt={primaryGreenlit.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" crossOrigin="anonymous" /> : <div className="w-full h-full flex items-center justify-center bg-slate-100"><User className="w-12 h-12 text-slate-400" /></div>}
                 {otherActors.length > 0 && <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/50 to-transparent" />}
                 {otherActors.length > 0 && (
                   <div className="absolute bottom-2.5 left-3 flex items-center">
                     {otherActors.slice(0, MAX_AVATAR_ROW).map((actor, i) => (
                       <div key={actor.id} className="w-7 h-7 rounded-full border-2 border-white overflow-hidden bg-slate-300 flex-shrink-0 shadow-sm" style={{ marginLeft: i > 0 ? "-6px" : "0", zIndex: MAX_AVATAR_ROW - i }} title={actor.name}>
-                        {actor.headshots?.[0] ? <img src={actor.headshots[0]} alt={actor.name} className="w-full h-full object-cover" crossOrigin="anonymous" /> : <div className="w-full h-full flex items-center justify-center"><User className="w-3 h-3 text-slate-500" /></div>}
+                        {isValidImageUrl(actor.headshots?.[0]) ? <img src={actor.headshots[0]} alt={actor.name} className="w-full h-full object-cover" crossOrigin="anonymous" /> : <div className="w-full h-full flex items-center justify-center"><User className="w-3 h-3 text-slate-500" /></div>}
                       </div>
                     ))}
                     {otherActors.length > MAX_AVATAR_ROW && (
@@ -303,7 +304,7 @@ function CharacterCardInner({
               <div className="w-full h-full grid gap-[2px]" style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}>
                 {tiles.map((actor) => (
                   <div key={actor.id} className="relative overflow-hidden bg-slate-200" title={actor.name}>
-                    {actor.headshots?.[0] ? <img src={actor.headshots[0]} alt={actor.name} className="w-full h-full object-cover transition-transform duration-300 hover:scale-110" crossOrigin="anonymous" /> : <div className="w-full h-full flex items-center justify-center"><User className="w-6 h-6 text-slate-400" /></div>}
+                    {isValidImageUrl(actor.headshots?.[0]) ? <img src={actor.headshots[0]} alt={actor.name} className="w-full h-full object-cover transition-transform duration-300 hover:scale-110" crossOrigin="anonymous" /> : <div className="w-full h-full flex items-center justify-center"><User className="w-6 h-6 text-slate-400" /></div>}
                   </div>
                 ))}
                 {overflow > 0 && <div className="absolute bottom-2 right-2 px-2 py-0.5 bg-slate-900/60 backdrop-blur-sm text-white text-[10px] font-semibold rounded-md">+{overflow} more</div>}
@@ -358,7 +359,7 @@ function CharacterCardInner({
                 <button className="flex items-center gap-1.5 px-2 py-1 text-xs bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors">
                   {(() => {
                     const sa = selectedActor
-                    if (sa) return (<>{sa.headshots?.[0] ? <img src={sa.headshots[0]} alt={sa.name} className="w-4 h-4 rounded-full object-cover" /> : <User className="w-3 h-3" />}<span className="max-w-16 truncate">{sa.name}</span></>)
+                    if (sa) return (<>{isValidImageUrl(sa.headshots?.[0]) ? <img src={sa.headshots[0]} alt={sa.name} className="w-4 h-4 rounded-full object-cover" /> : <User className="w-3 h-3" />}<span className="max-w-16 truncate">{sa.name}</span></>)
                     return (<><User className="w-3 h-3" /><span>Select</span></>)
                   })()}
                   <ChevronDown className="w-3 h-3" />
@@ -372,7 +373,7 @@ function CharacterCardInner({
                     <DropdownMenuLabel className="text-xs text-success-600 flex items-center gap-1"><CircleCheckBig className="w-3 h-3" />Greenlit</DropdownMenuLabel>
                     {greenlitActors.map((actor) => (
                       <DropdownMenuItem key={actor.id} onClick={(e) => handleActorSelect(e, character.id, actor.id)} className="gap-2">
-                        {actor.headshots?.[0] ? <img src={actor.headshots[0]} alt={actor.name} className="w-6 h-6 rounded-full object-cover" /> : <div className="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center"><User className="w-3 h-3 text-slate-500" /></div>}
+                        {isValidImageUrl(actor.headshots?.[0]) ? <img src={actor.headshots[0]} alt={actor.name} className="w-6 h-6 rounded-full object-cover" /> : <div className="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center"><User className="w-3 h-3 text-slate-500" /></div>}
                         <span className="flex-1 truncate">{actor.name}</span>
                         {selectedActors[character.id] === actor.id && <Check className="w-4 h-4 text-success-500" />}
                       </DropdownMenuItem>
@@ -382,7 +383,7 @@ function CharacterCardInner({
                 )}
                 {allActors.filter((a) => !a.isGreenlit).slice(0, 10).map((actor) => (
                   <DropdownMenuItem key={actor.id} onClick={(e) => handleActorSelect(e, character.id, actor.id)} className="gap-2">
-                    {actor.headshots?.[0] ? <img src={actor.headshots[0]} alt={actor.name} className="w-6 h-6 rounded-full object-cover" /> : <div className="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center"><User className="w-3 h-3 text-slate-500" /></div>}
+                    {isValidImageUrl(actor.headshots?.[0]) ? <img src={actor.headshots[0]} alt={actor.name} className="w-6 h-6 rounded-full object-cover" /> : <div className="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center"><User className="w-3 h-3 text-slate-500" /></div>}
                     <span className="flex-1 truncate">{actor.name}</span>
                     {selectedActors[character.id] === actor.id && <Check className="w-4 h-4 text-success-500" />}
                   </DropdownMenuItem>
@@ -394,7 +395,7 @@ function CharacterCardInner({
         </div>
         {selectedActor && (
           <div className="mt-3 p-2 bg-slate-50 rounded-lg flex items-center gap-2 animate-in fade-in slide-in-from-top-1 duration-200">
-            {selectedActor.headshots?.[0] ? <img src={selectedActor.headshots[0]} alt={selectedActor.name} className="w-8 h-8 rounded-full object-cover ring-2 ring-white shadow-sm" /> : <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center"><User className="w-4 h-4 text-slate-500" /></div>}
+            {isValidImageUrl(selectedActor.headshots?.[0]) ? <img src={selectedActor.headshots[0]} alt={selectedActor.name} className="w-8 h-8 rounded-full object-cover ring-2 ring-white shadow-sm" /> : <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center"><User className="w-4 h-4 text-slate-500" /></div>}
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-slate-700 truncate">{selectedActor.name}</p>
               <p className="text-xs text-slate-500">{selectedActor.isGreenlit ? <span className="text-success-600 flex items-center gap-1"><CircleCheckBig className="w-3 h-3" /> Greenlit</span> : selectedActor.age || "Actor"}</p>

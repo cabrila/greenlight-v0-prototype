@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useMemo, useRef, useCallback, useEffect, type DragEvent } from "react"
+import { isValidImageUrl } from "@/lib/utils"
 import {
   X,
   Plus,
@@ -348,7 +349,7 @@ function AddItemModal({ onClose, onAdd, scenes, characters, characterActorMap }:
                         : "border-gray-200 hover:border-emerald-200 hover:bg-gray-50"
                     }`}
                   >
-                    {castActor?.headshots?.[0] ? (
+                    {isValidImageUrl(castActor?.headshots?.[0]) ? (
                       <img src={castActor.headshots[0]} alt="" className={`w-7 h-8 object-cover rounded-lg shrink-0 ${isSelected ? "ring-2 ring-emerald-300" : ""}`} />
                     ) : (
                       <div className={`w-7 h-8 rounded-lg flex items-center justify-center shrink-0 ${isSelected ? "bg-emerald-100" : "bg-gray-100"}`}>
@@ -619,7 +620,7 @@ function EditItemModal({ item, onClose, onSave, scenes, characters, characterAct
                         : "border-gray-200 hover:border-emerald-200 hover:bg-gray-50"
                     }`}
                   >
-                    {castActor?.headshots?.[0] ? (
+                    {isValidImageUrl(castActor?.headshots?.[0]) ? (
                       <img src={castActor.headshots[0]} alt="" className={`w-7 h-8 object-cover rounded-lg shrink-0 ${isSelected ? "ring-2 ring-emerald-300" : ""}`} />
                     ) : (
                       <div className={`w-7 h-8 rounded-lg flex items-center justify-center shrink-0 ${isSelected ? "bg-emerald-100" : "bg-gray-100"}`}>
@@ -836,7 +837,7 @@ function InventoryCard({ item, isInProject, onToggleAdd, onEdit, onImageReplace,
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
         >
-          {item.imageUrl ? (
+          {isValidImageUrl(item.imageUrl) ? (
             <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-gray-100">
@@ -1010,7 +1011,7 @@ function ProjectPropCard({ item, onVote, onAddComment, onRemove, onAddToCanvas, 
       <div className="flex items-stretch">
         {/* Image */}
         <div className="w-24 sm:w-32 shrink-0 bg-gray-100 overflow-hidden flex items-center justify-center">
-          {item.imageUrl ? (
+          {isValidImageUrl(item.imageUrl) ? (
             <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
           ) : (
             <Package className="w-6 h-6 text-gray-300" />
@@ -1124,7 +1125,7 @@ function InventoryListRow({ item, isInProject, onToggleAdd, onEdit, onDelete, ha
   return (
     <div className={`flex items-center gap-4 px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors ${isInProject ? "bg-emerald-50/40" : ""}`}>
       <div className="w-12 h-12 shrink-0 rounded-lg bg-gray-100 overflow-hidden flex items-center justify-center">
-        {item.imageUrl ? (
+        {isValidImageUrl(item.imageUrl) ? (
           <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
         ) : (
           <Package className="w-5 h-5 text-gray-300" />
@@ -1186,7 +1187,7 @@ function ProjectListRow({ item, onVote, onAddComment, onRemove, onAddToCanvas, o
     <div className="px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors">
       <div className="flex items-center gap-4">
         <div className="w-12 h-12 shrink-0 rounded-lg bg-gray-100 overflow-hidden flex items-center justify-center">
-          {item.imageUrl ? (
+          {isValidImageUrl(item.imageUrl) ? (
             <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
           ) : (
             <Package className="w-5 h-5 text-gray-300" />
@@ -1701,7 +1702,7 @@ export default function PropsModal({ onClose }: PropsModalProps) {
                               : "border border-gray-200 hover:border-emerald-200 hover:bg-gray-50"
                           }`}
                         >
-                          {castActor?.headshots?.[0] ? (
+                          {isValidImageUrl(castActor?.headshots?.[0]) ? (
                             <img src={castActor.headshots[0]} alt="" className={`w-9 h-11 object-cover rounded-lg shrink-0 ${isSelected ? "ring-2 ring-emerald-300" : ""}`} />
                           ) : (
                             <div className={`w-9 h-11 rounded-lg flex items-center justify-center shrink-0 ${isSelected ? "bg-emerald-100" : "bg-gray-100"}`}>
@@ -2068,7 +2069,7 @@ function PropsCrossPlotTab({
                                     : "bg-emerald-50 border border-emerald-200 hover:border-emerald-300"
                                 }`}
                               >
-                                {p.imageUrl ? (
+                                {isValidImageUrl(p.imageUrl) ? (
                                   <img src={p.imageUrl} alt="" className="w-7 h-7 rounded-md object-cover shrink-0" />
                                 ) : (
                                   <div className="w-7 h-7 rounded-md bg-gray-100 flex items-center justify-center shrink-0"><Package className="w-3.5 h-3.5 text-gray-300" /></div>

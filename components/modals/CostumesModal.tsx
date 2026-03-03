@@ -4,6 +4,7 @@ import { useState, useCallback, useRef, useMemo, useEffect } from "react"
 import { useCasting } from "@/components/casting/CastingContext"
 import { openModal } from "./ModalManager"
 import { compressImage } from "@/utils/imageCompression"
+import { isValidImageUrl } from "@/lib/utils"
 import type {
   Actor,
   Character,
@@ -1080,7 +1081,7 @@ function WardrobeTab({
                           : "border border-gray-200 hover:border-rose-200 hover:bg-gray-50"
                       }`}
                     >
-                      {castActor?.headshots?.[0] ? (
+                      {isValidImageUrl(castActor?.headshots?.[0]) ? (
                         <img src={castActor.headshots[0]} alt="" className={`w-9 h-11 object-cover rounded-lg shrink-0 ${isSelected ? "ring-2 ring-rose-300" : ""}`} />
                       ) : (
                         <div className={`w-9 h-11 rounded-lg flex items-center justify-center shrink-0 ${isSelected ? "bg-rose-100" : "bg-gray-100"}`}>
@@ -1395,7 +1396,7 @@ function MakeupTab({
                         : "border border-gray-200 hover:border-amber-200 hover:bg-gray-50"
                     }`}
                   >
-                    {castActor?.headshots?.[0] ? (
+                    {isValidImageUrl(castActor?.headshots?.[0]) ? (
                       <img src={castActor.headshots[0]} alt="" className={`w-9 h-11 object-cover rounded-lg shrink-0 ${isSelected ? "ring-2 ring-amber-300" : ""}`} />
                     ) : (
                       <div className={`w-9 h-11 rounded-lg flex items-center justify-center shrink-0 ${isSelected ? "bg-amber-100" : "bg-gray-100"}`}>
@@ -1718,7 +1719,7 @@ function InventoryListRow({ item, onEdit, onDelete, onAddToCanvas }: { item: Cos
   return (
     <div className="grid grid-cols-[auto_1fr_auto_auto_auto_auto] gap-x-4 items-center px-4 py-3 hover:bg-gray-50 transition-colors">
       <div className="w-10 h-13 rounded-lg bg-gray-100 overflow-hidden shrink-0">
-        {item.imageUrl ? <img src={item.imageUrl} alt="" className="w-full h-full object-cover" crossOrigin="anonymous" /> : <div className="w-full h-full flex items-center justify-center"><Shirt className="w-5 h-5 text-gray-300" /></div>}
+        {isValidImageUrl(item.imageUrl) ? <img src={item.imageUrl} alt="" className="w-full h-full object-cover" crossOrigin="anonymous" /> : <div className="w-full h-full flex items-center justify-center"><Shirt className="w-5 h-5 text-gray-300" /></div>}
       </div>
       <div className="min-w-0">
         <p className="text-sm font-semibold text-gray-900 truncate">{item.name}</p>
@@ -1798,7 +1799,7 @@ function LooksTab({
               return (
                 <div key={charId}>
                   <div className="flex items-center gap-3 mb-4">
-                    {castActor?.headshots?.[0] ? (
+                    {isValidImageUrl(castActor?.headshots?.[0]) ? (
                       <img src={castActor.headshots[0]} alt="" className="w-8 h-10 rounded object-cover" />
                     ) : (
                       <div className="w-8 h-10 rounded bg-gray-200 flex items-center justify-center"><User className="w-4 h-4 text-gray-400" /></div>
