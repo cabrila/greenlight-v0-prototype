@@ -1388,28 +1388,26 @@ export default function ScriptModal({ onClose }: { onClose: () => void }) {
 
   return (
     <div className="fixed inset-0 bg-gradient-to-br from-stone-100 via-stone-50 to-amber-50/30 z-50 flex flex-col">
-      {/* Header toolbar */}
-      <div className="h-12 bg-white/90 backdrop-blur-sm border-b border-stone-200 flex items-center gap-2 px-4 shrink-0">
-        <button onClick={() => { onClose(); setTimeout(() => openModal("splashScreen"), 150) }} className="p-1.5 text-stone-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors" title="Home" aria-label="Go to Home">
-          <Home className="w-4.5 h-4.5" />
-        </button>
-
-        <button onClick={onClose} className="p-1.5 text-stone-500 hover:text-stone-700 hover:bg-stone-100 rounded-lg transition-colors" title="Close">
-          <X className="w-5 h-5" />
-        </button>
-
-        <div className="w-px h-6 bg-stone-200" />
-
-        <div className="flex items-center gap-1 mr-2">
-          <FileText className="w-4 h-4 text-amber-600" />
-          <h1 className="text-sm font-bold text-stone-800">Script Editor</h1>
+      {/* Header */}
+      <header className="flex items-center justify-between px-6 py-3 bg-white border-b border-stone-200 shrink-0">
+        <div className="flex items-center gap-4">
+          <img src="/images/gogreenlight-logo.png" alt="GoGreenlight" className="h-8 w-auto" />
+          <button onClick={() => { onClose(); setTimeout(() => openModal("splashScreen"), 150) }} className="p-1.5 rounded-lg text-stone-400 hover:text-amber-600 hover:bg-amber-50 transition-colors" title="Home" aria-label="Go to Home">
+            <Home className="w-4 h-4" />
+          </button>
+          <div className="inline-flex items-center bg-amber-600 text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded">
+            Script
+          </div>
+          {currentProject ? (
+            <span className="hidden sm:inline text-sm text-stone-500">{currentProject.name}</span>
+          ) : (
+            <span className="hidden sm:inline text-sm text-amber-600 font-medium">No project selected</span>
+          )}
+          <div className="text-[10px] text-stone-400 font-medium bg-stone-100 px-2 py-0.5 rounded-full">
+            {sceneCount} scene{sceneCount !== 1 ? "s" : ""} / ~{estimatedPages} pg{estimatedPages !== 1 ? "s" : ""}
+          </div>
         </div>
-
-        <div className="text-[10px] text-stone-400 font-medium bg-stone-100 px-2 py-0.5 rounded-full">
-          {sceneCount} scene{sceneCount !== 1 ? "s" : ""} / ~{estimatedPages} pg{estimatedPages !== 1 ? "s" : ""}
-        </div>
-
-        <div className="flex-1" />
+        <div className="flex items-center gap-2">
 
         {/* Undo / Redo */}
         <button onClick={undo} className="p-1.5 text-stone-400 hover:text-stone-700 hover:bg-stone-100 rounded-lg transition-colors" title="Undo (Ctrl+Z)">
@@ -1546,7 +1544,15 @@ export default function ScriptModal({ onClose }: { onClose: () => void }) {
           <Save className="w-3.5 h-3.5" />
           Save
         </button>
-      </div>
+
+        <div className="w-px h-6 bg-stone-200" />
+
+        {/* Close */}
+        <button onClick={onClose} className="p-2 rounded-lg text-stone-500 hover:text-stone-700 hover:bg-stone-100 transition-colors" title="Close">
+          <X className="w-5 h-5" />
+        </button>
+        </div>
+      </header>
 
       {/* Search bar */}
       {showSearch && (
