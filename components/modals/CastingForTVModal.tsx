@@ -781,7 +781,7 @@ export default function CastingForTVModal({ onClose }: CastingForTVModalProps) {
   const renderParticipantDetail = () => {
     if (!selectedParticipant) return null
     const p = selectedParticipant
-    const stage = FUNNEL_STAGES.find((s) => s.id === p.stage)
+    const stage = funnelStages.find((s) => s.id === p.stage)
 
     return (
       <div className="w-96 border-l border-gray-200 bg-white flex flex-col">
@@ -1331,7 +1331,7 @@ export default function CastingForTVModal({ onClose }: CastingForTVModalProps) {
                     ? filteredParticipants.filter((p) => lists.find((l) => l.id === selectedListId)?.participantIds.includes(p.id))
                     : filteredParticipants
                   ).map((p) => {
-                    const stage = FUNNEL_STAGES.find((s) => s.id === p.stage)
+                    const stage = funnelStages.find((s) => s.id === p.stage)
                     return (
                       <tr
                         key={p.id}
