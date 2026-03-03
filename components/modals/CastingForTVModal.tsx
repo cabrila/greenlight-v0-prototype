@@ -370,6 +370,14 @@ const [globalSortDirection, setGlobalSortDirection] = useState<"asc" | "desc">("
   const [showAdvanceStageModal, setShowAdvanceStageModal] = useState(false)
   const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false)
   const [participantToDelete, setParticipantToDelete] = useState<Participant | null>(null)
+  
+  // Cast Mix demographic filters
+  const [showDemographicFilter, setShowDemographicFilter] = useState(false)
+  const [demographicFilters, setDemographicFilters] = useState({
+    gender: "all" as "all" | "male" | "female" | "non-binary",
+    ageRange: "all" as "all" | "18-25" | "26-35" | "36-45" | "46+",
+    stage: "all" as string,
+  })
   const [newListName, setNewListName] = useState("")
   const [newListDescription, setNewListDescription] = useState("")
   const [newListColor, setNewListColor] = useState("bg-cyan-500")
@@ -1536,7 +1544,8 @@ const renderGridView = () => (
 
       {/* Main content */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Collapsible Lists sidebar - shown on all views */}
+        {/* Collapsible Lists sidebar - hidden on mix view */}
+        {activeView !== "mix" && (
         <div className={`border-r border-gray-200 bg-white flex flex-col shrink-0 transition-all duration-200 ${showListsPanel ? "w-56" : "w-12"}`}>
           {/* Panel header */}
           <div className={`p-3 border-b border-gray-100 ${showListsPanel ? "" : "flex items-center justify-center"}`}>
@@ -1696,6 +1705,7 @@ const renderGridView = () => (
             </div>
           )}
         </div>
+        )}
 
         {activeView === "pipeline" && renderPipelineView()}
         {activeView === "grid" && renderGridView()}
@@ -1791,16 +1801,16 @@ const renderGridView = () => (
           </div>
         )}
         {activeView === "mix" && (
-          <div className="flex-1 overflow-y-auto p-6">
-            <div className="max-w-6xl mx-auto">
-              {/* Cast Mix header */}
-              <div className="mb-6 flex items-center justify-between">
+          <div className="flex-1 flex flex-col overflow-hidden">
+            {/* Cast Mix header */}
+            <div className="px-6 py-4 border-b border-gray-100 bg-white shrink-0">
+              <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
                     <Shuffle className="w-5 h-5 text-cyan-600" />
                     Cast Mix Builder
                   </h2>
-                  <p className="text-sm text-gray-500 mt-1">Drag participants into slots to build your ideal cast composition</p>
+                  <p className="text-sm text-gray-500 mt-0.5">Drag participants into slots to build your ideal cast composition</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <button 
@@ -1812,17 +1822,85 @@ const renderGridView = () => (
                     <Settings className="w-4 h-4" />
                     Manage Slots
                   </button>
-                  <button className="flex items-center gap-1.5 px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-50">
-                    <PieChart className="w-4 h-4" />
+                  <button 
+                    onClick={() => setShowDemographicFilter(!showDemographicFilter)}
+                    className={`flex items-center gap-1.5 px-3 py-2 border rounded-lg text-sm transition-colors ${
+                      showDemographicFilter ? "border-cyan-300 bg-cyan-50 text-cyan-700" : "border-gray-200 text-gray-600 hover:bg-gray-50"
+                    }`}
+                  >
+                    <Filter className="w-4 h-4" />
                     Demographics
-                  </button>
-                  <button className="flex items-center gap-1.5 px-3 py-2 bg-cyan-600 text-white rounded-lg text-sm font-medium hover:bg-cyan-700">
-                    <Sparkles className="w-4 h-4" />
-                    Auto-Balance
+                    {(demographicFilters.gender !== "all" || demographicFilters.ageRange !== "all" || demographicFilters.stage !== "all") && (
+                      <span className="ml-1 px-1.5 py-0.5 bg-cyan-600 text-white text-[10px] font-bold rounded-full">
+                        {[demographicFilters.gender !== "all", demographicFilters.ageRange !== "all", demographicFilters.stage !== "all"].filter(Boolean).length}
+                      </span>
+                    )}
                   </button>
                 </div>
               </div>
-
+              
+              {/* Demographic Filters Panel */}
+              {showDemographicFilter && (
+                <div className="mt-4 p-4 bg-gray-50 rounded-xl border border-gray-200">
+                  <div className="flex items-center gap-6">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-medium text-gray-500">Gender:</span>
+                      <select
+                        value={demographicFilters.gender}
+                        onChange={(e) => setDemographicFilters(prev => ({ ...prev, gender: e.target.value as typeof prev.gender }))}
+                        className="px-2 py-1 text-xs border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                      >
+                        <option value="all">All</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="non-binary">Non-binary</option>
+                      </select>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-medium text-gray-500">Age Range:</span>
+                      <select
+                        value={demographicFilters.ageRange}
+                        onChange={(e) => setDemographicFilters(prev => ({ ...prev, ageRange: e.target.value as typeof prev.ageRange }))}
+                        className="px-2 py-1 text-xs border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                      >
+                        <option value="all">All Ages</option>
+                        <option value="18-25">18-25</option>
+                        <option value="26-35">26-35</option>
+                        <option value="36-45">36-45</option>
+                        <option value="46+">46+</option>
+                      </select>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-medium text-gray-500">Stage:</span>
+                      <select
+                        value={demographicFilters.stage}
+                        onChange={(e) => setDemographicFilters(prev => ({ ...prev, stage: e.target.value }))}
+                        className="px-2 py-1 text-xs border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                      >
+                        <option value="all">All Stages</option>
+                        {funnelStages.map(stage => (
+                          <option key={stage.id} value={stage.id}>{stage.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                    {(demographicFilters.gender !== "all" || demographicFilters.ageRange !== "all" || demographicFilters.stage !== "all") && (
+                      <button
+                        onClick={() => setDemographicFilters({ gender: "all", ageRange: "all", stage: "all" })}
+                        className="text-xs text-cyan-600 hover:text-cyan-700 font-medium flex items-center gap-1"
+                      >
+                        <X className="w-3 h-3" /> Clear filters
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            {/* Split screen layout */}
+            <div className="flex-1 flex flex-col overflow-hidden">
+              {/* Cast Mix Builder - Primary Area */}
+              <div className="flex-1 overflow-y-auto p-6 bg-gray-50/30">
+                <div className="max-w-6xl mx-auto">
               {/* Slot Settings Panel */}
               {showSlotSettings && (
                 <div className="mb-6 p-4 bg-gray-50 rounded-xl border border-gray-200">
@@ -2200,17 +2278,108 @@ const renderGridView = () => (
                   </div>
                 )}
               </div>
-
-              {/* Available participants for dragging */}
-              <div>
-                <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                  <Users className="w-4 h-4" />
-                  Available Participants ({filteredParticipants.filter((p) => !castSlots.some(s => s.assignedParticipantId === p.id)).length})
-                </h3>
-                <div className="grid grid-cols-4 gap-3">
-                  {filteredParticipants
-                    .filter((p) => !castSlots.some(s => s.assignedParticipantId === p.id))
-                    .map((p) => renderParticipantCard(p, true))}
+              </div>
+              </div>
+              
+              {/* Available Participants - Bottom Section */}
+              <div className="shrink-0 border-t border-gray-200 bg-white">
+                <div className="px-6 py-3 border-b border-gray-100 flex items-center justify-between">
+                  <h3 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                    <Users className="w-4 h-4 text-gray-500" />
+                    Available Participants
+                    <span className="text-xs font-normal text-gray-400">
+                      ({(() => {
+                        const availableParticipants = participants.filter((p) => {
+                          if (castSlots.some(s => s.assignedParticipantId === p.id)) return false
+                          if (demographicFilters.gender !== "all" && p.gender?.toLowerCase() !== demographicFilters.gender) return false
+                          if (demographicFilters.stage !== "all" && p.stage !== demographicFilters.stage) return false
+                          if (demographicFilters.ageRange !== "all") {
+                            const [min, max] = demographicFilters.ageRange === "46+" ? [46, 999] : demographicFilters.ageRange.split("-").map(Number)
+                            if (p.age < min || p.age > max) return false
+                          }
+                          return true
+                        })
+                        return availableParticipants.length
+                      })()} available)
+                    </span>
+                  </h3>
+                  <div className="text-xs text-gray-400">
+                    Drag cards to slots above
+                  </div>
+                </div>
+                <div className="p-4 max-h-64 overflow-y-auto">
+                  <div className="flex gap-3 overflow-x-auto pb-2">
+                    {(() => {
+                      const availableParticipants = participants.filter((p) => {
+                        if (castSlots.some(s => s.assignedParticipantId === p.id)) return false
+                        if (demographicFilters.gender !== "all" && p.gender?.toLowerCase() !== demographicFilters.gender) return false
+                        if (demographicFilters.stage !== "all" && p.stage !== demographicFilters.stage) return false
+                        if (demographicFilters.ageRange !== "all") {
+                          const [min, max] = demographicFilters.ageRange === "46+" ? [46, 999] : demographicFilters.ageRange.split("-").map(Number)
+                          if (p.age < min || p.age > max) return false
+                        }
+                        return true
+                      })
+                      return availableParticipants.map((p, index) => {
+                        const stage = funnelStages.find(s => s.id === p.stage)
+                        return (
+                          <div
+                            key={p.id}
+                            draggable
+                            onDragStart={() => handleDragStart(p.id)}
+                            onDragEnd={() => { setDraggedParticipant(null); setDragOverStage(null) }}
+                            onClick={() => setSelectedParticipant(p)}
+                            className={`shrink-0 w-44 bg-white rounded-xl border border-gray-200 hover:border-cyan-300 hover:shadow-md transition-all cursor-pointer group ${
+                              draggedParticipant === p.id ? "opacity-50 scale-95" : ""
+                            }`}
+                          >
+                            <div className="p-3">
+                              {/* Index badge */}
+                              <div className="flex items-start justify-between mb-2">
+                                <span className="w-5 h-5 rounded-full bg-gray-100 text-gray-500 text-[10px] font-bold flex items-center justify-center">
+                                  {index + 1}
+                                </span>
+                                <span className={`px-1.5 py-0.5 rounded text-[9px] font-semibold ${stage?.color || "bg-gray-100 text-gray-600"}`}>
+                                  {stage?.label || "Unknown"}
+                                </span>
+                              </div>
+                              {/* Avatar and name */}
+                              <div className="flex items-center gap-2 mb-2">
+                                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-100 to-cyan-200 flex items-center justify-center text-cyan-700 font-bold text-xs">
+                                  {p.name.split(" ").map((n) => n[0]).join("")}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <h4 className="text-xs font-semibold text-gray-900 truncate">{p.name}</h4>
+                                  <p className="text-[10px] text-gray-500">{p.age} • {p.location}</p>
+                                </div>
+                              </div>
+                              {/* Score */}
+                              {p.score && (
+                                <div className="flex items-center gap-1 text-emerald-600">
+                                  <BarChart3 className="w-3 h-3" />
+                                  <span className="text-[10px] font-semibold">{p.score.toFixed(1)}</span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        )
+                      })
+                    })()}
+                    {participants.filter((p) => {
+                      if (castSlots.some(s => s.assignedParticipantId === p.id)) return false
+                      if (demographicFilters.gender !== "all" && p.gender?.toLowerCase() !== demographicFilters.gender) return false
+                      if (demographicFilters.stage !== "all" && p.stage !== demographicFilters.stage) return false
+                      if (demographicFilters.ageRange !== "all") {
+                        const [min, max] = demographicFilters.ageRange === "46+" ? [46, 999] : demographicFilters.ageRange.split("-").map(Number)
+                        if (p.age < min || p.age > max) return false
+                      }
+                      return true
+                    }).length === 0 && (
+                      <div className="flex-1 flex items-center justify-center py-8 text-gray-400 text-sm">
+                        No participants match the current filters
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
