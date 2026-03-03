@@ -2052,53 +2052,40 @@ const renderGridView = () => (
   return (
     <div className="fixed inset-0 bg-gray-50 z-50 flex flex-col">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-6 py-3 shrink-0">
-        <div className="flex items-center justify-between">
-          {/* Left - Logo and Home */}
-          <div className="flex items-center gap-3 min-w-[200px]">
-            <img src="/images/gogreenlight-logo.png" alt="GoGreenlight" className="h-8 w-auto" />
-            <button
-              onClick={() => { onClose(); setTimeout(() => openModal("splashScreen"), 150) }}
-              className="p-2 rounded-lg text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors"
-              title="Home"
-              aria-label="Go to Home"
-            >
-              <Home className="w-4 h-4" />
-            </button>
+      <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between shrink-0">
+        <div className="flex items-center gap-4">
+          <img src="/images/gogreenlight-logo.png" alt="GoGreenlight" className="h-8 w-auto" />
+          <button
+            onClick={() => { onClose(); setTimeout(() => openModal("splashScreen"), 150) }}
+            className="p-1.5 rounded-lg text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors"
+            title="Home"
+          >
+            <Home className="w-4 h-4" />
+          </button>
+          <div className="inline-flex items-center bg-cyan-600 text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded">
+            <Tv className="w-3 h-3 mr-1.5" />
+            Casting for TV
           </div>
-          
-          {/* Center - Section Title */}
-          <div className="flex-1 flex items-center justify-center">
-            <div className="flex items-center gap-3 bg-gradient-to-r from-cyan-50 to-white px-5 py-2.5 rounded-xl border border-cyan-100">
-              <div className="w-9 h-9 rounded-lg bg-cyan-600 flex items-center justify-center shadow-sm">
-                <Tv className="w-4 h-4 text-white" />
-              </div>
-              <div>
-                <h1 className="text-lg font-bold text-gray-900">Casting for TV</h1>
-                {currentProject && (
-                  <p className="text-xs text-gray-500">
-                    {currentProject.name}
-                    {!isNonFictionProject && (
-                      <span className="ml-2 text-amber-600">Non-Fiction mode recommended</span>
-                    )}
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
-          
-          {/* Right - Close Button */}
-          <div className="flex items-center justify-end min-w-[200px]">
-            <button
-              onClick={onClose}
-              className="p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
-              aria-label="Close"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
+          {currentProject && (
+            <span className="text-sm text-gray-500">
+              {currentProject.name}
+              {!isNonFictionProject && (
+                <span className="ml-2 text-xs text-amber-600 bg-amber-50 px-2 py-0.5 rounded">
+                  Switch to Non-Fiction TV project for full features
+                </span>
+              )}
+            </span>
+          )}
         </div>
-      </header>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={onClose}
+            className="p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
 
       {/* Toolbar */}
       <div className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between shrink-0">
@@ -2332,33 +2319,7 @@ const renderGridView = () => (
         {/* Collapsible Lists sidebar - hidden on mix view */}
         {activeView !== "mix" && (
         <div className={`border-r border-gray-200 bg-white flex flex-col shrink-0 transition-all duration-200 ${showListsPanel ? "w-56" : "w-12"}`}>
-          {/* Notifications icon at top */}
-          <div className={`p-2 border-b border-gray-100 ${showListsPanel ? "" : "flex items-center justify-center"}`}>
-            {showListsPanel ? (
-              <div className="flex items-center gap-2 px-1">
-                <button 
-                  className="relative p-2 rounded-lg hover:bg-amber-50 text-gray-500 hover:text-amber-600 transition-colors"
-                  title="Notifications"
-                  aria-label="View notifications"
-                >
-                  <Bell className="w-4 h-4" />
-                  <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
-                </button>
-                <span className="text-xs text-gray-500">Notifications</span>
-              </div>
-            ) : (
-              <button 
-                className="relative p-1.5 rounded-lg hover:bg-amber-50 text-gray-400 hover:text-amber-600 transition-colors"
-                title="Notifications"
-                aria-label="View notifications"
-              >
-                <Bell className="w-4 h-4" />
-                <span className="absolute top-0.5 right-0.5 w-1.5 h-1.5 bg-red-500 rounded-full" />
-              </button>
-            )}
-          </div>
-          
-          {/* Panel header - Lists */}
+          {/* Panel header */}
           <div className={`p-3 border-b border-gray-100 ${showListsPanel ? "" : "flex items-center justify-center"}`}>
             {showListsPanel ? (
               <div className="flex items-center justify-between">
@@ -2979,7 +2940,7 @@ const renderGridView = () => (
                           return (
                             <div
                               key={slot.id}
-                              className={`relative rounded-xl border-2 transition-all ${
+                              className={`group relative rounded-xl border-2 transition-all ${
                                 assignedParticipant
                                   ? "border-solid border-gray-200 bg-white"
                                   : "border-dashed border-gray-300 bg-white hover:border-cyan-300 hover:bg-cyan-50/30"
@@ -2994,6 +2955,14 @@ const renderGridView = () => (
                                 setDragOverStage(null)
                               }}
                             >
+                              {/* Delete slot button */}
+                              <button
+                                onClick={() => setCastSlots(prev => prev.filter(s => s.id !== slot.id))}
+                                className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 shadow-sm z-10"
+                                title="Delete slot"
+                              >
+                                <X className="w-3 h-3" />
+                              </button>
                               <div className={`absolute -top-2.5 left-3 px-2 py-0.5 rounded-full text-[10px] font-bold text-white ${slot.color}`}>
                                 {slot.label}
                               </div>
@@ -3010,6 +2979,7 @@ const renderGridView = () => (
                                     <button
                                       onClick={() => setCastSlots(prev => prev.map(s => s.id === slot.id ? { ...s, assignedParticipantId: null } : s))}
                                       className="p-1 rounded hover:bg-gray-100 text-gray-400 hover:text-red-500"
+                                      title="Remove participant"
                                     >
                                       <X className="w-3.5 h-3.5" />
                                     </button>
@@ -3032,9 +3002,26 @@ const renderGridView = () => (
                 {/* Ungrouped slots */}
                 {castSlots.filter(s => !s.groupId).length > 0 && (
                   <div className="p-4 bg-gray-50/50 rounded-xl border border-gray-200">
-                    <div className="flex items-center gap-2 mb-3">
-                      <h3 className="text-sm font-semibold text-gray-700">Other Slots</h3>
-                      <span className="text-xs text-gray-400">({castSlots.filter(s => !s.groupId && s.assignedParticipantId).length}/{castSlots.filter(s => !s.groupId).length} filled)</span>
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-sm font-semibold text-gray-700">Other Slots</h3>
+                        <span className="text-xs text-gray-400">({castSlots.filter(s => !s.groupId && s.assignedParticipantId).length}/{castSlots.filter(s => !s.groupId).length} filled)</span>
+                      </div>
+                      <button
+                        onClick={() => {
+                          setCastSlots(prev => [...prev, {
+                            id: `slot-${Date.now()}`,
+                            label: `Slot ${castSlots.filter(s => !s.groupId).length + 1}`,
+                            color: "bg-gray-500",
+                            icon: "user",
+                            groupId: null,
+                            assignedParticipantId: null
+                          }])
+                        }}
+                        className="text-xs text-cyan-600 hover:text-cyan-700 font-medium flex items-center gap-1 px-2 py-1 hover:bg-cyan-50 rounded"
+                      >
+                        <Plus className="w-3 h-3" /> Add Slot
+                      </button>
                     </div>
                     <div className="grid grid-cols-3 gap-3">
                       {castSlots.filter(s => !s.groupId).map((slot) => {
@@ -3042,7 +3029,7 @@ const renderGridView = () => (
                         return (
                           <div
                             key={slot.id}
-                            className={`relative rounded-xl border-2 transition-all ${
+                            className={`group relative rounded-xl border-2 transition-all ${
                               assignedParticipant
                                 ? "border-solid border-gray-200 bg-white"
                                 : "border-dashed border-gray-300 bg-white hover:border-cyan-300 hover:bg-cyan-50/30"
@@ -3057,6 +3044,14 @@ const renderGridView = () => (
                               setDragOverStage(null)
                             }}
                           >
+                            {/* Delete slot button */}
+                            <button
+                              onClick={() => setCastSlots(prev => prev.filter(s => s.id !== slot.id))}
+                              className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 shadow-sm z-10"
+                              title="Delete slot"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
                             <div className={`absolute -top-2.5 left-3 px-2 py-0.5 rounded-full text-[10px] font-bold text-white ${slot.color}`}>
                               {slot.label}
                             </div>
@@ -3073,6 +3068,7 @@ const renderGridView = () => (
                                   <button
                                     onClick={() => setCastSlots(prev => prev.map(s => s.id === slot.id ? { ...s, assignedParticipantId: null } : s))}
                                     className="p-1 rounded hover:bg-gray-100 text-gray-400 hover:text-red-500"
+                                    title="Remove participant"
                                   >
                                     <X className="w-3.5 h-3.5" />
                                   </button>
@@ -3090,6 +3086,26 @@ const renderGridView = () => (
                     </div>
                   </div>
                 )}
+                
+                {/* Quick Add Slot button - always visible */}
+                <div className="flex justify-center pt-2">
+                  <button
+                    onClick={() => {
+                      setCastSlots(prev => [...prev, {
+                        id: `slot-${Date.now()}`,
+                        label: `New Slot ${castSlots.length + 1}`,
+                        color: "bg-cyan-500",
+                        icon: "user",
+                        groupId: null,
+                        assignedParticipantId: null
+                      }])
+                    }}
+                    className="flex items-center gap-2 px-4 py-2 text-sm text-cyan-600 hover:text-cyan-700 font-medium hover:bg-cyan-50 rounded-lg border border-dashed border-cyan-300 transition-colors"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Add New Slot
+                  </button>
+                </div>
               </div>
               </div>
               
