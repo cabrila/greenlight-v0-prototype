@@ -59,6 +59,7 @@ import {
   Facebook,
   Globe,
   Camera,
+  Calendar,
   Tag,
   FolderPlus,
   Check,
