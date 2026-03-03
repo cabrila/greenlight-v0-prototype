@@ -85,6 +85,17 @@ import {
   Fingerprint,
   Target as TargetIcon,
   Gauge,
+  Mail,
+  Phone,
+  Calendar,
+  Video,
+  MapPin,
+  Clock,
+  Bell,
+  Inbox,
+  Send,
+  FileText,
+  ExternalLink,
 } from "lucide-react"
 
 interface CastingForTVModalProps {
@@ -198,6 +209,33 @@ interface ParticipantVideo {
     endTime: number
   }
   addedAt: number
+}
+
+// Communication/Message interface for inbox
+interface ParticipantMessage {
+  id: string
+  participantId: string
+  direction: "inbound" | "outbound"
+  type: "email" | "sms" | "call" | "note"
+  subject?: string
+  content: string
+  timestamp: number
+  read: boolean
+  attachments?: { name: string; url: string }[]
+}
+
+// Audition booking interface
+interface AuditionBooking {
+  id: string
+  participantId: string
+  scheduledDate: number
+  duration: number // in minutes
+  location: string
+  type: "in-person" | "virtual" | "self-tape"
+  status: "scheduled" | "completed" | "cancelled" | "no-show"
+  notes?: string
+  meetingLink?: string
+  createdAt: number
 }
 
 interface Participant {
@@ -473,6 +511,38 @@ const [globalSortDirection, setGlobalSortDirection] = useState<"asc" | "desc">("
   
   const [newListName, setNewListName] = useState("")
   
+  // Contacts & Communications state
+  const [showContactsModal, setShowContactsModal] = useState(false)
+  const [contactsActiveTab, setContactsActiveTab] = useState<"inbox" | "all">("inbox")
+  const [selectedMessageParticipant, setSelectedMessageParticipant] = useState<string | null>(null)
+  const [participantMessages, setParticipantMessages] = useState<ParticipantMessage[]>([
+    { id: "msg-1", participantId: "p1", direction: "outbound", type: "email", subject: "Casting Call Invitation", content: "Hi Sarah! We loved your application and would like to invite you for an audition.", timestamp: Date.now() - 86400000 * 2, read: true },
+    { id: "msg-2", participantId: "p1", direction: "inbound", type: "email", subject: "Re: Casting Call Invitation", content: "Thank you so much! I'm very excited about this opportunity. When would be a good time?", timestamp: Date.now() - 86400000, read: false },
+    { id: "msg-3", participantId: "p2", direction: "outbound", type: "email", subject: "Initial Contact", content: "Hi Marcus! We've reviewed your application and think you'd be great for our show.", timestamp: Date.now() - 86400000 * 3, read: true },
+    { id: "msg-4", participantId: "p3", direction: "inbound", type: "email", subject: "Question about audition", content: "Hi, I wanted to follow up on my application status. Looking forward to hearing from you!", timestamp: Date.now() - 3600000 * 5, read: false },
+  ])
+  const [newMessageContent, setNewMessageContent] = useState("")
+
+  // Auditions state
+  const [showAuditionsModal, setShowAuditionsModal] = useState(false)
+  const [auditionsActiveTab, setAuditionsActiveTab] = useState<"upcoming" | "past" | "all">("upcoming")
+  const [auditionBookings, setAuditionBookings] = useState<AuditionBooking[]>([
+    { id: "aud-1", participantId: "p1", scheduledDate: Date.now() + 86400000 * 2, duration: 30, location: "Studio A", type: "in-person", status: "scheduled", createdAt: Date.now() - 86400000 },
+    { id: "aud-2", participantId: "p2", scheduledDate: Date.now() + 86400000 * 5, duration: 45, location: "Zoom", type: "virtual", status: "scheduled", meetingLink: "https://zoom.us/j/123456", createdAt: Date.now() - 86400000 * 2 },
+    { id: "aud-3", participantId: "p3", scheduledDate: Date.now() - 86400000 * 3, duration: 30, location: "Studio B", type: "in-person", status: "completed", createdAt: Date.now() - 86400000 * 5 },
+  ])
+  const [showBookAuditionForm, setShowBookAuditionForm] = useState(false)
+  const [newAuditionForm, setNewAuditionForm] = useState({
+    participantId: "",
+    date: "",
+    time: "",
+    duration: 30,
+    location: "",
+    type: "in-person" as "in-person" | "virtual" | "self-tape",
+    notes: "",
+    meetingLink: "",
+  })
+
   // Add Participant Modal state
   const [showAddParticipantModal, setShowAddParticipantModal] = useState(false)
   const [newParticipantForm, setNewParticipantForm] = useState({
@@ -708,6 +778,85 @@ const [globalSortDirection, setGlobalSortDirection] = useState<"asc" | "desc">("
       notes: "",
       archetype: [],
     })
+  }
+
+  // Get unread message count
+  const getUnreadMessageCount = () => {
+    return participantMessages.filter(m => !m.read && m.direction === "inbound").length
+  }
+
+  // Get upcoming auditions count
+  const getUpcomingAuditionsCount = () => {
+    return auditionBookings.filter(a => a.status === "scheduled" && a.scheduledDate > Date.now()).length
+  }
+
+  // Get messages for a participant
+  const getMessagesForParticipant = (participantId: string) => {
+    return participantMessages.filter(m => m.participantId === participantId).sort((a, b) => b.timestamp - a.timestamp)
+  }
+
+  // Mark message as read
+  const markMessageAsRead = (messageId: string) => {
+    setParticipantMessages(prev => prev.map(m => m.id === messageId ? { ...m, read: true } : m))
+  }
+
+  // Send new message
+  const sendMessage = (participantId: string) => {
+    if (!newMessageContent.trim()) return
+    const newMessage: ParticipantMessage = {
+      id: `msg-${Date.now()}`,
+      participantId,
+      direction: "outbound",
+      type: "email",
+      content: newMessageContent.trim(),
+      timestamp: Date.now(),
+      read: true,
+    }
+    setParticipantMessages(prev => [newMessage, ...prev])
+    setNewMessageContent("")
+  }
+
+  // Book audition
+  const handleBookAudition = () => {
+    if (!newAuditionForm.participantId || !newAuditionForm.date || !newAuditionForm.time) return
+    
+    const scheduledDate = new Date(`${newAuditionForm.date}T${newAuditionForm.time}`).getTime()
+    const newAudition: AuditionBooking = {
+      id: `aud-${Date.now()}`,
+      participantId: newAuditionForm.participantId,
+      scheduledDate,
+      duration: newAuditionForm.duration,
+      location: newAuditionForm.location || (newAuditionForm.type === "virtual" ? "Virtual" : "TBD"),
+      type: newAuditionForm.type,
+      status: "scheduled",
+      notes: newAuditionForm.notes || undefined,
+      meetingLink: newAuditionForm.type === "virtual" ? newAuditionForm.meetingLink : undefined,
+      createdAt: Date.now(),
+    }
+    setAuditionBookings(prev => [...prev, newAudition])
+    setShowBookAuditionForm(false)
+    setNewAuditionForm({
+      participantId: "",
+      date: "",
+      time: "",
+      duration: 30,
+      location: "",
+      type: "in-person",
+      notes: "",
+      meetingLink: "",
+    })
+  }
+
+  // Update audition status
+  const updateAuditionStatus = (auditionId: string, status: AuditionBooking["status"]) => {
+    setAuditionBookings(prev => prev.map(a => a.id === auditionId ? { ...a, status } : a))
+  }
+
+  // Cancel audition
+  const cancelAudition = (auditionId: string) => {
+    if (window.confirm("Are you sure you want to cancel this audition?")) {
+      updateAuditionStatus(auditionId, "cancelled")
+    }
   }
 
   // Update list sort settings
@@ -2077,6 +2226,34 @@ const renderGridView = () => (
           >
             <Play className="w-4 h-4" />
             Player
+          </button>
+
+          {/* Contacts button */}
+          <button
+            onClick={() => setShowContactsModal(true)}
+            className="relative flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+          >
+            <Mail className="w-4 h-4" />
+            Contacts
+            {getUnreadMessageCount() > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] flex items-center justify-center px-1 bg-red-500 text-white text-[10px] font-bold rounded-full">
+                {getUnreadMessageCount()}
+              </span>
+            )}
+          </button>
+
+          {/* Book Auditions button */}
+          <button
+            onClick={() => setShowAuditionsModal(true)}
+            className="relative flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+          >
+            <Calendar className="w-4 h-4" />
+            Auditions
+            {getUpcomingAuditionsCount() > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] flex items-center justify-center px-1 bg-cyan-500 text-white text-[10px] font-bold rounded-full">
+                {getUpcomingAuditionsCount()}
+              </span>
+            )}
           </button>
 
         </div>
@@ -4323,6 +4500,550 @@ const renderGridView = () => (
               >
                 {editingVideo ? "Save Changes" : "Add Video"}
               </button>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Contacts Modal */}
+      {showContactsModal && (
+        <>
+          <div className="fixed inset-0 bg-black/50 z-[60]" onClick={() => setShowContactsModal(false)} />
+          <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl bg-white rounded-2xl shadow-2xl z-[60] max-h-[85vh] overflow-hidden flex flex-col">
+            {/* Header */}
+            <div className="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-white shrink-0">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                    <Inbox className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-gray-900">Contacts & Communications</h3>
+                    <p className="text-sm text-gray-500">Manage all participant communications</p>
+                  </div>
+                </div>
+                <button onClick={() => setShowContactsModal(false)} className="p-2 rounded-lg hover:bg-gray-100 text-gray-400">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              
+              {/* Tabs */}
+              <div className="flex gap-1 mt-4 bg-gray-100 rounded-lg p-1 w-fit">
+                <button
+                  onClick={() => setContactsActiveTab("inbox")}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                    contactsActiveTab === "inbox" ? "bg-white text-gray-900 shadow-sm" : "text-gray-600 hover:text-gray-900"
+                  }`}
+                >
+                  <Inbox className="w-4 h-4" />
+                  Inbox
+                  {getUnreadMessageCount() > 0 && (
+                    <span className="px-1.5 py-0.5 bg-red-500 text-white text-[10px] font-bold rounded-full">
+                      {getUnreadMessageCount()}
+                    </span>
+                  )}
+                </button>
+                <button
+                  onClick={() => setContactsActiveTab("all")}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                    contactsActiveTab === "all" ? "bg-white text-gray-900 shadow-sm" : "text-gray-600 hover:text-gray-900"
+                  }`}
+                >
+                  <Users className="w-4 h-4" />
+                  All Contacts
+                </button>
+              </div>
+            </div>
+            
+            {/* Content */}
+            <div className="flex-1 flex overflow-hidden">
+              {/* Participant list */}
+              <div className="w-72 border-r border-gray-200 flex flex-col bg-gray-50">
+                <div className="p-3 border-b border-gray-200">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input
+                      type="text"
+                      placeholder="Search contacts..."
+                      className="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                    />
+                  </div>
+                </div>
+                <div className="flex-1 overflow-y-auto">
+                  {contactsActiveTab === "inbox" ? (
+                    // Show participants with messages
+                    [...new Set(participantMessages.map(m => m.participantId))].map((participantId) => {
+                      const participant = participants.find(p => p.id === participantId)
+                      if (!participant) return null
+                      const messages = getMessagesForParticipant(participantId)
+                      const unreadCount = messages.filter(m => !m.read && m.direction === "inbound").length
+                      const lastMessage = messages[0]
+                      
+                      return (
+                        <button
+                          key={participantId}
+                          onClick={() => { setSelectedMessageParticipant(participantId); messages.filter(m => !m.read).forEach(m => markMessageAsRead(m.id)) }}
+                          className={`w-full p-3 text-left hover:bg-white border-b border-gray-100 transition-colors ${
+                            selectedMessageParticipant === participantId ? "bg-white border-l-2 border-l-blue-500" : ""
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center shrink-0">
+                              <span className="text-sm font-semibold text-blue-700">
+                                {participant.name.split(" ").map(n => n[0]).join("")}
+                              </span>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between">
+                                <span className={`text-sm truncate ${unreadCount > 0 ? "font-semibold text-gray-900" : "font-medium text-gray-700"}`}>
+                                  {participant.name}
+                                </span>
+                                {unreadCount > 0 && (
+                                  <span className="w-5 h-5 flex items-center justify-center bg-blue-500 text-white text-[10px] font-bold rounded-full">
+                                    {unreadCount}
+                                  </span>
+                                )}
+                              </div>
+                              {lastMessage && (
+                                <p className={`text-xs truncate mt-0.5 ${unreadCount > 0 ? "text-gray-700" : "text-gray-500"}`}>
+                                  {lastMessage.direction === "outbound" ? "You: " : ""}{lastMessage.content.substring(0, 40)}...
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        </button>
+                      )
+                    })
+                  ) : (
+                    // Show all participants
+                    participants.map((participant) => (
+                      <button
+                        key={participant.id}
+                        onClick={() => setSelectedMessageParticipant(participant.id)}
+                        className={`w-full p-3 text-left hover:bg-white border-b border-gray-100 transition-colors ${
+                          selectedMessageParticipant === participant.id ? "bg-white border-l-2 border-l-blue-500" : ""
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center shrink-0">
+                            <span className="text-sm font-semibold text-gray-600">
+                              {participant.name.split(" ").map(n => n[0]).join("")}
+                            </span>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <span className="text-sm font-medium text-gray-700 truncate block">{participant.name}</span>
+                            <span className="text-xs text-gray-500">{participant.email || "No email"}</span>
+                          </div>
+                        </div>
+                      </button>
+                    ))
+                  )}
+                </div>
+              </div>
+              
+              {/* Message thread */}
+              <div className="flex-1 flex flex-col bg-white">
+                {selectedMessageParticipant ? (
+                  <>
+                    {/* Participant header */}
+                    {(() => {
+                      const participant = participants.find(p => p.id === selectedMessageParticipant)
+                      if (!participant) return null
+                      return (
+                        <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center">
+                              <span className="text-sm font-semibold text-blue-700">
+                                {participant.name.split(" ").map(n => n[0]).join("")}
+                              </span>
+                            </div>
+                            <div>
+                              <h4 className="text-sm font-semibold text-gray-900">{participant.name}</h4>
+                              <p className="text-xs text-gray-500">{participant.email || participant.phone || "No contact info"}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <button className="p-2 rounded-lg hover:bg-gray-100 text-gray-500" title="Call">
+                              <Phone className="w-4 h-4" />
+                            </button>
+                            <button className="p-2 rounded-lg hover:bg-gray-100 text-gray-500" title="Email">
+                              <Mail className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      )
+                    })()}
+                    
+                    {/* Messages */}
+                    <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                      {getMessagesForParticipant(selectedMessageParticipant).reverse().map((message) => (
+                        <div
+                          key={message.id}
+                          className={`flex ${message.direction === "outbound" ? "justify-end" : "justify-start"}`}
+                        >
+                          <div
+                            className={`max-w-[70%] rounded-2xl px-4 py-2.5 ${
+                              message.direction === "outbound"
+                                ? "bg-blue-600 text-white rounded-br-md"
+                                : "bg-gray-100 text-gray-900 rounded-bl-md"
+                            }`}
+                          >
+                            {message.subject && (
+                              <p className={`text-xs font-semibold mb-1 ${message.direction === "outbound" ? "text-blue-100" : "text-gray-500"}`}>
+                                {message.subject}
+                              </p>
+                            )}
+                            <p className="text-sm">{message.content}</p>
+                            <p className={`text-[10px] mt-1 ${message.direction === "outbound" ? "text-blue-200" : "text-gray-400"}`}>
+                              {new Date(message.timestamp).toLocaleString()}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    {/* Compose */}
+                    <div className="p-4 border-t border-gray-100">
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={newMessageContent}
+                          onChange={(e) => setNewMessageContent(e.target.value)}
+                          onKeyDown={(e) => { if (e.key === "Enter" && selectedMessageParticipant) sendMessage(selectedMessageParticipant) }}
+                          placeholder="Type a message..."
+                          className="flex-1 px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                        <button
+                          onClick={() => selectedMessageParticipant && sendMessage(selectedMessageParticipant)}
+                          disabled={!newMessageContent.trim()}
+                          className="px-4 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        >
+                          <Send className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex-1 flex items-center justify-center text-center p-8">
+                    <div>
+                      <Mail className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                      <p className="text-gray-500 font-medium">Select a contact</p>
+                      <p className="text-sm text-gray-400">Choose a participant to view conversation</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Auditions Modal */}
+      {showAuditionsModal && (
+        <>
+          <div className="fixed inset-0 bg-black/50 z-[60]" onClick={() => setShowAuditionsModal(false)} />
+          <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl bg-white rounded-2xl shadow-2xl z-[60] max-h-[85vh] overflow-hidden flex flex-col">
+            {/* Header */}
+            <div className="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-cyan-50 to-white shrink-0">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-cyan-100 flex items-center justify-center">
+                    <Calendar className="w-5 h-5 text-cyan-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-gray-900">Audition Bookings</h3>
+                    <p className="text-sm text-gray-500">Schedule and manage participant auditions</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setShowBookAuditionForm(true)}
+                    className="flex items-center gap-2 px-4 py-2 bg-cyan-600 text-white rounded-lg text-sm font-medium hover:bg-cyan-700 transition-colors"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Book Audition
+                  </button>
+                  <button onClick={() => setShowAuditionsModal(false)} className="p-2 rounded-lg hover:bg-gray-100 text-gray-400">
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+              
+              {/* Tabs */}
+              <div className="flex gap-1 mt-4 bg-gray-100 rounded-lg p-1 w-fit">
+                <button
+                  onClick={() => setAuditionsActiveTab("upcoming")}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                    auditionsActiveTab === "upcoming" ? "bg-white text-gray-900 shadow-sm" : "text-gray-600 hover:text-gray-900"
+                  }`}
+                >
+                  <Clock className="w-4 h-4" />
+                  Upcoming
+                  <span className="px-1.5 py-0.5 bg-cyan-100 text-cyan-700 text-[10px] font-bold rounded-full">
+                    {getUpcomingAuditionsCount()}
+                  </span>
+                </button>
+                <button
+                  onClick={() => setAuditionsActiveTab("past")}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                    auditionsActiveTab === "past" ? "bg-white text-gray-900 shadow-sm" : "text-gray-600 hover:text-gray-900"
+                  }`}
+                >
+                  <Check className="w-4 h-4" />
+                  Completed
+                </button>
+                <button
+                  onClick={() => setAuditionsActiveTab("all")}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                    auditionsActiveTab === "all" ? "bg-white text-gray-900 shadow-sm" : "text-gray-600 hover:text-gray-900"
+                  }`}
+                >
+                  <List className="w-4 h-4" />
+                  All
+                </button>
+              </div>
+            </div>
+            
+            {/* Content */}
+            <div className="flex-1 overflow-y-auto p-6">
+              {showBookAuditionForm ? (
+                // Book audition form
+                <div className="max-w-lg mx-auto">
+                  <h4 className="text-lg font-semibold text-gray-900 mb-4">Schedule New Audition</h4>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1.5">Participant *</label>
+                      <select
+                        value={newAuditionForm.participantId}
+                        onChange={(e) => setNewAuditionForm(prev => ({ ...prev, participantId: e.target.value }))}
+                        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                      >
+                        <option value="">Select participant...</option>
+                        {participants.map(p => (
+                          <option key={p.id} value={p.id}>{p.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1.5">Date *</label>
+                        <input
+                          type="date"
+                          value={newAuditionForm.date}
+                          onChange={(e) => setNewAuditionForm(prev => ({ ...prev, date: e.target.value }))}
+                          className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1.5">Time *</label>
+                        <input
+                          type="time"
+                          value={newAuditionForm.time}
+                          onChange={(e) => setNewAuditionForm(prev => ({ ...prev, time: e.target.value }))}
+                          className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1.5">Duration (minutes)</label>
+                        <select
+                          value={newAuditionForm.duration}
+                          onChange={(e) => setNewAuditionForm(prev => ({ ...prev, duration: parseInt(e.target.value) }))}
+                          className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                        >
+                          <option value={15}>15 minutes</option>
+                          <option value={30}>30 minutes</option>
+                          <option value={45}>45 minutes</option>
+                          <option value={60}>1 hour</option>
+                          <option value={90}>1.5 hours</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1.5">Type</label>
+                        <select
+                          value={newAuditionForm.type}
+                          onChange={(e) => setNewAuditionForm(prev => ({ ...prev, type: e.target.value as any }))}
+                          className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                        >
+                          <option value="in-person">In-Person</option>
+                          <option value="virtual">Virtual</option>
+                          <option value="self-tape">Self-Tape</option>
+                        </select>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1.5">Location</label>
+                      <input
+                        type="text"
+                        value={newAuditionForm.location}
+                        onChange={(e) => setNewAuditionForm(prev => ({ ...prev, location: e.target.value }))}
+                        placeholder={newAuditionForm.type === "virtual" ? "Zoom, Google Meet, etc." : "Studio name, address..."}
+                        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                      />
+                    </div>
+                    
+                    {newAuditionForm.type === "virtual" && (
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1.5">Meeting Link</label>
+                        <input
+                          type="url"
+                          value={newAuditionForm.meetingLink}
+                          onChange={(e) => setNewAuditionForm(prev => ({ ...prev, meetingLink: e.target.value }))}
+                          placeholder="https://zoom.us/j/..."
+                          className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                        />
+                      </div>
+                    )}
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1.5">Notes</label>
+                      <textarea
+                        value={newAuditionForm.notes}
+                        onChange={(e) => setNewAuditionForm(prev => ({ ...prev, notes: e.target.value }))}
+                        placeholder="Any special instructions or notes..."
+                        rows={3}
+                        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 resize-none"
+                      />
+                    </div>
+                    
+                    <div className="flex gap-2 pt-2">
+                      <button
+                        onClick={() => setShowBookAuditionForm(false)}
+                        className="flex-1 px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={handleBookAudition}
+                        disabled={!newAuditionForm.participantId || !newAuditionForm.date || !newAuditionForm.time}
+                        className="flex-1 px-4 py-2 bg-cyan-600 text-white rounded-lg text-sm font-medium hover:bg-cyan-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      >
+                        Book Audition
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                // Audition list
+                <div className="space-y-3">
+                  {auditionBookings
+                    .filter(a => {
+                      if (auditionsActiveTab === "upcoming") return a.status === "scheduled" && a.scheduledDate > Date.now()
+                      if (auditionsActiveTab === "past") return a.status === "completed" || a.scheduledDate < Date.now()
+                      return true
+                    })
+                    .sort((a, b) => auditionsActiveTab === "past" ? b.scheduledDate - a.scheduledDate : a.scheduledDate - b.scheduledDate)
+                    .map((audition) => {
+                      const participant = participants.find(p => p.id === audition.participantId)
+                      if (!participant) return null
+                      
+                      return (
+                        <div
+                          key={audition.id}
+                          className={`p-4 rounded-xl border ${
+                            audition.status === "cancelled" ? "bg-gray-50 border-gray-200 opacity-60" :
+                            audition.status === "completed" ? "bg-emerald-50 border-emerald-200" :
+                            audition.status === "no-show" ? "bg-red-50 border-red-200" :
+                            "bg-white border-gray-200 hover:border-cyan-200"
+                          } transition-colors`}
+                        >
+                          <div className="flex items-start justify-between">
+                            <div className="flex items-start gap-4">
+                              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-100 to-cyan-200 flex items-center justify-center shrink-0">
+                                <span className="text-sm font-bold text-cyan-700">
+                                  {participant.name.split(" ").map(n => n[0]).join("")}
+                                </span>
+                              </div>
+                              <div>
+                                <h4 className="text-sm font-semibold text-gray-900">{participant.name}</h4>
+                                <div className="flex items-center gap-3 mt-1 text-xs text-gray-500">
+                                  <span className="flex items-center gap-1">
+                                    <Calendar className="w-3.5 h-3.5" />
+                                    {new Date(audition.scheduledDate).toLocaleDateString()}
+                                  </span>
+                                  <span className="flex items-center gap-1">
+                                    <Clock className="w-3.5 h-3.5" />
+                                    {new Date(audition.scheduledDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                  </span>
+                                  <span className="flex items-center gap-1">
+                                    <MapPin className="w-3.5 h-3.5" />
+                                    {audition.location}
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-2 mt-2">
+                                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${
+                                    audition.type === "in-person" ? "bg-purple-100 text-purple-700" :
+                                    audition.type === "virtual" ? "bg-blue-100 text-blue-700" :
+                                    "bg-amber-100 text-amber-700"
+                                  }`}>
+                                    {audition.type === "in-person" ? "In-Person" : audition.type === "virtual" ? "Virtual" : "Self-Tape"}
+                                  </span>
+                                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${
+                                    audition.status === "scheduled" ? "bg-cyan-100 text-cyan-700" :
+                                    audition.status === "completed" ? "bg-emerald-100 text-emerald-700" :
+                                    audition.status === "cancelled" ? "bg-gray-100 text-gray-600" :
+                                    "bg-red-100 text-red-700"
+                                  }`}>
+                                    {audition.status.charAt(0).toUpperCase() + audition.status.slice(1)}
+                                  </span>
+                                  <span className="text-[10px] text-gray-400">{audition.duration} min</span>
+                                </div>
+                              </div>
+                            </div>
+                            
+                            {audition.status === "scheduled" && (
+                              <div className="flex items-center gap-1">
+                                {audition.meetingLink && (
+                                  <a
+                                    href={audition.meetingLink}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="p-2 rounded-lg hover:bg-blue-50 text-blue-600"
+                                    title="Join meeting"
+                                  >
+                                    <ExternalLink className="w-4 h-4" />
+                                  </a>
+                                )}
+                                <button
+                                  onClick={() => updateAuditionStatus(audition.id, "completed")}
+                                  className="p-2 rounded-lg hover:bg-emerald-50 text-emerald-600"
+                                  title="Mark as completed"
+                                >
+                                  <Check className="w-4 h-4" />
+                                </button>
+                                <button
+                                  onClick={() => cancelAudition(audition.id)}
+                                  className="p-2 rounded-lg hover:bg-red-50 text-red-500"
+                                  title="Cancel audition"
+                                >
+                                  <X className="w-4 h-4" />
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )
+                    })}
+                  
+                  {auditionBookings.filter(a => {
+                    if (auditionsActiveTab === "upcoming") return a.status === "scheduled" && a.scheduledDate > Date.now()
+                    if (auditionsActiveTab === "past") return a.status === "completed" || a.scheduledDate < Date.now()
+                    return true
+                  }).length === 0 && (
+                    <div className="text-center py-12">
+                      <Calendar className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                      <p className="text-gray-500 font-medium">No auditions found</p>
+                      <p className="text-sm text-gray-400">
+                        {auditionsActiveTab === "upcoming" ? "Schedule a new audition to get started" : "No auditions in this category"}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </>
