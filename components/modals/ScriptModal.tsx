@@ -1389,168 +1389,171 @@ export default function ScriptModal({ onClose }: { onClose: () => void }) {
   return (
     <div className="fixed inset-0 bg-gradient-to-br from-stone-100 via-stone-50 to-amber-50/30 z-50 flex flex-col">
       {/* Header */}
-      <header className="flex items-center justify-between px-6 py-3 bg-white border-b border-stone-200 shrink-0">
-        <div className="flex items-center gap-4">
-          <img src="/images/gogreenlight-logo.png" alt="GoGreenlight" className="h-8 w-auto" />
-          <button onClick={() => { onClose(); setTimeout(() => openModal("splashScreen"), 150) }} className="p-1.5 rounded-lg text-stone-400 hover:text-amber-600 hover:bg-amber-50 transition-colors" title="Home" aria-label="Go to Home">
-            <Home className="w-4 h-4" />
-          </button>
-          <div className="inline-flex items-center bg-amber-600 text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded">
-            Script
+      <header className="bg-white border-b border-stone-200 shrink-0">
+        {/* Top row - Logo, Home, Title, Close */}
+        <div className="flex items-center justify-between px-6 py-3">
+          <div className="flex items-center gap-4">
+            <img src="/images/gogreenlight-logo.png" alt="GoGreenlight" className="h-8 w-auto" />
+            <button onClick={() => { onClose(); setTimeout(() => openModal("splashScreen"), 150) }} className="p-1.5 rounded-lg text-stone-400 hover:text-amber-600 hover:bg-amber-50 transition-colors" title="Home" aria-label="Go to Home">
+              <Home className="w-4 h-4" />
+            </button>
+            <div className="inline-flex items-center bg-amber-600 text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded">
+              Script
+            </div>
+            {currentProject ? (
+              <span className="hidden sm:inline text-sm text-stone-500">{currentProject.name}</span>
+            ) : (
+              <span className="hidden sm:inline text-sm text-amber-600 font-medium">No project selected</span>
+            )}
           </div>
-          {currentProject ? (
-            <span className="hidden sm:inline text-sm text-stone-500">{currentProject.name}</span>
-          ) : (
-            <span className="hidden sm:inline text-sm text-amber-600 font-medium">No project selected</span>
-          )}
-          <div className="text-[10px] text-stone-400 font-medium bg-stone-100 px-2 py-0.5 rounded-full">
+          <button onClick={onClose} className="p-2 rounded-lg text-stone-500 hover:text-stone-700 hover:bg-stone-100 transition-colors" title="Close">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Toolbar row */}
+        <div className="flex items-center gap-2 px-6 py-2 bg-stone-50/80 border-t border-stone-100">
+          <div className="text-[10px] text-stone-400 font-medium bg-white px-2 py-0.5 rounded-full border border-stone-200">
             {sceneCount} scene{sceneCount !== 1 ? "s" : ""} / ~{estimatedPages} pg{estimatedPages !== 1 ? "s" : ""}
           </div>
-        </div>
-        <div className="flex items-center gap-2">
 
-        {/* Undo / Redo */}
-        <button onClick={undo} className="p-1.5 text-stone-400 hover:text-stone-700 hover:bg-stone-100 rounded-lg transition-colors" title="Undo (Ctrl+Z)">
-          <Undo2 className="w-4 h-4" />
-        </button>
-        <button onClick={redo} className="p-1.5 text-stone-400 hover:text-stone-700 hover:bg-stone-100 rounded-lg transition-colors" title="Redo (Ctrl+Shift+Z)">
-          <Redo2 className="w-4 h-4" />
-        </button>
+          <div className="w-px h-5 bg-stone-200" />
 
-        <div className="w-px h-6 bg-stone-200" />
-
-        {/* Zoom */}
-        <button onClick={() => setZoom((z) => Math.max(0.7, z - 0.1))} className="p-1.5 text-stone-400 hover:text-stone-700 hover:bg-stone-100 rounded-lg transition-colors" title="Zoom out">
-          <ZoomOut className="w-4 h-4" />
-        </button>
-        <span className="text-[10px] text-stone-500 font-mono min-w-[35px] text-center">{Math.round(zoom * 100)}%</span>
-        <button onClick={() => setZoom((z) => Math.min(1.5, z + 0.1))} className="p-1.5 text-stone-400 hover:text-stone-700 hover:bg-stone-100 rounded-lg transition-colors" title="Zoom in">
-          <ZoomIn className="w-4 h-4" />
-        </button>
-
-        <div className="w-px h-6 bg-stone-200" />
-
-        {/* Typewriter mode */}
-        <button
-          onClick={() => setTypewriterMode(!typewriterMode)}
-          className={`p-1.5 rounded-lg transition-colors ${typewriterMode ? "text-amber-600 bg-amber-50" : "text-stone-400 hover:text-stone-700 hover:bg-stone-100"}`}
-          title="Typewriter mode"
-        >
-          <AlignRight className="w-4 h-4" />
-        </button>
-
-        {/* Scene Navigator toggle */}
-        <button
-          onClick={() => setShowSceneNav(!showSceneNav)}
-          className={`p-1.5 rounded-lg transition-colors ${showSceneNav ? "text-amber-600 bg-amber-50" : "text-stone-400 hover:text-stone-700 hover:bg-stone-100"}`}
-          title="Scene navigator"
-        >
-          <List className="w-4 h-4" />
-        </button>
-
-        {/* Beat Board toggle */}
-        <button
-          onClick={() => setShowBeatBoard(!showBeatBoard)}
-          className={`flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium transition-colors border ${showBeatBoard ? "text-amber-700 bg-amber-50 border-amber-200" : "text-stone-400 hover:text-stone-700 hover:bg-stone-100 border-transparent"}`}
-          title="Beat board"
-        >
-          <LayoutGrid className="w-3.5 h-3.5" />
-          <span className="hidden lg:inline">Beats</span>
-        </button>
-
-        {/* Breakdown tagger toggle */}
-        <button
-          onClick={() => setShowBreakdownTags(!showBreakdownTags)}
-          className={`flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium transition-colors ${showBreakdownTags ? "text-violet-700 bg-violet-50 border border-violet-200" : "text-stone-400 hover:text-stone-700 hover:bg-stone-100 border border-transparent"}`}
-          title="Breakdown tagger"
-        >
-          <Tag className="w-3.5 h-3.5" />
-          <span className="hidden lg:inline">Breakdown</span>
-        </button>
-
-        {/* Search */}
-        <button
-          onClick={() => setShowSearch(!showSearch)}
-          className={`p-1.5 rounded-lg transition-colors ${showSearch ? "text-amber-600 bg-amber-50" : "text-stone-400 hover:text-stone-700 hover:bg-stone-100"}`}
-          title="Search (Ctrl+F)"
-        >
-          <Search className="w-4 h-4" />
-        </button>
-
-        {/* Script Report */}
-        <button
-          onClick={() => setShowReport(true)}
-          className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium text-stone-400 hover:text-stone-700 hover:bg-stone-100 border border-transparent transition-colors"
-          title="Script report"
-        >
-          <BarChart3 className="w-3.5 h-3.5" />
-          <span className="hidden lg:inline">Report</span>
-        </button>
-
-        {/* Shortcuts panel */}
-        <button
-          onClick={() => setShowShortcuts(!showShortcuts)}
-          className={`p-1.5 rounded-lg transition-colors ${showShortcuts ? "text-amber-600 bg-amber-50" : "text-stone-400 hover:text-stone-700 hover:bg-stone-100"}`}
-          title="Keyboard shortcuts"
-        >
-          <Keyboard className="w-4 h-4" />
-        </button>
-
-        <div className="w-px h-6 bg-stone-200" />
-
-        {/* Revision color picker */}
-        <div className="relative">
-          <button
-            onClick={() => setShowRevisionMenu(!showRevisionMenu)}
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium text-stone-500 hover:text-stone-700 hover:bg-stone-100 border border-stone-200 transition-colors"
-          >
-            <Palette className="w-3.5 h-3.5" />
-            <span className="hidden lg:inline">{REVISION_COLORS.find((r) => r.key === currentRevision)?.label.split(" ")[0]}</span>
-            <ChevronDown className="w-3 h-3" />
+          {/* Undo / Redo */}
+          <button onClick={undo} className="p-1.5 text-stone-400 hover:text-stone-700 hover:bg-white rounded-lg transition-colors" title="Undo (Ctrl+Z)">
+            <Undo2 className="w-4 h-4" />
           </button>
-          {showRevisionMenu && (
-            <div className="absolute right-0 top-full mt-1 bg-white rounded-xl shadow-xl border border-stone-200 py-1 z-30 min-w-[200px]">
-              <p className="px-3 py-1.5 text-[10px] text-stone-400 font-semibold uppercase tracking-wider">Revision Draft</p>
-              {REVISION_COLORS.map((r) => (
-                <button
-                  key={r.key}
-                  onClick={() => { setCurrentRevision(r.key); setShowRevisionMenu(false); debouncedSave() }}
-                  className={`w-full flex items-center gap-2 px-3 py-2 text-xs hover:bg-stone-50 transition-colors ${currentRevision === r.key ? "font-semibold" : ""}`}
-                >
-                  <span className={`w-4 h-4 rounded-md border border-stone-200 ${r.bg}`} />
-                  <span className={r.color}>{r.label}</span>
-                  {currentRevision === r.key && <span className="ml-auto text-amber-600">Active</span>}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
+          <button onClick={redo} className="p-1.5 text-stone-400 hover:text-stone-700 hover:bg-white rounded-lg transition-colors" title="Redo (Ctrl+Shift+Z)">
+            <Redo2 className="w-4 h-4" />
+          </button>
 
-        {/* Lock toggle */}
-        <button
-          onClick={handleLockToggle}
-          className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium transition-colors border ${locked ? "text-red-700 bg-red-50 border-red-200" : "text-stone-500 hover:text-stone-700 hover:bg-stone-100 border-stone-200"}`}
-          title={locked ? "Unlock script (unfreeze scene numbers)" : "Lock script (freeze scene numbers)"}
-        >
-          {locked ? <Lock className="w-3.5 h-3.5" /> : <Unlock className="w-3.5 h-3.5" />}
-          <span className="hidden lg:inline">{locked ? "Locked" : "Lock"}</span>
-        </button>
+          <div className="w-px h-5 bg-stone-200" />
 
-        {/* Save */}
-        <button
-          onClick={handleManualSave}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-600 text-white text-xs font-semibold rounded-lg hover:bg-amber-700 transition-colors shadow-sm"
-        >
-          <Save className="w-3.5 h-3.5" />
-          Save
-        </button>
+          {/* Zoom */}
+          <button onClick={() => setZoom((z) => Math.max(0.7, z - 0.1))} className="p-1.5 text-stone-400 hover:text-stone-700 hover:bg-white rounded-lg transition-colors" title="Zoom out">
+            <ZoomOut className="w-4 h-4" />
+          </button>
+          <span className="text-[10px] text-stone-500 font-mono min-w-[35px] text-center">{Math.round(zoom * 100)}%</span>
+          <button onClick={() => setZoom((z) => Math.min(1.5, z + 0.1))} className="p-1.5 text-stone-400 hover:text-stone-700 hover:bg-white rounded-lg transition-colors" title="Zoom in">
+            <ZoomIn className="w-4 h-4" />
+          </button>
 
-        <div className="w-px h-6 bg-stone-200" />
+          <div className="w-px h-5 bg-stone-200" />
 
-        {/* Close */}
-        <button onClick={onClose} className="p-2 rounded-lg text-stone-500 hover:text-stone-700 hover:bg-stone-100 transition-colors" title="Close">
-          <X className="w-5 h-5" />
-        </button>
+          {/* Typewriter mode */}
+          <button
+            onClick={() => setTypewriterMode(!typewriterMode)}
+            className={`p-1.5 rounded-lg transition-colors ${typewriterMode ? "text-amber-600 bg-amber-100" : "text-stone-400 hover:text-stone-700 hover:bg-white"}`}
+            title="Typewriter mode"
+          >
+            <AlignRight className="w-4 h-4" />
+          </button>
+
+          {/* Scene Navigator toggle */}
+          <button
+            onClick={() => setShowSceneNav(!showSceneNav)}
+            className={`p-1.5 rounded-lg transition-colors ${showSceneNav ? "text-amber-600 bg-amber-100" : "text-stone-400 hover:text-stone-700 hover:bg-white"}`}
+            title="Scene navigator"
+          >
+            <List className="w-4 h-4" />
+          </button>
+
+          {/* Beat Board toggle */}
+          <button
+            onClick={() => setShowBeatBoard(!showBeatBoard)}
+            className={`flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium transition-colors border ${showBeatBoard ? "text-amber-700 bg-amber-100 border-amber-200" : "text-stone-400 hover:text-stone-700 hover:bg-white border-transparent"}`}
+            title="Beat board"
+          >
+            <LayoutGrid className="w-3.5 h-3.5" />
+            <span className="hidden lg:inline">Beats</span>
+          </button>
+
+          {/* Breakdown tagger toggle */}
+          <button
+            onClick={() => setShowBreakdownTags(!showBreakdownTags)}
+            className={`flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium transition-colors ${showBreakdownTags ? "text-violet-700 bg-violet-100 border border-violet-200" : "text-stone-400 hover:text-stone-700 hover:bg-white border border-transparent"}`}
+            title="Breakdown tagger"
+          >
+            <Tag className="w-3.5 h-3.5" />
+            <span className="hidden lg:inline">Breakdown</span>
+          </button>
+
+          {/* Search */}
+          <button
+            onClick={() => setShowSearch(!showSearch)}
+            className={`p-1.5 rounded-lg transition-colors ${showSearch ? "text-amber-600 bg-amber-100" : "text-stone-400 hover:text-stone-700 hover:bg-white"}`}
+            title="Search (Ctrl+F)"
+          >
+            <Search className="w-4 h-4" />
+          </button>
+
+          {/* Script Report */}
+          <button
+            onClick={() => setShowReport(true)}
+            className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium text-stone-400 hover:text-stone-700 hover:bg-white border border-transparent transition-colors"
+            title="Script report"
+          >
+            <BarChart3 className="w-3.5 h-3.5" />
+            <span className="hidden lg:inline">Report</span>
+          </button>
+
+          {/* Shortcuts panel */}
+          <button
+            onClick={() => setShowShortcuts(!showShortcuts)}
+            className={`p-1.5 rounded-lg transition-colors ${showShortcuts ? "text-amber-600 bg-amber-100" : "text-stone-400 hover:text-stone-700 hover:bg-white"}`}
+            title="Keyboard shortcuts"
+          >
+            <Keyboard className="w-4 h-4" />
+          </button>
+
+          <div className="flex-1" />
+
+          {/* Revision color picker */}
+          <div className="relative">
+            <button
+              onClick={() => setShowRevisionMenu(!showRevisionMenu)}
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium text-stone-500 hover:text-stone-700 hover:bg-white border border-stone-200 transition-colors"
+            >
+              <Palette className="w-3.5 h-3.5" />
+              <span className="hidden lg:inline">{REVISION_COLORS.find((r) => r.key === currentRevision)?.label.split(" ")[0]}</span>
+              <ChevronDown className="w-3 h-3" />
+            </button>
+            {showRevisionMenu && (
+              <div className="absolute right-0 top-full mt-1 bg-white rounded-xl shadow-xl border border-stone-200 py-1 z-30 min-w-[200px]">
+                <p className="px-3 py-1.5 text-[10px] text-stone-400 font-semibold uppercase tracking-wider">Revision Draft</p>
+                {REVISION_COLORS.map((r) => (
+                  <button
+                    key={r.key}
+                    onClick={() => { setCurrentRevision(r.key); setShowRevisionMenu(false); debouncedSave() }}
+                    className={`w-full flex items-center gap-2 px-3 py-2 text-xs hover:bg-stone-50 transition-colors ${currentRevision === r.key ? "font-semibold" : ""}`}
+                  >
+                    <span className={`w-4 h-4 rounded-md border border-stone-200 ${r.bg}`} />
+                    <span className={r.color}>{r.label}</span>
+                    {currentRevision === r.key && <span className="ml-auto text-amber-600">Active</span>}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Lock toggle */}
+          <button
+            onClick={handleLockToggle}
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium transition-colors border ${locked ? "text-red-700 bg-red-50 border-red-200" : "text-stone-500 hover:text-stone-700 hover:bg-white border-stone-200"}`}
+            title={locked ? "Unlock script (unfreeze scene numbers)" : "Lock script (freeze scene numbers)"}
+          >
+            {locked ? <Lock className="w-3.5 h-3.5" /> : <Unlock className="w-3.5 h-3.5" />}
+            <span className="hidden lg:inline">{locked ? "Locked" : "Lock"}</span>
+          </button>
+
+          {/* Save */}
+          <button
+            onClick={handleManualSave}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-600 text-white text-xs font-semibold rounded-lg hover:bg-amber-700 transition-colors shadow-sm"
+          >
+            <Save className="w-3.5 h-3.5" />
+            Save
+          </button>
         </div>
       </header>
 
