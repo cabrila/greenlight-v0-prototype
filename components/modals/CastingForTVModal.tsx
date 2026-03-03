@@ -981,8 +981,25 @@ const renderParticipantCard = (participant: Participant, compact = false) => {
 }
 
   const renderPipelineView = () => (
-    <div className="flex-1 overflow-x-auto">
-      <div className="flex gap-3 p-4 min-w-max h-full">
+    <div className="flex-1 flex flex-col overflow-hidden">
+      {/* Pipeline header with Advanced button */}
+      <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between shrink-0 bg-white">
+        <div className="flex items-center gap-2">
+          <Columns className="w-4 h-4 text-cyan-600" />
+          <h3 className="text-sm font-semibold text-gray-700">Pipeline Stages</h3>
+          <span className="text-xs text-gray-400">({participants.length} total)</span>
+        </div>
+        <button
+          onClick={() => setShowAdvancedSettings(true)}
+          className="flex items-center gap-1.5 px-3 py-1.5 border border-gray-200 rounded-lg text-xs font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-colors"
+        >
+          <Settings className="w-3.5 h-3.5" />
+          Advanced
+        </button>
+      </div>
+      
+      <div className="flex-1 overflow-x-auto">
+        <div className="flex gap-3 p-4 min-w-max h-full">
 {funnelStages.map((stage) => {
         const stageParticipants = participantsByStage[stage.id] || []
           const isOver = dragOverStage === stage.id
@@ -1025,6 +1042,7 @@ const renderParticipantCard = (participant: Participant, compact = false) => {
             </div>
           )
         })}
+        </div>
       </div>
     </div>
   )
@@ -1395,15 +1413,6 @@ const renderGridView = () => (
               </>
             )}
           </div>
-
-          {/* Advanced button */}
-          <button
-            onClick={() => setShowAdvancedSettings(true)}
-            className="flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-50 transition-colors"
-          >
-            <Settings className="w-4 h-4" />
-            Advanced
-          </button>
 
           <button
             onClick={onClose}
