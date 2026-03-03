@@ -210,7 +210,7 @@ function CharacterCardInner({
                     style={{ marginLeft: i > 0 ? "-6px" : "0", zIndex: 4 - i }}
                     title={actor.name}
                   >
-                    <img src={actor.headshots[0]} alt={actor.name} className="w-full h-full object-cover" crossOrigin="anonymous" />
+                    {actor.headshots?.[0] ? <img src={actor.headshots[0]} alt={actor.name} className="w-full h-full object-cover" crossOrigin="anonymous" /> : <div className="w-full h-full flex items-center justify-center"><User className="w-3 h-3 text-slate-500" /></div>}
                   </div>
                 ))}
                 {actorsWithPhotos.length > 4 && (
@@ -278,7 +278,7 @@ function CharacterCardInner({
           if (primaryGreenlit) {
             return (
               <>
-                <img src={primaryGreenlit.headshots[0]} alt={primaryGreenlit.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" crossOrigin="anonymous" />
+                {primaryGreenlit.headshots?.[0] ? <img src={primaryGreenlit.headshots[0]} alt={primaryGreenlit.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" crossOrigin="anonymous" /> : <div className="w-full h-full flex items-center justify-center bg-slate-100"><User className="w-12 h-12 text-slate-400" /></div>}
                 {otherActors.length > 0 && <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/50 to-transparent" />}
                 {otherActors.length > 0 && (
                   <div className="absolute bottom-2.5 left-3 flex items-center">
@@ -303,7 +303,7 @@ function CharacterCardInner({
               <div className="w-full h-full grid gap-[2px]" style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}>
                 {tiles.map((actor) => (
                   <div key={actor.id} className="relative overflow-hidden bg-slate-200" title={actor.name}>
-                    <img src={actor.headshots[0]} alt={actor.name} className="w-full h-full object-cover transition-transform duration-300 hover:scale-110" crossOrigin="anonymous" />
+                    {actor.headshots?.[0] ? <img src={actor.headshots[0]} alt={actor.name} className="w-full h-full object-cover transition-transform duration-300 hover:scale-110" crossOrigin="anonymous" /> : <div className="w-full h-full flex items-center justify-center"><User className="w-6 h-6 text-slate-400" /></div>}
                   </div>
                 ))}
                 {overflow > 0 && <div className="absolute bottom-2 right-2 px-2 py-0.5 bg-slate-900/60 backdrop-blur-sm text-white text-[10px] font-semibold rounded-md">+{overflow} more</div>}

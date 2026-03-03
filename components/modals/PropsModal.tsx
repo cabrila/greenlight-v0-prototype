@@ -836,7 +836,13 @@ function InventoryCard({ item, isInProject, onToggleAdd, onEdit, onImageReplace,
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
         >
-          <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
+          {item.imageUrl ? (
+            <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-gray-100">
+              <Package className="w-6 h-6 text-gray-300" />
+            </div>
+          )}
           {isDragOver && (
             <div className="absolute inset-0 bg-emerald-500/30 flex items-center justify-center">
               <Upload className="w-5 h-5 text-white" />
@@ -1004,7 +1010,11 @@ function ProjectPropCard({ item, onVote, onAddComment, onRemove, onAddToCanvas, 
       <div className="flex items-stretch">
         {/* Image */}
         <div className="w-24 sm:w-32 shrink-0 bg-gray-100 overflow-hidden flex items-center justify-center">
-          <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
+          {item.imageUrl ? (
+            <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
+          ) : (
+            <Package className="w-6 h-6 text-gray-300" />
+          )}
         </div>
 
         {/* Content area */}
@@ -1113,8 +1123,12 @@ function InventoryListRow({ item, isInProject, onToggleAdd, onEdit, onDelete, ha
   const isBooked = !!item.bookedTo
   return (
     <div className={`flex items-center gap-4 px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors ${isInProject ? "bg-emerald-50/40" : ""}`}>
-      <div className="w-12 h-12 shrink-0 rounded-lg bg-gray-100 overflow-hidden">
-        <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
+      <div className="w-12 h-12 shrink-0 rounded-lg bg-gray-100 overflow-hidden flex items-center justify-center">
+        {item.imageUrl ? (
+          <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
+        ) : (
+          <Package className="w-5 h-5 text-gray-300" />
+        )}
       </div>
       <div className="flex-1 min-w-0">
         <p className="text-sm font-medium text-gray-900 truncate">{item.name}</p>
@@ -1171,8 +1185,12 @@ function ProjectListRow({ item, onVote, onAddComment, onRemove, onAddToCanvas, o
   return (
     <div className="px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors">
       <div className="flex items-center gap-4">
-        <div className="w-12 h-12 shrink-0 rounded-lg bg-gray-100 overflow-hidden">
-          <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
+        <div className="w-12 h-12 shrink-0 rounded-lg bg-gray-100 overflow-hidden flex items-center justify-center">
+          {item.imageUrl ? (
+            <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
+          ) : (
+            <Package className="w-5 h-5 text-gray-300" />
+          )}
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium text-gray-900 truncate">{item.name}</p>
@@ -2050,7 +2068,11 @@ function PropsCrossPlotTab({
                                     : "bg-emerald-50 border border-emerald-200 hover:border-emerald-300"
                                 }`}
                               >
-                                <img src={p.imageUrl} alt="" className="w-7 h-7 rounded-md object-cover shrink-0" />
+                                {p.imageUrl ? (
+                                  <img src={p.imageUrl} alt="" className="w-7 h-7 rounded-md object-cover shrink-0" />
+                                ) : (
+                                  <div className="w-7 h-7 rounded-md bg-gray-100 flex items-center justify-center shrink-0"><Package className="w-3.5 h-3.5 text-gray-300" /></div>
+                                )}
                                 <div className="min-w-0 flex-1">
                                   <p className="font-medium text-gray-900 truncate text-[11px]">{p.name}</p>
                                   <p className="text-gray-500 text-[9px]">{p.category}</p>

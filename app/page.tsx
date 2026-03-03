@@ -48,19 +48,17 @@ function CastingAppContent() {
   useEffect(() => {
     const FIRST_VISIT_KEY = "gogreenlight-first-visit-complete"
     const CACHE_CLEARED_KEY = "gogreenlight-cache-cleared"
-    const PLACEHOLDER_SANITIZED_KEY = "gogreenlight-placeholder-sanitized-v2"
+    const PLACEHOLDER_SANITIZED_KEY = "gogreenlight-placeholder-sanitized-v5"
 
     if (typeof window !== "undefined") {
-      // One-time sanitization of placeholder.svg URLs from localStorage
+      // One-time full localStorage clear to remove any corrupted image data
       if (!window.localStorage.getItem(PLACEHOLDER_SANITIZED_KEY)) {
         try {
-          const keysToCheck = Object.keys(localStorage).filter(
-            (k) => k.startsWith("canvas-") || k.startsWith("greenlight-")
-          )
-          for (const key of keysToCheck) {
-            const value = localStorage.getItem(key)
-            if (value && value.includes("placeholder.svg")) {
-              // Remove entries with placeholder.svg to force fresh data
+          // Clear all localStorage except our own tracking keys
+          const keysToKeep = ["gogreenlight-first-visit-complete", "gogreenlight-cache-cleared"]
+          const allKeys = Object.keys(localStorage)
+          for (const key of allKeys) {
+            if (!keysToKeep.includes(key) && !key.startsWith("gogreenlight-placeholder-sanitized")) {
               localStorage.removeItem(key)
             }
           }

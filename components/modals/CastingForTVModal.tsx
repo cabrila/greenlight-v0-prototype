@@ -58,6 +58,7 @@ import {
   Tag,
   FolderPlus,
   Check,
+  ImagePlus,
 } from "lucide-react"
 
 interface CastingForTVModalProps {
@@ -284,6 +285,10 @@ export default function CastingForTVModal({ onClose }: CastingForTVModalProps) {
   const [showArchetypeDropdown, setShowArchetypeDropdown] = useState(false)
   const [newArchetypeName, setNewArchetypeName] = useState("")
   const [showAddArchetypeInput, setShowAddArchetypeInput] = useState(false)
+  
+  // Image drag-drop state
+  const [dragOverParticipantId, setDragOverParticipantId] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const currentProject = state.projects.find((p) => p.id === state.currentFocus.currentProjectId)
   const isNonFictionProject = currentProject?.details.type === "Non-Fiction TV"
@@ -419,6 +424,73 @@ export default function CastingForTVModal({ onClose }: CastingForTVModalProps) {
     setShowEditModal(true)
   }
 
+  // Handle image file to base64
+  const handleImageFile = (file: File, participantId: string) => {
+    if (!file.type.startsWith("image/")) return
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      const base64 = e.target?.result as string
+      setParticipants((prev) =>
+        prev.map((p) => (p.id === participantId ? { ...p, photo: base64 } : p))
+      )
+      // Also update editing participant if it's the same
+      if (editingParticipant?.id === participantId) {
+        setEditingParticipant((prev) => prev ? { ...prev, photo: base64 } : null)
+      }
+      // Update selected participant if it's the same
+      if (selectedParticipant?.id === participantId) {
+        setSelectedParticipant((prev) => prev ? { ...prev, photo: base64 } : null)
+      }
+    }
+    reader.readAsDataURL(file)
+  }
+
+  // Handle drag over for participant image
+  const handleImageDragOver = (e: React.DragEvent, participantId: string) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setDragOverParticipantId(participantId)
+  }
+
+  // Handle drag leave for participant image
+  const handleImageDragLeave = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setDragOverParticipantId(null)
+  }
+
+  // Handle drop on participant image
+  const handleImageDrop = (e: React.DragEvent, participantId: string) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setDragOverParticipantId(null)
+    const files = e.dataTransfer.files
+    if (files.length > 0) {
+      handleImageFile(files[0], participantId)
+    }
+  }
+
+  // Handle file input change for edit modal
+  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files
+    if (files && files.length > 0 && editingParticipant) {
+      handleImageFile(files[0], editingParticipant.id)
+    }
+  }
+
+  // Remove photo
+  const removePhoto = (participantId: string) => {
+    setParticipants((prev) =>
+      prev.map((p) => (p.id === participantId ? { ...p, photo: undefined } : p))
+    )
+    if (editingParticipant?.id === participantId) {
+      setEditingParticipant((prev) => prev ? { ...prev, photo: undefined } : null)
+    }
+    if (selectedParticipant?.id === participantId) {
+      setSelectedParticipant((prev) => prev ? { ...prev, photo: undefined } : null)
+    }
+  }
+
   const formatDate = (timestamp: number) => {
     const date = new Date(timestamp)
     const now = new Date()
@@ -453,8 +525,18 @@ export default function CastingForTVModal({ onClose }: CastingForTVModalProps) {
         {/* Header with photo and name */}
         <div className="flex items-start gap-3">
           <div className="relative">
-            <div className={`${compact ? "w-10 h-10" : "w-12 h-12"} rounded-lg bg-gradient-to-br from-cyan-100 to-cyan-200 flex items-center justify-center text-cyan-700 font-bold text-sm overflow-hidden`}>
-              {participant.photo ? (
+            <div 
+              className={`${compact ? "w-10 h-10" : "w-12 h-12"} rounded-lg bg-gradient-to-br from-cyan-100 to-cyan-200 flex items-center justify-center text-cyan-700 font-bold text-sm overflow-hidden cursor-pointer transition-all ${
+                dragOverParticipantId === participant.id ? "ring-2 ring-cyan-500 ring-offset-2 scale-105" : ""
+              }`}
+              onDragOver={(e) => handleImageDragOver(e, participant.id)}
+              onDragLeave={handleImageDragLeave}
+              onDrop={(e) => handleImageDrop(e, participant.id)}
+              title="Drop image to add photo"
+            >
+              {dragOverParticipantId === participant.id ? (
+                <ImagePlus className="w-5 h-5 text-cyan-600 animate-pulse" />
+              ) : participant.photo ? (
                 <img src={participant.photo} alt={participant.name} className="w-full h-full object-cover" />
               ) : (
                 participant.name.split(" ").map((n) => n[0]).join("")
@@ -612,8 +694,18 @@ export default function CastingForTVModal({ onClose }: CastingForTVModalProps) {
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {/* Profile header */}
           <div className="text-center">
-            <div className="w-20 h-20 rounded-xl bg-gradient-to-br from-cyan-100 to-cyan-200 flex items-center justify-center text-cyan-700 font-bold text-2xl mx-auto mb-3 overflow-hidden">
-              {p.photo ? (
+            <div 
+              className={`w-20 h-20 rounded-xl bg-gradient-to-br from-cyan-100 to-cyan-200 flex items-center justify-center text-cyan-700 font-bold text-2xl mx-auto mb-3 overflow-hidden cursor-pointer transition-all ${
+                dragOverParticipantId === p.id ? "ring-2 ring-cyan-500 ring-offset-2 scale-105" : ""
+              }`}
+              onDragOver={(e) => handleImageDragOver(e, p.id)}
+              onDragLeave={handleImageDragLeave}
+              onDrop={(e) => handleImageDrop(e, p.id)}
+              title="Drop image to add photo"
+            >
+              {dragOverParticipantId === p.id ? (
+                <ImagePlus className="w-8 h-8 text-cyan-600 animate-pulse" />
+              ) : p.photo ? (
                 <img src={p.photo} alt={p.name} className="w-full h-full object-cover" />
               ) : (
                 p.name.split(" ").map((n) => n[0]).join("")
@@ -1525,6 +1617,69 @@ export default function CastingForTVModal({ onClose }: CastingForTVModalProps) {
               </button>
             </div>
             <div className="flex-1 overflow-y-auto p-4 space-y-6">
+              {/* Photo Upload */}
+              <div>
+                <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                  <Camera className="w-4 h-4" />
+                  Photo
+                </h4>
+                <div className="flex items-start gap-4">
+                  <div 
+                    className={`w-24 h-24 rounded-xl bg-gradient-to-br from-cyan-100 to-cyan-200 flex items-center justify-center text-cyan-700 font-bold text-2xl overflow-hidden cursor-pointer transition-all border-2 border-dashed ${
+                      dragOverParticipantId === editingParticipant.id 
+                        ? "border-cyan-500 ring-2 ring-cyan-500 ring-offset-2 scale-105" 
+                        : "border-transparent hover:border-cyan-300"
+                    }`}
+                    onDragOver={(e) => handleImageDragOver(e, editingParticipant.id)}
+                    onDragLeave={handleImageDragLeave}
+                    onDrop={(e) => handleImageDrop(e, editingParticipant.id)}
+                    onClick={() => fileInputRef.current?.click()}
+                    title="Click or drop image to add photo"
+                  >
+                    {dragOverParticipantId === editingParticipant.id ? (
+                      <ImagePlus className="w-8 h-8 text-cyan-600 animate-pulse" />
+                    ) : editingParticipant.photo ? (
+                      <img src={editingParticipant.photo} alt={editingParticipant.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="text-center">
+                        <ImagePlus className="w-6 h-6 mx-auto mb-1 text-cyan-400" />
+                        <span className="text-xs text-cyan-500">Add Photo</span>
+                      </div>
+                    )}
+                  </div>
+                  <input 
+                    ref={fileInputRef}
+                    type="file" 
+                    accept="image/*" 
+                    onChange={handleFileInputChange}
+                    className="hidden" 
+                  />
+                  <div className="flex-1 space-y-2">
+                    <p className="text-xs text-gray-500">
+                      Drag and drop an image or click the photo area to upload.
+                    </p>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="px-3 py-1.5 text-xs font-medium text-cyan-700 bg-cyan-50 rounded-lg hover:bg-cyan-100 transition-colors"
+                      >
+                        Choose File
+                      </button>
+                      {editingParticipant.photo && (
+                        <button
+                          type="button"
+                          onClick={() => removePhoto(editingParticipant.id)}
+                          className="px-3 py-1.5 text-xs font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
+                        >
+                          Remove
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               {/* Basic Info */}
               <div className="grid grid-cols-2 gap-4">
                 <div>

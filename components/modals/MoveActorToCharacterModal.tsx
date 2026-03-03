@@ -90,15 +90,18 @@ export default function MoveActorToCharacterModal({
           <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 bg-gray-200 dark:bg-gray-600 rounded-full flex items-center justify-center">
-                {actor.headshots && actor.headshots.length > 0 ? (
-                  <img
-                    src={actor.headshots[actor.currentCardHeadshotIndex] || actor.headshots[0]}
-                    alt={actor.name}
-                    className="w-12 h-12 rounded-full object-cover"
-                  />
-                ) : (
-                  <Users className="h-6 w-6 text-gray-400" />
-                )}
+                {(() => {
+                  const imgSrc = actor.headshots?.[actor.currentCardHeadshotIndex] || actor.headshots?.[0]
+                  return imgSrc && !imgSrc.includes("placeholder.svg") ? (
+                    <img
+                      src={imgSrc}
+                      alt={actor.name}
+                      className="w-12 h-12 rounded-full object-cover"
+                    />
+                  ) : (
+                    <Users className="h-6 w-6 text-gray-400" />
+                  )
+                })()}
               </div>
               <div>
                 <h3 className="font-medium text-gray-900 dark:text-white">{actor.name}</h3>
