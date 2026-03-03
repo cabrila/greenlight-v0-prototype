@@ -948,7 +948,7 @@ function InteractiveMap({
           <>
             {/* Default: show first image */}
             {!isHovered ? (
-              {isValidImageUrl(loc.media[0]?.url) ? <img src={loc.media[0].url} alt={loc.name} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center bg-gray-100"><MapPin className="w-8 h-8 text-gray-300" /></div>}
+              isValidImageUrl(loc.media[0]?.url) ? <img src={loc.media[0].url} alt={loc.name} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center bg-gray-100"><MapPin className="w-8 h-8 text-gray-300" /></div>
             ) : (
               /* Hover: show mini carousel of top 3 */
               <HoverPreviewOverlay media={loc.media} />
@@ -1147,7 +1147,7 @@ function LocationListRow({ loc, isSelected, isInProject, onSelect, onToggleAdd, 
       {/* Thumbnail */}
       <div className="w-16 h-16 rounded-lg bg-gray-100 overflow-hidden shrink-0">
         {loc.media.length > 0 ? (
-          {isValidImageUrl(loc.media[0]?.url) ? <img src={loc.media[0].url} alt={loc.name} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center bg-gray-100"><MapPin className="w-8 h-8 text-gray-300" /></div>}
+          isValidImageUrl(loc.media[0]?.url) ? <img src={loc.media[0].url} alt={loc.name} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center bg-gray-100"><MapPin className="w-8 h-8 text-gray-300" /></div>
         ) : (
           <div className="w-full h-full flex items-center justify-center text-gray-300">
             <MapPin className="w-5 h-5" />
