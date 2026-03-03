@@ -78,6 +78,13 @@ import {
   ChevronLeft,
   SkipBack,
   SkipForward,
+  Sparkles,
+  Heart,
+  Mic,
+  Zap,
+  Fingerprint,
+  Target as TargetIcon,
+  Gauge,
 } from "lucide-react"
 
 interface CastingForTVModalProps {
@@ -155,6 +162,27 @@ interface CastList {
 }
 
 // Mock participant data for Non-Fiction TV
+// Scoring parameters for detailed evaluation
+interface ScoringParameter {
+  id: string
+  name: string
+  description: string
+  icon: string
+}
+
+interface ParticipantScores {
+  [parameterId: string]: number
+}
+
+const SCORING_PARAMETERS: ScoringParameter[] = [
+  { id: "presence", name: "Screen Presence", description: "Charisma and on-camera appeal", icon: "sparkles" },
+  { id: "authenticity", name: "Authenticity", description: "Genuine and relatable personality", icon: "heart" },
+  { id: "communication", name: "Communication", description: "Articulation and storytelling ability", icon: "mic" },
+  { id: "conflict", name: "Conflict Potential", description: "Ability to create compelling drama", icon: "zap" },
+  { id: "relatability", name: "Relatability", description: "Appeal to target audience", icon: "users" },
+  { id: "uniqueness", name: "Uniqueness", description: "Distinctive qualities and background", icon: "fingerprint" },
+]
+
 // Video embed type for participants
 interface ParticipantVideo {
   id: string
@@ -428,6 +456,10 @@ const [globalSortDirection, setGlobalSortDirection] = useState<"asc" | "desc">("
   const [showPasswordFor, setShowPasswordFor] = useState<string | null>(null)
   const [passwordInput, setPasswordInput] = useState("")
   
+  // Detailed scoring state
+  const [showScoringPanel, setShowScoringPanel] = useState<string | null>(null) // participant ID
+  const [participantDetailedScores, setParticipantDetailedScores] = useState<Record<string, ParticipantScores>>({})
+  
   // Player View state
   const [showPlayerView, setShowPlayerView] = useState(false)
   const [playerViewIndex, setPlayerViewIndex] = useState(0)
@@ -545,9 +577,61 @@ const [globalSortDirection, setGlobalSortDirection] = useState<"asc" | "desc">("
 
   // Update participant score
   const updateParticipantScore = (participantId: string, score: number) => {
-    setParticipants(prev => prev.map(p => 
-      p.id === participantId ? { ...p, score: Math.max(0, Math.min(10, score)) } : p
-    ))
+  setParticipants(prev => prev.map(p =>
+  p.id === participantId ? { ...p, score: Math.max(0, Math.min(10, score)) } : p
+  ))
+  }
+
+  // Detailed scoring functions
+  const getScoreIcon = (iconName: string) => {
+    switch (iconName) {
+      case "sparkles": return <Sparkles className="w-4 h-4" />
+      case "heart": return <Heart className="w-4 h-4" />
+      case "mic": return <Mic className="w-4 h-4" />
+      case "zap": return <Zap className="w-4 h-4" />
+      case "users": return <Users className="w-4 h-4" />
+      case "fingerprint": return <Fingerprint className="w-4 h-4" />
+      default: return <TargetIcon className="w-4 h-4" />
+    }
+  }
+
+  const updateDetailedScore = (participantId: string, parameterId: string, value: number) => {
+    setParticipantDetailedScores(prev => ({
+      ...prev,
+      [participantId]: {
+        ...(prev[participantId] || {}),
+        [parameterId]: value
+      }
+    }))
+    
+    // Calculate and update the overall score
+    const newScores = {
+      ...(participantDetailedScores[participantId] || {}),
+      [parameterId]: value
+    }
+    const scoredParams = Object.values(newScores).filter(v => v > 0)
+    if (scoredParams.length > 0) {
+      const avgScore = scoredParams.reduce((a, b) => a + b, 0) / scoredParams.length
+      updateParticipantScore(participantId, avgScore)
+    }
+  }
+
+  const getDetailedScore = (participantId: string, parameterId: string): number => {
+    return participantDetailedScores[participantId]?.[parameterId] || 0
+  }
+
+  const getAverageDetailedScore = (participantId: string): number | null => {
+    const scores = participantDetailedScores[participantId]
+    if (!scores) return null
+    const values = Object.values(scores).filter(v => v > 0)
+    if (values.length === 0) return null
+    return values.reduce((a, b) => a + b, 0) / values.length
+  }
+
+  const getScoredParameterCount = (participantId: string): number => {
+    const scores = participantDetailedScores[participantId]
+    if (!scores) return 0
+    return Object.values(scores).filter(v => v > 0).length
   }
 
   // Update list sort settings
@@ -1215,26 +1299,23 @@ const renderParticipantCard = (participant: Participant, compact = false) => {
                 </div>
               )}
             </div>
-            <div className="flex items-center gap-1 group/score">
-              <button
-                onClick={(e) => { e.stopPropagation(); updateParticipantScore(participant.id, (participant.score || 5) - 0.5) }}
-                className="p-0.5 rounded text-gray-300 hover:text-emerald-600 hover:bg-emerald-50 opacity-0 group-hover/score:opacity-100 transition-opacity"
-                title="Decrease score"
-              >
-                <ChevronDown className="w-3 h-3" />
-              </button>
-              <div className="flex items-center gap-0.5 cursor-pointer hover:bg-emerald-50 px-1 rounded transition-colors" title="Click to edit score">
-                <BarChart3 className="w-3 h-3 text-emerald-600" />
-                <span className="text-xs font-semibold text-emerald-700">{participant.score?.toFixed(1) || "—"}</span>
-              </div>
-              <button
-                onClick={(e) => { e.stopPropagation(); updateParticipantScore(participant.id, (participant.score || 5) + 0.5) }}
-                className="p-0.5 rounded text-gray-300 hover:text-emerald-600 hover:bg-emerald-50 opacity-0 group-hover/score:opacity-100 transition-opacity"
-                title="Increase score"
-              >
-                <ChevronUp className="w-3 h-3" />
-              </button>
-            </div>
+            <button
+              onClick={(e) => { e.stopPropagation(); setShowScoringPanel(showScoringPanel === participant.id ? null : participant.id) }}
+              className={`flex items-center gap-1.5 px-2 py-1 rounded-lg transition-all ${
+                showScoringPanel === participant.id 
+                  ? "bg-emerald-100 text-emerald-700 ring-2 ring-emerald-300" 
+                  : "hover:bg-emerald-50 text-emerald-600"
+              }`}
+              title="Open detailed scoring"
+            >
+              <Gauge className="w-3.5 h-3.5" />
+              <span className="text-xs font-semibold">{participant.score?.toFixed(1) || "—"}</span>
+              {getScoredParameterCount(participant.id) > 0 && (
+                <span className="text-[9px] bg-emerald-200 text-emerald-800 px-1 rounded">
+                  {getScoredParameterCount(participant.id)}/{SCORING_PARAMETERS.length}
+                </span>
+              )}
+            </button>
           </div>
         )}
 
@@ -3466,6 +3547,132 @@ const renderGridView = () => (
           </div>
         </>
       )}
+
+      {/* Detailed Scoring Panel */}
+      {showScoringPanel && (() => {
+        const scoringParticipant = participants.find(p => p.id === showScoringPanel)
+        if (!scoringParticipant) return null
+        return (
+          <>
+            <div className="fixed inset-0 bg-black/40 z-[60]" onClick={() => setShowScoringPanel(null)} />
+            <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-xl bg-white rounded-2xl shadow-2xl z-[60] max-h-[85vh] overflow-hidden flex flex-col">
+              {/* Header */}
+              <div className="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-emerald-50 to-white shrink-0">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-100 to-emerald-200 flex items-center justify-center">
+                      <Gauge className="w-6 h-6 text-emerald-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-gray-900">Score {scoringParticipant.name}</h3>
+                      <p className="text-sm text-gray-500">Rate each evaluation parameter</p>
+                    </div>
+                  </div>
+                  <button onClick={() => setShowScoringPanel(null)} className="p-2 rounded-lg hover:bg-gray-100 text-gray-400">
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+              
+              {/* Scoring content */}
+              <div className="flex-1 overflow-y-auto p-6 space-y-5">
+                {SCORING_PARAMETERS.map((param) => {
+                  const currentScore = getDetailedScore(scoringParticipant.id, param.id)
+                  return (
+                    <div key={param.id} className="group">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-emerald-600">{getScoreIcon(param.icon)}</span>
+                          <span className="text-sm font-semibold text-gray-800">{param.name}</span>
+                        </div>
+                        <span className={`text-lg font-bold ${currentScore > 0 ? "text-emerald-600" : "text-gray-300"}`}>
+                          {currentScore > 0 ? currentScore.toFixed(0) : "—"}
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-500 mb-2">{param.description}</p>
+                      
+                      {/* Score slider with numbered buttons */}
+                      <div className="flex items-center gap-1">
+                        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((value) => (
+                          <button
+                            key={value}
+                            onClick={() => updateDetailedScore(scoringParticipant.id, param.id, value)}
+                            className={`flex-1 h-8 rounded-md text-xs font-semibold transition-all ${
+                              currentScore === value
+                                ? "bg-emerald-500 text-white shadow-md scale-105"
+                                : currentScore > 0 && value <= currentScore
+                                ? "bg-emerald-100 text-emerald-700"
+                                : "bg-gray-100 text-gray-500 hover:bg-emerald-50 hover:text-emerald-600"
+                            }`}
+                          >
+                            {value}
+                          </button>
+                        ))}
+                      </div>
+                      
+                      {/* Progress bar visualization */}
+                      <div className="mt-2 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                        <div 
+                          className="h-full bg-gradient-to-r from-emerald-400 to-emerald-600 transition-all duration-300 rounded-full"
+                          style={{ width: `${currentScore * 10}%` }}
+                        />
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+              
+              {/* Footer with average */}
+              <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 shrink-0">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="text-sm text-gray-600">
+                      <span className="font-medium">{getScoredParameterCount(scoringParticipant.id)}</span>
+                      <span className="text-gray-400"> of {SCORING_PARAMETERS.length} scored</span>
+                    </div>
+                    {getScoredParameterCount(scoringParticipant.id) > 0 && (
+                      <button
+                        onClick={() => {
+                          setParticipantDetailedScores(prev => {
+                            const newScores = { ...prev }
+                            delete newScores[scoringParticipant.id]
+                            return newScores
+                          })
+                          updateParticipantScore(scoringParticipant.id, 0)
+                        }}
+                        className="text-xs text-gray-400 hover:text-red-500 transition-colors"
+                      >
+                        Reset all
+                      </button>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm text-gray-500">Average Score:</span>
+                    <div className={`flex items-center gap-1.5 px-4 py-2 rounded-xl ${
+                      getAverageDetailedScore(scoringParticipant.id) 
+                        ? "bg-emerald-100" 
+                        : "bg-gray-100"
+                    }`}>
+                      <BarChart3 className={`w-5 h-5 ${
+                        getAverageDetailedScore(scoringParticipant.id) 
+                          ? "text-emerald-600" 
+                          : "text-gray-400"
+                      }`} />
+                      <span className={`text-xl font-bold ${
+                        getAverageDetailedScore(scoringParticipant.id) 
+                          ? "text-emerald-700" 
+                          : "text-gray-400"
+                      }`}>
+                        {getAverageDetailedScore(scoringParticipant.id)?.toFixed(1) || "—"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </>
+        )
+      })()}
 
       {/* Player View Modal */}
       {showPlayerView && currentPlayerParticipant && (
