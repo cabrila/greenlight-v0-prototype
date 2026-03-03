@@ -3,6 +3,7 @@
 import { useState, useMemo, useRef, useEffect } from "react"
 import { useCasting } from "@/components/casting/CastingContext"
 import { openModal } from "./ModalManager"
+import { isValidImageUrl } from "@/lib/utils"
 import {
   X,
   Home,
@@ -536,7 +537,7 @@ export default function CastingForTVModal({ onClose }: CastingForTVModalProps) {
             >
               {dragOverParticipantId === participant.id ? (
                 <ImagePlus className="w-5 h-5 text-cyan-600 animate-pulse" />
-              ) : participant.photo ? (
+              ) : isValidImageUrl(participant.photo) ? (
                 <img src={participant.photo} alt={participant.name} className="w-full h-full object-cover" />
               ) : (
                 participant.name.split(" ").map((n) => n[0]).join("")
@@ -705,7 +706,7 @@ export default function CastingForTVModal({ onClose }: CastingForTVModalProps) {
             >
               {dragOverParticipantId === p.id ? (
                 <ImagePlus className="w-8 h-8 text-cyan-600 animate-pulse" />
-              ) : p.photo ? (
+              ) : isValidImageUrl(p.photo) ? (
                 <img src={p.photo} alt={p.name} className="w-full h-full object-cover" />
               ) : (
                 p.name.split(" ").map((n) => n[0]).join("")
@@ -1638,7 +1639,7 @@ export default function CastingForTVModal({ onClose }: CastingForTVModalProps) {
                   >
                     {dragOverParticipantId === editingParticipant.id ? (
                       <ImagePlus className="w-8 h-8 text-cyan-600 animate-pulse" />
-                    ) : editingParticipant.photo ? (
+                    ) : isValidImageUrl(editingParticipant.photo) ? (
                       <img src={editingParticipant.photo} alt={editingParticipant.name} className="w-full h-full object-cover" />
                     ) : (
                       <div className="text-center">

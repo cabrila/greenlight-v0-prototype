@@ -48,20 +48,14 @@ function CastingAppContent() {
   useEffect(() => {
     const FIRST_VISIT_KEY = "gogreenlight-first-visit-complete"
     const CACHE_CLEARED_KEY = "gogreenlight-cache-cleared"
-    const PLACEHOLDER_SANITIZED_KEY = "gogreenlight-placeholder-sanitized-v5"
+    const PLACEHOLDER_SANITIZED_KEY = "gogreenlight-placeholder-sanitized-v6"
 
     if (typeof window !== "undefined") {
       // One-time full localStorage clear to remove any corrupted image data
       if (!window.localStorage.getItem(PLACEHOLDER_SANITIZED_KEY)) {
         try {
-          // Clear all localStorage except our own tracking keys
-          const keysToKeep = ["gogreenlight-first-visit-complete", "gogreenlight-cache-cleared"]
-          const allKeys = Object.keys(localStorage)
-          for (const key of allKeys) {
-            if (!keysToKeep.includes(key) && !key.startsWith("gogreenlight-placeholder-sanitized")) {
-              localStorage.removeItem(key)
-            }
-          }
+          // Clear ALL localStorage to ensure completely fresh state
+          localStorage.clear()
           window.localStorage.setItem(PLACEHOLDER_SANITIZED_KEY, "true")
         } catch { /* ignore errors */ }
       }
