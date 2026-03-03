@@ -229,6 +229,8 @@ interface Participant {
   email?: string
   phone?: string
   videos?: ParticipantVideo[]
+  manuallyAdded?: boolean
+  addedAt?: number
 }
 
 const MOCK_PARTICIPANTS: Participant[] = [
@@ -470,6 +472,20 @@ const [globalSortDirection, setGlobalSortDirection] = useState<"asc" | "desc">("
   const [maybeCommentText, setMaybeCommentText] = useState("")
   
   const [newListName, setNewListName] = useState("")
+  
+  // Add Participant Modal state
+  const [showAddParticipantModal, setShowAddParticipantModal] = useState(false)
+  const [newParticipantForm, setNewParticipantForm] = useState({
+    name: "",
+    age: "",
+    location: "",
+    occupation: "",
+    email: "",
+    phone: "",
+    instagram: "",
+    notes: "",
+    archetype: [] as string[],
+  })
   const [newListDescription, setNewListDescription] = useState("")
   const [newListColor, setNewListColor] = useState("bg-cyan-500")
   
@@ -632,6 +648,60 @@ const [globalSortDirection, setGlobalSortDirection] = useState<"asc" | "desc">("
     const scores = participantDetailedScores[participantId]
     if (!scores) return 0
     return Object.values(scores).filter(v => v > 0).length
+  }
+
+  // Add participant manually
+  const handleAddParticipant = () => {
+    if (!newParticipantForm.name.trim()) return
+    
+    const newParticipant: Participant = {
+      id: `participant-${Date.now()}`,
+      name: newParticipantForm.name.trim(),
+      age: parseInt(newParticipantForm.age) || 25,
+      location: newParticipantForm.location.trim() || "Unknown",
+      occupation: newParticipantForm.occupation.trim() || "Not specified",
+      archetype: newParticipantForm.archetype,
+      socialHandles: {
+        instagram: newParticipantForm.instagram.trim() || undefined,
+      },
+      stage: "new",
+      status: "new",
+      starred: false,
+      appliedDate: Date.now(),
+      notes: newParticipantForm.notes.trim() || undefined,
+      email: newParticipantForm.email.trim() || undefined,
+      phone: newParticipantForm.phone.trim() || undefined,
+      manuallyAdded: true,
+      addedAt: Date.now(),
+    }
+    
+    setParticipants(prev => [newParticipant, ...prev])
+    setShowAddParticipantModal(false)
+    setNewParticipantForm({
+      name: "",
+      age: "",
+      location: "",
+      occupation: "",
+      email: "",
+      phone: "",
+      instagram: "",
+      notes: "",
+      archetype: [],
+    })
+  }
+
+  const resetNewParticipantForm = () => {
+    setNewParticipantForm({
+      name: "",
+      age: "",
+      location: "",
+      occupation: "",
+      email: "",
+      phone: "",
+      instagram: "",
+      notes: "",
+      archetype: [],
+    })
   }
 
   // Update list sort settings
@@ -1236,6 +1306,11 @@ const renderParticipantCard = (participant: Participant, compact = false) => {
               <h4 className={`font-semibold text-gray-900 truncate ${compact ? "text-xs" : "text-sm"}`}>
                 {participant.name}
               </h4>
+              {participant.manuallyAdded && (
+                <span className="shrink-0 px-1.5 py-0.5 bg-violet-100 text-violet-700 rounded text-[9px] font-semibold">
+                  Manual
+                </span>
+              )}
               {participant.redFlags && participant.redFlags.length > 0 && (
                 <Flag className="w-3 h-3 text-red-500 shrink-0" />
               )}
@@ -1820,11 +1895,11 @@ const renderGridView = () => (
                 <div className="fixed inset-0 z-20" onClick={() => setShowAddDropdown(false)} />
                 <div className="absolute right-0 top-full mt-1 w-56 bg-white rounded-xl shadow-lg border border-gray-200 py-1 z-30">
                   <button
-                    onClick={() => { setShowAddDropdown(false); openModal("addActor") }}
+                    onClick={() => { setShowAddDropdown(false); setShowAddParticipantModal(true) }}
                     className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                   >
                     <UserPlus className="w-4 h-4 text-cyan-600" />
-                    Manual Entry
+                    Add Participant
                   </button>
                   <button
                     onClick={() => { setShowAddDropdown(false); openModal("uploadCSV") }}
@@ -4205,10 +4280,197 @@ const renderGridView = () => (
         </>
       )}
 
+      {/* Add Participant Modal */}
+      {showAddParticipantModal && (
+        <>
+          <div className="fixed inset-0 bg-black/50 z-[60]" onClick={() => { setShowAddParticipantModal(false); resetNewParticipantForm() }} />
+          <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg bg-white rounded-2xl shadow-2xl z-[60] max-h-[90vh] overflow-hidden flex flex-col">
+            <div className="px-6 py-4 border-b border-gray-100 shrink-0 bg-gradient-to-r from-cyan-50 to-white">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-cyan-100 flex items-center justify-center">
+                    <UserPlus className="w-5 h-5 text-cyan-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-gray-900">Add Participant</h3>
+                    <p className="text-sm text-gray-500">Manually add to Casting for TV</p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => { setShowAddParticipantModal(false); resetNewParticipantForm() }} 
+                  className="p-2 rounded-lg hover:bg-gray-100 text-gray-400"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto p-6 space-y-4">
+              {/* Name - Required */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  Full Name <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={newParticipantForm.name}
+                  onChange={(e) => setNewParticipantForm(prev => ({ ...prev, name: e.target.value }))}
+                  placeholder="Enter participant's name"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  autoFocus
+                />
+              </div>
+              
+              {/* Age and Location */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Age</label>
+                  <input
+                    type="number"
+                    value={newParticipantForm.age}
+                    onChange={(e) => setNewParticipantForm(prev => ({ ...prev, age: e.target.value }))}
+                    placeholder="25"
+                    min="18"
+                    max="100"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Location</label>
+                  <input
+                    type="text"
+                    value={newParticipantForm.location}
+                    onChange={(e) => setNewParticipantForm(prev => ({ ...prev, location: e.target.value }))}
+                    placeholder="City, State"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  />
+                </div>
+              </div>
+              
+              {/* Occupation */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Occupation / Role</label>
+                <input
+                  type="text"
+                  value={newParticipantForm.occupation}
+                  onChange={(e) => setNewParticipantForm(prev => ({ ...prev, occupation: e.target.value }))}
+                  placeholder="What do they do?"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                />
+              </div>
+              
+              {/* Contact Info */}
+              <div className="border-t border-gray-100 pt-4">
+                <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Contact Information</h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
+                    <input
+                      type="email"
+                      value={newParticipantForm.email}
+                      onChange={(e) => setNewParticipantForm(prev => ({ ...prev, email: e.target.value }))}
+                      placeholder="email@example.com"
+                      className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Phone</label>
+                    <input
+                      type="tel"
+                      value={newParticipantForm.phone}
+                      onChange={(e) => setNewParticipantForm(prev => ({ ...prev, phone: e.target.value }))}
+                      placeholder="(555) 123-4567"
+                      className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              {/* Social */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Instagram Handle</label>
+                <div className="relative">
+                  <Instagram className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input
+                    type="text"
+                    value={newParticipantForm.instagram}
+                    onChange={(e) => setNewParticipantForm(prev => ({ ...prev, instagram: e.target.value }))}
+                    placeholder="@username"
+                    className="w-full pl-10 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  />
+                </div>
+              </div>
+              
+              {/* Archetypes */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Archetypes</label>
+                <div className="flex flex-wrap gap-2">
+                  {availableArchetypes.map((arch) => (
+                    <button
+                      key={arch}
+                      type="button"
+                      onClick={() => {
+                        setNewParticipantForm(prev => ({
+                          ...prev,
+                          archetype: prev.archetype.includes(arch)
+                            ? prev.archetype.filter(a => a !== arch)
+                            : [...prev.archetype, arch]
+                        }))
+                      }}
+                      className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-colors ${
+                        newParticipantForm.archetype.includes(arch)
+                          ? "bg-cyan-600 text-white"
+                          : "bg-gray-100 text-gray-600 hover:bg-cyan-50 hover:text-cyan-700"
+                      }`}
+                    >
+                      {arch}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Notes */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Notes</label>
+                <textarea
+                  value={newParticipantForm.notes}
+                  onChange={(e) => setNewParticipantForm(prev => ({ ...prev, notes: e.target.value }))}
+                  placeholder="Any additional notes about this participant..."
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 resize-none"
+                />
+              </div>
+            </div>
+            
+            <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between shrink-0 bg-gray-50">
+              <div className="flex items-center gap-2 text-xs text-gray-500">
+                <span className="w-2 h-2 rounded-full bg-violet-500" />
+                Will be marked as manually added
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => { setShowAddParticipantModal(false); resetNewParticipantForm() }}
+                  className="px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleAddParticipant}
+                  disabled={!newParticipantForm.name.trim()}
+                  className="px-4 py-2 bg-cyan-600 text-white rounded-lg text-sm font-medium hover:bg-cyan-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Add Participant
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
       {/* Add New List Modal */}
       {showAddListModal && (
       <>
-          <div className="fixed inset-0 bg-black/40 z-50" onClick={() => setShowAddListModal(false)} />
+      <div className="fixed inset-0 bg-black/40 z-50" onClick={() => setShowAddListModal(false)} />
           <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-white rounded-2xl shadow-2xl z-50">
             <div className="p-4 border-b border-gray-200 flex items-center justify-between">
               <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
