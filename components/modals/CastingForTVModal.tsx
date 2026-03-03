@@ -72,6 +72,12 @@ import {
   FolderPlus,
   Check,
   ImagePlus,
+  ThumbsUp,
+  ThumbsDown,
+  HelpCircle,
+  ChevronLeft,
+  SkipBack,
+  SkipForward,
 } from "lucide-react"
 
 interface CastingForTVModalProps {
@@ -421,6 +427,16 @@ const [globalSortDirection, setGlobalSortDirection] = useState<"asc" | "desc">("
   })
   const [showPasswordFor, setShowPasswordFor] = useState<string | null>(null)
   const [passwordInput, setPasswordInput] = useState("")
+  
+  // Player View state
+  const [showPlayerView, setShowPlayerView] = useState(false)
+  const [playerViewIndex, setPlayerViewIndex] = useState(0)
+  const [participantVotes, setParticipantVotes] = useState<Record<string, "yes" | "no" | "maybe" | null>>({})
+  const [participantComments, setParticipantComments] = useState<Record<string, Array<{id: string; text: string; timestamp: number}>>>({})
+  const [newComment, setNewComment] = useState("")
+  const [showMaybeCommentPrompt, setShowMaybeCommentPrompt] = useState(false)
+  const [maybeCommentText, setMaybeCommentText] = useState("")
+  
   const [newListName, setNewListName] = useState("")
   const [newListDescription, setNewListDescription] = useState("")
   const [newListColor, setNewListColor] = useState("bg-cyan-500")
@@ -696,6 +712,103 @@ const [globalSortDirection, setGlobalSortDirection] = useState<"asc" | "desc">("
     setVideoForm(prev => ({
       ...prev,
       tags: prev.tags.filter(t => t !== tag),
+    }))
+  }
+
+  // Player View functions
+  const openPlayerView = (startIndex = 0) => {
+    setPlayerViewIndex(startIndex)
+    setShowPlayerView(true)
+  }
+
+  const playerViewParticipants = sortedParticipants
+  const currentPlayerParticipant = playerViewParticipants[playerViewIndex]
+
+  const navigatePlayer = (direction: 1 | -1) => {
+    const newIndex = playerViewIndex + direction
+    if (newIndex >= 0 && newIndex < playerViewParticipants.length) {
+      setPlayerViewIndex(newIndex)
+      setNewComment("")
+    }
+  }
+
+  const handleParticipantVote = (vote: "yes" | "no" | "maybe") => {
+    if (!currentPlayerParticipant) return
+    
+    // For maybe vote, require a comment
+    if (vote === "maybe" && participantVotes[currentPlayerParticipant.id] !== "maybe") {
+      setShowMaybeCommentPrompt(true)
+      return
+    }
+    
+    setParticipantVotes(prev => ({
+      ...prev,
+      [currentPlayerParticipant.id]: prev[currentPlayerParticipant.id] === vote ? null : vote
+    }))
+    
+    // Auto-advance after voting (except for toggling off)
+    if (participantVotes[currentPlayerParticipant.id] !== vote) {
+      setTimeout(() => {
+        if (playerViewIndex < playerViewParticipants.length - 1) {
+          navigatePlayer(1)
+        }
+      }, 500)
+    }
+  }
+
+  const handleMaybeVoteWithComment = () => {
+    if (!currentPlayerParticipant || !maybeCommentText.trim()) return
+    
+    // Add the comment
+    const comment = {
+      id: `comment-${Date.now()}`,
+      text: maybeCommentText.trim(),
+      timestamp: Date.now()
+    }
+    
+    setParticipantComments(prev => ({
+      ...prev,
+      [currentPlayerParticipant.id]: [...(prev[currentPlayerParticipant.id] || []), comment]
+    }))
+    
+    // Cast the vote
+    setParticipantVotes(prev => ({
+      ...prev,
+      [currentPlayerParticipant.id]: "maybe"
+    }))
+    
+    setShowMaybeCommentPrompt(false)
+    setMaybeCommentText("")
+    
+    // Auto-advance
+    setTimeout(() => {
+      if (playerViewIndex < playerViewParticipants.length - 1) {
+        navigatePlayer(1)
+      }
+    }, 500)
+  }
+
+  const addParticipantComment = () => {
+    if (!currentPlayerParticipant || !newComment.trim()) return
+    
+    const comment = {
+      id: `comment-${Date.now()}`,
+      text: newComment.trim(),
+      timestamp: Date.now()
+    }
+    
+    setParticipantComments(prev => ({
+      ...prev,
+      [currentPlayerParticipant.id]: [...(prev[currentPlayerParticipant.id] || []), comment]
+    }))
+    
+    setNewComment("")
+  }
+
+  const deleteParticipantComment = (participantId: string, commentId: string) => {
+    setParticipantComments(prev => ({
+      ...prev,
+      [participantId]: (prev[participantId] || []).filter(c => c.id !== commentId)
     }))
   }
 
@@ -1791,10 +1904,18 @@ const renderGridView = () => (
               activeView === "mix" ? "bg-white text-gray-900 shadow-sm" : "text-gray-600 hover:text-gray-900"
             }`}
           >
-            <Shuffle className="w-3.5 h-3.5" />
-            Cast Mix
-          </button>
-        </div>
+  <Shuffle className="w-3.5 h-3.5" />
+  Cast Mix
+  </button>
+  <div className="w-px h-5 bg-gray-300 mx-1" />
+  <button
+    onClick={() => openPlayerView(0)}
+    className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors bg-cyan-600 text-white hover:bg-cyan-700"
+  >
+    <Play className="w-3.5 h-3.5" />
+    Player
+  </button>
+  </div>
       </div>
 
       {/* Main content */}
@@ -3346,9 +3467,355 @@ const renderGridView = () => (
         </>
       )}
 
+      {/* Player View Modal */}
+      {showPlayerView && currentPlayerParticipant && (
+        <>
+          <div className="fixed inset-0 bg-black/80 z-[70]" onClick={() => setShowPlayerView(false)} />
+          <div className="fixed inset-4 z-[70] flex items-center justify-center">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl h-full max-h-[90vh] flex flex-col overflow-hidden">
+              {/* Header */}
+              <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between shrink-0 bg-gradient-to-r from-cyan-50 to-white">
+                <div className="flex items-center gap-4">
+                  <button
+                    onClick={() => setShowPlayerView(false)}
+                    className="p-2 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors"
+                  >
+                    <ChevronLeft className="w-5 h-5" />
+                  </button>
+                  <div>
+                    <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                      <Play className="w-5 h-5 text-cyan-600" />
+                      Player View
+                    </h2>
+                    <p className="text-xs text-gray-500">
+                      {playerViewIndex + 1} of {playerViewParticipants.length} participants
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  {/* Progress indicator */}
+                  <div className="flex items-center gap-1">
+                    {playerViewParticipants.slice(Math.max(0, playerViewIndex - 2), Math.min(playerViewParticipants.length, playerViewIndex + 3)).map((p, i) => {
+                      const actualIndex = Math.max(0, playerViewIndex - 2) + i
+                      const vote = participantVotes[p.id]
+                      return (
+                        <button
+                          key={p.id}
+                          onClick={() => setPlayerViewIndex(actualIndex)}
+                          className={`w-2.5 h-2.5 rounded-full transition-all ${
+                            actualIndex === playerViewIndex 
+                              ? "w-6 bg-cyan-600" 
+                              : vote === "yes" ? "bg-emerald-500"
+                              : vote === "no" ? "bg-red-500"
+                              : vote === "maybe" ? "bg-amber-500"
+                              : "bg-gray-300 hover:bg-gray-400"
+                          }`}
+                        />
+                      )
+                    })}
+                  </div>
+                  <button
+                    onClick={() => setShowPlayerView(false)}
+                    className="p-2 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+              
+              {/* Main content */}
+              <div className="flex-1 flex overflow-hidden">
+                {/* Left side - Participant info */}
+                <div className="flex-1 flex flex-col overflow-hidden">
+                  <div className="flex-1 overflow-y-auto p-6">
+                    <div className="flex gap-6">
+                      {/* Photo */}
+                      <div className="shrink-0">
+                        <div className="w-48 h-56 rounded-2xl bg-gradient-to-br from-cyan-100 to-cyan-200 flex items-center justify-center overflow-hidden">
+                          {currentPlayerParticipant.photo ? (
+                            <img src={currentPlayerParticipant.photo} alt={currentPlayerParticipant.name} className="w-full h-full object-cover" />
+                          ) : (
+                            <span className="text-5xl font-bold text-cyan-600">
+                              {currentPlayerParticipant.name.split(" ").map(n => n[0]).join("")}
+                            </span>
+                          )}
+                        </div>
+                        {/* Stage badge */}
+                        <div className="mt-3">
+                          <span className={`inline-flex px-3 py-1 rounded-full text-xs font-semibold ${funnelStages.find(s => s.id === currentPlayerParticipant.stage)?.color || "bg-gray-100 text-gray-600"}`}>
+                            {funnelStages.find(s => s.id === currentPlayerParticipant.stage)?.label || "Unknown"}
+                          </span>
+                        </div>
+                      </div>
+                      
+                      {/* Details */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between mb-2">
+                          <div>
+                            <h3 className="text-2xl font-bold text-gray-900">{currentPlayerParticipant.name}</h3>
+                            <p className="text-gray-500">{currentPlayerParticipant.age} years old • {currentPlayerParticipant.location}</p>
+                          </div>
+                          {currentPlayerParticipant.score && (
+                            <div className="flex items-center gap-1 px-3 py-1 bg-emerald-100 rounded-lg">
+                              <BarChart3 className="w-4 h-4 text-emerald-600" />
+                              <span className="text-lg font-bold text-emerald-700">{currentPlayerParticipant.score.toFixed(1)}</span>
+                            </div>
+                          )}
+                        </div>
+                        
+                        <p className="text-sm text-gray-600 mb-4">{currentPlayerParticipant.occupation}</p>
+                        
+                        {/* Archetypes */}
+                        <div className="flex flex-wrap gap-2 mb-4">
+                          {currentPlayerParticipant.archetype.map((arch) => (
+                            <span key={arch} className="px-2.5 py-1 bg-purple-100 text-purple-700 rounded-lg text-xs font-medium">
+                              {arch}
+                            </span>
+                          ))}
+                        </div>
+                        
+                        {/* Social handles */}
+                        {currentPlayerParticipant.socialHandles.instagram && (
+                          <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
+                            <Instagram className="w-4 h-4" />
+                            <span>{currentPlayerParticipant.socialHandles.instagram}</span>
+                            {currentPlayerParticipant.socialHandles.followerCount && (
+                              <span className="text-xs bg-gray-100 px-2 py-0.5 rounded-full">
+                                {(currentPlayerParticipant.socialHandles.followerCount / 1000).toFixed(0)}K followers
+                              </span>
+                            )}
+                          </div>
+                        )}
+                        
+                        {/* Notes */}
+                        {currentPlayerParticipant.notes && (
+                          <div className="mt-4 p-3 bg-amber-50 rounded-lg border border-amber-200">
+                            <p className="text-sm text-amber-800">{currentPlayerParticipant.notes}</p>
+                          </div>
+                        )}
+                        
+                        {/* Red flags */}
+                        {currentPlayerParticipant.redFlags && currentPlayerParticipant.redFlags.length > 0 && (
+                          <div className="mt-4 p-3 bg-red-50 rounded-lg border border-red-200">
+                            <div className="flex items-center gap-2 text-red-700 text-xs font-semibold mb-1">
+                              <Flag className="w-3 h-3" />
+                              Red Flag
+                            </div>
+                            <p className="text-sm text-red-700">{currentPlayerParticipant.redFlags[0].note}</p>
+                          </div>
+                        )}
+                        
+                        {/* Videos */}
+                        {currentPlayerParticipant.videos && currentPlayerParticipant.videos.length > 0 && (
+                          <div className="mt-4">
+                            <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Videos</h4>
+                            <div className="flex gap-2 overflow-x-auto pb-2">
+                              {currentPlayerParticipant.videos.map((video) => (
+                                <div key={video.id} className="shrink-0 w-32 h-20 rounded-lg bg-gray-100 flex items-center justify-center relative group cursor-pointer hover:ring-2 hover:ring-cyan-400">
+                                  <Play className="w-6 h-6 text-gray-400" />
+                                  {video.isPasswordProtected && (
+                                    <div className="absolute top-1 right-1 p-0.5 bg-amber-500 rounded">
+                                      <Lock className="w-2.5 h-2.5 text-white" />
+                                    </div>
+                                  )}
+                                  <div className="absolute bottom-0 left-0 right-0 px-1.5 py-0.5 bg-black/60 rounded-b-lg">
+                                    <p className="text-[9px] text-white truncate">{video.title}</p>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Voting bar */}
+                  <div className="px-6 py-4 border-t border-gray-100 bg-gray-50">
+                    <div className="flex items-center justify-center gap-4">
+                      <button
+                        onClick={() => handleParticipantVote("no")}
+                        className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all ${
+                          participantVotes[currentPlayerParticipant.id] === "no"
+                            ? "bg-red-600 text-white shadow-lg scale-105"
+                            : "bg-red-100 text-red-700 hover:bg-red-200"
+                        }`}
+                      >
+                        <ThumbsDown className="w-5 h-5" />
+                        No
+                      </button>
+                      <button
+                        onClick={() => handleParticipantVote("maybe")}
+                        className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all ${
+                          participantVotes[currentPlayerParticipant.id] === "maybe"
+                            ? "bg-amber-500 text-white shadow-lg scale-105"
+                            : "bg-amber-100 text-amber-700 hover:bg-amber-200"
+                        }`}
+                      >
+                        <HelpCircle className="w-5 h-5" />
+                        Maybe
+                      </button>
+                      <button
+                        onClick={() => handleParticipantVote("yes")}
+                        className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all ${
+                          participantVotes[currentPlayerParticipant.id] === "yes"
+                            ? "bg-emerald-600 text-white shadow-lg scale-105"
+                            : "bg-emerald-100 text-emerald-700 hover:bg-emerald-200"
+                        }`}
+                      >
+                        <ThumbsUp className="w-5 h-5" />
+                        Yes
+                      </button>
+                    </div>
+                    
+                    {/* Navigation */}
+                    <div className="flex items-center justify-center gap-4 mt-4">
+                      <button
+                        onClick={() => setPlayerViewIndex(0)}
+                        disabled={playerViewIndex === 0}
+                        className="p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
+                      >
+                        <SkipBack className="w-5 h-5" />
+                      </button>
+                      <button
+                        onClick={() => navigatePlayer(-1)}
+                        disabled={playerViewIndex === 0}
+                        className="flex items-center gap-1 px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
+                      >
+                        <ChevronLeft className="w-4 h-4" />
+                        Previous
+                      </button>
+                      <span className="text-sm text-gray-400 px-4">
+                        {playerViewIndex + 1} / {playerViewParticipants.length}
+                      </span>
+                      <button
+                        onClick={() => navigatePlayer(1)}
+                        disabled={playerViewIndex >= playerViewParticipants.length - 1}
+                        className="flex items-center gap-1 px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
+                      >
+                        Next
+                        <ChevronRight className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => setPlayerViewIndex(playerViewParticipants.length - 1)}
+                        disabled={playerViewIndex >= playerViewParticipants.length - 1}
+                        className="p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
+                      >
+                        <SkipForward className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Right side - Comments */}
+                <div className="w-80 border-l border-gray-200 flex flex-col bg-gray-50">
+                  <div className="px-4 py-3 border-b border-gray-200 bg-white">
+                    <h4 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                      <MessageSquare className="w-4 h-4 text-gray-500" />
+                      Comments
+                      {(participantComments[currentPlayerParticipant.id]?.length || 0) > 0 && (
+                        <span className="ml-auto text-xs bg-cyan-100 text-cyan-700 px-2 py-0.5 rounded-full">
+                          {participantComments[currentPlayerParticipant.id]?.length}
+                        </span>
+                      )}
+                    </h4>
+                  </div>
+                  <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                    {(!participantComments[currentPlayerParticipant.id] || participantComments[currentPlayerParticipant.id].length === 0) ? (
+                      <div className="text-center py-8 text-gray-400">
+                        <MessageSquare className="w-10 h-10 mx-auto mb-2 opacity-30" />
+                        <p className="text-sm">No comments yet</p>
+                        <p className="text-xs">Add a note about this participant</p>
+                      </div>
+                    ) : (
+                      participantComments[currentPlayerParticipant.id].map((comment) => (
+                        <div key={comment.id} className="bg-white rounded-lg p-3 shadow-sm border border-gray-100 group">
+                          <p className="text-sm text-gray-700">{comment.text}</p>
+                          <div className="flex items-center justify-between mt-2">
+                            <span className="text-[10px] text-gray-400">
+                              {new Date(comment.timestamp).toLocaleString()}
+                            </span>
+                            <button
+                              onClick={() => deleteParticipantComment(currentPlayerParticipant.id, comment.id)}
+                              className="opacity-0 group-hover:opacity-100 p-1 rounded text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </button>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                  <div className="p-3 border-t border-gray-200 bg-white">
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={newComment}
+                        onChange={(e) => setNewComment(e.target.value)}
+                        onKeyDown={(e) => { if (e.key === "Enter") addParticipantComment() }}
+                        placeholder="Add a comment..."
+                        className="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                      />
+                      <button
+                        onClick={addParticipantComment}
+                        disabled={!newComment.trim()}
+                        className="px-3 py-2 bg-cyan-600 text-white rounded-lg text-sm font-medium hover:bg-cyan-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <Send className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Maybe comment prompt */}
+          {showMaybeCommentPrompt && (
+            <>
+              <div className="fixed inset-0 bg-black/30 z-[80]" onClick={() => setShowMaybeCommentPrompt(false)} />
+              <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-white rounded-2xl shadow-2xl z-[80] p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center">
+                    <HelpCircle className="w-5 h-5 text-amber-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900">Add a Note</h3>
+                    <p className="text-sm text-gray-500">Why are you unsure about this participant?</p>
+                  </div>
+                </div>
+                <textarea
+                  value={maybeCommentText}
+                  onChange={(e) => setMaybeCommentText(e.target.value)}
+                  placeholder="Share your thoughts..."
+                  rows={3}
+                  autoFocus
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 resize-none mb-4"
+                />
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => { setShowMaybeCommentPrompt(false); setMaybeCommentText("") }}
+                    className="flex-1 px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleMaybeVoteWithComment}
+                    disabled={!maybeCommentText.trim()}
+                    className="flex-1 px-4 py-2 bg-amber-500 text-white rounded-lg text-sm font-medium hover:bg-amber-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Vote Maybe
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
+        </>
+      )}
+
       {/* Video Add/Edit Modal */}
       {showVideoModal && (
-        <>
+      <>
           <div className="fixed inset-0 bg-black/50 z-[60]" onClick={() => setShowVideoModal(false)} />
           <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg bg-white rounded-2xl shadow-2xl z-[60] max-h-[90vh] overflow-hidden flex flex-col">
             <div className="p-5 border-b border-gray-100 shrink-0">
