@@ -1880,54 +1880,6 @@ const renderGridView = () => (
           )}
         </div>
         <div className="flex items-center gap-3">
-          {/* Add dropdown */}
-          <div className="relative" ref={addDropdownRef}>
-            <button
-              onClick={() => setShowAddDropdown(!showAddDropdown)}
-              className="flex items-center gap-2 px-4 py-2 bg-cyan-600 text-white rounded-lg text-sm font-medium hover:bg-cyan-700 transition-colors"
-            >
-              <Plus className="w-4 h-4" />
-              Add
-              <ChevronDown className="w-3 h-3" />
-            </button>
-            {showAddDropdown && (
-              <>
-                <div className="fixed inset-0 z-20" onClick={() => setShowAddDropdown(false)} />
-                <div className="absolute right-0 top-full mt-1 w-56 bg-white rounded-xl shadow-lg border border-gray-200 py-1 z-30">
-                  <button
-                    onClick={() => { setShowAddDropdown(false); setShowAddParticipantModal(true) }}
-                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                  >
-                    <UserPlus className="w-4 h-4 text-cyan-600" />
-                    Add Participant
-                  </button>
-                  <button
-                    onClick={() => { setShowAddDropdown(false); openModal("uploadCSV") }}
-                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                  >
-                    <Upload className="w-4 h-4 text-emerald-600" />
-                    Upload File
-                  </button>
-                  <button
-                    onClick={() => { setShowAddDropdown(false); openModal("formManager") }}
-                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                  >
-                    <Link className="w-4 h-4 text-blue-600" />
-                    Open Form
-                  </button>
-                  <div className="border-t border-gray-100 my-1" />
-                  <button
-                    onClick={() => { setShowAddDropdown(false); openModal("addFromDatabase") }}
-                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                  >
-                    <Database className="w-4 h-4 text-purple-600" />
-                    Import from Database
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-
           <button
             onClick={onClose}
             className="p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
@@ -2023,6 +1975,63 @@ const renderGridView = () => (
             )}
           </div>
 
+          {/* Add dropdown */}
+          <div className="relative" ref={addDropdownRef}>
+            <button
+              onClick={() => setShowAddDropdown(!showAddDropdown)}
+              className="flex items-center gap-2 px-3 py-2 bg-cyan-600 text-white rounded-lg text-sm font-medium hover:bg-cyan-700 transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+              Add
+              <ChevronDown className="w-3 h-3" />
+            </button>
+            {showAddDropdown && (
+              <>
+                <div className="fixed inset-0 z-20" onClick={() => setShowAddDropdown(false)} />
+                <div className="absolute left-0 top-full mt-1 w-56 bg-white rounded-xl shadow-lg border border-gray-200 py-1 z-30">
+                  <button
+                    onClick={() => { setShowAddDropdown(false); setShowAddParticipantModal(true) }}
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    <UserPlus className="w-4 h-4 text-cyan-600" />
+                    Add Participant
+                  </button>
+                  <button
+                    onClick={() => { setShowAddDropdown(false); openModal("uploadCSV") }}
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    <Upload className="w-4 h-4 text-emerald-600" />
+                    Upload File
+                  </button>
+                  <button
+                    onClick={() => { setShowAddDropdown(false); openModal("formManager") }}
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    <Link className="w-4 h-4 text-blue-600" />
+                    Open Form
+                  </button>
+                  <div className="border-t border-gray-100 my-1" />
+                  <button
+                    onClick={() => { setShowAddDropdown(false); openModal("addFromDatabase") }}
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    <Database className="w-4 h-4 text-purple-600" />
+                    Import from Database
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* Player View button */}
+          <button
+            onClick={() => openPlayerView(0)}
+            className="flex items-center gap-2 px-3 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 transition-colors"
+          >
+            <Play className="w-4 h-4" />
+            Player
+          </button>
+
         </div>
 
         {/* View toggles */}
@@ -2062,14 +2071,6 @@ const renderGridView = () => (
           >
   <Shuffle className="w-3.5 h-3.5" />
   Cast Mix
-  </button>
-  <div className="w-px h-5 bg-gray-300 mx-1" />
-  <button
-    onClick={() => openPlayerView(0)}
-    className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors bg-cyan-600 text-white hover:bg-cyan-700"
-  >
-    <Play className="w-3.5 h-3.5" />
-    Player
   </button>
   </div>
       </div>
