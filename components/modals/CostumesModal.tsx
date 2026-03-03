@@ -1138,7 +1138,7 @@ function WardrobeTab({
             const pair = characterActorMap.find(({ character }) => character.id === wardrobeCharFilter)
             return pair ? (
               <div className="flex items-center gap-2 mb-4 bg-rose-50 border border-rose-200 rounded-xl px-4 py-2.5">
-                {pair.castActor?.headshots?.[0] ? (
+                {isValidImageUrl(pair.castActor?.headshots?.[0]) ? (
                   <img src={pair.castActor.headshots[0]} alt="" className="w-6 h-8 rounded object-cover" />
                 ) : (
                   <div className="w-6 h-8 rounded bg-rose-200 flex items-center justify-center"><User className="w-3 h-3 text-rose-400" /></div>
@@ -2330,7 +2330,7 @@ function LookBuilderModal({
 
           {castActor && (
             <div className="flex items-center gap-2 mb-4 bg-gray-50 rounded-lg px-3 py-2">
-              {castActor.headshots?.[0] ? (
+              {isValidImageUrl(castActor.headshots?.[0]) ? (
                 <img src={castActor.headshots[0]} alt="" className="w-6 h-8 rounded object-cover" />
               ) : (
                 <div className="w-6 h-8 rounded bg-gray-200 flex items-center justify-center"><User className="w-3 h-3 text-gray-400" /></div>

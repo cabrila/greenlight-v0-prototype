@@ -1742,7 +1742,7 @@ export default function PropsModal({ onClose }: PropsModalProps) {
                   const pair = characterActorMap.find(({ character }) => character.id === charFilter)
                   return pair ? (
                     <div className="flex items-center gap-2 mb-4 bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-2.5">
-                      {pair.castActor?.headshots?.[0] ? (
+                      {isValidImageUrl(pair.castActor?.headshots?.[0]) ? (
                         <img src={pair.castActor.headshots[0]} alt="" className="w-6 h-8 rounded object-cover" />
                       ) : (
                         <div className="w-6 h-8 rounded bg-emerald-200 flex items-center justify-center"><User className="w-3 h-3 text-emerald-400" /></div>

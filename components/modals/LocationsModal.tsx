@@ -417,7 +417,11 @@ function PhotoDropZone({ media, onAdd, onDelete, onUpdateCaption, showCaptions =
       {previewItem && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[90] p-6" onClick={() => setPreviewId(null)}>
           <div className="relative max-w-3xl w-full max-h-[80vh] flex flex-col items-center" onClick={(e) => e.stopPropagation()}>
-            <img src={previewItem.url} alt={previewItem.caption || ""} className="max-w-full max-h-[70vh] rounded-xl object-contain shadow-2xl" />
+            {isValidImageUrl(previewItem.url) ? (
+              <img src={previewItem.url} alt={previewItem.caption || ""} className="max-w-full max-h-[70vh] rounded-xl object-contain shadow-2xl" />
+            ) : (
+              <div className="w-full h-64 rounded-xl bg-gray-800 flex items-center justify-center"><MapPin className="w-12 h-12 text-gray-500" /></div>
+            )}
             {previewItem.caption && (
               <p className="text-white text-sm mt-3 bg-black/40 px-3 py-1 rounded-full">{previewItem.caption}</p>
             )}
@@ -489,7 +493,11 @@ function ImageCarousel({ media, size = "large" }: { media: LocationMediaItem[]; 
   if (size === "mini") {
     return (
       <div className="relative w-full h-full">
-        <img src={media[current].url} alt={media[current].caption || ""} className="w-full h-full object-cover" />
+        {isValidImageUrl(media[current]?.url) ? (
+          <img src={media[current].url} alt={media[current].caption || ""} className="w-full h-full object-cover" />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center bg-gray-100"><MapPin className="w-6 h-6 text-gray-300" /></div>
+        )}
         {media.length > 1 && (
           <>
             <button onClick={(e) => { e.stopPropagation(); goTo(-1) }} className="absolute left-1 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 transition-colors">
@@ -511,7 +519,11 @@ function ImageCarousel({ media, size = "large" }: { media: LocationMediaItem[]; 
 
   return (
     <div className="relative w-full h-full group/carousel">
-      <img src={media[current].url} alt={media[current].caption || ""} className="w-full h-full object-cover" />
+      {isValidImageUrl(media[current]?.url) ? (
+        <img src={media[current].url} alt={media[current].caption || ""} className="w-full h-full object-cover" />
+      ) : (
+        <div className="w-full h-full flex items-center justify-center bg-gray-100"><MapPin className="w-6 h-6 text-gray-300" /></div>
+      )}
       {media.length > 1 && (
         <>
           <button onClick={(e) => { e.stopPropagation(); goTo(-1) }} className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/40 text-white flex items-center justify-center opacity-0 group-hover/carousel:opacity-100 hover:bg-black/60 transition-all">
