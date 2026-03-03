@@ -1114,12 +1114,40 @@ const [globalSortDirection, setGlobalSortDirection] = useState<"asc" | "desc">("
 
   // Add new archetype
   const handleAddArchetype = () => {
-    if (!newArchetypeName.trim()) return
-    if (!customArchetypes.includes(newArchetypeName.trim())) {
-      setCustomArchetypes((prev) => [...prev, newArchetypeName.trim()])
+  if (!newArchetypeName.trim()) return
+  if (!customArchetypes.includes(newArchetypeName.trim())) {
+  setCustomArchetypes((prev) => [...prev, newArchetypeName.trim()])
+  }
+  setNewArchetypeName("")
+  setShowAddArchetypeInput(false)
+  }
+
+  // Delete archetype
+  const handleDeleteArchetype = (archetype: string) => {
+    // Check if any participants have this archetype
+    const participantsWithArchetype = participants.filter(p => p.archetype.includes(archetype))
+    
+    if (participantsWithArchetype.length > 0) {
+      // Show confirmation with count
+      const confirmed = window.confirm(
+        `"${archetype}" is assigned to ${participantsWithArchetype.length} participant(s). Deleting it will remove it from their profiles. Continue?`
+      )
+      if (!confirmed) return
+      
+      // Remove archetype from all participants
+      setParticipants(prev => prev.map(p => ({
+        ...p,
+        archetype: p.archetype.filter(a => a !== archetype)
+      })))
     }
-    setNewArchetypeName("")
-    setShowAddArchetypeInput(false)
+    
+    // Remove from custom archetypes list
+    setCustomArchetypes(prev => prev.filter(a => a !== archetype))
+    
+    // Clear filter if filtering by this archetype
+    if (filterArchetype === archetype) {
+      setFilterArchetype(null)
+    }
   }
 
   // Update participant
@@ -1934,14 +1962,27 @@ const renderGridView = () => (
                   </button>
                   <div className="border-t border-gray-100 my-1" />
                   {customArchetypes.map((arch) => (
-                    <button
+                    <div
                       key={arch}
-                      onClick={() => { setFilterArchetype(arch); setShowFilters(false) }}
-                      className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center justify-between ${filterArchetype === arch ? "text-cyan-600 font-medium" : "text-gray-700"}`}
+                      className={`group flex items-center justify-between px-3 py-2 hover:bg-gray-50 ${filterArchetype === arch ? "bg-cyan-50" : ""}`}
                     >
-                      {arch}
-                      {filterArchetype === arch && <Check className="w-4 h-4" />}
-                    </button>
+                      <button
+                        onClick={() => { setFilterArchetype(arch); setShowFilters(false) }}
+                        className={`flex-1 text-left text-sm ${filterArchetype === arch ? "text-cyan-600 font-medium" : "text-gray-700"}`}
+                      >
+                        {arch}
+                      </button>
+                      <div className="flex items-center gap-1">
+                        {filterArchetype === arch && <Check className="w-4 h-4 text-cyan-600" />}
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handleDeleteArchetype(arch) }}
+                          className="p-1 rounded opacity-0 group-hover:opacity-100 hover:bg-red-50 text-gray-400 hover:text-red-500 transition-all"
+                          title="Delete archetype"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
                   ))}
                   <div className="border-t border-gray-100 my-1" />
                   {showAddArchetypeInput ? (
