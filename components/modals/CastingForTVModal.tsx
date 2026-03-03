@@ -66,8 +66,15 @@ interface CastingForTVModalProps {
   onClose: () => void
 }
 
-// Participant status stages for Kanban
-const FUNNEL_STAGES = [
+// Pipeline stage definition
+interface PipelineStage {
+  id: string
+  label: string
+  color: string
+}
+
+// Default pipeline stages for Kanban
+const DEFAULT_FUNNEL_STAGES: PipelineStage[] = [
   { id: "inbox", label: "Inbox", color: "bg-slate-100 text-slate-700 border-slate-300" },
   { id: "first-pass", label: "First Pass", color: "bg-blue-50 text-blue-700 border-blue-300" },
   { id: "phone-interview", label: "Phone Interview", color: "bg-cyan-50 text-cyan-700 border-cyan-300" },
@@ -76,9 +83,25 @@ const FUNNEL_STAGES = [
   { id: "psych-eval", label: "Psych Eval", color: "bg-orange-50 text-orange-700 border-orange-300" },
   { id: "final-mix", label: "Final Mix", color: "bg-emerald-50 text-emerald-700 border-emerald-300" },
   { id: "locked", label: "Locked", color: "bg-green-100 text-green-800 border-green-400" },
-] as const
+]
 
-type FunnelStage = (typeof FUNNEL_STAGES)[number]["id"]
+// Available colors for new stages
+const STAGE_COLORS = [
+  "bg-slate-100 text-slate-700 border-slate-300",
+  "bg-blue-50 text-blue-700 border-blue-300",
+  "bg-cyan-50 text-cyan-700 border-cyan-300",
+  "bg-purple-50 text-purple-700 border-purple-300",
+  "bg-amber-50 text-amber-700 border-amber-300",
+  "bg-orange-50 text-orange-700 border-orange-300",
+  "bg-emerald-50 text-emerald-700 border-emerald-300",
+  "bg-green-100 text-green-800 border-green-400",
+  "bg-pink-50 text-pink-700 border-pink-300",
+  "bg-rose-50 text-rose-700 border-rose-300",
+  "bg-indigo-50 text-indigo-700 border-indigo-300",
+  "bg-teal-50 text-teal-700 border-teal-300",
+]
+
+type FunnelStage = string
 
 // Cast lists for organization
 interface CastList {
@@ -276,6 +299,16 @@ export default function CastingForTVModal({ onClose }: CastingForTVModalProps) {
   const [newListDescription, setNewListDescription] = useState("")
   const [newListColor, setNewListColor] = useState("bg-cyan-500")
   
+  // Pipeline stages state (dynamic)
+  const [funnelStages, setFunnelStages] = useState<PipelineStage[]>(DEFAULT_FUNNEL_STAGES)
+  const [editingStageId, setEditingStageId] = useState<string | null>(null)
+  const [editingStageLabel, setEditingStageLabel] = useState("")
+  const [newStageName, setNewStageName] = useState("")
+  const [showAddStageForm, setShowAddStageForm] = useState(false)
+  const [stageToRemove, setStageToRemove] = useState<PipelineStage | null>(null)
+  const [draggedStageId, setDraggedStageId] = useState<string | null>(null)
+  const [dragOverStageId, setDragOverStageId] = useState<string | null>(null)
+  
   // Custom archetypes state
   const [customArchetypes, setCustomArchetypes] = useState<string[]>([
     "The Heartthrob", "The Competitor", "The Expert", "The Peacemaker", 
@@ -316,21 +349,100 @@ export default function CastingForTVModal({ onClose }: CastingForTVModalProps) {
 
   // Group by stage for Kanban
   const participantsByStage = useMemo(() => {
-    const grouped: Record<FunnelStage, Participant[]> = {
-      inbox: [],
-      "first-pass": [],
-      "phone-interview": [],
-      "zoom-audition": [],
-      "background-check": [],
-      "psych-eval": [],
-      "final-mix": [],
-      locked: [],
-    }
+    const grouped: Record<string, Participant[]> = {}
+    funnelStages.forEach(stage => {
+      grouped[stage.id] = []
+    })
     filteredParticipants.forEach((p) => {
-      grouped[p.stage].push(p)
+      if (grouped[p.stage]) {
+        grouped[p.stage].push(p)
+      } else {
+        // If participant's stage no longer exists, put them in inbox
+        grouped["inbox"]?.push(p)
+      }
     })
     return grouped
-  }, [filteredParticipants])
+  }, [filteredParticipants, funnelStages])
+
+  // Pipeline stage management functions
+  const handleAddStage = () => {
+    if (!newStageName.trim()) return
+    const newId = newStageName.toLowerCase().replace(/\s+/g, "-")
+    // Pick a random color that's not already heavily used
+    const usedColors = funnelStages.map(s => s.color)
+    const availableColors = STAGE_COLORS.filter(c => !usedColors.includes(c))
+    const color = availableColors.length > 0 
+      ? availableColors[Math.floor(Math.random() * availableColors.length)]
+      : STAGE_COLORS[Math.floor(Math.random() * STAGE_COLORS.length)]
+    
+    setFunnelStages([...funnelStages, { id: newId, label: newStageName.trim(), color }])
+    setNewStageName("")
+    setShowAddStageForm(false)
+  }
+
+  const handleRemoveStage = (stage: PipelineStage) => {
+    // Check if there are participants in this stage
+    const participantsInStage = participants.filter(p => p.stage === stage.id)
+    if (participantsInStage.length > 0) {
+      setStageToRemove(stage)
+    } else {
+      // No participants, remove directly
+      setFunnelStages(funnelStages.filter(s => s.id !== stage.id))
+    }
+  }
+
+  const confirmRemoveStage = () => {
+    if (!stageToRemove) return
+    // Move all participants from this stage to inbox
+    setParticipants(participants.map(p => 
+      p.stage === stageToRemove.id ? { ...p, stage: "inbox" } : p
+    ))
+    // Remove the stage
+    setFunnelStages(funnelStages.filter(s => s.id !== stageToRemove.id))
+    setStageToRemove(null)
+  }
+
+  const handleRenameStage = (stageId: string) => {
+    if (!editingStageLabel.trim()) {
+      setEditingStageId(null)
+      return
+    }
+    setFunnelStages(funnelStages.map(s => 
+      s.id === stageId ? { ...s, label: editingStageLabel.trim() } : s
+    ))
+    setEditingStageId(null)
+    setEditingStageLabel("")
+  }
+
+  const handleStageDragStart = (e: React.DragEvent, stageId: string) => {
+    e.dataTransfer.effectAllowed = "move"
+    setDraggedStageId(stageId)
+  }
+
+  const handleStageDragOver = (e: React.DragEvent, stageId: string) => {
+    e.preventDefault()
+    if (draggedStageId && draggedStageId !== stageId) {
+      setDragOverStageId(stageId)
+    }
+  }
+
+  const handleStageDrop = (targetStageId: string) => {
+    if (!draggedStageId || draggedStageId === targetStageId) {
+      setDraggedStageId(null)
+      setDragOverStageId(null)
+      return
+    }
+    const draggedIndex = funnelStages.findIndex(s => s.id === draggedStageId)
+    const targetIndex = funnelStages.findIndex(s => s.id === targetStageId)
+    if (draggedIndex === -1 || targetIndex === -1) return
+    
+    const newStages = [...funnelStages]
+    const [removed] = newStages.splice(draggedIndex, 1)
+    newStages.splice(targetIndex, 0, removed)
+    setFunnelStages(newStages)
+    setDraggedStageId(null)
+    setDragOverStageId(null)
+  }
 
   const handleDragStart = (participantId: string) => {
     setDraggedParticipant(participantId)
@@ -612,8 +724,8 @@ export default function CastingForTVModal({ onClose }: CastingForTVModalProps) {
   const renderPipelineView = () => (
     <div className="flex-1 overflow-x-auto">
       <div className="flex gap-3 p-4 min-w-max h-full">
-        {FUNNEL_STAGES.map((stage) => {
-          const stageParticipants = participantsByStage[stage.id]
+{funnelStages.map((stage) => {
+        const stageParticipants = participantsByStage[stage.id] || []
           const isOver = dragOverStage === stage.id
           return (
             <div
@@ -1432,16 +1544,126 @@ export default function CastingForTVModal({ onClose }: CastingForTVModalProps) {
             <div className="flex-1 overflow-y-auto p-4 space-y-6">
               {/* Funnel Stages */}
               <div>
-                <h4 className="text-sm font-semibold text-gray-700 mb-3">Pipeline Stages</h4>
-                <div className="space-y-2">
-                  {FUNNEL_STAGES.map((stage) => (
-                    <div key={stage.id} className="flex items-center gap-3 p-2 bg-gray-50 rounded-lg">
-                      <GripVertical className="w-4 h-4 text-gray-300" />
-                      <span className={`px-2 py-0.5 rounded text-xs font-semibold ${stage.color}`}>{stage.label}</span>
-                      <span className="ml-auto text-xs text-gray-400">{participantsByStage[stage.id].length}</span>
-                    </div>
-                  ))}
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="text-sm font-semibold text-gray-700">Pipeline Stages</h4>
+                  <button
+                    onClick={() => setShowAddStageForm(true)}
+                    className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-cyan-600 hover:bg-cyan-50 rounded-lg transition-colors"
+                  >
+                    <Plus className="w-3 h-3" />
+                    Add Stage
+                  </button>
                 </div>
+                <p className="text-xs text-gray-400 mb-3">Drag to reorder. Inbox cannot be deleted.</p>
+                <div className="space-y-2">
+                  {funnelStages.map((stage) => {
+                    const isInbox = stage.id === "inbox"
+                    const participantCount = participantsByStage[stage.id]?.length || 0
+                    const isEditing = editingStageId === stage.id
+                    const isDragOver = dragOverStageId === stage.id
+                    
+                    return (
+                      <div
+                        key={stage.id}
+                        draggable={!isEditing}
+                        onDragStart={(e) => handleStageDragStart(e, stage.id)}
+                        onDragOver={(e) => handleStageDragOver(e, stage.id)}
+                        onDragLeave={() => setDragOverStageId(null)}
+                        onDrop={() => handleStageDrop(stage.id)}
+                        className={`flex items-center gap-2 p-2 bg-gray-50 rounded-lg border transition-all cursor-move ${
+                          isDragOver ? "border-cyan-400 bg-cyan-50" : "border-transparent"
+                        } ${draggedStageId === stage.id ? "opacity-50" : ""}`}
+                      >
+                        <GripVertical className="w-4 h-4 text-gray-300 shrink-0" />
+                        
+                        {isEditing ? (
+                          <input
+                            type="text"
+                            value={editingStageLabel}
+                            onChange={(e) => setEditingStageLabel(e.target.value)}
+                            onBlur={() => handleRenameStage(stage.id)}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") handleRenameStage(stage.id)
+                              if (e.key === "Escape") setEditingStageId(null)
+                            }}
+                            className="flex-1 px-2 py-0.5 text-xs font-semibold border border-cyan-300 rounded focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                            autoFocus
+                          />
+                        ) : (
+                          <span className={`px-2 py-0.5 rounded text-xs font-semibold ${stage.color}`}>{stage.label}</span>
+                        )}
+                        
+                        <span className="text-xs text-gray-400 ml-auto">{participantCount}</span>
+                        
+                        {/* Edit button */}
+                        <button
+                          onClick={() => {
+                            setEditingStageId(stage.id)
+                            setEditingStageLabel(stage.label)
+                          }}
+                          className="p-1 text-gray-400 hover:text-cyan-600 hover:bg-cyan-50 rounded transition-colors"
+                          title="Rename stage"
+                        >
+                          <Edit3 className="w-3 h-3" />
+                        </button>
+                        
+                        {/* Delete button - not for inbox */}
+                        {!isInbox && (
+                          <button
+                            onClick={() => handleRemoveStage(stage)}
+                            className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                            title="Remove stage"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </button>
+                        )}
+                        
+                        {isInbox && (
+                          <span className="text-[10px] text-gray-400 italic">Required</span>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+                
+                {/* Add stage form */}
+                {showAddStageForm && (
+                  <div className="mt-3 p-3 bg-cyan-50 rounded-lg border border-cyan-200">
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={newStageName}
+                        onChange={(e) => setNewStageName(e.target.value)}
+                        placeholder="New stage name..."
+                        className="flex-1 px-3 py-1.5 text-sm border border-cyan-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                        autoFocus
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") handleAddStage()
+                          if (e.key === "Escape") {
+                            setShowAddStageForm(false)
+                            setNewStageName("")
+                          }
+                        }}
+                      />
+                      <button
+                        onClick={handleAddStage}
+                        disabled={!newStageName.trim()}
+                        className="px-3 py-1.5 bg-cyan-600 text-white text-sm font-medium rounded-lg hover:bg-cyan-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      >
+                        Add
+                      </button>
+                      <button
+                        onClick={() => {
+                          setShowAddStageForm(false)
+                          setNewStageName("")
+                        }}
+                        className="p-1.5 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Auto-advance rules */}
@@ -1530,6 +1752,45 @@ export default function CastingForTVModal({ onClose }: CastingForTVModalProps) {
               >
                 Save Settings
               </button>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Stage Removal Warning Modal */}
+      {stageToRemove && (
+        <>
+          <div className="fixed inset-0 bg-black/50 z-[60]" onClick={() => setStageToRemove(null)} />
+          <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-sm bg-white rounded-2xl shadow-2xl z-[60]">
+            <div className="p-5">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center">
+                  <AlertTriangle className="w-5 h-5 text-amber-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">Remove Stage?</h3>
+                  <p className="text-sm text-gray-500">This action cannot be undone</p>
+                </div>
+              </div>
+              <div className="p-3 bg-amber-50 rounded-lg border border-amber-200 mb-4">
+                <p className="text-sm text-amber-800">
+                  <strong>{participants.filter(p => p.stage === stageToRemove.id).length} participant(s)</strong> are currently in the <strong>"{stageToRemove.label}"</strong> stage. They will be moved to <strong>Inbox</strong>.
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setStageToRemove(null)}
+                  className="flex-1 px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmRemoveStage}
+                  className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors"
+                >
+                  Remove Stage
+                </button>
+              </div>
             </div>
           </div>
         </>
