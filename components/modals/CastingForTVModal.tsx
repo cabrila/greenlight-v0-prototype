@@ -51,6 +51,7 @@ import {
   Settings,
   Shuffle,
   PieChart,
+  Paperclip,
   Target,
   Save,
   Twitter,
@@ -358,6 +359,12 @@ const [globalSortDirection, setGlobalSortDirection] = useState<"asc" | "desc">("
   const [showListsPanel, setShowListsPanel] = useState(true)
   const [showAddListModal, setShowAddListModal] = useState(false)
   const [showListDropdown, setShowListDropdown] = useState(false)
+  
+  // Multi-selection state
+  const [selectedParticipantIds, setSelectedParticipantIds] = useState<Set<string>>(new Set())
+  const [showMoveToListMenu, setShowMoveToListMenu] = useState(false)
+  const [showContactModal, setShowContactModal] = useState(false)
+  const [showBookAuditionModal, setShowBookAuditionModal] = useState(false)
   const [newListName, setNewListName] = useState("")
   const [newListDescription, setNewListDescription] = useState("")
   const [newListColor, setNewListColor] = useState("bg-cyan-500")
@@ -476,6 +483,51 @@ const [globalSortDirection, setGlobalSortDirection] = useState<"asc" | "desc">("
     setLists(prev => prev.map(l => 
       l.id === listId ? { ...l, sortBy, sortDirection } : l
     ))
+  }
+
+  // Multi-selection functions
+  const toggleParticipantSelection = (participantId: string, event?: React.MouseEvent) => {
+    event?.stopPropagation()
+    setSelectedParticipantIds(prev => {
+      const newSet = new Set(prev)
+      if (newSet.has(participantId)) {
+        newSet.delete(participantId)
+      } else {
+        newSet.add(participantId)
+      }
+      return newSet
+    })
+  }
+
+  const selectAllVisible = () => {
+    setSelectedParticipantIds(new Set(sortedParticipants.map(p => p.id)))
+  }
+
+  const clearSelection = () => {
+    setSelectedParticipantIds(new Set())
+  }
+
+  const moveSelectedToList = (listId: string) => {
+    setLists(prev => prev.map(list => {
+      if (list.id === listId) {
+        const newParticipantIds = new Set([...list.participantIds, ...selectedParticipantIds])
+        return { ...list, participantIds: Array.from(newParticipantIds) }
+      }
+      return list
+    }))
+    setShowMoveToListMenu(false)
+    clearSelection()
+  }
+
+  const removeSelectedFromCurrentList = () => {
+    if (!selectedListId) return
+    setLists(prev => prev.map(list => {
+      if (list.id === selectedListId) {
+        return { ...list, participantIds: list.participantIds.filter(id => !selectedParticipantIds.has(id)) }
+      }
+      return list
+    }))
+    clearSelection()
   }
 
   // Group by stage for Kanban
@@ -754,25 +806,48 @@ const [globalSortDirection, setGlobalSortDirection] = useState<"asc" | "desc">("
     return count.toString()
   }
 
-  const renderParticipantCard = (participant: Participant, compact = false) => (
-    <div
-      key={participant.id}
-      draggable
-      onDragStart={() => handleDragStart(participant.id)}
-      onDragEnd={() => { setDraggedParticipant(null); setDragOverStage(null) }}
-      onClick={() => setSelectedParticipant(participant)}
-      className={`bg-white rounded-xl border border-gray-200 hover:border-cyan-300 hover:shadow-md transition-all cursor-pointer group ${
-        draggedParticipant === participant.id ? "opacity-50 scale-95" : ""
-      } ${selectedParticipant?.id === participant.id ? "ring-2 ring-cyan-500 border-cyan-400" : ""}`}
-    >
-      <div className={`p-3 ${compact ? "space-y-2" : "space-y-3"}`}>
-        {/* Header with photo and name */}
-        <div className="flex items-start gap-3">
-          <div className="relative">
-            <div 
-              className={`${compact ? "w-10 h-10" : "w-12 h-12"} rounded-lg bg-gradient-to-br from-cyan-100 to-cyan-200 flex items-center justify-center text-cyan-700 font-bold text-sm overflow-hidden cursor-pointer transition-all ${
-                dragOverParticipantId === participant.id ? "ring-2 ring-cyan-500 ring-offset-2 scale-105" : ""
-              }`}
+const renderParticipantCard = (participant: Participant, compact = false) => {
+  const isSelected = selectedParticipantIds.has(participant.id)
+  return (
+  <div
+  key={participant.id}
+  draggable
+  onDragStart={() => handleDragStart(participant.id)}
+  onDragEnd={() => { setDraggedParticipant(null); setDragOverStage(null) }}
+  onClick={(e) => {
+    if (e.shiftKey || e.ctrlKey || e.metaKey) {
+      toggleParticipantSelection(participant.id, e)
+    } else if (selectedParticipantIds.size > 0) {
+      toggleParticipantSelection(participant.id, e)
+    } else {
+      setSelectedParticipant(participant)
+    }
+  }}
+  className={`bg-white rounded-xl border transition-all cursor-pointer group relative ${
+  draggedParticipant === participant.id ? "opacity-50 scale-95" : ""
+  } ${isSelected ? "ring-2 ring-cyan-500 border-cyan-400 bg-cyan-50/30" : "border-gray-200 hover:border-cyan-300 hover:shadow-md"
+  } ${selectedParticipant?.id === participant.id && !isSelected ? "ring-2 ring-cyan-300 border-cyan-300" : ""}`}
+  >
+  {/* Selection checkbox */}
+  <div 
+    className={`absolute top-2 left-2 z-10 transition-opacity ${isSelected || selectedParticipantIds.size > 0 ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}
+    onClick={(e) => toggleParticipantSelection(participant.id, e)}
+  >
+    <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${
+      isSelected ? "bg-cyan-600 border-cyan-600" : "bg-white/90 border-gray-300 hover:border-cyan-400"
+    }`}>
+      {isSelected && <Check className="w-3.5 h-3.5 text-white" />}
+    </div>
+  </div>
+  
+  <div className={`p-3 ${compact ? "space-y-2" : "space-y-3"}`}>
+  {/* Header with photo and name */}
+  <div className="flex items-start gap-3">
+  <div className="relative">
+  <div
+  className={`${compact ? "w-10 h-10" : "w-12 h-12"} rounded-lg bg-gradient-to-br from-cyan-100 to-cyan-200 flex items-center justify-center text-cyan-700 font-bold text-sm overflow-hidden cursor-pointer transition-all ${
+  dragOverParticipantId === participant.id ? "ring-2 ring-cyan-500 ring-offset-2 scale-105" : ""
+  }`}
               onDragOver={(e) => handleImageDragOver(e, participant.id)}
               onDragLeave={handleImageDragLeave}
               onDrop={(e) => handleImageDrop(e, participant.id)}
@@ -889,6 +964,7 @@ const [globalSortDirection, setGlobalSortDirection] = useState<"asc" | "desc">("
       </div>
     </div>
   )
+}
 
   const renderPipelineView = () => (
     <div className="flex-1 overflow-x-auto">
@@ -2412,6 +2488,283 @@ const renderGridView = () => (
                   className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors"
                 >
                   Remove Stage
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Multi-Selection Floating Action Bar */}
+      {selectedParticipantIds.size > 0 && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 animate-in slide-in-from-bottom-4 duration-200">
+          <div className="bg-gray-900 text-white rounded-2xl shadow-2xl px-4 py-3 flex items-center gap-4">
+            {/* Selection count */}
+            <div className="flex items-center gap-2 pr-4 border-r border-gray-700">
+              <div className="w-8 h-8 rounded-full bg-cyan-600 flex items-center justify-center text-sm font-bold">
+                {selectedParticipantIds.size}
+              </div>
+              <span className="text-sm font-medium">
+                {selectedParticipantIds.size === 1 ? "Participant" : "Participants"} selected
+              </span>
+            </div>
+            
+            {/* Actions */}
+            <div className="flex items-center gap-1">
+              {/* Contact */}
+              <button
+                onClick={() => setShowContactModal(true)}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-800 transition-colors"
+                title="Contact selected participants"
+              >
+                <Mail className="w-4 h-4" />
+                <span className="text-sm">Contact</span>
+              </button>
+              
+              {/* Move to List */}
+              <div className="relative">
+                <button
+                  onClick={() => setShowMoveToListMenu(!showMoveToListMenu)}
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-800 transition-colors"
+                  title="Add to list"
+                >
+                  <FolderPlus className="w-4 h-4" />
+                  <span className="text-sm">Add to List</span>
+                  <ChevronDown className="w-3 h-3" />
+                </button>
+                {showMoveToListMenu && (
+                  <>
+                    <div className="fixed inset-0 z-10" onClick={() => setShowMoveToListMenu(false)} />
+                    <div className="absolute bottom-full left-0 mb-2 w-48 bg-white rounded-xl shadow-xl border border-gray-200 py-1 z-20">
+                      <p className="px-3 py-2 text-[10px] text-gray-400 font-semibold uppercase tracking-wider">Add to list</p>
+                      {lists.map((list) => (
+                        <button
+                          key={list.id}
+                          onClick={() => moveSelectedToList(list.id)}
+                          className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-cyan-50 transition-colors"
+                        >
+                          <div className={`w-2.5 h-2.5 rounded-full ${list.color}`} />
+                          <span className="flex-1 text-left truncate">{list.name}</span>
+                          <Plus className="w-3 h-3 text-gray-400" />
+                        </button>
+                      ))}
+                      <div className="border-t border-gray-100 mt-1 pt-1">
+                        <button
+                          onClick={() => { setShowMoveToListMenu(false); setShowAddListModal(true) }}
+                          className="w-full flex items-center gap-2 px-3 py-2 text-sm text-cyan-600 hover:bg-cyan-50 transition-colors"
+                        >
+                          <Plus className="w-3 h-3" />
+                          Create new list
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+              
+              {/* Book Audition */}
+              <button
+                onClick={() => setShowBookAuditionModal(true)}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-800 transition-colors"
+                title="Book audition for selected participants"
+              >
+                <Calendar className="w-4 h-4" />
+                <span className="text-sm">Book Audition</span>
+              </button>
+              
+              {/* Remove from current list (only if viewing a list) */}
+              {selectedListId && (
+                <button
+                  onClick={removeSelectedFromCurrentList}
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-red-900/50 text-red-400 transition-colors"
+                  title="Remove from this list"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  <span className="text-sm">Remove</span>
+                </button>
+              )}
+              
+              {/* Select All */}
+              <button
+                onClick={selectAllVisible}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-800 transition-colors text-gray-400"
+                title="Select all visible"
+              >
+                <CheckCircle className="w-4 h-4" />
+              </button>
+            </div>
+            
+            {/* Clear selection */}
+            <button
+              onClick={clearSelection}
+              className="ml-2 p-2 rounded-lg hover:bg-gray-800 transition-colors text-gray-400 hover:text-white"
+              title="Clear selection"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Contact Modal */}
+      {showContactModal && (
+        <>
+          <div className="fixed inset-0 bg-black/50 z-50" onClick={() => setShowContactModal(false)} />
+          <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg bg-white rounded-2xl shadow-2xl z-50">
+            <div className="p-5 border-b border-gray-100">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-cyan-100 flex items-center justify-center">
+                    <Mail className="w-5 h-5 text-cyan-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900">Contact Participants</h3>
+                    <p className="text-sm text-gray-500">{selectedParticipantIds.size} recipient(s)</p>
+                  </div>
+                </div>
+                <button onClick={() => setShowContactModal(false)} className="p-2 rounded-lg hover:bg-gray-100 text-gray-400">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+            <div className="p-5 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Recipients</label>
+                <div className="flex flex-wrap gap-1.5 p-2 bg-gray-50 rounded-lg border border-gray-200 max-h-24 overflow-y-auto">
+                  {Array.from(selectedParticipantIds).map(id => {
+                    const p = participants.find(p => p.id === id)
+                    return p ? (
+                      <span key={id} className="inline-flex items-center gap-1 px-2 py-0.5 bg-white border border-gray-200 rounded-full text-xs text-gray-700">
+                        {p.name}
+                        <button onClick={() => toggleParticipantSelection(id)} className="text-gray-400 hover:text-gray-600">
+                          <X className="w-3 h-3" />
+                        </button>
+                      </span>
+                    ) : null
+                  })}
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Subject</label>
+                <input
+                  type="text"
+                  placeholder="Enter subject..."
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Message</label>
+                <textarea
+                  rows={4}
+                  placeholder="Write your message..."
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 resize-none"
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <button className="flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-50">
+                  <Paperclip className="w-4 h-4" />
+                  Attach
+                </button>
+                <div className="flex-1" />
+                <button
+                  onClick={() => setShowContactModal(false)}
+                  className="px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => { setShowContactModal(false); clearSelection() }}
+                  className="px-4 py-2 bg-cyan-600 text-white rounded-lg text-sm font-medium hover:bg-cyan-700"
+                >
+                  Send Message
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Book Audition Modal */}
+      {showBookAuditionModal && (
+        <>
+          <div className="fixed inset-0 bg-black/50 z-50" onClick={() => setShowBookAuditionModal(false)} />
+          <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg bg-white rounded-2xl shadow-2xl z-50">
+            <div className="p-5 border-b border-gray-100">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
+                    <Calendar className="w-5 h-5 text-purple-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900">Book Audition</h3>
+                    <p className="text-sm text-gray-500">{selectedParticipantIds.size} participant(s)</p>
+                  </div>
+                </div>
+                <button onClick={() => setShowBookAuditionModal(false)} className="p-2 rounded-lg hover:bg-gray-100 text-gray-400">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+            <div className="p-5 space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Date</label>
+                  <input
+                    type="date"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Time</label>
+                  <input
+                    type="time"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Audition Type</label>
+                <select className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+                  <option>In-Person Audition</option>
+                  <option>Video Call (Zoom)</option>
+                  <option>Self-Tape Submission</option>
+                  <option>Phone Interview</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Location / Link</label>
+                <input
+                  type="text"
+                  placeholder="Enter location or meeting link..."
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Notes</label>
+                <textarea
+                  rows={2}
+                  placeholder="Add any additional notes..."
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
+                />
+              </div>
+              <div className="flex items-center gap-2 pt-2">
+                <label className="flex items-center gap-2 text-sm text-gray-600">
+                  <input type="checkbox" defaultChecked className="w-4 h-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500" />
+                  Send calendar invites to participants
+                </label>
+              </div>
+              <div className="flex gap-2 pt-2">
+                <button
+                  onClick={() => setShowBookAuditionModal(false)}
+                  className="flex-1 px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => { setShowBookAuditionModal(false); clearSelection() }}
+                  className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700"
+                >
+                  Book Audition
                 </button>
               </div>
             </div>
