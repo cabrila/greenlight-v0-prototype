@@ -350,7 +350,7 @@ function AddItemModal({ onClose, onAdd, scenes, characters, characterActorMap }:
                     }`}
                   >
                     {isValidImageUrl(castActor?.headshots?.[0]) ? (
-                      {isValidImageUrl(castActor?.headshots?.[0]) ? <img src={castActor.headshots[0]} alt="" className={`w-7 h-8 object-cover rounded-lg shrink-0 ${isSelected ? "ring-2 ring-emerald-300" : ""}`} /> : <User className="w-4 h-4 text-gray-400" />}
+                      <img src={castActor.headshots[0]} alt="" className={`w-7 h-8 object-cover rounded-lg shrink-0 ${isSelected ? "ring-2 ring-emerald-300" : ""}`} />
                     ) : (
                       <div className={`w-7 h-8 rounded-lg flex items-center justify-center shrink-0 ${isSelected ? "bg-emerald-100" : "bg-gray-100"}`}>
                         <User className={`w-3.5 h-3.5 ${isSelected ? "text-emerald-500" : "text-gray-400"}`} />
@@ -621,7 +621,7 @@ function EditItemModal({ item, onClose, onSave, scenes, characters, characterAct
                     }`}
                   >
                     {isValidImageUrl(castActor?.headshots?.[0]) ? (
-                      {isValidImageUrl(castActor?.headshots?.[0]) ? <img src={castActor.headshots[0]} alt="" className={`w-7 h-8 object-cover rounded-lg shrink-0 ${isSelected ? "ring-2 ring-emerald-300" : ""}`} /> : <User className="w-4 h-4 text-gray-400" />}
+                      <img src={castActor.headshots[0]} alt="" className={`w-7 h-8 object-cover rounded-lg shrink-0 ${isSelected ? "ring-2 ring-emerald-300" : ""}`} />
                     ) : (
                       <div className={`w-7 h-8 rounded-lg flex items-center justify-center shrink-0 ${isSelected ? "bg-emerald-100" : "bg-gray-100"}`}>
                         <User className={`w-3.5 h-3.5 ${isSelected ? "text-emerald-500" : "text-gray-400"}`} />
