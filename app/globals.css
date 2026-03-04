@@ -64,6 +64,45 @@
 
   /* Notification Badge Color */
   --notification-badge: hsl(0 84% 60%);
+  
+  /* Warning/Amber Colors */
+  --warning-100: hsl(45 93% 85%);
+  --warning-200: hsl(45 92% 75%);
+  --warning-300: hsl(45 90% 65%);
+  --warning-400: hsl(45 88% 55%);
+  --warning-500: hsl(45 92% 47%);
+  --warning-600: hsl(45 95% 40%);
+  --warning-700: hsl(45 95% 32%);
+  
+  /* Cyan/Info Alternative Colors */
+  --cyan-100: hsl(186 93% 85%);
+  --cyan-200: hsl(186 90% 75%);
+  --cyan-300: hsl(186 87% 60%);
+  --cyan-400: hsl(186 84% 50%);
+  --cyan-500: hsl(186 85% 43%);
+  --cyan-600: hsl(186 90% 36%);
+  --cyan-700: hsl(186 92% 28%);
+  
+  /* Teal Brand Colors */
+  --teal-100: hsl(168 76% 85%);
+  --teal-200: hsl(168 72% 70%);
+  --teal-300: hsl(168 68% 55%);
+  --teal-400: hsl(168 64% 45%);
+  --teal-500: hsl(168 70% 38%);
+  --teal-600: hsl(168 76% 30%);
+  --teal-700: hsl(168 80% 22%);
+  
+  /* Neutral/Gray Colors */
+  --neutral-50: hsl(0 0% 98%);
+  --neutral-100: hsl(0 0% 96%);
+  --neutral-200: hsl(0 0% 90%);
+  --neutral-300: hsl(0 0% 83%);
+  --neutral-400: hsl(0 0% 64%);
+  --neutral-500: hsl(0 0% 45%);
+  --neutral-600: hsl(0 0% 32%);
+  --neutral-700: hsl(0 0% 25%);
+  --neutral-800: hsl(0 0% 15%);
+  --neutral-900: hsl(0 0% 9%);
 }
 
 .dark {
@@ -122,6 +161,45 @@
   --red-700: hsl(0 90% 70%);
 
   --notification-badge: hsl(0 84% 60%);
+  
+  /* Dark mode warning colors */
+  --warning-100: hsl(45 75% 25%);
+  --warning-200: hsl(45 78% 32%);
+  --warning-300: hsl(45 82% 40%);
+  --warning-400: hsl(45 85% 48%);
+  --warning-500: hsl(45 88% 55%);
+  --warning-600: hsl(45 90% 62%);
+  --warning-700: hsl(45 92% 70%);
+  
+  /* Dark mode cyan colors */
+  --cyan-100: hsl(186 75% 25%);
+  --cyan-200: hsl(186 78% 32%);
+  --cyan-300: hsl(186 82% 40%);
+  --cyan-400: hsl(186 85% 48%);
+  --cyan-500: hsl(186 88% 55%);
+  --cyan-600: hsl(186 90% 62%);
+  --cyan-700: hsl(186 92% 70%);
+  
+  /* Dark mode teal colors */
+  --teal-100: hsl(168 60% 25%);
+  --teal-200: hsl(168 65% 32%);
+  --teal-300: hsl(168 70% 40%);
+  --teal-400: hsl(168 72% 48%);
+  --teal-500: hsl(168 75% 55%);
+  --teal-600: hsl(168 78% 62%);
+  --teal-700: hsl(168 80% 70%);
+  
+  /* Dark mode neutral colors */
+  --neutral-50: hsl(0 0% 12%);
+  --neutral-100: hsl(0 0% 15%);
+  --neutral-200: hsl(0 0% 20%);
+  --neutral-300: hsl(0 0% 28%);
+  --neutral-400: hsl(0 0% 45%);
+  --neutral-500: hsl(0 0% 55%);
+  --neutral-600: hsl(0 0% 70%);
+  --neutral-700: hsl(0 0% 80%);
+  --neutral-800: hsl(0 0% 90%);
+  --neutral-900: hsl(0 0% 96%);
 }
 
 @theme inline {
@@ -163,6 +241,7 @@
   --color-success: var(--green-brand-500);
   
   /* Info/Blue colors */
+  --color-info-50: hsl(214 100% 97%);
   --color-info-100: var(--blue-100);
   --color-info-200: var(--blue-200);
   --color-info-300: var(--blue-300);
@@ -173,6 +252,7 @@
   --color-info-800: var(--blue-800);
   --color-info-900: var(--blue-900);
   --color-info: var(--blue-500);
+  --color-info-foreground: hsl(0 0% 100%);
   
   /* Error/Red colors */
   --color-error-100: var(--red-100);
@@ -186,6 +266,48 @@
   
   /* Notification */
   --color-notification: var(--notification-badge);
+  
+  /* Warning colors */
+  --color-warning-100: var(--warning-100);
+  --color-warning-200: var(--warning-200);
+  --color-warning-300: var(--warning-300);
+  --color-warning-400: var(--warning-400);
+  --color-warning-500: var(--warning-500);
+  --color-warning-600: var(--warning-600);
+  --color-warning-700: var(--warning-700);
+  --color-warning: var(--warning-500);
+  
+  /* Cyan colors */
+  --color-cyan-100: var(--cyan-100);
+  --color-cyan-200: var(--cyan-200);
+  --color-cyan-300: var(--cyan-300);
+  --color-cyan-400: var(--cyan-400);
+  --color-cyan-500: var(--cyan-500);
+  --color-cyan-600: var(--cyan-600);
+  --color-cyan-700: var(--cyan-700);
+  --color-cyan: var(--cyan-500);
+  
+  /* Teal/Brand colors */
+  --color-brand-100: var(--teal-100);
+  --color-brand-200: var(--teal-200);
+  --color-brand-300: var(--teal-300);
+  --color-brand-400: var(--teal-400);
+  --color-brand-500: var(--teal-500);
+  --color-brand-600: var(--teal-600);
+  --color-brand-700: var(--teal-700);
+  --color-brand: var(--teal-500);
+  
+  /* Neutral colors */
+  --color-neutral-50: var(--neutral-50);
+  --color-neutral-100: var(--neutral-100);
+  --color-neutral-200: var(--neutral-200);
+  --color-neutral-300: var(--neutral-300);
+  --color-neutral-400: var(--neutral-400);
+  --color-neutral-500: var(--neutral-500);
+  --color-neutral-600: var(--neutral-600);
+  --color-neutral-700: var(--neutral-700);
+  --color-neutral-800: var(--neutral-800);
+  --color-neutral-900: var(--neutral-900);
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -290,15 +412,15 @@
 }
 
 .drop-zone-active {
-  background: linear-gradient(45deg, rgba(59, 130, 246, 0.1), rgba(147, 197, 253, 0.1));
-  border: 2px dashed rgb(59, 130, 246);
+  background: linear-gradient(45deg, var(--info-100), var(--info-200));
+  border: 2px dashed var(--info-500);
 }
 
 /* Keyboard navigation indicators */
 .keyboard-selected {
-  outline: 2px solid rgb(34, 197, 94);
+  outline: 2px solid var(--green-brand-500);
   outline-offset: 2px;
-  background-color: rgba(34, 197, 94, 0.1);
+  background-color: var(--green-brand-100);
 }
 
 /* Animation for tab reordering */
@@ -350,15 +472,15 @@
 
 /* Dark mode drag and drop styles */
 .dark .drop-zone-active {
-  background: linear-gradient(45deg, rgba(59, 130, 246, 0.2), rgba(147, 197, 253, 0.2));
-  border: 2px dashed rgb(96, 165, 250);
+  background: linear-gradient(45deg, var(--info-100), var(--info-200));
+  border: 2px dashed var(--info-500);
 }
 
 /* Dark mode keyboard navigation */
 .dark .keyboard-selected {
-  outline: 2px solid rgb(34, 197, 94);
+  outline: 2px solid var(--green-brand-500);
   outline-offset: 2px;
-  background-color: rgba(34, 197, 94, 0.2);
+  background-color: var(--green-brand-200);
 }
 
 /* Dark mode focus styles */
@@ -425,9 +547,9 @@
 
 @keyframes leaflet-pulse {
   0% {
-    box-shadow: 0 0 0 0 rgba(20, 184, 166, 0.4);
+    box-shadow: 0 0 0 0 var(--teal-400);
   }
   100% {
-    box-shadow: 0 0 0 12px rgba(20, 184, 166, 0);
+    box-shadow: 0 0 0 12px transparent;
   }
 }

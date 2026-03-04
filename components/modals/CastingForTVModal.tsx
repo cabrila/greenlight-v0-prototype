@@ -2050,27 +2050,27 @@ const renderGridView = () => (
   }
 
   return (
-    <div className="fixed inset-0 bg-gray-50 z-50 flex flex-col">
+    <div className="fixed inset-0 bg-muted z-50 flex flex-col">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between shrink-0">
+      <div className="bg-background border-b border-border px-6 py-4 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-4">
           <img src="/images/gogreenlight-logo.png" alt="GoGreenlight" className="h-8 w-auto" />
           <button
             onClick={() => { onClose(); setTimeout(() => openModal("splashScreen"), 150) }}
-            className="p-1.5 rounded-lg text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors"
+            className="p-1.5 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
             title="Home"
           >
             <Home className="w-4 h-4" />
           </button>
-          <div className="inline-flex items-center bg-cyan-600 text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded">
+          <div className="inline-flex items-center bg-info-600 text-info-foreground text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded">
             <Tv className="w-3 h-3 mr-1.5" />
             Casting for TV
           </div>
           {currentProject && (
-            <span className="text-sm text-gray-500">
+            <span className="text-sm text-muted-foreground">
               {currentProject.name}
               {!isNonFictionProject && (
-                <span className="ml-2 text-xs text-amber-600 bg-amber-50 px-2 py-0.5 rounded">
+                <span className="ml-2 text-xs text-warning-600 bg-warning-100 px-2 py-0.5 rounded">
                   Switch to Non-Fiction TV project for full features
                 </span>
               )}
@@ -2080,7 +2080,7 @@ const renderGridView = () => (
         <div className="flex items-center gap-3">
           <button
             onClick={onClose}
-            className="p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+            className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -2088,17 +2088,17 @@ const renderGridView = () => (
       </div>
 
       {/* Toolbar */}
-      <div className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between shrink-0">
+      <div className="bg-background border-b border-border px-6 py-3 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-3">
           {/* Search */}
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <input
               type="text"
               placeholder="Search participants..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 pr-4 py-2 w-64 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+              className="pl-10 pr-4 py-2 w-64 border border-input rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent bg-background"
             />
           </div>
 
@@ -2107,7 +2107,7 @@ const renderGridView = () => (
             <button
               onClick={() => setShowFilters(!showFilters)}
               className={`flex items-center gap-2 px-3 py-2 border rounded-lg text-sm transition-colors ${
-                filterArchetype ? "border-cyan-300 bg-cyan-50 text-cyan-700" : "border-gray-200 text-gray-600 hover:bg-gray-50"
+                filterArchetype ? "border-info-300 bg-info-50 text-info-700" : "border-input text-muted-foreground hover:bg-muted"
               }`}
             >
               <Filter className="w-4 h-4" />
@@ -2117,30 +2117,30 @@ const renderGridView = () => (
             {showFilters && (
               <>
                 <div className="fixed inset-0 z-10" onClick={() => setShowFilters(false)} />
-                <div className="absolute top-full left-0 mt-1 w-64 bg-white rounded-xl shadow-lg border border-gray-200 py-1 z-20 max-h-80 overflow-y-auto">
+                <div className="absolute top-full left-0 mt-1 w-64 bg-popover rounded-xl shadow-lg border border-border py-1 z-20 max-h-80 overflow-y-auto">
                   <button
                     onClick={() => { setFilterArchetype(null); setShowFilters(false) }}
-                    className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-50 ${!filterArchetype ? "text-cyan-600 font-medium" : "text-gray-700"}`}
+                    className={`w-full px-3 py-2 text-left text-sm hover:bg-muted ${!filterArchetype ? "text-info-600 font-medium" : "text-popover-foreground"}`}
                   >
                     All Archetypes
                   </button>
-                  <div className="border-t border-gray-100 my-1" />
+                  <div className="border-t border-border my-1" />
                   {customArchetypes.map((arch) => (
                     <div
                       key={arch}
-                      className={`group flex items-center justify-between px-3 py-2 hover:bg-gray-50 ${filterArchetype === arch ? "bg-cyan-50" : ""}`}
+                      className={`group flex items-center justify-between px-3 py-2 hover:bg-muted ${filterArchetype === arch ? "bg-info-50" : ""}`}
                     >
                       <button
                         onClick={() => { setFilterArchetype(arch); setShowFilters(false) }}
-                        className={`flex-1 text-left text-sm ${filterArchetype === arch ? "text-cyan-600 font-medium" : "text-gray-700"}`}
+                        className={`flex-1 text-left text-sm ${filterArchetype === arch ? "text-info-600 font-medium" : "text-popover-foreground"}`}
                       >
                         {arch}
                       </button>
                       <div className="flex items-center gap-1">
-                        {filterArchetype === arch && <Check className="w-4 h-4 text-cyan-600" />}
+                        {filterArchetype === arch && <Check className="w-4 h-4 text-info-600" />}
                         <button
                           onClick={(e) => { e.stopPropagation(); handleDeleteArchetype(arch) }}
-                          className="p-1 rounded opacity-0 group-hover:opacity-100 hover:bg-red-50 text-gray-400 hover:text-red-500 transition-all"
+                          className="p-1 rounded opacity-0 group-hover:opacity-100 hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-all"
                           title="Delete archetype"
                         >
                           <Trash2 className="w-3.5 h-3.5" />

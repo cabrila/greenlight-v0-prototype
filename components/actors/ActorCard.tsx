@@ -287,7 +287,7 @@ export default function ActorCard({
     }
 
     // If any contact-related status exists, show as "Contacted"
-    return { status: "contacted", label: "Contacted", icon: CheckCircle, color: "text-blue-600" }
+    return { status: "contacted", label: "Contacted", icon: CheckCircle, color: "text-info-600" }
   }
 
   // Helper function to open Player View for this specific actor
@@ -733,7 +733,7 @@ export default function ActorCard({
               e.stopPropagation()
               setShowNoteForm(!showNoteForm)
             }}
-            className="flex items-center gap-1 px-2 py-1 text-xs text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-colors flex-shrink-0"
+            className="flex items-center gap-1 px-2 py-1 text-xs text-success-600 hover:text-success-700 hover:bg-success-50 rounded-lg transition-colors flex-shrink-0"
           >
             <Plus className="w-3 h-3" />
             <span className="whitespace-nowrap">Add</span>
@@ -764,7 +764,7 @@ export default function ActorCard({
                     e.stopPropagation()
                     handleEditNote(latestNote.id, latestNote.text)
                   }}
-                  className="p-1 text-slate-400 hover:text-blue-600 transition-colors"
+                  className="p-1 text-slate-400 hover:text-info-600 transition-colors"
                 >
                   <Edit2 className="w-3 h-3" />
                 </button>
@@ -773,7 +773,7 @@ export default function ActorCard({
                     e.stopPropagation()
                     handleDeleteNote(latestNote.id)
                   }}
-                  className="p-1 text-slate-400 hover:text-red-600 transition-colors"
+                  className="p-1 text-slate-400 hover:text-error-600 transition-colors"
                 >
                   <Trash2 className="w-3 h-3" />
                 </button>
@@ -786,7 +786,7 @@ export default function ActorCard({
               <textarea
                 value={editingText}
                 onChange={(e) => setEditingText(e.target.value)}
-                className="w-full p-2 text-xs border border-slate-300 rounded resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full p-2 text-xs border border-slate-300 rounded resize-none focus:ring-2 focus:ring-info-500 focus:border-transparent"
                 rows={2}
                 autoFocus
               />
@@ -796,7 +796,7 @@ export default function ActorCard({
                     e.stopPropagation()
                     handleSaveEdit()
                   }}
-                  className="flex items-center space-x-1 px-2 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700"
+                  className="flex items-center space-x-1 px-2 py-1 bg-info-600 text-white rounded text-xs hover:bg-info-700"
                 >
                   <Save className="w-3 h-3" />
                   <span>Save</span>
@@ -828,7 +828,7 @@ export default function ActorCard({
               value={newNoteText}
               onChange={(e) => setNewNoteText(e.target.value)}
               placeholder="Add a note about this actor..."
-              className="w-full p-2 text-sm border border-slate-300 rounded resize-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+              className="w-full p-2 text-sm border border-slate-300 rounded resize-none focus:ring-2 focus:ring-success-500 focus:border-transparent"
               rows={2}
               autoFocus
             />
@@ -849,7 +849,7 @@ export default function ActorCard({
                   handleAddNote()
                 }}
                 disabled={!newNoteText.trim()}
-                className="flex items-center gap-1 px-3 py-1 bg-emerald-600 text-white rounded text-sm hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="flex items-center gap-1 px-3 py-1 bg-success-600 text-white rounded text-sm hover:bg-success-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 <Save className="w-3 h-3" />
                 Save Note
@@ -952,8 +952,8 @@ export default function ActorCard({
       <div
         className={`w-4 h-4 rounded border-2 flex items-center justify-center cursor-pointer transition-all duration-200 backdrop-blur-sm ${
           isSelected
-            ? "bg-emerald-500 border-emerald-600 shadow-lg scale-110"
-            : "bg-white/95 border-slate-400 hover:border-emerald-500 hover:bg-emerald-50 hover:scale-110 shadow-md"
+            ? "bg-success-500 border-success-600 shadow-lg scale-110"
+            : "bg-white/95 border-slate-400 hover:border-success-500 hover:bg-success-50 hover:scale-110 shadow-md"
         }`}
       >
         {isSelected && <Check className="w-3 h-3 text-white stroke-[3]" />}
@@ -966,8 +966,8 @@ export default function ActorCard({
     return (
       <div
         className={`group relative flex items-center gap-4 p-4 bg-white border border-slate-200 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 cursor-pointer w-full min-w-[325px] ${
-          isSelected ? "ring-2 ring-emerald-500 bg-emerald-50" : ""
-        } ${shouldShowDragging ? "opacity-50 scale-95 rotate-1" : ""} ${isDropTarget ? "ring-2 ring-blue-400" : ""}`}
+          isSelected ? "ring-2 ring-success-500 bg-success-50" : ""
+        } ${shouldShowDragging ? "opacity-50 scale-95 rotate-1" : ""} ${isDropTarget ? "ring-2 ring-info-400" : ""}`}
         onClick={handleCardClick}
         draggable
         onDragStart={handleDragStart}
@@ -978,8 +978,8 @@ export default function ActorCard({
         <SelectionCheckbox />
 
         {/* Drop Position Indicator */}
-        {dropPosition === "before" && <div className="absolute -top-1 left-0 right-0 h-0.5 bg-blue-400 rounded" />}
-        {dropPosition === "after" && <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-blue-400 rounded" />}
+        {dropPosition === "before" && <div className="absolute -top-1 left-0 right-0 h-0.5 bg-info-400 rounded" />}
+        {dropPosition === "after" && <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-info-400 rounded" />}
 
         {/* Drag Handle */}
         <div className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -1008,8 +1008,8 @@ export default function ActorCard({
             </div>
           )}
           {actor.isCast && (
-            <div className="absolute inset-0 bg-emerald-500 bg-opacity-20 rounded-lg flex items-center justify-center">
-              <Crown className="w-4 h-4 text-emerald-600" />
+            <div className="absolute inset-0 bg-success-500 bg-opacity-20 rounded-lg flex items-center justify-center">
+              <Crown className="w-4 h-4 text-success-600" />
             </div>
           )}
         </div>
@@ -1019,13 +1019,13 @@ export default function ActorCard({
           <div className="flex items-center gap-2 mb-2">
             <button
               onClick={handleNameClick}
-              className="font-semibold text-slate-900 hover:text-emerald-600 transition-colors truncate text-left"
+              className="font-semibold text-slate-900 hover:text-success-600 transition-colors truncate text-left"
             >
               {actor.name}
             </button>
-            {actor.isCast && <Crown className="w-4 h-4 text-emerald-600 flex-shrink-0" />}
+            {actor.isCast && <Crown className="w-4 h-4 text-success-600 flex-shrink-0" />}
             {!actor.isCast && actor.isGreenlit && (
-              <span className="bg-emerald-100 text-emerald-700 text-xs px-2 py-0.5 rounded-full font-medium flex-shrink-0 whitespace-nowrap">
+              <span className="bg-success-100 text-success-700 text-xs px-2 py-0.5 rounded-full font-medium flex-shrink-0 whitespace-nowrap">
                 Greenlit
               </span>
             )}
@@ -1061,8 +1061,8 @@ export default function ActorCard({
     return (
       <div
         className={`group relative bg-white border border-slate-200 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer w-full min-w-[285px] max-w-[285px] ${
-          isSelected ? "ring-2 ring-emerald-500" : ""
-        } ${shouldShowDragging ? "opacity-50 scale-95 rotate-1" : ""} ${isDropTarget ? "ring-2 ring-blue-400" : ""}`}
+          isSelected ? "ring-2 ring-success-500" : ""
+        } ${shouldShowDragging ? "opacity-50 scale-95 rotate-1" : ""} ${isDropTarget ? "ring-2 ring-info-400" : ""}`}
         onClick={handleCardClick}
         draggable
         onDragStart={handleDragStart}
@@ -1073,9 +1073,9 @@ export default function ActorCard({
         <SelectionCheckbox />
 
         {/* Drop Position Indicators */}
-        {dropPosition === "before" && <div className="absolute -top-1 left-0 right-0 h-0.5 bg-blue-400 rounded z-10" />}
+        {dropPosition === "before" && <div className="absolute -top-1 left-0 right-0 h-0.5 bg-info-400 rounded z-10" />}
         {dropPosition === "after" && (
-          <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-blue-400 rounded z-10" />
+          <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-info-400 rounded z-10" />
         )}
 
         {/* More Actions Button - Upper Right Corner */}
@@ -1090,7 +1090,7 @@ export default function ActorCard({
         <div className="flex h-48">
           {/* Left Side - Image Container */}
           <div
-            className={`relative bg-slate-100 w-36 flex-shrink-0 ${isDragOver ? "bg-blue-100 border-2 border-dashed border-blue-400" : ""}`}
+            className={`relative bg-slate-100 w-36 flex-shrink-0 ${isDragOver ? "bg-info-100 border-2 border-dashed border-info-400" : ""}`}
             onDragEnter={handleImageDragEnter}
             onDragLeave={handleImageDragLeave}
             onDragOver={handleImageDragOver}
@@ -1107,8 +1107,8 @@ export default function ActorCard({
 
             {/* Upload Overlay */}
             {isDragOver && (
-              <div className="absolute inset-0 bg-blue-500 bg-opacity-20 flex items-center justify-center">
-                <div className="text-blue-700 text-xs font-semibold">Drop image</div>
+              <div className="absolute inset-0 bg-info-500 bg-opacity-20 flex items-center justify-center">
+                <div className="text-info-700 text-xs font-semibold">Drop image</div>
               </div>
             )}
 
@@ -1119,7 +1119,7 @@ export default function ActorCard({
                   <div className="text-xs font-semibold mb-1">Uploading...</div>
                   <div className="w-16 bg-slate-200 rounded-full h-1">
                     <div
-                      className="bg-blue-500 h-1 rounded-full transition-all duration-300"
+                      className="bg-info-500 h-1 rounded-full transition-all duration-300"
                       style={{ width: `${uploadProgress}%` }}
                     />
                   </div>
@@ -1130,7 +1130,7 @@ export default function ActorCard({
             {/* Cast/Greenlit Overlay */}
             {actor.isCast && (
               <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/30 to-emerald-600/30 flex items-center justify-center">
-                <div className="bg-emerald-600 text-white px-2 py-1 rounded-lg flex items-center space-x-1 shadow-lg">
+                <div className="bg-success-600 text-white px-2 py-1 rounded-lg flex items-center space-x-1 shadow-lg">
                   <Crown className="w-3 h-3" />
                   <span className="text-xs font-bold">CAST</span>
                 </div>
@@ -1139,7 +1139,7 @@ export default function ActorCard({
 
             {!actor.isCast && actor.isGreenlit && (
               <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-emerald-600/20 flex items-center justify-center">
-                <div className="bg-emerald-600 text-white px-2 py-1 rounded-lg text-xs font-bold shadow-lg">
+                <div className="bg-success-600 text-white px-2 py-1 rounded-lg text-xs font-bold shadow-lg">
                   GREENLIT
                 </div>
               </div>
@@ -1184,7 +1184,7 @@ export default function ActorCard({
             <div className="mb-3 text-center">
               <button
                 onClick={handleNameClick}
-                className="font-semibold text-slate-900 hover:text-emerald-600 transition-colors text-sm leading-tight"
+                className="font-semibold text-slate-900 hover:text-success-600 transition-colors text-sm leading-tight"
               >
                 {actor.name}
               </button>
@@ -1221,13 +1221,13 @@ export default function ActorCard({
                   let textColor = "text-slate-600"
 
                   if (userVote === "yes") {
-                    bgColor = "bg-emerald-500"
+                    bgColor = "bg-success-500"
                     textColor = "text-white"
                   } else if (userVote === "no") {
-                    bgColor = "bg-red-500"
+                    bgColor = "bg-error-500"
                     textColor = "text-white"
                   } else if (userVote === "maybe") {
-                    bgColor = "bg-blue-500"
+                    bgColor = "bg-info-500"
                     textColor = "text-white"
                   }
 
@@ -1257,8 +1257,8 @@ export default function ActorCard({
     return (
       <div
         className={`group relative bg-white border border-slate-200 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer w-full min-w-[325px] max-w-[350px] ${
-          isSelected ? "ring-2 ring-emerald-500" : ""
-        } ${shouldShowDragging ? "opacity-50 scale-95 rotate-1" : ""} ${isDropTarget ? "ring-2 ring-blue-400" : ""}`}
+          isSelected ? "ring-2 ring-success-500" : ""
+        } ${shouldShowDragging ? "opacity-50 scale-95 rotate-1" : ""} ${isDropTarget ? "ring-2 ring-info-400" : ""}`}
         onClick={handleCardClick}
         draggable
         onDragStart={handleDragStart}
@@ -1269,9 +1269,9 @@ export default function ActorCard({
         <SelectionCheckbox />
 
         {/* Drop Position Indicators */}
-        {dropPosition === "before" && <div className="absolute -top-1 left-0 right-0 h-0.5 bg-blue-400 rounded z-10" />}
+        {dropPosition === "before" && <div className="absolute -top-1 left-0 right-0 h-0.5 bg-info-400 rounded z-10" />}
         {dropPosition === "after" && (
-          <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-blue-400 rounded z-10" />
+          <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-info-400 rounded z-10" />
         )}
 
         <button
@@ -1297,7 +1297,7 @@ export default function ActorCard({
             {/* Image Container - Fixed size 100x120 */}
             <div
               className={`relative bg-slate-100 flex-shrink-0 w-[130px] h-[145px] rounded-lg overflow-hidden ${
-                isDragOver ? "bg-blue-100 border-2 border-dashed border-blue-400" : ""
+                isDragOver ? "bg-info-100 border-2 border-dashed border-info-400" : ""
               }`}
               onDragEnter={handleImageDragEnter}
               onDragLeave={handleImageDragLeave}
@@ -1315,8 +1315,8 @@ export default function ActorCard({
 
               {/* Upload Overlay */}
               {isDragOver && (
-                <div className="absolute inset-0 bg-blue-500 bg-opacity-20 flex items-center justify-center">
-                  <div className="text-blue-700 text-xs font-semibold text-center">Drop image</div>
+                <div className="absolute inset-0 bg-info-500 bg-opacity-20 flex items-center justify-center">
+                  <div className="text-info-700 text-xs font-semibold text-center">Drop image</div>
                 </div>
               )}
 
@@ -1327,7 +1327,7 @@ export default function ActorCard({
                     <div className="text-xs font-semibold mb-1">Uploading...</div>
                     <div className="w-16 bg-slate-200 rounded-full h-1">
                       <div
-                        className="bg-blue-500 h-1 rounded-full transition-all duration-300"
+                        className="bg-info-500 h-1 rounded-full transition-all duration-300"
                         style={{ width: `${uploadProgress}%` }}
                       />
                     </div>
@@ -1337,10 +1337,10 @@ export default function ActorCard({
 
               {/* Upload Error */}
               {uploadError && (
-                <div className="absolute inset-0 bg-red-500 bg-opacity-20 flex items-center justify-center">
+                <div className="absolute inset-0 bg-error-500 bg-opacity-20 flex items-center justify-center">
                   <div className="bg-white rounded-lg p-2 text-center">
-                    <div className="text-red-600 text-xs font-semibold mb-1">Upload Failed</div>
-                    <button onClick={() => setUploadError(null)} className="text-xs text-red-600 hover:text-red-800">
+                    <div className="text-error-600 text-xs font-semibold mb-1">Upload Failed</div>
+                    <button onClick={() => setUploadError(null)} className="text-xs text-error-600 hover:text-error-800">
                       Dismiss
                     </button>
                   </div>
@@ -1405,14 +1405,14 @@ export default function ActorCard({
                 <div className="flex items-center gap-2 mb-1">
                   <button
                     onClick={handleNameClick}
-                    className="font-bold text-lg text-slate-900 hover:text-emerald-600 transition-colors break-words text-left"
+                    className="font-bold text-lg text-slate-900 hover:text-success-600 transition-colors break-words text-left"
                   >
                     {actor.name}
                   </button>
                   {actor.isCast && (
                     <div className="flex items-center space-x-1">
-                      <Crown className="w-4 h-4 text-emerald-600" />
-                      <span className="text-xs text-emerald-600 font-semibold truncate">Cast as {character.name}</span>
+                      <Crown className="w-4 h-4 text-success-600" />
+                      <span className="text-xs text-success-600 font-semibold truncate">Cast as {character.name}</span>
                     </div>
                   )}
                 </div>
@@ -1449,7 +1449,7 @@ export default function ActorCard({
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={(e) => e.stopPropagation()}
-                      className="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors"
+                      className="flex items-center gap-2 text-info-600 hover:text-info-800 transition-colors"
                     >
                       <span className="text-xs font-medium underline">IMDB Profile</span>
                     </a>
@@ -1516,7 +1516,7 @@ export default function ActorCard({
             {/* Manage Status Button - Aligned to the right */}
             <button
               onClick={handleManageStatuses}
-              className="flex items-center gap-1 px-2 py-1 text-xs text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-colors flex-shrink-0"
+              className="flex items-center gap-1 px-2 py-1 text-xs text-success-600 hover:text-success-700 hover:bg-success-50 rounded-lg transition-colors flex-shrink-0"
             >
               <Tag className="w-3 h-3" />
               <span className="whitespace-nowrap">Manage Status</span>
@@ -1539,7 +1539,7 @@ export default function ActorCard({
                 {actor.skills.map((skill, index) => (
                   <span
                     key={index}
-                    className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-blue-100 text-blue-700 border border-blue-200"
+                    className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-info-100 text-info-700 border border-info-200"
                   >
                     {skill}
                   </span>
@@ -1596,10 +1596,10 @@ export default function ActorCard({
               {actor.currentListKey === "approval" &&
                 voteStats.yesVotes === voteStats.totalUsers &&
                 voteStats.totalUsers > 0 && (
-                  <div className="mb-3 p-3 bg-gradient-to-r from-emerald-50 to-emerald-100 border border-emerald-200 rounded-xl shadow-sm">
+                  <div className="mb-3 p-3 bg-gradient-to-r from-emerald-50 to-emerald-100 border border-success-200 rounded-xl shadow-sm">
                     <div className="flex items-center space-x-2">
-                      <Crown className="w-4 h-4 text-emerald-600" />
-                      <span className="text-sm text-emerald-700 font-semibold break-words">
+                      <Crown className="w-4 h-4 text-success-600" />
+                      <span className="text-sm text-success-700 font-semibold break-words">
                         🎉 Unanimous approval! This actor is now cast in the role.
                       </span>
                     </div>

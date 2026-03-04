@@ -569,7 +569,7 @@ export default function Sidebar() {
                           value={user.id}
                           checked={state.currentUser?.id === user.id}
                           onChange={() => handleUserChange(user.id)}
-                          className="form-radio h-4 w-4 text-emerald-500 focus:ring-emerald-500"
+                          className="form-radio h-4 w-4 text-success-500 focus:ring-success-500"
                         />
                         <div
                           className="w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold shadow-sm"
@@ -596,7 +596,7 @@ export default function Sidebar() {
                         onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                       >
                         {state.currentUser.initials}
-                        <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-gradient-to-br from-green-400 to-green-500 rounded-full border-2 border-white shadow-sm"></div>
+                        <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-gradient-to-br from-success-400 to-success-500 rounded-full border-2 border-background shadow-sm"></div>
                       </div>
                     </div>
                   )}
@@ -646,7 +646,7 @@ export default function Sidebar() {
                             type="checkbox"
                             checked={value}
                             onChange={(e) => handleCardSettingChange(field, e.target.checked)}
-                            className="form-checkbox h-4 w-4 rounded text-emerald-500 focus:ring-emerald-500"
+                            className="form-checkbox h-4 w-4 rounded text-success-500 focus:ring-success-500"
                           />
                           <span className="text-sm text-slate-700 capitalize">
                             {field === "imdb"
@@ -698,7 +698,7 @@ export default function Sidebar() {
                 <div className="space-y-2 pl-2 pt-2">
                   <button
                     onClick={handleClearCache}
-                    className="flex items-center space-x-3 w-full text-sm text-red-600 hover:text-red-700 hover:bg-red-50 px-3 py-2 rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                    className="flex items-center space-x-3 w-full text-sm text-destructive hover:text-error-700 hover:bg-error-100 px-3 py-2 rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
                     title="Clear all cached data and reset application"
                   >
                     <Trash2 size={16} />
@@ -708,11 +708,11 @@ export default function Sidebar() {
                   <button
                     onClick={handleLoadDemoData}
                     disabled={isLoadingDemo}
-                    className="flex items-center space-x-3 w-full text-sm text-blue-600 hover:text-blue-700 hover:bg-blue-50 px-3 py-2 rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                    className="flex items-center space-x-3 w-full text-sm text-info-600 hover:text-info-700 hover:bg-info-100 px-3 py-2 rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
                     title="Load demo data and reset to initial state"
                   >
                     {isLoadingDemo ? (
-                      <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                      <div className="w-4 h-4 border-2 border-info-600 border-t-transparent rounded-full animate-spin" />
                     ) : (
                       <Database size={16} />
                     )}
@@ -721,7 +721,7 @@ export default function Sidebar() {
 
                   <button
                     onClick={handleOpenSplashScreen}
-                    className="flex items-center space-x-3 w-full text-sm text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 px-3 py-2 rounded-xl transition-all duration-200 font-medium"
+                    className="flex items-center space-x-3 w-full text-sm text-success-600 hover:text-success-700 hover:bg-success-100 px-3 py-2 rounded-xl transition-all duration-200 font-medium"
                     title="Open splash screen"
                   >
                     <Sparkles size={16} />
