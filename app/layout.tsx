@@ -1,4 +1,4 @@
-import type React from "react" // Good practice to import React
+import type React from "react"
 import type { Metadata } from "next"
 import { Gabarito } from 'next/font/google'
 import "./globals.css"
