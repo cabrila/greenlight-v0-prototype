@@ -1,7 +1,11 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
-import { Send, X, Loader2, Mic, MicOff, Sparkles, MessageCircle, Lightbulb, Zap, ChevronDown } from "lucide-react"
+import { 
+  Send, X, Loader2, Mic, MicOff, Sparkles, MessageCircle, Lightbulb, 
+  Users, Film, Calendar, Search, ArrowRight, User, Clapperboard,
+  ChevronRight, ExternalLink, CheckCircle2, ListChecks, BarChart3
+} from "lucide-react"
 import { Z_INDEX } from "@/utils/zIndex"
 
 interface Message {
@@ -9,15 +13,33 @@ interface Message {
   type: "user" | "assistant"
   content: string
   timestamp: number
+  actions?: ActionButton[]
+  queryType?: "actors" | "characters" | "auditions" | "project" | "general"
+}
+
+interface ActionButton {
+  label: string
+  icon: "actors" | "characters" | "auditions" | "search" | "navigate" | "confirm"
+  action: string
 }
 
 const SUGGESTED_PROMPTS = [
-  "What characters need casting?",
-  "Show me actors tagged as 'Lead Potential'",
-  "How many actors are in the current project?",
-  "Add a new character called 'Detective'",
-  "What's the status of auditions?",
+  { text: "What characters need casting?", icon: "characters" as const },
+  { text: "Show me actors tagged as 'Lead Potential'", icon: "actors" as const },
+  { text: "How many actors are in the project?", icon: "actors" as const },
+  { text: "What's the status of auditions?", icon: "auditions" as const },
 ]
+
+const QUERY_ICONS = {
+  actors: Users,
+  characters: Film,
+  auditions: Calendar,
+  project: Clapperboard,
+  general: Sparkles,
+  search: Search,
+  navigate: ArrowRight,
+  confirm: CheckCircle2,
+}
 
 export default function GoGreenlightCoPilot() {
   const [isOpen, setIsOpen] = useState(false)
@@ -29,56 +51,107 @@ export default function GoGreenlightCoPilot() {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages])
 
-  // Focus input when opened
   useEffect(() => {
     if (isOpen) {
       setTimeout(() => inputRef.current?.focus(), 100)
     }
   }, [isOpen])
 
-  const generateMockResponse = (userMessage: string): string => {
-    const lowerMessage = userMessage.toLowerCase()
+  const detectQueryType = (message: string): Message["queryType"] => {
+    const lower = message.toLowerCase()
+    if (lower.includes("actor") || lower.includes("cast") || lower.includes("talent")) return "actors"
+    if (lower.includes("character") || lower.includes("role")) return "characters"
+    if (lower.includes("audition") || lower.includes("schedule") || lower.includes("callback")) return "auditions"
+    if (lower.includes("project") || lower.includes("status") || lower.includes("progress")) return "project"
+    return "general"
+  }
 
-    // Project/character queries
+  const generateMockResponse = (userMessage: string): { content: string; actions?: ActionButton[]; queryType: Message["queryType"] } => {
+    const lowerMessage = userMessage.toLowerCase()
+    const queryType = detectQueryType(userMessage)
+
     if (lowerMessage.includes("character") && (lowerMessage.includes("need") || lowerMessage.includes("casting"))) {
-      return "Based on the current project, there are 5 characters that still need casting:\n\n1. **Detective Sarah** - Lead role, requires strong dramatic presence\n2. **Dr. Marcus** - Supporting, medical professional\n3. **Young Tommy** - Child actor, ages 8-12\n4. **Mayor Chen** - Recurring, authority figure\n5. **Mysterious Stranger** - Guest role, Episode 3\n\nWould you like me to show actors that match any of these roles?"
+      return {
+        content: "I found **5 characters** that still need casting:\n\n1. **Detective Sarah** - Lead role, dramatic presence required\n2. **Dr. Marcus** - Supporting, medical professional\n3. **Young Tommy** - Child actor, ages 8-12\n4. **Mayor Chen** - Recurring, authority figure\n5. **Mysterious Stranger** - Guest role, Episode 3",
+        queryType: "characters",
+        actions: [
+          { label: "View Characters", icon: "characters", action: "openCharacters" },
+          { label: "Find Matching Actors", icon: "search", action: "searchActors" },
+        ]
+      }
     }
 
     if (lowerMessage.includes("actor") && (lowerMessage.includes("how many") || lowerMessage.includes("count"))) {
-      return "The current project has **47 actors** in the database:\n\n- 12 actors marked as 'Lead Potential'\n- 18 actors in the 'Under Consideration' list\n- 8 actors with confirmed audition slots\n- 9 actors in the general pool\n\nWould you like me to filter or organize these actors in a specific way?"
+      return {
+        content: "The current project has **47 actors** in the database:\n\n- 12 marked as 'Lead Potential'\n- 18 in 'Under Consideration'\n- 8 with confirmed audition slots\n- 9 in the general pool",
+        queryType: "actors",
+        actions: [
+          { label: "View All Actors", icon: "actors", action: "openActors" },
+          { label: "Filter by Status", icon: "search", action: "filterActors" },
+        ]
+      }
     }
 
     if (lowerMessage.includes("tagged") || lowerMessage.includes("lead potential")) {
-      return "I found **12 actors** tagged as 'Lead Potential':\n\n1. Emma Richardson - Drama specialist\n2. Marcus Chen - Action/Drama\n3. Sofia Alvarez - Comedy/Drama\n4. James Wright - Character actor\n...and 8 more.\n\nI can open the filtered view to show all of them. Would you like me to do that?"
+      return {
+        content: "Found **12 actors** tagged as 'Lead Potential':\n\n1. Emma Richardson - Drama specialist\n2. Marcus Chen - Action/Drama\n3. Sofia Alvarez - Comedy/Drama\n4. James Wright - Character actor\n...and 8 more.",
+        queryType: "actors",
+        actions: [
+          { label: "Open Filtered View", icon: "navigate", action: "openFiltered" },
+          { label: "Compare Top Picks", icon: "actors", action: "compareActors" },
+        ]
+      }
     }
 
     if (lowerMessage.includes("add") && lowerMessage.includes("character")) {
       const characterMatch = userMessage.match(/['"]([^'"]+)['"]/) || userMessage.match(/called\s+(\w+)/i)
       const characterName = characterMatch ? characterMatch[1] : "New Character"
-      return `I'll add a new character called **"${characterName}"** to the project.\n\n✅ Character created successfully!\n\nThe character has been added to your Characters panel. Would you like to:\n- Set character attributes (age range, type, etc.)\n- Start searching for matching actors\n- Add character notes or description`
+      return {
+        content: `Character **"${characterName}"** has been added to your project.\n\nThe character is now available in the Characters panel.`,
+        queryType: "characters",
+        actions: [
+          { label: "Set Attributes", icon: "characters", action: "editCharacter" },
+          { label: "Find Actors", icon: "search", action: "searchForRole" },
+          { label: "Done", icon: "confirm", action: "dismiss" },
+        ]
+      }
     }
 
     if (lowerMessage.includes("audition") && lowerMessage.includes("status")) {
-      return "Here's the current audition status:\n\n**Scheduled:** 8 auditions\n- 3 for today (2:00 PM, 3:30 PM, 5:00 PM)\n- 5 for this week\n\n**Completed:** 23 auditions\n- 15 with callback recommendations\n- 8 passed\n\n**Pending Review:** 4 tape submissions\n\nWould you like me to show the full audition schedule?"
+      return {
+        content: "**Audition Overview:**\n\n**Today:** 3 sessions (2:00, 3:30, 5:00 PM)\n**This Week:** 5 more scheduled\n**Completed:** 23 total (15 callbacks recommended)\n**Pending Review:** 4 tape submissions",
+        queryType: "auditions",
+        actions: [
+          { label: "View Schedule", icon: "auditions", action: "openSchedule" },
+          { label: "Review Tapes", icon: "navigate", action: "reviewTapes" },
+        ]
+      }
     }
 
-    // Canvas/visualization queries
-    if (lowerMessage.includes("compare") || lowerMessage.includes("side by side")) {
-      return "I can help you compare actors side by side. To do this:\n\n1. Select the actors you want to compare in the grid view\n2. Open the Canvas/Mix view\n3. I'll arrange them for easy comparison\n\nAlternatively, tell me which specific actors you'd like to compare and I'll set it up for you."
+    if (lowerMessage.includes("help") || lowerMessage.includes("what can you do")) {
+      return {
+        content: "I can help you with:\n\n**Casting**\n- Find and filter actors\n- Manage character roles\n- Track casting progress\n\n**Scheduling**\n- View audition calendar\n- Check session status\n\n**Quick Actions**\n- Add characters\n- Update statuses\n- Generate reports",
+        queryType: "general",
+        actions: [
+          { label: "View Actors", icon: "actors", action: "openActors" },
+          { label: "View Characters", icon: "characters", action: "openCharacters" },
+          { label: "View Auditions", icon: "auditions", action: "openAuditions" },
+        ]
+      }
     }
 
-    // Help/capabilities
-    if (lowerMessage.includes("help") || lowerMessage.includes("what can you do") || lowerMessage.includes("capabilities")) {
-      return "I'm your GoGreenlight CoPilot! Here's what I can help with:\n\n**Project Management**\n- View and manage characters\n- Track casting progress\n- Check audition schedules\n\n**Actor Search**\n- Find actors by attributes\n- Filter by tags, status, or notes\n- Show comparison views\n\n**Quick Actions**\n- Add new characters\n- Update actor statuses\n- Generate casting reports\n\nJust ask me anything about your casting project!"
+    return {
+      content: `I understand you're asking about: "${userMessage}"\n\nI can help with actors, characters, auditions, and project management. Could you provide more details?`,
+      queryType: "general",
+      actions: [
+        { label: "Browse Actors", icon: "actors", action: "openActors" },
+        { label: "Browse Characters", icon: "characters", action: "openCharacters" },
+      ]
     }
-
-    // Default helpful response
-    return "I understand you're asking about: \"" + userMessage + "\"\n\nAs your CoPilot, I can help you with:\n- Finding and filtering actors\n- Managing characters and roles\n- Checking project status\n- Navigating the casting workflow\n\nCould you provide more details about what you'd like to accomplish?"
   }
 
   const handleSendMessage = async (messageText?: string) => {
@@ -97,21 +170,20 @@ export default function GoGreenlightCoPilot() {
     setIsProcessing(true)
     setShowSuggestions(false)
 
-    // Simulate AI processing delay
-    setTimeout(
-      () => {
-        const assistantMessage: Message = {
-          id: `msg-${Date.now()}-assistant`,
-          type: "assistant",
-          content: generateMockResponse(text),
-          timestamp: Date.now(),
-        }
+    setTimeout(() => {
+      const response = generateMockResponse(text)
+      const assistantMessage: Message = {
+        id: `msg-${Date.now()}-assistant`,
+        type: "assistant",
+        content: response.content,
+        timestamp: Date.now(),
+        actions: response.actions,
+        queryType: response.queryType,
+      }
 
-        setMessages((prev) => [...prev, assistantMessage])
-        setIsProcessing(false)
-      },
-      800 + Math.random() * 800,
-    )
+      setMessages((prev) => [...prev, assistantMessage])
+      setIsProcessing(false)
+    }, 600 + Math.random() * 600)
   }
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -123,7 +195,6 @@ export default function GoGreenlightCoPilot() {
 
   const toggleVoiceInput = () => {
     setIsListening(!isListening)
-    // Simulate voice input
     if (!isListening) {
       setTimeout(() => {
         setIsListening(false)
@@ -132,93 +203,122 @@ export default function GoGreenlightCoPilot() {
     }
   }
 
-  const handleClearChat = () => {
-    setMessages([])
-    setShowSuggestions(true)
+  const handleActionClick = (action: string) => {
+    // Simulate action handling - in real app, this would trigger navigation/modals
+    const responseMap: Record<string, string> = {
+      openActors: "Opening Actors panel...",
+      openCharacters: "Opening Characters panel...",
+      openSchedule: "Opening Audition Schedule...",
+      searchActors: "Starting actor search...",
+      filterActors: "Opening filter options...",
+    }
+    if (responseMap[action]) {
+      // Could dispatch to app state or open modals here
+    }
+  }
+
+  const QueryIcon = ({ type }: { type: keyof typeof QUERY_ICONS }) => {
+    const Icon = QUERY_ICONS[type]
+    return <Icon className="w-3.5 h-3.5" />
+  }
+
+  const ActionButtonComponent = ({ action }: { action: ActionButton }) => {
+    const Icon = QUERY_ICONS[action.icon]
+    return (
+      <button
+        onClick={() => handleActionClick(action.action)}
+        className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium bg-success-100 text-success-700 rounded-lg hover:bg-success-200 transition-colors"
+      >
+        <Icon className="w-3 h-3" />
+        {action.label}
+        <ChevronRight className="w-3 h-3 opacity-60" />
+      </button>
+    )
   }
 
   return (
     <>
-      {/* Floating CoPilot Button */}
+      {/* Floating CoPilot Button - Green brand color, hover animation only */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`fixed bottom-6 right-6 w-14 h-14 rounded-full shadow-lg transition-all duration-300 flex items-center justify-center group ${
+        className={`fixed bottom-6 right-6 w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition-all duration-200 ${
           isOpen
-            ? "bg-muted text-muted-foreground hover:bg-muted/80"
-            : "bg-gradient-to-br from-primary to-primary/80 text-primary-foreground hover:scale-110 hover:shadow-xl"
+            ? "bg-neutral-200 text-neutral-600 hover:bg-neutral-300"
+            : "bg-success-600 text-white hover:bg-success-500 hover:scale-110 hover:shadow-xl"
         }`}
         style={{ zIndex: Z_INDEX.COPILOT }}
         title={isOpen ? "Close CoPilot" : "Open GoGreenlight CoPilot"}
         aria-label={isOpen ? "Close CoPilot" : "Open GoGreenlight CoPilot"}
       >
         {isOpen ? (
-          <ChevronDown className="w-6 h-6" />
+          <X className="w-5 h-5" />
         ) : (
-          <>
-            <Sparkles className="w-6 h-6" />
-            {/* Pulse animation ring */}
-            <span className="absolute inset-0 rounded-full bg-primary/30 animate-ping opacity-75" />
-          </>
+          <Sparkles className="w-6 h-6" />
         )}
       </button>
 
       {/* CoPilot Chat Panel */}
       {isOpen && (
         <div
-          className="fixed bottom-24 right-6 w-96 max-h-[600px] bg-background border border-border rounded-2xl shadow-2xl flex flex-col overflow-hidden"
+          className="fixed bottom-24 right-6 w-[380px] max-h-[560px] bg-background border border-border rounded-2xl shadow-2xl flex flex-col overflow-hidden"
           style={{ zIndex: Z_INDEX.COPILOT }}
         >
-          {/* Header */}
-          <div className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground px-4 py-3 flex items-center justify-between shrink-0">
+          {/* Header - Green brand gradient */}
+          <div className="bg-gradient-to-r from-success-600 to-success-500 text-white px-4 py-3 flex items-center justify-between shrink-0">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-primary-foreground/20 flex items-center justify-center">
-                <Sparkles className="w-5 h-5" />
+              <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center">
+                <Sparkles className="w-4 h-4" />
               </div>
               <div>
                 <h3 className="font-semibold text-sm">GoGreenlight CoPilot</h3>
-                <p className="text-xs text-primary-foreground/70">AI-powered casting assistant</p>
+                <p className="text-xs text-white/70">AI Casting Assistant</p>
               </div>
             </div>
-            <div className="flex items-center gap-1">
-              {messages.length > 0 && (
-                <button
-                  onClick={handleClearChat}
-                  className="p-2 hover:bg-primary-foreground/20 rounded-lg transition-colors"
-                  title="Clear conversation"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              )}
-            </div>
+            {messages.length > 0 && (
+              <button
+                onClick={() => { setMessages([]); setShowSuggestions(true) }}
+                className="p-1.5 hover:bg-white/20 rounded-lg transition-colors text-white/80 hover:text-white"
+                title="Clear chat"
+              >
+                <ListChecks className="w-4 h-4" />
+              </button>
+            )}
           </div>
 
           {/* Messages Area */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-[300px] max-h-[400px] bg-muted/30">
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-[280px] max-h-[360px] bg-muted/20">
             {messages.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full text-center px-4">
-                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center mb-4">
-                  <MessageCircle className="w-8 h-8 text-primary" />
+              <div className="flex flex-col items-center justify-center h-full text-center px-2">
+                <div className="w-14 h-14 rounded-full bg-success-100 flex items-center justify-center mb-3">
+                  <MessageCircle className="w-7 h-7 text-success-600" />
                 </div>
-                <h4 className="font-semibold text-foreground mb-2">How can I help you today?</h4>
+                <h4 className="font-semibold text-foreground mb-1">How can I help?</h4>
                 <p className="text-sm text-muted-foreground mb-4">
-                  Ask me anything about your casting project, actors, or characters.
+                  Ask about actors, characters, or auditions
                 </p>
                 
                 {showSuggestions && (
                   <div className="w-full space-y-2">
-                    <p className="text-xs text-muted-foreground flex items-center gap-1 justify-center">
+                    <p className="text-xs text-muted-foreground flex items-center gap-1 justify-center mb-2">
                       <Lightbulb className="w-3 h-3" />
                       Try asking:
                     </p>
-                    {SUGGESTED_PROMPTS.slice(0, 3).map((prompt, index) => (
-                      <button
-                        key={index}
-                        onClick={() => handleSendMessage(prompt)}
-                        className="w-full text-left px-3 py-2 text-sm bg-background border border-border rounded-lg hover:bg-muted hover:border-primary/30 transition-colors text-foreground"
-                      >
-                        {prompt}
-                      </button>
-                    ))}
+                    {SUGGESTED_PROMPTS.map((prompt, index) => {
+                      const Icon = QUERY_ICONS[prompt.icon]
+                      return (
+                        <button
+                          key={index}
+                          onClick={() => handleSendMessage(prompt.text)}
+                          className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm bg-background border border-border rounded-xl hover:bg-muted hover:border-success-300 transition-colors text-foreground text-left group"
+                        >
+                          <span className="w-7 h-7 rounded-lg bg-muted flex items-center justify-center shrink-0 group-hover:bg-success-100 transition-colors">
+                            <Icon className="w-3.5 h-3.5 text-muted-foreground group-hover:text-success-600" />
+                          </span>
+                          <span className="flex-1">{prompt.text}</span>
+                          <ArrowRight className="w-3.5 h-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </button>
+                      )
+                    })}
                   </div>
                 )}
               </div>
@@ -229,31 +329,65 @@ export default function GoGreenlightCoPilot() {
                     key={message.id}
                     className={`flex ${message.type === "user" ? "justify-end" : "justify-start"}`}
                   >
-                    <div
-                      className={`max-w-[85%] rounded-2xl px-4 py-2.5 ${
-                        message.type === "user"
-                          ? "bg-primary text-primary-foreground rounded-br-md"
-                          : "bg-background border border-border text-foreground rounded-bl-md shadow-sm"
-                      }`}
-                    >
-                      <p className="text-sm whitespace-pre-wrap leading-relaxed">{message.content}</p>
-                      <p
-                        className={`text-[10px] mt-1.5 ${
-                          message.type === "user" ? "text-primary-foreground/60" : "text-muted-foreground"
+                    <div className={`max-w-[88%] ${message.type === "assistant" ? "space-y-2" : ""}`}>
+                      {/* Query type indicator for assistant messages */}
+                      {message.type === "assistant" && message.queryType && (
+                        <div className="flex items-center gap-1.5 mb-1">
+                          <span className="w-5 h-5 rounded bg-success-100 flex items-center justify-center">
+                            <QueryIcon type={message.queryType} />
+                          </span>
+                          <span className="text-[10px] uppercase tracking-wider font-medium text-success-600">
+                            {message.queryType}
+                          </span>
+                        </div>
+                      )}
+                      
+                      <div
+                        className={`rounded-2xl px-3.5 py-2.5 ${
+                          message.type === "user"
+                            ? "bg-success-600 text-white rounded-br-md"
+                            : "bg-background border border-border text-foreground rounded-bl-md shadow-sm"
                         }`}
                       >
-                        {new Date(message.timestamp).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </p>
+                        <p className="text-sm whitespace-pre-wrap leading-relaxed">
+                          {message.content.split(/(\*\*[^*]+\*\*)/).map((part, i) => {
+                            if (part.startsWith("**") && part.endsWith("**")) {
+                              return <strong key={i} className="font-semibold">{part.slice(2, -2)}</strong>
+                            }
+                            return part
+                          })}
+                        </p>
+                        <p
+                          className={`text-[10px] mt-1.5 ${
+                            message.type === "user" ? "text-white/60" : "text-muted-foreground"
+                          }`}
+                        >
+                          {new Date(message.timestamp).toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </p>
+                      </div>
+
+                      {/* Action buttons for assistant messages */}
+                      {message.type === "assistant" && message.actions && message.actions.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5 mt-2 pl-1">
+                          {message.actions.map((action, idx) => (
+                            <ActionButtonComponent key={idx} action={action} />
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
                 {isProcessing && (
                   <div className="flex justify-start">
                     <div className="bg-background border border-border rounded-2xl rounded-bl-md px-4 py-3 flex items-center gap-2 shadow-sm">
-                      <Loader2 className="w-4 h-4 text-primary animate-spin" />
+                      <div className="flex gap-1">
+                        <span className="w-2 h-2 bg-success-500 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                        <span className="w-2 h-2 bg-success-500 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                        <span className="w-2 h-2 bg-success-500 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                      </div>
                       <span className="text-sm text-muted-foreground">Thinking...</span>
                     </div>
                   </div>
@@ -271,11 +405,11 @@ export default function GoGreenlightCoPilot() {
                 className={`p-2.5 rounded-xl transition-all ${
                   isListening
                     ? "bg-destructive text-destructive-foreground animate-pulse"
-                    : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
+                    : "bg-muted text-muted-foreground hover:bg-success-100 hover:text-success-600"
                 }`}
                 title={isListening ? "Stop listening" : "Voice input"}
               >
-                {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+                {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
               </button>
               <div className="flex-1 relative">
                 <input
@@ -284,9 +418,9 @@ export default function GoGreenlightCoPilot() {
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  placeholder={isListening ? "Listening..." : "Ask CoPilot anything..."}
+                  placeholder={isListening ? "Listening..." : "Ask CoPilot..."}
                   disabled={isProcessing || isListening}
-                  className="w-full px-4 py-2.5 bg-muted border-0 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-ring text-foreground placeholder:text-muted-foreground disabled:opacity-50"
+                  className="w-full px-4 py-2.5 bg-muted border-0 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-success-500 text-foreground placeholder:text-muted-foreground disabled:opacity-50"
                 />
               </div>
               <button
@@ -295,15 +429,15 @@ export default function GoGreenlightCoPilot() {
                 className={`p-2.5 rounded-xl transition-all ${
                   !inputValue.trim() || isProcessing
                     ? "bg-muted text-muted-foreground cursor-not-allowed"
-                    : "bg-primary text-primary-foreground hover:bg-primary/90 shadow-md"
+                    : "bg-success-600 text-white hover:bg-success-500 shadow-md"
                 }`}
                 title="Send message"
               >
-                {isProcessing ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
+                {isProcessing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
               </button>
             </div>
-            <div className="flex items-center justify-center gap-1 mt-2">
-              <Zap className="w-3 h-3 text-muted-foreground" />
+            <div className="flex items-center justify-center gap-1.5 mt-2">
+              <BarChart3 className="w-3 h-3 text-success-500" />
               <p className="text-[10px] text-muted-foreground">
                 Powered by GoGreenlight AI
               </p>
