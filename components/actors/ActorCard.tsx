@@ -28,6 +28,7 @@ import {
   ImageIcon,
   Play,
   Check,
+  FolderPlus,
 } from "lucide-react"
 import { openModal } from "@/components/modals/ModalManager"
 import type { Note } from "@/types/casting"
@@ -217,7 +218,7 @@ export default function ActorCard({
         .toUpperCase()
 
     const size = viewMode === "list-view" ? "48x48" : viewMode === "simple" ? "120x120" : "200x240"
-    return `/placeholder.svg?height=${size.split("x")[0]}&width=${size.split("x")[1]}&text=${encodeURIComponent(placeholderSeed)}`
+    return ""
   }
 
   const handleImageLoad = (index: number) => {
@@ -286,7 +287,7 @@ export default function ActorCard({
     }
 
     // If any contact-related status exists, show as "Contacted"
-    return { status: "contacted", label: "Contacted", icon: CheckCircle, color: "text-blue-600" }
+    return { status: "contacted", label: "Contacted", icon: CheckCircle, color: "text-info-600" }
   }
 
   // Helper function to open Player View for this specific actor
@@ -613,6 +614,11 @@ export default function ActorCard({
     openModal("manageStatuses", { actor, characterId: character.id })
   }
 
+  const handleQuickAssignToProject = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    openModal("assignToProject", { actor, sourceCharacterId: character.id })
+  }
+
   const handleQuickStatusAssign = (status: any) => {
     const isAlreadyAssigned = actor.statuses?.some((s) => s.id === status.id)
 
@@ -727,7 +733,7 @@ export default function ActorCard({
               e.stopPropagation()
               setShowNoteForm(!showNoteForm)
             }}
-            className="flex items-center gap-1 px-2 py-1 text-xs text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-colors flex-shrink-0"
+            className="flex items-center gap-1 px-2 py-1 text-xs text-success-600 hover:text-success-700 hover:bg-success-50 rounded-lg transition-colors flex-shrink-0"
           >
             <Plus className="w-3 h-3" />
             <span className="whitespace-nowrap">Add</span>
@@ -758,7 +764,7 @@ export default function ActorCard({
                     e.stopPropagation()
                     handleEditNote(latestNote.id, latestNote.text)
                   }}
-                  className="p-1 text-slate-400 hover:text-blue-600 transition-colors"
+                  className="p-1 text-slate-400 hover:text-info-600 transition-colors"
                 >
                   <Edit2 className="w-3 h-3" />
                 </button>
@@ -767,7 +773,7 @@ export default function ActorCard({
                     e.stopPropagation()
                     handleDeleteNote(latestNote.id)
                   }}
-                  className="p-1 text-slate-400 hover:text-red-600 transition-colors"
+                  className="p-1 text-slate-400 hover:text-error-600 transition-colors"
                 >
                   <Trash2 className="w-3 h-3" />
                 </button>
@@ -780,7 +786,7 @@ export default function ActorCard({
               <textarea
                 value={editingText}
                 onChange={(e) => setEditingText(e.target.value)}
-                className="w-full p-2 text-xs border border-slate-300 rounded resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full p-2 text-xs border border-slate-300 rounded resize-none focus:ring-2 focus:ring-info-500 focus:border-transparent"
                 rows={2}
                 autoFocus
               />
@@ -790,7 +796,7 @@ export default function ActorCard({
                     e.stopPropagation()
                     handleSaveEdit()
                   }}
-                  className="flex items-center space-x-1 px-2 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700"
+                  className="flex items-center space-x-1 px-2 py-1 bg-info-600 text-white rounded text-xs hover:bg-info-700"
                 >
                   <Save className="w-3 h-3" />
                   <span>Save</span>
@@ -822,7 +828,7 @@ export default function ActorCard({
               value={newNoteText}
               onChange={(e) => setNewNoteText(e.target.value)}
               placeholder="Add a note about this actor..."
-              className="w-full p-2 text-sm border border-slate-300 rounded resize-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+              className="w-full p-2 text-sm border border-slate-300 rounded resize-none focus:ring-2 focus:ring-success-500 focus:border-transparent"
               rows={2}
               autoFocus
             />
@@ -843,7 +849,7 @@ export default function ActorCard({
                   handleAddNote()
                 }}
                 disabled={!newNoteText.trim()}
-                className="flex items-center gap-1 px-3 py-1 bg-emerald-600 text-white rounded text-sm hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="flex items-center gap-1 px-3 py-1 bg-success-600 text-white rounded text-sm hover:bg-success-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 <Save className="w-3 h-3" />
                 Save Note
@@ -946,8 +952,8 @@ export default function ActorCard({
       <div
         className={`w-4 h-4 rounded border-2 flex items-center justify-center cursor-pointer transition-all duration-200 backdrop-blur-sm ${
           isSelected
-            ? "bg-emerald-500 border-emerald-600 shadow-lg scale-110"
-            : "bg-white/95 border-slate-400 hover:border-emerald-500 hover:bg-emerald-50 hover:scale-110 shadow-md"
+            ? "bg-success-500 border-success-600 shadow-lg scale-110"
+            : "bg-white/95 border-slate-400 hover:border-success-500 hover:bg-success-50 hover:scale-110 shadow-md"
         }`}
       >
         {isSelected && <Check className="w-3 h-3 text-white stroke-[3]" />}
@@ -960,8 +966,8 @@ export default function ActorCard({
     return (
       <div
         className={`group relative flex items-center gap-4 p-4 bg-white border border-slate-200 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 cursor-pointer w-full min-w-[325px] ${
-          isSelected ? "ring-2 ring-emerald-500 bg-emerald-50" : ""
-        } ${shouldShowDragging ? "opacity-50 scale-95 rotate-1" : ""} ${isDropTarget ? "ring-2 ring-blue-400" : ""}`}
+          isSelected ? "ring-2 ring-success-500 bg-success-50" : ""
+        } ${shouldShowDragging ? "opacity-50 scale-95 rotate-1" : ""} ${isDropTarget ? "ring-2 ring-info-400" : ""}`}
         onClick={handleCardClick}
         draggable
         onDragStart={handleDragStart}
@@ -972,8 +978,8 @@ export default function ActorCard({
         <SelectionCheckbox />
 
         {/* Drop Position Indicator */}
-        {dropPosition === "before" && <div className="absolute -top-1 left-0 right-0 h-0.5 bg-blue-400 rounded" />}
-        {dropPosition === "after" && <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-blue-400 rounded" />}
+        {dropPosition === "before" && <div className="absolute -top-1 left-0 right-0 h-0.5 bg-info-400 rounded" />}
+        {dropPosition === "after" && <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-info-400 rounded" />}
 
         {/* Drag Handle */}
         <div className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -982,22 +988,28 @@ export default function ActorCard({
 
         {/* Actor Image */}
         <div className="relative w-16 h-16 flex-shrink-0">
-          <img
-            src={getCurrentImageUrl() || "/placeholder.svg"}
-            alt={actor.name}
-            className="w-full h-full object-cover rounded-lg"
-            onLoad={() => handleImageLoad(currentHeadshotIndex)}
-            onError={() => handleImageError(currentHeadshotIndex)}
-            onLoadStart={() => handleImageLoadStart(currentHeadshotIndex)}
-          />
+          {getCurrentImageUrl() ? (
+            <img
+              src={getCurrentImageUrl()}
+              alt={actor.name}
+              className="w-full h-full object-cover rounded-lg"
+              onLoad={() => handleImageLoad(currentHeadshotIndex)}
+              onError={() => handleImageError(currentHeadshotIndex)}
+              onLoadStart={() => handleImageLoadStart(currentHeadshotIndex)}
+            />
+          ) : (
+            <div className="w-full h-full rounded-lg bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center text-slate-400 text-xl font-bold">
+              {actor.name.charAt(0).toUpperCase()}
+            </div>
+          )}
           {actor.headshots && actor.headshots.length > 1 && (
             <div className="absolute -bottom-1 -right-1 bg-slate-600 text-white text-xs px-1 rounded">
               {currentHeadshotIndex + 1}/{actor.headshots.length}
             </div>
           )}
           {actor.isCast && (
-            <div className="absolute inset-0 bg-emerald-500 bg-opacity-20 rounded-lg flex items-center justify-center">
-              <Crown className="w-4 h-4 text-emerald-600" />
+            <div className="absolute inset-0 bg-success-500 bg-opacity-20 rounded-lg flex items-center justify-center">
+              <Crown className="w-4 h-4 text-success-600" />
             </div>
           )}
         </div>
@@ -1007,13 +1019,13 @@ export default function ActorCard({
           <div className="flex items-center gap-2 mb-2">
             <button
               onClick={handleNameClick}
-              className="font-semibold text-slate-900 hover:text-emerald-600 transition-colors truncate text-left"
+              className="font-semibold text-slate-900 hover:text-success-600 transition-colors truncate text-left"
             >
               {actor.name}
             </button>
-            {actor.isCast && <Crown className="w-4 h-4 text-emerald-600 flex-shrink-0" />}
+            {actor.isCast && <Crown className="w-4 h-4 text-success-600 flex-shrink-0" />}
             {!actor.isCast && actor.isGreenlit && (
-              <span className="bg-emerald-100 text-emerald-700 text-xs px-2 py-0.5 rounded-full font-medium flex-shrink-0 whitespace-nowrap">
+              <span className="bg-success-100 text-success-700 text-xs px-2 py-0.5 rounded-full font-medium flex-shrink-0 whitespace-nowrap">
                 Greenlit
               </span>
             )}
@@ -1049,8 +1061,8 @@ export default function ActorCard({
     return (
       <div
         className={`group relative bg-white border border-slate-200 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer w-full min-w-[285px] max-w-[285px] ${
-          isSelected ? "ring-2 ring-emerald-500" : ""
-        } ${shouldShowDragging ? "opacity-50 scale-95 rotate-1" : ""} ${isDropTarget ? "ring-2 ring-blue-400" : ""}`}
+          isSelected ? "ring-2 ring-success-500" : ""
+        } ${shouldShowDragging ? "opacity-50 scale-95 rotate-1" : ""} ${isDropTarget ? "ring-2 ring-info-400" : ""}`}
         onClick={handleCardClick}
         draggable
         onDragStart={handleDragStart}
@@ -1061,9 +1073,9 @@ export default function ActorCard({
         <SelectionCheckbox />
 
         {/* Drop Position Indicators */}
-        {dropPosition === "before" && <div className="absolute -top-1 left-0 right-0 h-0.5 bg-blue-400 rounded z-10" />}
+        {dropPosition === "before" && <div className="absolute -top-1 left-0 right-0 h-0.5 bg-info-400 rounded z-10" />}
         {dropPosition === "after" && (
-          <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-blue-400 rounded z-10" />
+          <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-info-400 rounded z-10" />
         )}
 
         {/* More Actions Button - Upper Right Corner */}
@@ -1078,16 +1090,16 @@ export default function ActorCard({
         <div className="flex h-48">
           {/* Left Side - Image Container */}
           <div
-            className={`relative bg-slate-100 w-36 flex-shrink-0 ${isDragOver ? "bg-blue-100 border-2 border-dashed border-blue-400" : ""}`}
+            className={`relative bg-slate-100 w-36 flex-shrink-0 ${isDragOver ? "bg-info-100 border-2 border-dashed border-info-400" : ""}`}
             onDragEnter={handleImageDragEnter}
             onDragLeave={handleImageDragLeave}
             onDragOver={handleImageDragOver}
             onDrop={handleImageDrop}
           >
             <img
-              src={getCurrentImageUrl() || "/placeholder.svg"}
+              src={getCurrentImageUrl() || undefined}
               alt={actor.name}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover transition-opacity duration-200"
               onLoad={() => handleImageLoad(currentHeadshotIndex)}
               onError={() => handleImageError(currentHeadshotIndex)}
               onLoadStart={() => handleImageLoadStart(currentHeadshotIndex)}
@@ -1095,8 +1107,8 @@ export default function ActorCard({
 
             {/* Upload Overlay */}
             {isDragOver && (
-              <div className="absolute inset-0 bg-blue-500 bg-opacity-20 flex items-center justify-center">
-                <div className="text-blue-700 text-xs font-semibold">Drop image</div>
+              <div className="absolute inset-0 bg-info-500 bg-opacity-20 flex items-center justify-center">
+                <div className="text-info-700 text-xs font-semibold">Drop image</div>
               </div>
             )}
 
@@ -1107,7 +1119,7 @@ export default function ActorCard({
                   <div className="text-xs font-semibold mb-1">Uploading...</div>
                   <div className="w-16 bg-slate-200 rounded-full h-1">
                     <div
-                      className="bg-blue-500 h-1 rounded-full transition-all duration-300"
+                      className="bg-info-500 h-1 rounded-full transition-all duration-300"
                       style={{ width: `${uploadProgress}%` }}
                     />
                   </div>
@@ -1118,7 +1130,7 @@ export default function ActorCard({
             {/* Cast/Greenlit Overlay */}
             {actor.isCast && (
               <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/30 to-emerald-600/30 flex items-center justify-center">
-                <div className="bg-emerald-600 text-white px-2 py-1 rounded-lg flex items-center space-x-1 shadow-lg">
+                <div className="bg-success-600 text-white px-2 py-1 rounded-lg flex items-center space-x-1 shadow-lg">
                   <Crown className="w-3 h-3" />
                   <span className="text-xs font-bold">CAST</span>
                 </div>
@@ -1127,7 +1139,7 @@ export default function ActorCard({
 
             {!actor.isCast && actor.isGreenlit && (
               <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-emerald-600/20 flex items-center justify-center">
-                <div className="bg-emerald-600 text-white px-2 py-1 rounded-lg text-xs font-bold shadow-lg">
+                <div className="bg-success-600 text-white px-2 py-1 rounded-lg text-xs font-bold shadow-lg">
                   GREENLIT
                 </div>
               </div>
@@ -1172,7 +1184,7 @@ export default function ActorCard({
             <div className="mb-3 text-center">
               <button
                 onClick={handleNameClick}
-                className="font-semibold text-slate-900 hover:text-emerald-600 transition-colors text-sm leading-tight"
+                className="font-semibold text-slate-900 hover:text-success-600 transition-colors text-sm leading-tight"
               >
                 {actor.name}
               </button>
@@ -1209,13 +1221,13 @@ export default function ActorCard({
                   let textColor = "text-slate-600"
 
                   if (userVote === "yes") {
-                    bgColor = "bg-emerald-500"
+                    bgColor = "bg-success-500"
                     textColor = "text-white"
                   } else if (userVote === "no") {
-                    bgColor = "bg-red-500"
+                    bgColor = "bg-error-500"
                     textColor = "text-white"
                   } else if (userVote === "maybe") {
-                    bgColor = "bg-blue-500"
+                    bgColor = "bg-info-500"
                     textColor = "text-white"
                   }
 
@@ -1241,398 +1253,400 @@ export default function ActorCard({
   }
 
   // Default detailed view with new layout
-  return (
-    <div
-      className={`group relative bg-white border border-slate-200 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer w-full min-w-[325px] max-w-[350px] ${
-        isSelected ? "ring-2 ring-emerald-500" : ""
-      } ${shouldShowDragging ? "opacity-50 scale-95 rotate-1" : ""} ${isDropTarget ? "ring-2 ring-blue-400" : ""}`}
-      onClick={handleCardClick}
-      draggable
-      onDragStart={handleDragStart}
-      onDragEnd={handleDragEnd}
-      onDragOver={handleDragOver}
-      onDrop={handleDrop}
-    >
-      <SelectionCheckbox />
-
-      {/* Drop Position Indicators */}
-      {dropPosition === "before" && <div className="absolute -top-1 left-0 right-0 h-0.5 bg-blue-400 rounded z-10" />}
-      {dropPosition === "after" && <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-blue-400 rounded z-10" />}
-
-      {/* More Actions Button - Upper Right Corner of Card */}
-      <button
-        onClick={handleMoreActions}
-        className="absolute top-3 right-3 bg-white bg-opacity-90 hover:bg-opacity-100 text-slate-600 hover:text-slate-800 rounded-lg p-2 shadow-sm hover:shadow-md transition-all z-10"
+  if (viewMode !== "list-view" && viewMode !== "simple") {
+    return (
+      <div
+        className={`group relative bg-white border border-slate-200 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer w-full min-w-[325px] max-w-[350px] ${
+          isSelected ? "ring-2 ring-success-500" : ""
+        } ${shouldShowDragging ? "opacity-50 scale-95 rotate-1" : ""} ${isDropTarget ? "ring-2 ring-info-400" : ""}`}
+        onClick={handleCardClick}
+        draggable
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+        onDragOver={handleDragOver}
+        onDrop={handleDrop}
       >
-        <MoreHorizontal className="w-4 h-4" />
-      </button>
+        <SelectionCheckbox />
 
-      {/* Content */}
-      <div className="p-5 overflow-hidden">
-        {/* Top Section: Image + Actor Info */}
-        <div className="flex gap-4 mb-4">
-          {/* Image Container - Fixed size 100x120 */}
-          <div
-            className={`relative bg-slate-100 flex-shrink-0 w-[130px] h-[145px] rounded-lg overflow-hidden ${
-              isDragOver ? "bg-blue-100 border-2 border-dashed border-blue-400" : ""
-            }`}
-            onDragEnter={handleImageDragEnter}
-            onDragLeave={handleImageDragLeave}
-            onDragOver={handleImageDragOver}
-            onDrop={handleImageDrop}
-          >
-            <img
-              src={getCurrentImageUrl() || "/placeholder.svg"}
-              alt={actor.name}
-              className="w-full h-full object-cover"
-              onLoad={() => handleImageLoad(currentHeadshotIndex)}
-              onError={() => handleImageError(currentHeadshotIndex)}
-              onLoadStart={() => handleImageLoadStart(currentHeadshotIndex)}
-            />
+        {/* Drop Position Indicators */}
+        {dropPosition === "before" && <div className="absolute -top-1 left-0 right-0 h-0.5 bg-info-400 rounded z-10" />}
+        {dropPosition === "after" && (
+          <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-info-400 rounded z-10" />
+        )}
 
-            {/* Upload Overlay */}
-            {isDragOver && (
-              <div className="absolute inset-0 bg-blue-500 bg-opacity-20 flex items-center justify-center">
-                <div className="text-blue-700 text-xs font-semibold text-center">Drop image</div>
-              </div>
-            )}
+        <button
+          onClick={handleQuickAssignToProject}
+          className="absolute top-3 left-3 bg-indigo-500 bg-opacity-90 hover:bg-opacity-100 text-white rounded-lg p-2 shadow-sm hover:shadow-md transition-all z-10 opacity-0 group-hover:opacity-100"
+          title="Assign to Project"
+        >
+          <FolderPlus className="w-4 h-4" />
+        </button>
 
-            {/* Upload Progress */}
-            {isUploading && (
-              <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                <div className="bg-white rounded-lg p-2 text-center">
-                  <div className="text-xs font-semibold mb-1">Uploading...</div>
-                  <div className="w-16 bg-slate-200 rounded-full h-1">
-                    <div
-                      className="bg-blue-500 h-1 rounded-full transition-all duration-300"
-                      style={{ width: `${uploadProgress}%` }}
-                    />
+        {/* More Actions Button - Upper Right Corner of Card */}
+        <button
+          onClick={handleMoreActions}
+          className="absolute top-3 right-3 bg-white bg-opacity-90 hover:bg-opacity-100 text-slate-600 hover:text-slate-800 rounded-lg p-2 shadow-sm hover:shadow-md transition-all z-10"
+        >
+          <MoreHorizontal className="w-4 h-4" />
+        </button>
+
+        {/* Content */}
+        <div className="p-5 overflow-hidden">
+          {/* Top Section: Image + Actor Info */}
+          <div className="flex gap-4 mb-4">
+            {/* Image Container - Fixed size 100x120 */}
+            <div
+              className={`relative bg-slate-100 flex-shrink-0 w-[130px] h-[145px] rounded-lg overflow-hidden ${
+                isDragOver ? "bg-info-100 border-2 border-dashed border-info-400" : ""
+              }`}
+              onDragEnter={handleImageDragEnter}
+              onDragLeave={handleImageDragLeave}
+              onDragOver={handleImageDragOver}
+              onDrop={handleImageDrop}
+            >
+              <img
+                src={getCurrentImageUrl() || undefined}
+                alt={actor.name}
+                className="w-full h-full object-cover transition-opacity duration-200"
+                onLoad={() => handleImageLoad(currentHeadshotIndex)}
+                onError={() => handleImageError(currentHeadshotIndex)}
+                onLoadStart={() => handleImageLoadStart(currentHeadshotIndex)}
+              />
+
+              {/* Upload Overlay */}
+              {isDragOver && (
+                <div className="absolute inset-0 bg-info-500 bg-opacity-20 flex items-center justify-center">
+                  <div className="text-info-700 text-xs font-semibold text-center">Drop image</div>
+                </div>
+              )}
+
+              {/* Upload Progress */}
+              {isUploading && (
+                <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                  <div className="bg-white rounded-lg p-2 text-center">
+                    <div className="text-xs font-semibold mb-1">Uploading...</div>
+                    <div className="w-16 bg-slate-200 rounded-full h-1">
+                      <div
+                        className="bg-info-500 h-1 rounded-full transition-all duration-300"
+                        style={{ width: `${uploadProgress}%` }}
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* Upload Error */}
-            {uploadError && (
-              <div className="absolute inset-0 bg-red-500 bg-opacity-20 flex items-center justify-center">
-                <div className="bg-white rounded-lg p-2 text-center">
-                  <div className="text-red-600 text-xs font-semibold mb-1">Upload Failed</div>
-                  <button onClick={() => setUploadError(null)} className="text-xs text-red-600 hover:text-red-800">
-                    Dismiss
+              {/* Upload Error */}
+              {uploadError && (
+                <div className="absolute inset-0 bg-error-500 bg-opacity-20 flex items-center justify-center">
+                  <div className="bg-white rounded-lg p-2 text-center">
+                    <div className="text-error-600 text-xs font-semibold mb-1">Upload Failed</div>
+                    <button onClick={() => setUploadError(null)} className="text-xs text-error-600 hover:text-error-800">
+                      Dismiss
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Cast/Greenlit Overlay */}
+              {actor.isCast && (
+                <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/30 to-emerald-600/30 flex items-center justify-center">
+                  <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white px-2 py-1 rounded-lg flex items-center space-x-1 shadow-lg">
+                    <Crown className="w-3 h-3" />
+                    <span className="text-xs font-bold">CAST</span>
+                  </div>
+                </div>
+              )}
+
+              {!actor.isCast && actor.isGreenlit && (
+                <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-emerald-600/20 flex items-center justify-center">
+                  <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white px-2 py-1 rounded-lg text-xs font-bold shadow-lg">
+                    GREENLIT
+                  </div>
+                </div>
+              )}
+
+              {/* Headshot Navigation */}
+              {actor.headshots && actor.headshots.length > 1 && (
+                <>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      navigateHeadshot(-1)
+                    }}
+                    className="absolute left-1 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white rounded-full p-1 hover:bg-opacity-70 transition-all opacity-0 group-hover:opacity-100"
+                  >
+                    <ChevronLeft className="w-3 h-3" />
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      navigateHeadshot(1)
+                    }}
+                    className="absolute right-1 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white rounded-full p-1 hover:bg-opacity-70 transition-all opacity-0 group-hover:opacity-100"
+                  >
+                    <ChevronRight className="w-3 h-3" />
+                  </button>
+                  <div className="absolute bottom-1 right-1 bg-black bg-opacity-50 text-white text-xs px-1 py-0.5 rounded">
+                    {currentHeadshotIndex + 1}/{actor.headshots.length}
+                  </div>
+                </>
+              )}
+
+              {/* Drag Handle */}
+              <div className="absolute top-1 left-1 bg-black bg-opacity-50 text-white rounded p-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                <GripVertical className="w-3 h-3" />
+              </div>
+            </div>
+
+            {/* Actor Info Section */}
+            <div className="flex-1 min-w-0 overflow-hidden">
+              {/* Actor Name */}
+              <div className="mb-3">
+                <div className="flex items-center gap-2 mb-1">
+                  <button
+                    onClick={handleNameClick}
+                    className="font-bold text-lg text-slate-900 hover:text-success-600 transition-colors break-words text-left"
+                  >
+                    {actor.name}
+                  </button>
+                  {actor.isCast && (
+                    <div className="flex items-center space-x-1">
+                      <Crown className="w-4 h-4 text-success-600" />
+                      <span className="text-xs text-success-600 font-semibold truncate">Cast as {character.name}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Basic Info - Stacked Layout */}
+                <div className="space-y-1 text-xs text-slate-400 overflow-hidden">
+                  {state.cardViewSettings.age && actor.age && (
+                    <div className="flex items-center gap-2">
+                      <Calendar className="w-3 h-3 text-slate-400 flex-shrink-0" />
+                      <span className="font-medium text-slate-400">Age: {actor.age}</span>
+                    </div>
+                  )}
+                  {state.cardViewSettings.playingAge && actor.playingAge && (
+                    <div className="flex items-center gap-2">
+                      <User className="w-3 h-3 text-slate-400 flex-shrink-0" />
+                      <span className="font-medium text-slate-400">Playing: {actor.playingAge}</span>
+                    </div>
+                  )}
+                  {state.cardViewSettings.location && actor.location && (
+                    <div className="flex items-center gap-2 min-w-0">
+                      <MapPin className="w-3 h-3 text-slate-400 flex-shrink-0" />
+                      <span className="truncate font-medium text-slate-400">{actor.location}</span>
+                    </div>
+                  )}
+                  {state.cardViewSettings.agent && actor.agent && (
+                    <div className="flex items-center gap-2 min-w-0">
+                      <User className="w-3 h-3 text-slate-400 flex-shrink-0" />
+                      <span className="truncate font-medium text-slate-400">{actor.agent}</span>
+                    </div>
+                  )}
+                  {state.cardViewSettings.imdbUrl && actor.imdbUrl && (
+                    <a
+                      href={actor.imdbUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="flex items-center gap-2 text-info-600 hover:text-info-800 transition-colors"
+                    >
+                      <span className="text-xs font-medium underline">IMDB Profile</span>
+                    </a>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Status and Counters Row */}
+          <div className="flex items-center justify-between gap-3 mb-3">
+            <div className="flex items-center gap-3">
+              {/* Contact Status Indicator */}
+              <div className="flex items-center gap-1 flex-shrink-0" title={contactStatus.label}>
+                <contactStatus.icon className={`w-3 h-3 ${contactStatus.color}`} />
+                <span className={`text-xs font-medium ${contactStatus.color}`}>{contactStatus.label}</span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                {/* Notes Count - Clickable */}
+                {actor.notes && actor.notes.length > 0 && (
+                  <button
+                    onClick={handleOpenPlayerView}
+                    className="flex items-center gap-1 text-slate-500 bg-slate-100 hover:bg-slate-200 px-2 py-0.5 rounded-lg flex-shrink-0 transition-colors cursor-pointer"
+                    title={`Click to view ${actor.notes.length} note${actor.notes.length !== 1 ? "s" : ""} in Player View`}
+                  >
+                    <MessageSquare className="w-3 h-3" />
+                    <span className="text-xs font-medium">{actor.notes.length}</span>
+                  </button>
+                )}
+
+                {/* Video Count - Clickable */}
+                {(() => {
+                  const videoCount = getVideoCount(actor)
+                  if (videoCount > 0) {
+                    return (
+                      <button
+                        onClick={handleOpenPlayerView}
+                        className="flex items-center gap-1 text-slate-500 bg-slate-100 hover:bg-slate-200 px-2 py-0.5 rounded-lg flex-shrink-0 transition-colors cursor-pointer"
+                        title={`Click to view ${videoCount} video${videoCount !== 1 ? "s" : ""} in Player View`}
+                      >
+                        <Play className="w-3 h-3" />
+                        <span className="text-xs font-medium">{videoCount}</span>
+                      </button>
+                    )
+                  }
+                  return null
+                })()}
+
+                {/* Media Files Count - Clickable */}
+                {actor.headshots && actor.headshots.length > 0 && (
+                  <button
+                    onClick={handleOpenPlayerView}
+                    className="flex items-center gap-1 text-slate-500 bg-slate-100 hover:bg-slate-200 px-2 py-0.5 rounded-lg flex-shrink-0 transition-colors cursor-pointer"
+                    title={`Click to view ${actor.headshots.length} photo${actor.headshots.length !== 1 ? "s" : ""} in Player View`}
+                  >
+                    <ImageIcon className="w-3 h-3" />
+                    <span className="text-xs font-medium">{actor.headshots.length}</span>
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Manage Status Button - Aligned to the right */}
+            <button
+              onClick={handleManageStatuses}
+              className="flex items-center gap-1 px-2 py-1 text-xs text-success-600 hover:text-success-700 hover:bg-success-50 rounded-lg transition-colors flex-shrink-0"
+            >
+              <Tag className="w-3 h-3" />
+              <span className="whitespace-nowrap">Manage Status</span>
+            </button>
+          </div>
+
+          {/* Status Display */}
+          <div className="mb-4 overflow-hidden">
+            <StatusDisplay />
+          </div>
+
+          {/* Skills Section */}
+          {state.cardViewSettings.skills && actor.skills && actor.skills.length > 0 && (
+            <div className="mb-4 overflow-hidden">
+              <div className="flex items-center gap-1 text-xs font-medium text-slate-600 mb-2">
+                <Star className="w-3 h-3 flex-shrink-0" />
+                <span className="whitespace-nowrap">Skills & Abilities</span>
+              </div>
+              <div className="flex flex-wrap gap-1">
+                {actor.skills.map((skill, index) => (
+                  <span
+                    key={index}
+                    className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-info-100 text-info-700 border border-info-200"
+                  >
+                    {skill}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Notes Section */}
+          {state.cardViewSettings.notes && (
+            <div className="mb-4 overflow-hidden">
+              <NotesDisplay />
+            </div>
+          )}
+
+          {/* Vote Section */}
+          {state.cardViewSettings.showVotes && (
+            <div className="border-t border-slate-200 pt-4">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex space-x-2 overflow-hidden">
+                  {state.users.map((user) => {
+                    const userVote = actor.userVotes[user.id]
+                    let bgGradient = "bg-gradient-to-br from-slate-200 to-slate-300"
+                    let textColor = "text-slate-600"
+
+                    if (userVote === "yes") {
+                      bgGradient = "bg-gradient-to-br from-emerald-500 to-emerald-600"
+                      textColor = "text-white"
+                    } else if (userVote === "no") {
+                      bgGradient = "bg-gradient-to-br from-red-500 to-red-600"
+                      textColor = "text-white"
+                    } else if (userVote === "maybe") {
+                      bgGradient = "bg-gradient-to-br from-blue-500 to-blue-600"
+                      textColor = "text-white"
+                    }
+
+                    return (
+                      <div
+                        key={user.id}
+                        className={`w-6 h-6 rounded-xl flex items-center justify-center text-[10px] font-bold ${bgGradient} ${textColor} shadow-sm flex-shrink-0`}
+                        title={user.name}
+                      >
+                        {user.initials}
+                      </div>
+                    )
+                  })}
+                </div>
+                <span className="text-sm text-slate-500 font-medium flex-shrink-0 whitespace-nowrap">
+                  {voteStats.votedUsers}/{voteStats.totalUsers} voted
+                </span>
+              </div>
+
+              {/* Special message for Approval list */}
+              {actor.currentListKey === "approval" &&
+                voteStats.yesVotes === voteStats.totalUsers &&
+                voteStats.totalUsers > 0 && (
+                  <div className="mb-3 p-3 bg-gradient-to-r from-emerald-50 to-emerald-100 border border-success-200 rounded-xl shadow-sm">
+                    <div className="flex items-center space-x-2">
+                      <Crown className="w-4 h-4 text-success-600" />
+                      <span className="text-sm text-success-700 font-semibold break-words">
+                        🎉 Unanimous approval! This actor is now cast in the role.
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+              {/* Action Buttons - Hide for cast actors */}
+              {!actor.isCast && state.currentUser && state.cardViewSettings.showActionButtons && (
+                <div className="grid grid-cols-3 gap-1">
+                  <button
+                    onClick={(e) => { e.stopPropagation(); handleVote("yes") }}
+                    className={`px-1.5 py-1 text-[10px] font-semibold rounded-full text-center transition-all duration-200 active:scale-95 ${
+                      currentUserVote === "yes"
+                        ? "bg-[#b5c9a8] text-[#4a5b3f] ring-2 ring-[#8fa67e]"
+                        : "bg-[#d5dece] text-[#6b7a5e] hover:bg-[#c8d4bf]"
+                    }`}
+                  >
+                    Yes
+                  </button>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); handleVote("maybe") }}
+                    className={`px-1.5 py-1 text-[10px] font-semibold rounded-full text-center transition-all duration-200 active:scale-95 ${
+                      currentUserVote === "maybe"
+                        ? "bg-[#f0d9b5] text-[#7a6a3a] ring-2 ring-[#d4b88a]"
+                        : "bg-[#f5e6d0] text-[#9b8a5e] hover:bg-[#eddbbd]"
+                    }`}
+                  >
+                    Maybe
+                  </button>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); handleVote("no") }}
+                    className={`px-1.5 py-1 text-[10px] font-semibold rounded-full text-center transition-all duration-200 active:scale-95 ${
+                      currentUserVote === "no"
+                        ? "bg-[#e8b4b8] text-[#8b4c4f] ring-2 ring-[#d49396]"
+                        : "bg-[#f0cdd0] text-[#a06b6e] hover:bg-[#e8bfc3]"
+                    }`}
+                  >
+                    No
                   </button>
                 </div>
-              </div>
-            )}
-
-            {/* Cast/Greenlit Overlay */}
-            {actor.isCast && (
-              <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/30 to-emerald-600/30 flex items-center justify-center">
-                <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white px-2 py-1 rounded-lg flex items-center space-x-1 shadow-lg">
-                  <Crown className="w-3 h-3" />
-                  <span className="text-xs font-bold">CAST</span>
-                </div>
-              </div>
-            )}
-
-            {!actor.isCast && actor.isGreenlit && (
-              <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-emerald-600/20 flex items-center justify-center">
-                <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white px-2 py-1 rounded-lg text-xs font-bold shadow-lg">
-                  GREENLIT
-                </div>
-              </div>
-            )}
-
-            {/* Headshot Navigation */}
-            {actor.headshots && actor.headshots.length > 1 && (
-              <>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    navigateHeadshot(-1)
-                  }}
-                  className="absolute left-1 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white rounded-full p-1 hover:bg-opacity-70 transition-all opacity-0 group-hover:opacity-100"
-                >
-                  <ChevronLeft className="w-3 h-3" />
-                </button>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    navigateHeadshot(1)
-                  }}
-                  className="absolute right-1 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white rounded-full p-1 hover:bg-opacity-70 transition-all opacity-0 group-hover:opacity-100"
-                >
-                  <ChevronRight className="w-3 h-3" />
-                </button>
-                <div className="absolute bottom-1 right-1 bg-black bg-opacity-50 text-white text-xs px-1 py-0.5 rounded">
-                  {currentHeadshotIndex + 1}/{actor.headshots.length}
-                </div>
-              </>
-            )}
-
-            {/* Drag Handle */}
-            <div className="absolute top-1 left-1 bg-black bg-opacity-50 text-white rounded p-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-              <GripVertical className="w-3 h-3" />
-            </div>
-          </div>
-
-          {/* Actor Info Section */}
-          <div className="flex-1 min-w-0 overflow-hidden">
-            {/* Actor Name */}
-            <div className="mb-3">
-              <div className="flex items-center gap-2 mb-1">
-                <button
-                  onClick={handleNameClick}
-                  className="font-bold text-lg text-slate-900 hover:text-emerald-600 transition-colors break-words text-left"
-                >
-                  {actor.name}
-                </button>
-                {actor.isCast && (
-                  <div className="flex items-center space-x-1">
-                    <Crown className="w-4 h-4 text-emerald-600" />
-                    <span className="text-xs text-emerald-600 font-semibold truncate">Cast as {character.name}</span>
-                  </div>
-                )}
-              </div>
-
-              {/* Basic Info - Stacked Layout */}
-              <div className="space-y-1 text-xs text-slate-400 overflow-hidden">
-                {state.cardViewSettings.age && actor.age && (
-                  <div className="flex items-center gap-2">
-                    <Calendar className="w-3 h-3 text-slate-400 flex-shrink-0" />
-                    <span className="font-medium text-slate-400">Age: {actor.age}</span>
-                  </div>
-                )}
-                {state.cardViewSettings.playingAge && actor.playingAge && (
-                  <div className="flex items-center gap-2">
-                    <User className="w-3 h-3 text-slate-400 flex-shrink-0" />
-                    <span className="font-medium text-slate-400">Playing: {actor.playingAge}</span>
-                  </div>
-                )}
-                {state.cardViewSettings.location && actor.location && (
-                  <div className="flex items-center gap-2 min-w-0">
-                    <MapPin className="w-3 h-3 text-slate-400 flex-shrink-0" />
-                    <span className="truncate font-medium text-slate-400">{actor.location}</span>
-                  </div>
-                )}
-                {state.cardViewSettings.agent && actor.agent && (
-                  <div className="flex items-center gap-2 min-w-0">
-                    <User className="w-3 h-3 text-slate-400 flex-shrink-0" />
-                    <span className="truncate font-medium text-slate-400">{actor.agent}</span>
-                  </div>
-                )}
-                {state.cardViewSettings.imdbUrl && actor.imdbUrl && (
-                  <a
-                    href={actor.imdbUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={(e) => e.stopPropagation()}
-                    className="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors"
-                  >
-                    <span className="text-xs font-medium underline">IMDB Profile</span>
-                  </a>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Status and Counters Row */}
-        <div className="flex items-center justify-between gap-3 mb-3">
-          <div className="flex items-center gap-3">
-            {/* Contact Status Indicator */}
-            <div className="flex items-center gap-1 flex-shrink-0" title={contactStatus.label}>
-              <contactStatus.icon className={`w-3 h-3 ${contactStatus.color}`} />
-              <span className={`text-xs font-medium ${contactStatus.color}`}>{contactStatus.label}</span>
-            </div>
-
-            <div className="flex items-center gap-2">
-              {/* Notes Count - Clickable */}
-              {actor.notes && actor.notes.length > 0 && (
-                <button
-                  onClick={handleOpenPlayerView}
-                  className="flex items-center gap-1 text-slate-500 bg-slate-100 hover:bg-slate-200 px-2 py-0.5 rounded-lg flex-shrink-0 transition-colors cursor-pointer"
-                  title={`Click to view ${actor.notes.length} note${actor.notes.length !== 1 ? "s" : ""} in Player View`}
-                >
-                  <MessageSquare className="w-3 h-3" />
-                  <span className="text-xs font-medium">{actor.notes.length}</span>
-                </button>
-              )}
-
-              {/* Video Count - Clickable */}
-              {(() => {
-                const videoCount = getVideoCount(actor)
-                if (videoCount > 0) {
-                  return (
-                    <button
-                      onClick={handleOpenPlayerView}
-                      className="flex items-center gap-1 text-slate-500 bg-slate-100 hover:bg-slate-200 px-2 py-0.5 rounded-lg flex-shrink-0 transition-colors cursor-pointer"
-                      title={`Click to view ${videoCount} video${videoCount !== 1 ? "s" : ""} in Player View`}
-                    >
-                      <Play className="w-3 h-3" />
-                      <span className="text-xs font-medium">{videoCount}</span>
-                    </button>
-                  )
-                }
-                return null
-              })()}
-
-              {/* Media Files Count - Clickable */}
-              {actor.headshots && actor.headshots.length > 0 && (
-                <button
-                  onClick={handleOpenPlayerView}
-                  className="flex items-center gap-1 text-slate-500 bg-slate-100 hover:bg-slate-200 px-2 py-0.5 rounded-lg flex-shrink-0 transition-colors cursor-pointer"
-                  title={`Click to view ${actor.headshots.length} photo${actor.headshots.length !== 1 ? "s" : ""} in Player View`}
-                >
-                  <ImageIcon className="w-3 h-3" />
-                  <span className="text-xs font-medium">{actor.headshots.length}</span>
-                </button>
               )}
             </div>
-          </div>
-
-          {/* Manage Status Button - Aligned to the right */}
-          <button
-            onClick={handleManageStatuses}
-            className="flex items-center gap-1 px-2 py-1 text-xs text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-colors flex-shrink-0"
-          >
-            <Tag className="w-3 h-3" />
-            <span className="whitespace-nowrap">Manage Status</span>
-          </button>
+          )}
         </div>
-
-        {/* Status Display */}
-        <div className="mb-4 overflow-hidden">
-          <StatusDisplay />
-        </div>
-
-        {/* Skills Section */}
-        {state.cardViewSettings.skills && actor.skills && actor.skills.length > 0 && (
-          <div className="mb-4 overflow-hidden">
-            <div className="flex items-center gap-1 text-xs font-medium text-slate-600 mb-2">
-              <Star className="w-3 h-3 flex-shrink-0" />
-              <span className="whitespace-nowrap">Skills & Abilities</span>
-            </div>
-            <div className="flex flex-wrap gap-1">
-              {actor.skills.map((skill, index) => (
-                <span
-                  key={index}
-                  className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-blue-100 text-blue-700 border border-blue-200"
-                >
-                  {skill}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Notes Section */}
-        {state.cardViewSettings.notes && (
-          <div className="mb-4 overflow-hidden">
-            <NotesDisplay />
-          </div>
-        )}
-
-        {/* Vote Section */}
-        {state.cardViewSettings.showVotes && (
-          <div className="border-t border-slate-200 pt-4">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex space-x-2 overflow-hidden">
-                {state.users.map((user) => {
-                  const userVote = actor.userVotes[user.id]
-                  let bgGradient = "bg-gradient-to-br from-slate-200 to-slate-300"
-                  let textColor = "text-slate-600"
-
-                  if (userVote === "yes") {
-                    bgGradient = "bg-gradient-to-br from-emerald-500 to-emerald-600"
-                    textColor = "text-white"
-                  } else if (userVote === "no") {
-                    bgGradient = "bg-gradient-to-br from-red-500 to-red-600"
-                    textColor = "text-white"
-                  } else if (userVote === "maybe") {
-                    bgGradient = "bg-gradient-to-br from-blue-500 to-blue-600"
-                    textColor = "text-white"
-                  }
-
-                  return (
-                    <div
-                      key={user.id}
-                      className={`w-6 h-6 rounded-xl flex items-center justify-center text-[10px] font-bold ${bgGradient} ${textColor} shadow-sm flex-shrink-0`}
-                      title={user.name}
-                    >
-                      {user.initials}
-                    </div>
-                  )
-                })}
-              </div>
-              <span className="text-sm text-slate-500 font-medium flex-shrink-0 whitespace-nowrap">
-                {voteStats.votedUsers}/{voteStats.totalUsers} voted
-              </span>
-            </div>
-
-            {/* Special message for Approval list */}
-            {actor.currentListKey === "approval" &&
-              voteStats.yesVotes === voteStats.totalUsers &&
-              voteStats.totalUsers > 0 && (
-                <div className="mb-3 p-3 bg-gradient-to-r from-emerald-50 to-emerald-100 border border-emerald-200 rounded-xl shadow-sm">
-                  <div className="flex items-center space-x-2">
-                    <Crown className="w-4 h-4 text-emerald-600" />
-                    <span className="text-sm text-emerald-700 font-semibold break-words">
-                      🎉 Unanimous approval! This actor is now cast in the role.
-                    </span>
-                  </div>
-                </div>
-              )}
-
-            {/* Action Buttons - Hide for cast actors */}
-            {!actor.isCast && state.currentUser && state.cardViewSettings.showActionButtons && (
-              <div className="grid grid-cols-3 gap-1">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    handleVote("yes")
-                  }}
-                  className={`px-1 py-0.5 text-[10px] font-semibold rounded-lg border transition-all duration-200 shadow-sm hover:shadow-md transform hover:-translate-y-0.5 ${
-                    currentUserVote === "yes"
-                      ? "bg-gradient-to-r from-emerald-600 to-emerald-700 text-white border-emerald-700"
-                      : "bg-gradient-to-r from-emerald-100 to-emerald-200 text-emerald-700 border-emerald-300 hover:from-emerald-200 hover:to-emerald-300"
-                  }`}
-                >
-                  <Heart className="w-2.5 h-2.5 mx-auto mb-0.5" />
-                  Yes
-                </button>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    handleVote("no")
-                  }}
-                  className={`px-1 py-0.5 text-[10px] font-semibold rounded-lg border transition-all duration-200 shadow-sm hover:shadow-md transform hover:-translate-y-0.5 ${
-                    currentUserVote === "no"
-                      ? "bg-gradient-to-r from-red-600 to-red-700 text-white border-red-700"
-                      : "bg-gradient-to-r from-red-100 to-red-200 text-red-700 border-red-300 hover:from-red-200 hover:to-red-300"
-                  }`}
-                >
-                  <X className="w-2.5 h-2.5 mx-auto mb-0.5" />
-                  No
-                </button>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    handleVote("maybe")
-                  }}
-                  className={`px-1 py-0.5 text-[10px] font-semibold rounded-lg border text-center transition-all duration-200 shadow-sm hover:shadow-md transform hover:-translate-y-0.5 ${
-                    currentUserVote === "maybe"
-                      ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white border-blue-700"
-                      : "bg-gradient-to-r from-blue-100 to-blue-200 text-blue-700 border-blue-300 hover:from-blue-200 hover:to-blue-300"
-                  }`}
-                >
-                  <Star className="w-2.5 h-2.5 mx-auto mb-0.5" />
-                  Maybe
-                </button>
-              </div>
-            )}
-          </div>
-        )}
       </div>
-    </div>
-  )
+    )
+  }
+
+  return null // Should not reach here if all viewModes are handled
 }

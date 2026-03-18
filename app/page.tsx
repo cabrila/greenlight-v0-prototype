@@ -11,6 +11,7 @@ import PlayerViewModal from "@/components/modals/PlayerViewModal"
 import { UploadNotificationProvider } from "@/hooks/useUploadNotifications"
 import { useSubmissionIntegration } from "@/hooks/useSubmissionIntegration"
 import { mockData } from "@/lib/mockData"
+import GoGreenlightCoPilot from "@/components/copilot/GoGreenlightCoPilot"
 
 export default function CastingApp() {
   const [isLoaded, setIsLoaded] = useState(false)
@@ -46,10 +47,20 @@ function CastingAppContent() {
 
   // Show splash screen on first visit only
   useEffect(() => {
-    const FIRST_VISIT_KEY = "greenlight-first-visit-complete"
-    const CACHE_CLEARED_KEY = "greenlight-cache-cleared"
+    const FIRST_VISIT_KEY = "gogreenlight-first-visit-complete"
+    const CACHE_CLEARED_KEY = "gogreenlight-cache-cleared"
+    const PLACEHOLDER_SANITIZED_KEY = "gogreenlight-placeholder-sanitized-v7"
 
     if (typeof window !== "undefined") {
+      // One-time full localStorage clear to remove any corrupted image data
+      if (!window.localStorage.getItem(PLACEHOLDER_SANITIZED_KEY)) {
+        try {
+          // Clear ALL localStorage to ensure completely fresh state
+          localStorage.clear()
+          window.localStorage.setItem(PLACEHOLDER_SANITIZED_KEY, "true")
+        } catch { /* ignore errors */ }
+      }
+
       const isFirstVisit = !window.localStorage.getItem(FIRST_VISIT_KEY)
       const wasCacheCleared = window.localStorage.getItem(CACHE_CLEARED_KEY) === "true"
 
@@ -84,6 +95,9 @@ function CastingAppContent() {
           <PlayerViewModal onClose={() => dispatch({ type: "CLOSE_PLAYER_VIEW" })} />
         </div>
       )}
+
+      {/* GoGreenlight CoPilot - Always visible */}
+      <GoGreenlightCoPilot />
     </div>
   )
 }

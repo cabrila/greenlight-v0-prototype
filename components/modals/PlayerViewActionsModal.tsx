@@ -14,7 +14,7 @@ interface PlayerViewActionsModalProps {
 }
 
 export default function PlayerViewActionsModal({ onClose, actor, characterId }: PlayerViewActionsModalProps) {
-  const { dispatch } = useCasting()
+  const { state, dispatch } = useCasting()
 
   const handleEditActor = () => {
     onClose()
@@ -37,19 +37,25 @@ export default function PlayerViewActionsModal({ onClose, actor, characterId }: 
   }
 
   const handleRemoveFromList = () => {
-    // Move actor to Long List regardless of current position
-    dispatch({
-      type: "MOVE_ACTOR",
-      payload: {
-        actorId: actor.id,
-        characterId,
-        sourceLocation: { type: "current" }, // Will be determined by the reducer
-        destinationType: "standard",
-        destinationKey: "longList",
-        moveReason: "remove_from_list",
+    // Find the current character name for the confirmation message
+    const currentProject = state.projects.find((p) => p.id === state.currentFocus.currentProjectId)
+    const currentCharacter = currentProject?.characters.find((c) => c.id === characterId)
+    const characterName = currentCharacter?.name || "this character"
+
+    onClose()
+    openModal("confirmDelete", {
+      title: "Remove Actor from List",
+      message: `Are you sure you want to remove ${actor.name} from ${characterName}'s casting lists? This will remove them from all lists for this character only.`,
+      onConfirm: () => {
+        dispatch({
+          type: "DELETE_ACTOR",
+          payload: {
+            actorId: actor.id,
+            characterId: characterId,
+          },
+        })
       },
     })
-    onClose()
   }
 
   const handleDeleteActor = () => {

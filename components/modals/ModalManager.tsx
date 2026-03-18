@@ -33,6 +33,16 @@ import SplashScreenModal from "./SplashScreenModal"
 import BookAuditionModal from "./BookAuditionModal"
 import ScheduleModal from "./ScheduleModal"
 import DatabaseModal from "./DatabaseModal"
+import AssignToProjectModal from "./AssignToProjectModal"
+import CharactersModal from "./CharactersModal"
+import ScriptAnalysisModal from "./ScriptAnalysisModal"
+import AddFromDatabaseModal from "./AddFromDatabaseModal"
+import PropsModal from "./PropsModal"
+import LocationsModal from "./LocationsModal"
+import CostumesModal from "./CostumesModal"
+import ScriptModal from "./ScriptModal"
+import ProductionDesignModal from "./ProductionDesignModal"
+import CastingForTVModal from "./CastingForTVModal"
 
 export interface ModalState {
   type: string | null
@@ -158,6 +168,25 @@ export default function ModalManager() {
         </div>
       )
     }
+
+    if (state.modals.scriptAnalysis?.isOpen) {
+      return (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <ScriptAnalysisModal onClose={() => dispatch({ type: "CLOSE_MODAL", payload: "scriptAnalysis" })} />
+        </div>
+      )
+    }
+
+    if (state.modals.addFromDatabase?.isOpen) {
+      return (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <AddFromDatabaseModal
+            onClose={() => dispatch({ type: "CLOSE_MODAL", payload: "addFromDatabase" })}
+            characterId={state.modals.addFromDatabase.props.characterId}
+          />
+        </div>
+      )
+    }
   }
 
   // Render modal stack
@@ -229,6 +258,26 @@ export default function ModalManager() {
           return <ScheduleModal onClose={handleClose} />
         case "database":
           return <DatabaseModal onClose={handleClose} />
+        case "assignToProject":
+          return <AssignToProjectModal onClose={handleClose} {...modal.data} />
+        case "characters":
+          return <CharactersModal onClose={handleClose} />
+        case "scriptAnalysis":
+          return <ScriptAnalysisModal onClose={handleClose} />
+        case "addFromDatabase":
+          return <AddFromDatabaseModal onClose={handleClose} characterId={modal.data?.characterId} />
+        case "props":
+          return <PropsModal onClose={handleClose} />
+        case "locations":
+          return <LocationsModal onClose={handleClose} />
+        case "costumes":
+          return <CostumesModal onClose={handleClose} />
+        case "script":
+          return <ScriptModal onClose={handleClose} />
+        case "productionDesign":
+          return <ProductionDesignModal onClose={handleClose} />
+        case "castingForTV":
+          return <CastingForTVModal onClose={handleClose} />
         default:
           return null
       }
@@ -236,8 +285,20 @@ export default function ModalManager() {
 
     if (!modalContent) return null
 
-    // For splash screen and canvas modal, don't add the backdrop wrapper since they have their own
-    if (modal.type === "splashScreen" || modal.type === "canvas") {
+    // For splash screen, canvas, and characters modal, don't add the backdrop wrapper since they have their own
+    if (
+      modal.type === "splashScreen" ||
+      modal.type === "canvas" ||
+      modal.type === "characters" ||
+      modal.type === "addFromDatabase" ||
+      modal.type === "props" ||
+      modal.type === "locations" ||
+      modal.type === "costumes" ||
+      modal.type === "script" ||
+      modal.type === "schedule" ||
+      modal.type === "productionDesign" ||
+      modal.type === "castingForTV"
+    ) {
       return <div key={`modal-${index}`}>{modalContent}</div>
     }
 

@@ -14,11 +14,19 @@ import {
   Database,
   HelpCircle,
   Sparkles,
-  Clapperboard,
+  Home,
   Folder,
   FileText,
   Users,
   Bell,
+  UserCircle,
+  Package,
+  MapPin,
+  Scissors,
+  ScrollText,
+  ChevronDown,
+  Paintbrush,
+  Tv,
 } from "lucide-react"
 import { openModal } from "@/components/modals/ModalManager"
 import { useState, useEffect, useRef } from "react"
@@ -30,6 +38,7 @@ export default function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [isLoadingDemo, setIsLoadingDemo] = useState(false)
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
+  const [castingToolsOpen, setCastingToolsOpen] = useState(false)
   const userAvatarRef = useRef<HTMLDivElement>(null)
 
   const [collapsedSections, setCollapsedSections] = useState<{
@@ -138,7 +147,7 @@ export default function Sidebar() {
   const handleClearCache = () => {
     // Set flag to show splash screen after cache clear
     if (typeof window !== "undefined") {
-      localStorage.setItem("greenlight-cache-cleared", "true")
+      localStorage.setItem("gogreenlight-cache-cleared", "true")
     }
     openModal("clearCache")
   }
@@ -226,49 +235,66 @@ export default function Sidebar() {
         isCollapsed ? "w-20" : "w-72"
       }`}
     >
-      {/* Logo/Branding section at the top */}
+      {/* Logo + Notifications header */}
       <div className="p-4 border-b border-slate-200/60">
-        {!isCollapsed ? (
-          <div className="flex items-center space-x-3">
-            <div className="p-2 bg-emerald-600 rounded-lg">
-              <Clapperboard className="w-6 h-6 text-white" />
-            </div>
-            <h1 className="text-2xl font-bold text-emerald-600 tracking-wide">GREENLIGHT</h1>
-          </div>
-        ) : (
-          <div className="flex justify-center">
-            <div className="p-2 bg-emerald-600 rounded-lg">
-              <Clapperboard className="w-5 h-5 text-white" />
-            </div>
-          </div>
-        )}
+        {/* Expanded: logo row with bell to the right */}
+        <div
+          className={`flex items-center justify-between transition-all duration-300 ease-in-out ${
+            isCollapsed ? "opacity-0 scale-95 max-h-0 pointer-events-none" : "opacity-100 scale-100 max-h-14"
+          }`}
+        >
+          <img src="/images/gogreenlight-logo.png" alt="GoGreenlight" className="h-9 w-auto" />
+          <button
+            onClick={() => openModal("notifications")}
+            className="relative p-1.5 text-slate-500 hover:text-success-600 rounded-lg hover:bg-slate-100 transition-all duration-200"
+            title="Notifications"
+            aria-label={`Notifications${unreadNotifications > 0 ? `, ${unreadNotifications} unread` : ""}`}
+          >
+            <Bell className="w-4 h-4" />
+            {unreadNotifications > 0 && (
+              <div className="absolute -top-0.5 -right-0.5 bg-error-500 text-white text-[9px] font-bold min-w-[16px] h-4 px-1 rounded-full flex items-center justify-center shadow-sm notification-badge-pulse">
+                {unreadNotifications}
+              </div>
+            )}
+          </button>
+        </div>
+        {/* Collapsed: centered mini logo */}
+        <div
+          className={`flex justify-center transition-all duration-300 ease-in-out ${
+            isCollapsed ? "opacity-100 scale-100 max-h-14" : "opacity-0 scale-95 max-h-0 pointer-events-none"
+          }`}
+        >
+          <img src="/images/logo-mini.png" alt="GoGreenlight" className="h-10 w-10 rounded-lg" />
+        </div>
       </div>
 
-      {/* Toggle Button and Notifications Icon */}
-      <div className="flex items-center justify-between p-4 border-b border-slate-200/60">
+      {/* Collapsed: bell + toggle row between logo and menu */}
+      <div
+        className={`flex items-center justify-between px-4 py-2 border-b border-slate-200/60 transition-all duration-300 ${
+          isCollapsed ? "max-h-16 opacity-100" : "max-h-0 opacity-0 overflow-hidden py-0 border-b-0"
+        }`}
+      >
         <button
           onClick={() => openModal("notifications")}
-          className="relative p-2 text-slate-700 hover:text-emerald-600 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50"
+          className="relative p-2 text-slate-700 hover:text-success-600 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50"
           title="Notifications"
+          aria-label={`Notifications${unreadNotifications > 0 ? `, ${unreadNotifications} unread` : ""}`}
+          tabIndex={isCollapsed ? 0 : -1}
         >
           <Bell className="w-5 h-5" />
           {unreadNotifications > 0 && (
-            <div className="absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold min-w-[20px] h-5 px-1.5 rounded-full flex items-center justify-center shadow-lg">
+            <div className="absolute -top-1 -right-1 bg-error-500 text-white text-xs font-bold min-w-[20px] h-5 px-1.5 rounded-full flex items-center justify-center shadow-lg notification-badge-pulse">
               {unreadNotifications}
             </div>
           )}
         </button>
-
         <button
           onClick={toggleSidebar}
           className="p-2 hover:bg-slate-100 rounded-xl transition-all duration-200 group"
-          aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+          aria-label="Expand sidebar"
+          tabIndex={isCollapsed ? 0 : -1}
         >
-          {isCollapsed ? (
-            <ChevronRight className="w-5 h-5 text-slate-600 group-hover:text-emerald-600 transition-colors" />
-          ) : (
-            <ChevronLeft className="w-5 h-5 text-slate-600 group-hover:text-emerald-600 transition-colors" />
-          )}
+          <ChevronRight className="w-5 h-5 text-slate-600 group-hover:text-success-600 transition-colors" />
         </button>
       </div>
 
@@ -277,36 +303,101 @@ export default function Sidebar() {
         <div className="p-4 space-y-2 border-b border-slate-200/60">
           {!isCollapsed ? (
             <>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => openModal("projectManager")}
+                  className="flex-1 min-w-0 flex items-center space-x-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:text-success-600 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50"
+                >
+                  <Folder className="w-4 h-4 flex-shrink-0" />
+                  <span className="truncate">Project: {currentProject?.name || "N/A"}</span>
+                </button>
+                <button
+                  onClick={toggleSidebar}
+                  className="flex-shrink-0 p-2 hover:bg-slate-100 rounded-xl transition-all duration-200 group border border-slate-200/50"
+                  aria-label="Collapse sidebar"
+                >
+                  <ChevronLeft className="w-4 h-4 text-slate-500 group-hover:text-success-600 transition-colors" />
+                </button>
+              </div>
+
               <button
-                onClick={() => openModal("projectManager")}
-                className="w-full flex items-center space-x-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:text-emerald-600 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50"
+                onClick={() => openModal("script")}
+                className="w-full flex items-center space-x-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:text-amber-600 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50"
               >
-                <Folder className="w-4 h-4" />
-                <span className="truncate">Project: {currentProject?.name || "N/A"}</span>
+                <ScrollText className="w-4 h-4" />
+                <span>Script</span>
               </button>
 
               <button
-                onClick={() => openModal("castingBreakdown")}
-                className="w-full flex items-center space-x-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:text-blue-600 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50"
+                onClick={() => openModal("characters")}
+                className="w-full flex items-center space-x-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:text-success-600 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50"
               >
-                <FileText className="w-4 h-4" />
-                <span>Casting Breakdown</span>
+                <UserCircle className="w-4 h-4" />
+                <span>Characters</span>
+              </button>
+
+              {/* Casting Tools accordion */}
+              <div className="rounded-xl border border-slate-200/50 bg-white/60 overflow-hidden">
+                <button
+                  onClick={() => setCastingToolsOpen(!castingToolsOpen)}
+                  className="w-full flex items-center justify-between px-4 py-2.5 text-sm font-medium text-slate-700 hover:text-slate-900 hover:bg-white transition-all duration-200"
+                >
+                  <span className="flex items-center space-x-3">
+                    <Sparkles className="w-4 h-4" />
+                    <span>Casting Tools</span>
+                  </span>
+                  <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${castingToolsOpen ? "rotate-180" : ""}`} />
+                </button>
+                <div className={`overflow-hidden transition-all duration-200 ${castingToolsOpen ? "max-h-40" : "max-h-0"}`}>
+                  <div className="px-2 pb-2 space-y-1">
+                    <button
+                      onClick={() => openModal("castingBreakdown")}
+                      className="w-full flex items-center space-x-3 px-3 py-2 text-[13px] font-medium text-slate-600 hover:text-info-600 hover:bg-info-50 rounded-lg transition-colors"
+                    >
+                      <FileText className="w-3.5 h-3.5" />
+                      <span>Casting Breakdown</span>
+                    </button>
+                    <button
+                      onClick={() => openModal("teamSuggestions")}
+                      className="w-full flex items-center space-x-3 px-3 py-2 text-[13px] font-medium text-slate-600 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+                    >
+                      <Users className="w-3.5 h-3.5" />
+                      <span>Team Suggestions</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                onClick={() => openModal("props")}
+                className="w-full flex items-center space-x-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:text-amber-700 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50"
+              >
+                <Package className="w-4 h-4" />
+                <span>Props</span>
               </button>
 
               <button
-                onClick={() => openModal("teamSuggestions")}
-                className="w-full flex items-center space-x-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:text-purple-600 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50"
+                onClick={() => openModal("costumes")}
+                className="w-full flex items-center space-x-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:text-pink-600 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50"
               >
-                <Users className="w-4 h-4" />
-                <span>Team Suggestions</span>
+                <Scissors className="w-4 h-4" />
+                <span>Costumes & Makeup</span>
               </button>
 
               <button
-                onClick={() => openModal("userPermissions")}
-                className="w-full flex items-center space-x-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:text-orange-600 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50"
+                onClick={() => openModal("locations")}
+                className="w-full flex items-center space-x-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:text-teal-600 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50"
               >
-                <Settings className="w-4 h-4" />
-                <span>Permissions</span>
+                <MapPin className="w-4 h-4" />
+                <span>Locations</span>
+              </button>
+
+              <button
+                onClick={() => openModal("productionDesign")}
+                className="w-full flex items-center space-x-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:text-slate-900 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50"
+              >
+                <Paintbrush className="w-4 h-4" />
+                <span>Production Design</span>
               </button>
 
               <button
@@ -316,39 +407,109 @@ export default function Sidebar() {
                 <Calendar className="w-4 h-4" />
                 <span>Schedule</span>
               </button>
+
+              <button
+                onClick={() => openModal("castingForTV")}
+                className="w-full flex items-center space-x-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:text-cyan-600 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50"
+              >
+                <Tv className="w-4 h-4" />
+                <span>Casting for TV</span>
+              </button>
+
+              <button
+                onClick={() => openModal("userPermissions")}
+                className="w-full flex items-center space-x-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:text-orange-600 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50"
+              >
+                <Settings className="w-4 h-4" />
+                <span>Permissions</span>
+              </button>
             </>
           ) : (
             <>
               <button
                 onClick={() => openModal("projectManager")}
-                className="w-full flex justify-center p-3 text-slate-700 hover:text-emerald-600 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50"
+                className="w-full flex justify-center p-3 text-slate-700 hover:text-success-600 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50"
                 title={`Project: ${currentProject?.name || "N/A"}`}
               >
                 <Folder className="w-5 h-5" />
               </button>
 
               <button
-                onClick={() => openModal("castingBreakdown")}
-                className="w-full flex justify-center p-3 text-slate-700 hover:text-blue-600 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50"
-                title="Casting Breakdown"
+                onClick={() => openModal("script")}
+                className="w-full flex justify-center p-3 text-slate-700 hover:text-amber-600 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50"
+                title="Script"
               >
-                <FileText className="w-5 h-5" />
+                <ScrollText className="w-5 h-5" />
               </button>
 
               <button
-                onClick={() => openModal("teamSuggestions")}
-                className="w-full flex justify-center p-3 text-slate-700 hover:text-purple-600 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50"
-                title="Team Suggestions"
+                onClick={() => openModal("characters")}
+                className="w-full flex justify-center p-3 text-slate-700 hover:text-success-600 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50"
+                title="Characters"
               >
-                <Users className="w-5 h-5" />
+                <UserCircle className="w-5 h-5" />
+              </button>
+
+              {/* Casting Tools collapsed group */}
+              <div className="relative group/casting">
+                <button
+                  onClick={() => setCastingToolsOpen(!castingToolsOpen)}
+                  className={`w-full flex justify-center p-3 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50 ${castingToolsOpen ? "text-info-600" : "text-slate-700 hover:text-info-600"}`}
+                  title="Casting Tools"
+                >
+                  <Sparkles className="w-5 h-5" />
+                </button>
+                {castingToolsOpen && (
+                  <div className="absolute left-full top-0 ml-2 bg-white rounded-xl shadow-xl border border-slate-200 py-1.5 z-50 min-w-[170px]">
+                    <p className="px-3 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Casting Tools</p>
+                    <button
+                      onClick={() => { openModal("castingBreakdown"); setCastingToolsOpen(false) }}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-slate-700 hover:text-info-600 hover:bg-info-50 transition-colors"
+                    >
+                      <FileText className="w-3.5 h-3.5" />
+                      Casting Breakdown
+                    </button>
+                    <button
+                      onClick={() => { openModal("teamSuggestions"); setCastingToolsOpen(false) }}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-slate-700 hover:text-purple-600 hover:bg-purple-50 transition-colors"
+                    >
+                      <Users className="w-3.5 h-3.5" />
+                      Team Suggestions
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              <button
+                onClick={() => openModal("props")}
+                className="w-full flex justify-center p-3 text-slate-700 hover:text-amber-700 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50"
+                title="Props"
+              >
+                <Package className="w-5 h-5" />
               </button>
 
               <button
-                onClick={() => openModal("userPermissions")}
-                className="w-full flex justify-center p-3 text-slate-700 hover:text-orange-600 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50"
-                title="Permissions"
+                onClick={() => openModal("costumes")}
+                className="w-full flex justify-center p-3 text-slate-700 hover:text-pink-600 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50"
+                title="Costumes & Makeup"
               >
-                <Settings className="w-5 h-5" />
+                <Scissors className="w-5 h-5" />
+              </button>
+
+              <button
+                onClick={() => openModal("locations")}
+                className="w-full flex justify-center p-3 text-slate-700 hover:text-teal-600 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50"
+                title="Locations"
+              >
+                <MapPin className="w-5 h-5" />
+              </button>
+
+              <button
+                onClick={() => openModal("productionDesign")}
+                className="w-full flex justify-center p-3 text-slate-700 hover:text-slate-900 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50"
+                title="Production Design"
+              >
+                <Paintbrush className="w-5 h-5" />
               </button>
 
               <button
@@ -357,6 +518,22 @@ export default function Sidebar() {
                 title="Schedule"
               >
                 <Calendar className="w-5 h-5" />
+              </button>
+
+              <button
+                onClick={() => openModal("castingForTV")}
+                className="w-full flex justify-center p-3 text-slate-700 hover:text-cyan-600 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50"
+                title="Casting for TV"
+              >
+                <Tv className="w-5 h-5" />
+              </button>
+
+              <button
+                onClick={() => openModal("userPermissions")}
+                className="w-full flex justify-center p-3 text-slate-700 hover:text-orange-600 bg-white/60 hover:bg-white rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200/50"
+                title="Permissions"
+              >
+                <Settings className="w-5 h-5" />
               </button>
             </>
           )}
@@ -392,7 +569,7 @@ export default function Sidebar() {
                           value={user.id}
                           checked={state.currentUser?.id === user.id}
                           onChange={() => handleUserChange(user.id)}
-                          className="form-radio h-4 w-4 text-emerald-500 focus:ring-emerald-500"
+                          className="form-radio h-4 w-4 text-success-500 focus:ring-success-500"
                         />
                         <div
                           className="w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold shadow-sm"
@@ -411,7 +588,7 @@ export default function Sidebar() {
                     <div className="mt-3 pt-3 border-t border-slate-200/60">
                       <div
                         ref={userAvatarRef}
-                        className="relative w-10 h-10 rounded-2xl flex items-center justify-center text-sm font-bold cursor-pointer transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 border-2 border-white mx-auto"
+                        className="relative w-10 h-10 rounded-2xl flex items-center justify-center text-sm font-bold cursor-pointer p-2 rounded-xl hover:bg-slate-100 transition-colors"
                         style={{
                           background: `linear-gradient(135deg, ${state.currentUser.bgColor}, ${state.currentUser.bgColor}dd)`,
                           color: state.currentUser.color,
@@ -419,7 +596,7 @@ export default function Sidebar() {
                         onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                       >
                         {state.currentUser.initials}
-                        <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-gradient-to-br from-green-400 to-green-500 rounded-full border-2 border-white shadow-sm"></div>
+                        <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-gradient-to-br from-success-400 to-success-500 rounded-full border-2 border-background shadow-sm"></div>
                       </div>
                     </div>
                   )}
@@ -469,7 +646,7 @@ export default function Sidebar() {
                             type="checkbox"
                             checked={value}
                             onChange={(e) => handleCardSettingChange(field, e.target.checked)}
-                            className="form-checkbox h-4 w-4 rounded text-emerald-500 focus:ring-emerald-500"
+                            className="form-checkbox h-4 w-4 rounded text-success-500 focus:ring-success-500"
                           />
                           <span className="text-sm text-slate-700 capitalize">
                             {field === "imdb"
@@ -521,7 +698,7 @@ export default function Sidebar() {
                 <div className="space-y-2 pl-2 pt-2">
                   <button
                     onClick={handleClearCache}
-                    className="flex items-center space-x-3 w-full text-sm text-red-600 hover:text-red-700 hover:bg-red-50 px-3 py-2 rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                    className="flex items-center space-x-3 w-full text-sm text-destructive hover:text-error-700 hover:bg-error-100 px-3 py-2 rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
                     title="Clear all cached data and reset application"
                   >
                     <Trash2 size={16} />
@@ -531,11 +708,11 @@ export default function Sidebar() {
                   <button
                     onClick={handleLoadDemoData}
                     disabled={isLoadingDemo}
-                    className="flex items-center space-x-3 w-full text-sm text-blue-600 hover:text-blue-700 hover:bg-blue-50 px-3 py-2 rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                    className="flex items-center space-x-3 w-full text-sm text-info-600 hover:text-info-700 hover:bg-info-100 px-3 py-2 rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
                     title="Load demo data and reset to initial state"
                   >
                     {isLoadingDemo ? (
-                      <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                      <div className="w-4 h-4 border-2 border-info-600 border-t-transparent rounded-full animate-spin" />
                     ) : (
                       <Database size={16} />
                     )}
@@ -544,7 +721,7 @@ export default function Sidebar() {
 
                   <button
                     onClick={handleOpenSplashScreen}
-                    className="flex items-center space-x-3 w-full text-sm text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 px-3 py-2 rounded-xl transition-all duration-200 font-medium"
+                    className="flex items-center space-x-3 w-full text-sm text-success-600 hover:text-success-700 hover:bg-success-100 px-3 py-2 rounded-xl transition-all duration-200 font-medium"
                     title="Open splash screen"
                   >
                     <Sparkles size={16} />
@@ -576,23 +753,23 @@ export default function Sidebar() {
 
       {/* Back to Menu Section - Fixed at bottom */}
       <div className="p-4 border-t border-slate-200/60 mt-auto">
-        {!isCollapsed ? (
-          <button
-            onClick={handleOpenSplashScreen}
-            className="w-full flex items-center space-x-3 px-4 py-2.5 text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200"
+        <button
+          onClick={handleOpenSplashScreen}
+          className={`w-full flex items-center text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all duration-300 shadow-sm hover:shadow-md border border-slate-200 ${
+            isCollapsed ? "justify-center p-3" : "gap-3 px-4 py-2.5"
+          }`}
+          title="Back to Menu"
+          aria-label="Back to Menu"
+        >
+          <Home className={`flex-shrink-0 transition-all duration-300 ${isCollapsed ? "w-5 h-5" : "w-4 h-4"}`} />
+          <span
+            className={`whitespace-nowrap transition-all duration-300 ${
+              isCollapsed ? "w-0 opacity-0 overflow-hidden" : "w-auto opacity-100"
+            }`}
           >
-            <Clapperboard className="w-4 h-4" />
-            <span>Back to Menu</span>
-          </button>
-        ) : (
-          <button
-            onClick={handleOpenSplashScreen}
-            className="w-full flex justify-center p-3 text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border border-slate-200"
-            title="Back to Menu"
-          >
-            <Clapperboard className="w-5 h-5" />
-          </button>
-        )}
+            Back to Menu
+          </span>
+        </button>
       </div>
 
       {/* Context Menu */}

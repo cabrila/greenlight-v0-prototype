@@ -1141,7 +1141,7 @@ export default function ActorGrid({ character }: ActorGridProps) {
           <div className="flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden bg-slate-100 border border-slate-200">
             {actorImage && !imageError ? (
               <img
-                src={actorImage || "/placeholder.svg"}
+                src={actorImage}
                 alt={actor.name}
                 className="w-full h-full object-cover"
                 onError={() => setImageError(true)}

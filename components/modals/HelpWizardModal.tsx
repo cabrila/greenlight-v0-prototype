@@ -1,21 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import {
-  X,
-  ChevronLeft,
-  ChevronRight,
-  FolderPlus,
-  Users,
-  Layout,
-  Upload,
-  Plus,
-  UserPlus,
-  Settings,
-  Play,
-  Target,
-  List,
-} from "lucide-react"
+import { X, ChevronLeft, ChevronRight, FolderPlus, Users, Layout, Upload, Plus, UserPlus, Settings, Play, Target, List } from 'lucide-react'
 
 interface HelpWizardModalProps {
   onClose: () => void
@@ -106,7 +92,7 @@ export default function HelpWizardModal({ onClose }: HelpWizardModalProps) {
             </h4>
             <div className="pl-6 space-y-2">
               <p className="text-sm text-gray-600">
-                1. Click <span className="font-medium text-emerald-600">+ Add Character</span> in the main view.
+                1. Click <span className="font-medium text-emerald-600">+ Create Character</span> in the main view.
               </p>
               <p className="text-sm text-gray-600">2. Fill in character name and description.</p>
               <p className="text-sm text-gray-600">3. Add age range, physical attributes, and role details.</p>
@@ -398,7 +384,7 @@ export default function HelpWizardModal({ onClose }: HelpWizardModalProps) {
     <div className="bg-white rounded-lg shadow-xl overflow-hidden max-w-4xl w-full max-h-[85vh] flex flex-col">
       {/* Header */}
       <div className="bg-emerald-600 px-6 py-4 flex justify-between items-center">
-        <h2 className="text-xl font-semibold text-white">Greenlight Casting Help</h2>
+        <h2 className="text-xl font-semibold text-white">GoGreenlight Casting Help</h2>
         <button onClick={onClose} className="text-white hover:text-emerald-200 transition-colors" aria-label="Close">
           <X className="w-5 h-5" />
         </button>

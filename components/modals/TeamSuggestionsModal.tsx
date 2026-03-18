@@ -2,20 +2,7 @@
 
 import { useState } from "react"
 import { useCasting } from "@/components/casting/CastingContext"
-import {
-  X,
-  Users,
-  TrendingUp,
-  MessageSquare,
-  Star,
-  Clock,
-  AlertTriangle,
-  CheckCircle,
-  Lightbulb,
-  Target,
-  BarChart3,
-  UserCheck,
-} from "lucide-react"
+import { X, Users, TrendingUp, MessageSquare, Star, Clock, AlertTriangle, CheckCircle, Lightbulb, Target, BarChart3, UserCheck } from 'lucide-react'
 
 interface TeamSuggestionsModalProps {
   onClose: () => void
@@ -624,7 +611,7 @@ export default function TeamSuggestionsModal({ onClose }: TeamSuggestionsModalPr
               { key: "shortlist", label: "Shortlist", color: "bg-purple-100 text-purple-700", icon: Star },
               { key: "audition", label: "Audition", color: "bg-yellow-100 text-yellow-700", icon: MessageSquare },
               { key: "approval", label: "Approval", color: "bg-orange-100 text-orange-700", icon: Clock },
-              { key: "cast", label: "Greenlight", color: "bg-green-100 text-green-700", icon: CheckCircle },
+              { key: "cast", label: "GoGreenlight", color: "bg-green-100 text-green-700", icon: CheckCircle },
             ].map((stage) => (
               <div key={stage.key} className={`p-4 rounded-lg ${stage.color}`}>
                 <div className="flex items-center justify-between mb-2">
@@ -662,7 +649,7 @@ export default function TeamSuggestionsModal({ onClose }: TeamSuggestionsModalPr
                       }`}
                     >
                       {cp.stage === "cast"
-                        ? "Greenlight"
+                        ? "GoGreenlight"
                         : cp.stage === "approval"
                           ? "In Approval"
                           : cp.stage === "audition"

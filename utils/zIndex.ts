@@ -22,6 +22,9 @@ export const Z_INDEX = {
   // Photo viewer - must be above all Player View elements including the Player View Modal
   PHOTO_VIEWER: 9997,
 
+  // CoPilot - persistent, always visible above all content including modals
+  COPILOT: 9998,
+
   // Absolute top layer for system alerts
   SYSTEM_ALERT: 9999,
 } as const

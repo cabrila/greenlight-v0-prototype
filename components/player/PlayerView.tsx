@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useCasting } from "@/components/casting/CastingContext"
-import { ChevronLeft, ChevronRight, X, Crown, Star, Heart, MessageSquare } from 'lucide-react'
+import { ChevronLeft, ChevronRight, X, Crown, Star, Heart, MessageSquare, CheckCircle2 } from 'lucide-react'
 import PlayerViewNotes from "./PlayerViewNotes"
 import type { Note } from "@/types/casting"
 
@@ -92,10 +92,11 @@ export default function PlayerView() {
   const handleVote = (vote: "yes" | "no" | "maybe") => {
     if (!state.currentUser || !currentActor || !currentCharacter) return
 
-    // Special handling for 'maybe' vote - require a note
+    // Special handling for 'maybe' vote - always require a comment
+    // Unless the user is toggling OFF an existing maybe vote
     if (vote === "maybe") {
-      const hasExistingNotes = currentActor.notes && currentActor.notes.length > 0
-      if (!hasExistingNotes) {
+      const currentVote = state.currentUser ? currentActor.userVotes?.[state.currentUser.id] : null
+      if (currentVote !== "maybe") {
         setShowMaybeNotePrompt(true)
         return
       }
@@ -164,12 +165,12 @@ export default function PlayerView() {
 
   const getCurrentImageUrl = () => {
     if (!currentActor?.headshots || currentActor.headshots.length === 0) {
-      return `/placeholder.svg?height=400&width=300&text=${encodeURIComponent(currentActor?.name?.charAt(0) || "?")}`
+      return ""
     }
 
     const headshot = currentActor.headshots[currentHeadshotIndex]
     if (!headshot) {
-      return `/placeholder.svg?height=400&width=300&text=${encodeURIComponent(currentActor?.name?.charAt(0) || "?")}`
+      return ""
     }
 
     return headshot
@@ -233,11 +234,17 @@ export default function PlayerView() {
 
             {/* Actor Image */}
             <div className="relative max-w-full max-h-full">
-              <img
-                src={getCurrentImageUrl() || "/placeholder.svg"}
-                alt={currentActor.name}
-                className="max-w-full max-h-full object-contain rounded-lg shadow-lg"
-              />
+              {getCurrentImageUrl() ? (
+                <img
+                  src={getCurrentImageUrl()}
+                  alt={currentActor.name}
+                  className="max-w-full max-h-full object-contain rounded-lg shadow-lg"
+                />
+              ) : (
+                <div className="w-64 h-80 rounded-lg shadow-lg bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center text-slate-400 text-4xl font-bold">
+                  {currentActor.name?.charAt(0)?.toUpperCase() || "?"}
+                </div>
+              )}
 
               {/* Headshot Navigation */}
               {currentActor.headshots && currentActor.headshots.length > 1 && (
@@ -264,20 +271,21 @@ export default function PlayerView() {
                 </>
               )}
 
-              {/* Cast/Greenlit Overlay */}
+              {/* Cast/Greenlit Badge (no photo tint) */}
               {isCast && (
-                <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-emerald-600/20 flex items-center justify-center text-emerald-800 text-2xl font-bold rounded-lg pointer-events-none">
-                  <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white px-6 py-3 rounded-xl flex items-center space-x-2 shadow-lg">
-                    <Crown className="w-6 h-6" />
-                    <span>CAST</span>
+                <div className="absolute top-4 left-4 pointer-events-none z-10">
+                  <div className="bg-white/90 backdrop-blur-sm text-slate-800 px-4 py-2 rounded-full flex items-center space-x-2 shadow-md border border-slate-200">
+                    <Crown className="w-4 h-4 text-amber-500" />
+                    <span className="text-sm font-bold tracking-wide">CAST</span>
                   </div>
                 </div>
               )}
 
               {!isCast && currentActor.isGreenlit && (
-                <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/30 to-emerald-600/30 flex items-center justify-center text-white text-2xl font-bold rounded-lg pointer-events-none">
-                  <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white px-4 py-2 rounded-xl shadow-lg">
-                    GREENLIT
+                <div className="absolute top-4 left-4 pointer-events-none z-10">
+                  <div className="bg-white/90 backdrop-blur-sm text-slate-800 px-4 py-2 rounded-full flex items-center space-x-2 shadow-md border border-slate-200">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                    <span className="text-sm font-bold tracking-wide">GREENLIT</span>
                   </div>
                 </div>
               )}
@@ -336,18 +344,18 @@ export default function PlayerView() {
                   <div className="flex space-x-2 mb-2">
                     {state.users.map((user) => {
                       const userVote = currentActor.userVotes[user.id]
-                      let bgGradient = "bg-gradient-to-br from-slate-200 to-slate-300"
-                      let textColor = "text-slate-600"
+                      let bgGradient = "bg-slate-200"
+                      let textColor = "text-slate-500"
 
                       if (userVote === "yes") {
-                        bgGradient = "bg-gradient-to-br from-green-500 to-green-600"
-                        textColor = "text-white"
+                        bgGradient = "bg-[#b5c9a8]"
+                        textColor = "text-[#4a5b3f]"
                       } else if (userVote === "no") {
-                        bgGradient = "bg-gradient-to-br from-red-500 to-red-600"
-                        textColor = "text-white"
+                        bgGradient = "bg-[#e8b4b8]"
+                        textColor = "text-[#8b4c4f]"
                       } else if (userVote === "maybe") {
-                        bgGradient = "bg-gradient-to-br from-blue-500 to-blue-600"
-                        textColor = "text-white"
+                        bgGradient = "bg-[#f0d9b5]"
+                        textColor = "text-[#7a6a3a]"
                       }
 
                       return (
@@ -384,36 +392,33 @@ export default function PlayerView() {
                 <div className="grid grid-cols-3 gap-3 mt-4">
                   <button
                     onClick={() => handleVote("yes")}
-                    className={`px-4 py-2.5 text-sm font-semibold rounded-xl border-2 transition-all duration-200 shadow-sm hover:shadow-md transform hover:-translate-y-0.5 ${
+                    className={`px-4 py-3 text-sm font-semibold rounded-full text-center transition-all duration-200 ${
                       currentUserVote === "yes"
-                        ? "bg-gradient-to-r from-green-600 to-green-700 text-white border-green-700"
-                        : "bg-gradient-to-r from-green-100 to-green-200 text-green-700 border-green-300 hover:from-green-200 hover:to-green-300"
+                        ? "bg-[#b5c9a8] text-[#4a5b3f] ring-2 ring-[#8fa67e]"
+                        : "bg-[#d5dece] text-[#6b7a5e] hover:bg-[#c8d4bf]"
                     }`}
                   >
-                    <Heart className="w-4 h-4 mx-auto mb-1" />
                     Yes
                   </button>
                   <button
-                    onClick={() => handleVote("no")}
-                    className={`px-4 py-2.5 text-sm font-semibold rounded-xl border-2 transition-all duration-200 shadow-sm hover:shadow-md transform hover:-translate-y-0.5 ${
-                      currentUserVote === "no"
-                        ? "bg-gradient-to-r from-red-600 to-red-700 text-white border-red-700"
-                        : "bg-gradient-to-r from-red-100 to-red-200 text-red-700 border-red-300 hover:from-red-200 hover:to-red-300"
+                    onClick={() => handleVote("maybe")}
+                    className={`px-4 py-3 text-sm font-semibold rounded-full text-center transition-all duration-200 ${
+                      currentUserVote === "maybe"
+                        ? "bg-[#f0d9b5] text-[#7a6a3a] ring-2 ring-[#d4b88a]"
+                        : "bg-[#f5e6d0] text-[#9b8a5e] hover:bg-[#eddbbd]"
                     }`}
                   >
-                    <X className="w-4 h-4 mx-auto mb-1" />
-                    No
+                    Maybe
                   </button>
                   <button
-                    onClick={() => handleVote("maybe")}
-                    className={`px-4 py-2.5 text-sm font-semibold rounded-xl border-2 text-center transition-all duration-200 shadow-sm hover:shadow-md transform hover:-translate-y-0.5 ${
-                      currentUserVote === "maybe"
-                        ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white border-blue-700"
-                        : "bg-gradient-to-r from-blue-100 to-blue-200 text-blue-700 border-blue-300 hover:from-blue-200 hover:to-blue-300"
+                    onClick={() => handleVote("no")}
+                    className={`px-4 py-3 text-sm font-semibold rounded-full text-center transition-all duration-200 ${
+                      currentUserVote === "no"
+                        ? "bg-[#e8b4b8] text-[#8b4c4f] ring-2 ring-[#d49396]"
+                        : "bg-[#f0cdd0] text-[#a06b6e] hover:bg-[#e8bfc3]"
                     }`}
                   >
-                    <Star className="w-4 h-4 mx-auto mb-1" />
-                    Maybe
+                    No
                   </button>
                 </div>
               )}
@@ -429,44 +434,45 @@ export default function PlayerView() {
 
       {/* Maybe Note Prompt Modal */}
       {showMaybeNotePrompt && (
-        <div className="fixed inset-0 bg-black bg-opacity-75 z-[60] flex items-center justify-center">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md animate-in fade-in zoom-in-95 duration-200">
             <div className="p-6">
-              <div className="flex items-center space-x-3 mb-4">
-                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                  <MessageSquare className="w-5 h-5 text-blue-600" />
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-10 h-10 bg-[#f5e6d0] rounded-full flex items-center justify-center flex-shrink-0">
+                  <MessageSquare className="w-5 h-5 text-[#8b7a4a]" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">Add a Note for "Maybe"</h3>
-                  <p className="text-sm text-gray-600">Please explain why you're unsure about this actor</p>
+                  <h3 className="text-base font-bold text-slate-900">Why "Maybe"?</h3>
+                  <p className="text-sm text-slate-500">A comment is required when voting maybe</p>
                 </div>
               </div>
-              
+
               <textarea
                 value={maybeNoteText}
                 onChange={(e) => setMaybeNoteText(e.target.value)}
-                placeholder="Add your thoughts about this actor..."
-                className="w-full p-3 border border-gray-300 rounded-lg text-sm resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Share your thoughts about this actor..."
+                className="w-full p-3 border border-slate-200 rounded-xl text-sm resize-none focus:ring-2 focus:ring-[#d4b88a] focus:border-transparent bg-slate-50 placeholder:text-slate-400"
                 rows={4}
                 autoFocus
               />
-              
-              <div className="flex justify-end space-x-3 mt-4">
+              <p className="text-[11px] text-slate-400 mt-1.5 ml-1">{maybeNoteText.trim().length > 0 ? `${maybeNoteText.trim().length} characters` : "Required"}</p>
+
+              <div className="flex justify-end gap-3 mt-4">
                 <button
                   onClick={() => {
                     setShowMaybeNotePrompt(false)
                     setMaybeNoteText("")
                   }}
-                  className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                  className="px-4 py-2 text-sm font-medium text-slate-500 hover:text-slate-700 rounded-full hover:bg-slate-100 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleMaybeWithNote}
                   disabled={!maybeNoteText.trim()}
-                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="px-5 py-2 text-sm font-semibold rounded-full transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed bg-[#f0d9b5] text-[#7a6a3a] hover:bg-[#e8cf9f] ring-1 ring-[#d4b88a]/50"
                 >
-                  Vote Maybe
+                  Submit & Vote Maybe
                 </button>
               </div>
             </div>

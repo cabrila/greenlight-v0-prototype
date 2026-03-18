@@ -476,11 +476,17 @@ export default function ActorSubmissionForm() {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   {photoPreviews.map((preview, index) => (
                     <div key={index} className="relative group">
-                      <img
-                        src={preview || "/placeholder.svg"}
-                        alt={`Photo ${index + 1}`}
-                        className="w-full h-32 object-cover rounded-lg border border-gray-200"
-                      />
+                      {preview ? (
+                        <img
+                          src={preview}
+                          alt={`Photo ${index + 1}`}
+                          className="w-full h-32 object-cover rounded-lg border border-gray-200"
+                        />
+                      ) : (
+                        <div className="w-full h-32 rounded-lg border border-gray-200 bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center text-slate-400">
+                          No image
+                        </div>
+                      )}
                       <button
                         type="button"
                         onClick={() => handleRemovePhoto(index)}

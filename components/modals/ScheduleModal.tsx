@@ -22,6 +22,7 @@ import {
   Rows3,
 } from "lucide-react"
 import { useCasting } from "@/components/casting/CastingContext"
+import { openModal } from "./ModalManager"
 import type { ScheduleEntry, RedFlag, ProductionPhase } from "@/types/schedule"
 import type { Actor } from "@/types/casting"
 import StripboardView from "@/components/schedule/StripboardView"
@@ -361,12 +362,28 @@ export default function ScheduleModal({ onClose }: ScheduleModalProps) {
   return (
     <div className="fixed inset-0 bg-gray-50 z-50 flex flex-col">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between shadow-sm">
-        <h1 className="text-2xl font-bold text-gray-900">Shoot Days</h1>
-        <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
-          <X className="w-6 h-6" />
+      <header className="flex items-center justify-between px-6 py-3 bg-white border-b border-gray-200 shrink-0">
+        <div className="flex items-center gap-4">
+          <img src="/images/gogreenlight-logo.png" alt="GoGreenlight" className="h-8 w-auto" />
+          <button 
+            onClick={() => { onClose(); setTimeout(() => openModal("splashScreen"), 150) }} 
+            className="p-1.5 rounded-lg text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors" 
+            title="Home" 
+            aria-label="Go to Home"
+          >
+            <Home className="w-4 h-4" />
+          </button>
+          <div className="w-px h-6 bg-gray-200" />
+          <h1 className="text-xl font-semibold text-gray-900">Shoot Days</h1>
+        </div>
+        <button 
+          onClick={onClose} 
+          className="p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors" 
+          aria-label="Close"
+        >
+          <X className="w-5 h-5" />
         </button>
-      </div>
+      </header>
 
       {successMessage && (
         <div className="bg-emerald-500 text-white px-6 py-3 flex items-center justify-between shadow-md animate-in slide-in-from-top">
@@ -680,6 +697,12 @@ export default function ScheduleModal({ onClose }: ScheduleModalProps) {
                                       onChange={(e) => handleUpdateEntry(entry.id, { startTime: e.target.value })}
                                       className="px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-emerald-500"
                                     />
+                                    {entry.endTime && (
+                                      <>
+                                        <span className="text-gray-400">-</span>
+                                        <span className="text-sm font-medium">{entry.endTime}</span>
+                                      </>
+                                    )}
                                   </div>
                                   {entry.location && (
                                     <div className="flex items-center gap-1">
@@ -732,6 +755,20 @@ export default function ScheduleModal({ onClose }: ScheduleModalProps) {
                             </div>
                           </div>
 
+                          {/* Red Flags / Alerts */}
+                          {conflicts.length > 0 && (
+                            <div className="px-6 py-3 bg-red-50 border-b border-red-200">
+                              <div className="space-y-1.5">
+                                {conflicts.map((flag) => (
+                                  <div key={flag.id} className="flex items-start gap-2 text-sm">
+                                    <AlertTriangle className="w-4 h-4 mt-0.5 flex-shrink-0 text-red-500" />
+                                    <span className="text-red-800">{flag.message}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
                           {/* Scene Details */}
                           {(entry.sceneNotes || (entry.props && entry.props.length > 0)) && (
                             <div className="px-6 py-3 bg-gray-50 border-b border-gray-200">
@@ -754,6 +791,12 @@ export default function ScheduleModal({ onClose }: ScheduleModalProps) {
                                       </span>
                                     ))}
                                   </div>
+                                </div>
+                              )}
+                              {entry.notes && (
+                                <div className="flex items-start gap-2 text-sm text-gray-600 mt-2 pt-2 border-t border-gray-200">
+                                  <Calendar className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                                  <span className="italic">{entry.notes}</span>
                                 </div>
                               )}
                             </div>
@@ -783,24 +826,50 @@ export default function ScheduleModal({ onClose }: ScheduleModalProps) {
                                   return (
                                     <div
                                       key={scene.id}
-                                      className={`flex items-center gap-3 p-3 rounded-lg border-2 ${getSceneBadgeColor()}`}
+                                      className={`p-3 rounded-lg border-2 ${getSceneBadgeColor()}`}
                                     >
-                                      <div className="flex items-center gap-2 min-w-[120px]">
-                                        <span className="font-bold text-sm">Scene {scene.sceneNumber}</span>
-                                        <span className="text-xs opacity-75">({scene.pages} pgs)</span>
+                                      <div className="flex items-center gap-3">
+                                        <div className="flex items-center gap-2 min-w-[120px]">
+                                          <span className="font-bold text-sm">Scene {scene.sceneNumber}</span>
+                                          <span className="text-xs opacity-75">({scene.pages} pgs)</span>
+                                        </div>
+                                        <div className="flex items-center gap-2 min-w-[80px]">
+                                          <span className="text-xs font-semibold">{scene.intExt}</span>
+                                          <span className="text-xs opacity-75">{'\u2022'}</span>
+                                          <span className="text-xs">{scene.dayNight}</span>
+                                        </div>
+                                        <div className="flex-1 text-sm truncate">{scene.location}</div>
+                                        {scene.cast.length > 0 && (
+                                          <div className="text-xs opacity-75">{scene.cast.length} cast</div>
+                                        )}
                                       </div>
-                                      <div className="flex items-center gap-2 min-w-[80px]">
-                                        <span className="text-xs font-semibold">{scene.intExt}</span>
-                                        <span className="text-xs opacity-75">•</span>
-                                        <span className="text-xs">{scene.dayNight}</span>
-                                      </div>
-                                      <div className="flex-1 text-sm truncate">{scene.location}</div>
-                                      {scene.cast.length > 0 && (
-                                        <div className="text-xs opacity-75">{scene.cast.length} cast</div>
+                                      {(scene.description || scene.cast.length > 0) && (
+                                        <div className="mt-1.5 flex items-center gap-3">
+                                          {scene.description && (
+                                            <span className="text-xs italic opacity-80 flex-1 truncate">{scene.description}</span>
+                                          )}
+                                          {scene.cast.length > 0 && (
+                                            <span className="text-xs opacity-70 flex-shrink-0">{scene.cast.join(", ")}</span>
+                                          )}
+                                        </div>
                                       )}
                                     </div>
                                   )
                                 })}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Crew Members */}
+                          {entry.crewMembers && entry.crewMembers.length > 0 && (
+                            <div className="px-6 py-3 border-b border-gray-200">
+                              <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Crew ({entry.crewMembers.length})</h4>
+                              <div className="flex flex-wrap gap-1.5">
+                                {entry.crewMembers.map((crew, i) => (
+                                  <span key={i} className="px-2 py-0.5 bg-gray-100 border border-gray-200 rounded text-xs text-gray-600">
+                                    {crew}
+                                  </span>
+                                ))}
                               </div>
                             </div>
                           )}
@@ -1154,7 +1223,7 @@ export default function ScheduleModal({ onClose }: ScheduleModalProps) {
                         <div className="relative flex-shrink-0">
                           {actor.headshots?.[0] ? (
                             <img
-                              src={actor.headshots[0] || "/placeholder.svg"}
+                              src={actor.headshots[0]}
                               alt={actor.name}
                               className="w-16 h-16 rounded-lg object-cover"
                             />

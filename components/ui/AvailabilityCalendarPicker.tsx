@@ -1,12 +1,27 @@
 "use client"
 
 import { useState } from "react"
-import { CalendarIcon } from "lucide-react"
+import { CalendarIcon } from 'lucide-react'
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Button } from "@/components/ui/button"
 import type { AvailabilityDate } from "@/types/schedule"
-import { format } from "date-fns"
+
+const formatDate = (date: Date, formatStr: string): string => {
+  if (formatStr === "yyyy-MM-dd") {
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    return `${year}-${month}-${day}`
+  }
+  
+  if (formatStr === "MMM dd, yyyy") {
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    return `${months[date.getMonth()]} ${String(date.getDate()).padStart(2, '0')}, ${date.getFullYear()}`
+  }
+  
+  return date.toLocaleDateString()
+}
 
 interface AvailabilityCalendarPickerProps {
   availabilityDates: AvailabilityDate[]
@@ -25,7 +40,7 @@ export default function AvailabilityCalendarPicker({ availabilityDates, onChange
   const handleDateSelect = (date: Date | undefined) => {
     if (!date) return
 
-    const dateString = format(date, "yyyy-MM-dd")
+    const dateString = formatDate(date, "yyyy-MM-dd")
     const existingIndex = availabilityDates.findIndex((d) => d.date === dateString)
 
     let newDates: AvailabilityDate[]
@@ -49,7 +64,7 @@ export default function AvailabilityCalendarPicker({ availabilityDates, onChange
   }
 
   const getDateStatus = (date: Date): "available" | "unavailable" | null => {
-    const dateString = format(date, "yyyy-MM-dd")
+    const dateString = formatDate(date, "yyyy-MM-dd")
     const found = availabilityDates.find((d) => d.date === dateString)
     return found ? found.status : null
   }
@@ -124,7 +139,7 @@ export default function AvailabilityCalendarPicker({ availabilityDates, onChange
                     avail.status === "available" ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"
                   }`}
                 >
-                  <span>{format(new Date(avail.date), "MMM dd, yyyy")}</span>
+                  <span>{formatDate(new Date(avail.date), "MMM dd, yyyy")}</span>
                   <span className="text-xs font-medium capitalize">{avail.status}</span>
                 </div>
               ))}

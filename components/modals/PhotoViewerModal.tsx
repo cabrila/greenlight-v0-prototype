@@ -83,12 +83,12 @@ export default function PhotoViewerModal({ photos, initialIndex, actorName, onCl
         .join("")
         .substring(0, 2)
         .toUpperCase()
-      return `/placeholder.svg?height=600&width=600&text=${encodeURIComponent(placeholderSeed)}`
+      return ""
     }
 
     const photo = photos[index]
     if (!photo) {
-      return `/placeholder.svg?height=600&width=600&text=No+Image`
+      return ""
     }
 
     // Check if it's a base64 data URL (uploaded image)
@@ -106,8 +106,8 @@ export default function PhotoViewerModal({ photos, initialIndex, actorName, onCl
       return photo
     }
 
-    // If it's just a name/identifier, generate placeholder
-    return `/placeholder.svg?height=600&width=600&text=${encodeURIComponent(photo)}`
+    // If it's just a name/identifier, return empty string
+    return ""
   }
 
   const currentPhoto = getImageUrl(currentIndex)
@@ -187,19 +187,26 @@ export default function PhotoViewerModal({ photos, initialIndex, actorName, onCl
 
           {/* Main Image */}
           <div className="w-full h-full flex items-center justify-center p-4">
-            <img
-              src={currentPhoto || "/placeholder.svg"}
-              alt={`${actorName} - Photo ${currentIndex + 1}`}
-              className={`max-w-full max-h-full object-contain transition-all duration-300 ${
-                isZoomed ? "scale-150 cursor-zoom-out" : "cursor-zoom-in"
-              }`}
-              style={{
-                transform: `rotate(${rotation}deg) ${isZoomed ? "scale(1.5)" : "scale(1)"}`,
-              }}
-              onClick={() => setIsZoomed(!isZoomed)}
-              onLoad={() => handleImageLoad(currentIndex)}
-              onError={() => handleImageError(currentIndex)}
-            />
+            {currentPhoto ? (
+              <img
+                src={currentPhoto}
+                alt={`${actorName} - Photo ${currentIndex + 1}`}
+                className={`max-w-full max-h-full object-contain transition-all duration-300 ${
+                  isZoomed ? "scale-150 cursor-zoom-out" : "cursor-zoom-in"
+                }`}
+                style={{
+                  transform: `rotate(${rotation}deg) ${isZoomed ? "scale(1.5)" : "scale(1)"}`,
+                }}
+                onClick={() => setIsZoomed(!isZoomed)}
+                onLoad={() => handleImageLoad(currentIndex)}
+                onError={() => handleImageError(currentIndex)}
+              />
+            ) : (
+              <div className="text-slate-400 text-center">
+                <div className="text-6xl mb-4">📷</div>
+                <p>No image available</p>
+              </div>
+            )}
           </div>
 
           {/* Thumbnail Strip */}
@@ -220,12 +227,18 @@ export default function PhotoViewerModal({ photos, initialIndex, actorName, onCl
                         : "border-white border-opacity-30 opacity-60 hover:opacity-80"
                     }`}
                   >
-                    <img
-                      src={getImageUrl(index) || "/placeholder.svg"}
-                      alt={`Thumbnail ${index + 1}`}
-                      className="w-full h-full object-cover rounded"
-                      onError={() => handleImageError(index)}
-                    />
+                    {getImageUrl(index) ? (
+                      <img
+                        src={getImageUrl(index)}
+                        alt={`Thumbnail ${index + 1}`}
+                        className="w-full h-full object-cover rounded"
+                        onError={() => handleImageError(index)}
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-slate-200 rounded flex items-center justify-center text-slate-400 text-xs">
+                        {index + 1}
+                      </div>
+                    )}
                   </button>
                 ))}
               </div>

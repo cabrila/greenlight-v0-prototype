@@ -371,13 +371,19 @@ export default function CanvasActorCard({
 
         <div className="flex">
           <div className={`${imageWidth} relative`}>
-            <img
-              src={canvasActor.actor.headshots?.[currentImageIndex] || "/placeholder.svg?height=120&width=96"}
-              alt={canvasActor.actor.name}
-              className="w-full h-full object-cover"
-              style={{ aspectRatio: "1/1.2" }}
-              draggable={false}
-            />
+            {canvasActor.actor.headshots?.[currentImageIndex] ? (
+              <img
+                src={canvasActor.actor.headshots[currentImageIndex]}
+                alt={canvasActor.actor.name}
+                className="w-full h-full object-cover"
+                style={{ aspectRatio: "1/1.2" }}
+                draggable={false}
+              />
+            ) : (
+              <div className="w-full h-full bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center text-slate-400 text-xl font-bold" style={{ aspectRatio: "1/1.2" }}>
+                {canvasActor.actor.name?.charAt(0)?.toUpperCase() || "?"}
+              </div>
+            )}
 
             {canvasActor.actor.headshots && canvasActor.actor.headshots.length > 1 && (
               <div className="image-navigation">
@@ -527,13 +533,19 @@ export default function CanvasActorCard({
         <SelectionCheckbox />
 
         <div className="w-full relative">
-          <img
-            src={canvasActor.actor.headshots?.[currentImageIndex] || "/placeholder.svg?height=120&width=120"}
-            alt={canvasActor.actor.name}
-            className="w-full h-full object-cover"
-            style={{ aspectRatio: "1/1" }}
-            draggable={false}
-          />
+          {canvasActor.actor.headshots?.[currentImageIndex] ? (
+            <img
+              src={canvasActor.actor.headshots[currentImageIndex]}
+              alt={canvasActor.actor.name}
+              className="w-full h-full object-cover"
+              style={{ aspectRatio: "1/1" }}
+              draggable={false}
+            />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center text-slate-400 text-xl font-bold" style={{ aspectRatio: "1/1" }}>
+              {canvasActor.actor.name?.charAt(0)?.toUpperCase() || "?"}
+            </div>
+          )}
 
           {canvasActor.actor.headshots && canvasActor.actor.headshots.length > 1 && (
             <div className="image-navigation">
@@ -600,13 +612,19 @@ export default function CanvasActorCard({
       <SelectionCheckbox />
 
       <div className={`${imageWidth} h-full relative`}>
-        <img
-          src={canvasActor.actor.headshots?.[currentImageIndex] || "/placeholder.svg?height=160&width=140"}
-          alt={canvasActor.actor.name}
-          className="w-full h-full object-cover"
-          style={{ aspectRatio: "1/1.2" }}
-          draggable={false}
-        />
+        {canvasActor.actor.headshots?.[currentImageIndex] ? (
+          <img
+            src={canvasActor.actor.headshots[currentImageIndex]}
+            alt={canvasActor.actor.name}
+            className="w-full h-full object-cover"
+            style={{ aspectRatio: "1/1.2" }}
+            draggable={false}
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center text-slate-400 text-xl font-bold" style={{ aspectRatio: "1/1.2" }}>
+            {canvasActor.actor.name?.charAt(0)?.toUpperCase() || "?"}
+          </div>
+        )}
 
         {canvasActor.actor.headshots && canvasActor.actor.headshots.length > 1 && (
           <div className="image-navigation">

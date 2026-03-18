@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useEffect } from "react"
+import { useEffect, useState, useRef } from "react"
 import { useCasting } from "@/components/casting/CastingContext"
 import {
   Search,
@@ -15,8 +15,10 @@ import {
   Bookmark,
   Play,
   RectangleVertical,
+  Save,
+  Database,
+  ChevronDown,
 } from "lucide-react"
-import { useState } from "react"
 import { openModal } from "@/components/modals/ModalManager"
 import TerminologyContextMenu from "@/components/ui/TerminologyContextMenu"
 import SearchTags from "@/components/ui/SearchTags"
@@ -199,6 +201,25 @@ export default function ViewControls() {
     }
   }
 
+  const handleAddFromDatabase = () => {
+    if (currentCharacter) {
+      openModal("addFromDatabase", { characterId: currentCharacter.id })
+    }
+  }
+
+  const [showAddDropdown, setShowAddDropdown] = useState(false)
+  const addDropdownRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (addDropdownRef.current && !addDropdownRef.current.contains(event.target as Node)) {
+        setShowAddDropdown(false)
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
+
   const handleOpenPlayerView = () => {
     dispatch({ type: "OPEN_PLAYER_VIEW" })
   }
@@ -244,6 +265,42 @@ export default function ViewControls() {
     })
   }
 
+  const handleQuickSaveSearch = () => {
+    // Check if there's content to save
+    const hasContent = searchTags.length > 0 || searchTerm.trim().length > 0
+    if (!hasContent) return
+
+    // Generate a name based on content
+    let searchName = ""
+    if (searchTerm.trim()) {
+      searchName = `"${searchTerm.trim()}"`
+    }
+    if (searchTags.length > 0) {
+      const tagNames = searchTags.map((tag) => tag.text).join(", ")
+      searchName = searchName ? `${searchName} + ${tagNames}` : tagNames
+    }
+
+    // Add timestamp for uniqueness
+    const timestamp = new Date().toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+    })
+    searchName = `${searchName} (${timestamp})`
+
+    dispatch({
+      type: "SAVE_CURRENT_SEARCH",
+      payload: {
+        name: searchName,
+        isGlobal: false,
+      },
+    })
+
+    // Show brief success indication (optional - UI feedback)
+    console.log("[v0] Quick saved search:", searchName)
+  }
+
+  const hasSearchContent = searchTags.length > 0 || searchTerm.trim().length > 0
+
   return (
     <div className="space-y-3">
       {/* Main Controls Container - Responsive Layout */}
@@ -254,22 +311,73 @@ export default function ViewControls() {
             {/* Action Buttons - Only show on Long List tab */}
             {isLongListTab && currentCharacter && (
               <div className="flex items-center gap-2 flex-shrink-0">
-                <button
-                  onClick={handleAddActor}
-                  onContextMenu={(e) => handleContextMenu(e, "actor", "singular")}
-                  className="flex items-center space-x-1.5 px-3 py-2 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white rounded-lg font-medium transition-all duration-200 text-sm whitespace-nowrap shadow-sm"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>Add</span>
-                </button>
-                <button
-                  onClick={handleUploadActors}
-                  onContextMenu={(e) => handleContextMenu(e, "actor", "singular")}
-                  className="flex items-center space-x-1.5 px-3 py-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg font-medium transition-all duration-200 text-sm whitespace-nowrap shadow-sm"
-                >
-                  <Upload className="w-4 h-4" />
-                  <span>Upload</span>
-                </button>
+                <div ref={addDropdownRef} className="relative">
+                  <button
+                    onClick={() => setShowAddDropdown(!showAddDropdown)}
+                    onContextMenu={(e) => handleContextMenu(e, "actor", "singular")}
+                    className="flex items-center gap-1.5 px-3 py-2 bg-success-600 hover:bg-success-700 text-white rounded-lg font-medium transition-all duration-200 text-sm whitespace-nowrap shadow-sm"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Add</span>
+                    <ChevronDown
+                      className={`w-4 h-4 transition-transform duration-200 ${showAddDropdown ? "rotate-180" : ""}`}
+                    />
+                  </button>
+
+                  {/* Dropdown Menu */}
+                  {showAddDropdown && (
+                    <div className="absolute top-full left-0 mt-1 w-56 bg-card border border-border rounded-lg shadow-lg z-50 py-1 animate-in fade-in slide-in-from-top-2 duration-200">
+                      <button
+                        onClick={() => {
+                          handleAddActor()
+                          setShowAddDropdown(false)
+                        }}
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-left text-foreground hover:bg-muted transition-colors"
+                      >
+                        <Plus className="w-4 h-4 text-success-600" />
+                        <div>
+                          <div className="font-medium text-sm">
+                            Manual add {state.terminology?.actor?.singular?.toLowerCase() || "actor"}
+                          </div>
+                          <div className="text-xs text-muted-foreground">Create a new entry manually</div>
+                        </div>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          handleUploadActors()
+                          setShowAddDropdown(false)
+                        }}
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-left text-foreground hover:bg-muted transition-colors"
+                      >
+                        <Upload className="w-4 h-4 text-info-600" />
+                        <div>
+                          <div className="font-medium text-sm">Upload from file or form</div>
+                          <div className="text-xs text-muted-foreground">Import from CSV, Excel, or form</div>
+                        </div>
+                      </button>
+
+                      <div className="my-1 border-t border-border" />
+
+                      <button
+                        onClick={() => {
+                          handleAddFromDatabase()
+                          setShowAddDropdown(false)
+                        }}
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-left text-foreground hover:bg-muted transition-colors"
+                      >
+                        <Database className="w-4 h-4 text-amber-600" />
+                        <div>
+                          <div className="font-medium text-sm">From Database</div>
+                          <div className="text-xs text-muted-foreground">
+                            Add existing {state.terminology?.actor?.plural?.toLowerCase() || "actors"} from other
+                            projects
+                          </div>
+                        </div>
+                      </button>
+                    </div>
+                  )}
+                </div>
                 <div className="w-px h-5 bg-slate-300 mx-1"></div>
               </div>
             )}
@@ -377,8 +485,21 @@ export default function ViewControls() {
           {/* Right Section - Search Field with Saved Searches */}
           <div className="flex items-center gap-2 flex-shrink-0 w-full lg:w-auto lg:min-w-[300px] lg:max-w-[400px]">
             <button
-              onClick={() => setShowSavedSearches(!showSavedSearches)}
+              onClick={handleQuickSaveSearch}
+              disabled={!hasSearchContent}
               className={`p-2 rounded-lg border transition-all duration-200 flex-shrink-0 ${
+                hasSearchContent
+                  ? "bg-emerald-50 border-emerald-300 text-emerald-700 hover:bg-emerald-100 hover:border-emerald-400"
+                  : "bg-slate-50 border-slate-200 text-slate-400 cursor-not-allowed"
+              }`}
+              title={hasSearchContent ? "Save current search" : "Enter search terms or tags to save"}
+            >
+              <Save className="w-4 h-4" />
+            </button>
+
+            <button
+              onClick={() => setShowSavedSearches(!showSavedSearches)}
+              className={`p-2 rounded-lg border transition-all duration-200 flex-shrink-0 relative ${
                 showSavedSearches || savedSearches.length > 0
                   ? "bg-blue-50 border-blue-300 text-blue-700"
                   : "bg-white border-slate-300 text-slate-600 hover:text-slate-800 hover:border-slate-400"

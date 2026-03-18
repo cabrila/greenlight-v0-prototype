@@ -2,7 +2,7 @@
 
 import { useCasting } from "@/components/casting/CastingContext"
 import { useState, useEffect } from "react"
-import { X, ChevronLeft, ChevronRight, Play, CheckCircle2, XCircle, HelpCircle, Users, Plus, Star, Heart, Calendar, User, MapPin, ImageIcon, Video, FileText, ArrowLeft, ArrowRight, ChevronDown, ChevronUp, MoreHorizontal, MessageSquare } from 'lucide-react'
+import { X, ChevronLeft, ChevronRight, Play, CheckCircle2, XCircle, HelpCircle, Users, Plus, Star, Heart, Calendar, User, MapPin, ImageIcon, Video, FileText, ArrowLeft, ArrowRight, ChevronDown, ChevronUp, MoreHorizontal, MessageSquare, Layout } from 'lucide-react'
 import { getVideoPlatform } from "@/utils/videoUtils"
 import { generatePlaceholderUrl } from "@/utils/imageUtils"
 import PlayerViewActionsModal from "./PlayerViewActionsModal"
@@ -12,7 +12,7 @@ import VideoEmbed from "@/components/video/VideoEmbed"
 import { motion, AnimatePresence } from "framer-motion"
 import { ModalPortal } from "@/components/ui/modal-portal"
 import { Z_INDEX } from "@/utils/zIndex"
-import type { Note } from "@/types/casting"
+import type { Note, CanvasActor } from "@/types/casting"
 
 export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
   const { state, dispatch } = useCasting()
@@ -36,15 +36,78 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
   const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set())
   const [showMaybeNotePrompt, setShowMaybeNotePrompt] = useState(false)
   const [maybeNoteText, setMaybeNoteText] = useState("")
+  const [showCharacterDropdown, setShowCharacterDropdown] = useState(false)
 
   const currentProject = state.projects.find((p) => p.id === state.currentFocus.currentProjectId)
   const currentCharacter = currentProject?.characters.find((c) => c.id === state.currentFocus.characterId)
+
+  const handleAddToCanvas = () => {
+    if (!currentActor || !currentProject || !currentCharacter) return
+
+    // Calculate stacked position (find next available spot)
+    const existingCanvasActors = currentProject.canvasActors || []
+    const STACK_OFFSET_X = 20
+    const STACK_OFFSET_Y = 20
+    const START_X = 50
+    const START_Y = 50
+
+    let newX = START_X
+    let newY = START_Y
+
+    // Find the last positioned actor to stack after it
+    if (existingCanvasActors.length > 0) {
+      const lastActor = existingCanvasActors[existingCanvasActors.length - 1]
+      newX = lastActor.x + STACK_OFFSET_X
+      newY = lastActor.y + STACK_OFFSET_Y
+    }
+
+    const newCanvasActor: CanvasActor = {
+      id: `canvas-${Date.now()}-${Math.random()}`,
+      actorId: currentActor.id,
+      x: newX,
+      y: newY,
+      characterName: currentCharacter.name,
+      actor: currentActor,
+    }
+
+    dispatch({
+      type: "ADD_CANVAS_ACTOR",
+      payload: {
+        projectId: currentProject.id,
+        canvasActor: newCanvasActor,
+      },
+    })
+
+    // Show success notification
+    const notification = {
+      id: `add-canvas-${Date.now()}`,
+      type: "system" as const,
+      title: "Added to Canvas",
+      message: `${currentActor.name} has been added to the ${currentCharacter.name} canvas`,
+      timestamp: Date.now(),
+      read: false,
+      priority: "low" as const,
+    }
+
+    dispatch({
+      type: "ADD_NOTIFICATION",
+      payload: notification,
+    })
+  }
+
+  const handleCharacterSwitch = (characterId: string) => {
+    dispatch({ type: "SELECT_CHARACTER", payload: characterId })
+    // Reset player view index to 0 for new character
+    dispatch({ type: "OPEN_PLAYER_VIEW", payload: { actorIndex: 0 } })
+    setShowCharacterDropdown(false)
+  }
+
 
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       // Only handle keyboard events if no modals are showing
-      if (showActionsModal || showPhotoViewer || showMaybeNotePrompt) return
+      if (showActionsModal || showPhotoViewer || showMaybeNotePrompt || showCharacterDropdown) return
       
       // Prevent default behavior for arrow keys
       if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
@@ -66,7 +129,7 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
 
     window.addEventListener("keydown", handleKeyDown)
     return () => window.removeEventListener("keydown", handleKeyDown)
-  }, [showActionsModal, showPhotoViewer, showMaybeNotePrompt])
+  }, [showActionsModal, showPhotoViewer, showMaybeNotePrompt, showCharacterDropdown])
 
   // Get current terminology for user-friendly messaging with comprehensive fallbacks
   const getCurrentTerminology = () => {
@@ -79,7 +142,7 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
       uploadActors: "Upload Actors",
       character_singular: "Character",
       characters: "Characters",
-      addCharacter: "Add Character",
+      addCharacter: "Create Character",
     }
 
     let projectTerminology = {}
@@ -404,10 +467,11 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
   const handleVote = (vote: "yes" | "no" | "maybe") => {
     if (!state.currentUser) return
 
-    // Special handling for 'maybe' vote - require a note
+    // Special handling for 'maybe' vote - always require a comment
+    // Unless the user is toggling OFF an existing maybe vote
     if (vote === "maybe") {
-      const hasExistingNotes = currentActor.notes && currentActor.notes.length > 0
-      if (!hasExistingNotes) {
+      const currentVote = state.currentUser ? currentActor.userVotes?.[state.currentUser.id] : null
+      if (currentVote !== "maybe") {
         setShowMaybeNotePrompt(true)
         return
       }
@@ -505,10 +569,10 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
 
   const getUserVoteDisplay = (userId: string) => {
     const vote = currentActor.userVotes[userId]
-    if (vote === "yes") return { display: "Yes", class: "bg-gradient-to-r from-green-500 to-green-600 text-white" }
-    if (vote === "no") return { display: "No", class: "bg-gradient-to-r from-red-500 to-red-600 text-white" }
-    if (vote === "maybe") return { display: "Maybe", class: "bg-gradient-to-r from-blue-500 to-blue-600 text-white" }
-    return { display: "Pending", class: "bg-gray-100 text-gray-500 border border-gray-300" }
+    if (vote === "yes") return { display: "Yes", class: "bg-[#b5c9a8] text-[#4a5b3f]" }
+    if (vote === "no") return { display: "No", class: "bg-[#e8b4b8] text-[#8b4c4f]" }
+    if (vote === "maybe") return { display: "Maybe", class: "bg-[#f0d9b5] text-[#7a6a3a]" }
+    return { display: "Pending", class: "bg-gray-100 text-gray-500" }
   }
 
   const currentUserVote = state.currentUser ? currentActor.userVotes[state.currentUser.id] : null
@@ -625,6 +689,11 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
 
   const progressPercentage = ((currentIndex + 1) / currentList.length) * 100
 
+  // Get all characters for navigation
+  const allCharacters = currentProject?.characters || []
+  const isOnCanvas = currentProject?.canvasActors?.some((ca) => ca.actorId === currentActor?.id) || false
+
+
   return (
     <ModalPortal modalType="playerView" onBackdropClick={handleClose}>
       <motion.div
@@ -637,14 +706,80 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
         <div className="relative bg-gradient-to-r from-slate-50 via-white to-slate-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
           <div className="flex justify-between items-center px-6 py-3">
             <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-2 h-2 bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full animate-pulse"></div>
-                <h2 className="text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
-                  {currentCharacter.name}
-                </h2>
+              <div className="relative">
+                <button
+                  onClick={() => setShowCharacterDropdown(!showCharacterDropdown)}
+                  className="flex items-center space-x-2 px-3 py-1.5 bg-gradient-to-r from-emerald-50 to-emerald-100 dark:from-emerald-900/20 dark:to-emerald-800/20 rounded-lg hover:from-emerald-100 hover:to-emerald-200 transition-all border border-emerald-200 dark:border-emerald-700"
+                >
+                  <div className="w-2 h-2 bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full animate-pulse"></div>
+                  <span className="text-lg font-bold bg-gradient-to-r from-emerald-700 to-emerald-600 bg-clip-text text-transparent">
+                    {currentCharacter?.name}
+                  </span>
+                  <ChevronDown className="w-4 h-4 text-emerald-600" />
+                </button>
+
+                {/* Character Dropdown */}
+                {showCharacterDropdown && (
+                  <div className="absolute top-full left-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-50 max-h-96 overflow-y-auto">
+                    <div className="p-2 border-b border-gray-200 dark:border-gray-700">
+                      <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 px-2 py-1">
+                        Switch Character
+                      </div>
+                    </div>
+                    <div className="p-2">
+                      {allCharacters.map((character) => {
+                        const actorCount = Object.values(character.actors)
+                          .flat()
+                          .filter((item) => Array.isArray(item) ? item.length > 0 : true)
+                          .length
+                        
+                        const isCurrentCharacter = character.id === currentCharacter?.id
+
+                        return (
+                          <button
+                            key={character.id}
+                            onClick={() => handleCharacterSwitch(character.id)}
+                            disabled={isCurrentCharacter}
+                            className={`w-full text-left px-3 py-2 rounded-lg transition-all ${
+                              isCurrentCharacter
+                                ? "bg-gradient-to-r from-emerald-100 to-emerald-200 dark:from-emerald-900/40 dark:to-emerald-800/40 cursor-default"
+                                : "hover:bg-gray-100 dark:hover:bg-gray-700"
+                            }`}
+                          >
+                            <div className="flex items-center justify-between">
+                              <div className="flex-1 min-w-0">
+                                <div className={`font-medium truncate ${
+                                  isCurrentCharacter 
+                                    ? "text-emerald-700 dark:text-emerald-400" 
+                                    : "text-gray-900 dark:text-white"
+                                }`}>
+                                  {character.name}
+                                </div>
+                                {character.description && (
+                                  <div className="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">
+                                    {character.description}
+                                  </div>
+                                )}
+                              </div>
+                              <div className="flex items-center space-x-2 ml-3">
+                                <span className="text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 px-2 py-0.5 rounded-full">
+                                  {actorCount}
+                                </span>
+                                {isCurrentCharacter && (
+                                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                                )}
+                              </div>
+                            </div>
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )}
               </div>
+
               <div className="h-4 w-px bg-gray-300 dark:bg-gray-600"></div>
-              <div className="text-lg font-semibold text-gray-700 dark:text-gray-300">{currentActor.name}</div>
+              <div className="text-lg font-semibold text-gray-700 dark:text-gray-300">{currentActor?.name}</div>
             </div>
             <div className="flex items-center space-x-4">
               <div className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-lg">
@@ -701,14 +836,19 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
                     className="w-32 h-32 sm:w-36 sm:h-36 lg:w-40 lg:h-40 xl:w-44 xl:h-44 mx-auto relative cursor-pointer group"
                     onClick={() => handleOpenPhotoViewer(currentHeadshotIndex)}
                   >
-                    <div className="absolute inset-0 bg-gradient-to-br from-emerald-400 to-blue-500 rounded-xl opacity-20 group-hover:opacity-30 transition-opacity"></div>
-                    <img
-                      src={getCurrentImageUrl() || "/placeholder.svg"}
-                      alt={currentActor.name}
-                      className="w-full h-full rounded-xl object-cover border-2 border-white dark:border-gray-700 shadow-lg group-hover:shadow-xl transition-all duration-300"
-                      onLoad={() => handleImageLoad(currentHeadshotIndex)}
-                      onError={() => handleImageError(currentHeadshotIndex)}
-                    />
+                    {getCurrentImageUrl() ? (
+                      <img
+                        src={getCurrentImageUrl()}
+                        alt={currentActor.name}
+                        className="w-full h-full rounded-xl object-cover border-2 border-white dark:border-gray-700 shadow-lg group-hover:shadow-xl transition-all duration-300"
+                        onLoad={() => handleImageLoad(currentHeadshotIndex)}
+                        onError={() => handleImageError(currentHeadshotIndex)}
+                      />
+                    ) : (
+                      <div className="w-full h-full rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center text-slate-400 text-3xl font-bold border-2 border-white shadow-lg">
+                        {currentActor.name?.charAt(0)?.toUpperCase() || "?"}
+                      </div>
+                    )}
 
                     {/* Navigation for Headshots - Responsive */}
                     {headshots.length > 1 && (
@@ -743,6 +883,27 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
                   </div>
                 </motion.div>
               </AnimatePresence>
+            </div>
+
+            <div className="p-3 sm:p-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+              <button
+                onClick={handleAddToCanvas}
+                disabled={isOnCanvas}
+                className={`w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg transition-all duration-200 shadow-sm font-semibold text-sm ${
+                  isOnCanvas
+                    ? "bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-600 cursor-not-allowed border border-gray-200 dark:border-gray-700"
+                    : "bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white hover:shadow-md transform hover:-translate-y-0.5"
+                }`}
+                title={isOnCanvas ? "Actor already on canvas" : "Add actor to project canvas"}
+              >
+                <Layout className="w-4 h-4" />
+                {isOnCanvas ? "On Canvas" : "Add to Canvas"}
+              </button>
+              {isOnCanvas && (
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1.5 text-center">
+                  Already added to canvas
+                </p>
+              )}
             </div>
 
             {/* Collapsible Actor Details */}
@@ -1085,42 +1246,36 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
               </h4>
 
               {/* Vote Buttons - Responsive Grid */}
-              <div className="grid grid-cols-3 gap-1 sm:gap-2 mb-3 sm:mb-4">
+              <div className="grid grid-cols-3 gap-1.5 sm:gap-2 mb-3 sm:mb-4">
                 <button
                   onClick={() => handleVote("yes")}
-                  className={`relative overflow-hidden px-2 sm:px-3 py-1.5 sm:py-2 text-xs font-bold rounded-lg border-2 transition-all duration-300 transform hover:scale-105 ${
+                  className={`px-2 sm:px-3 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold rounded-full text-center transition-all duration-200 ${
                     currentUserVote === "yes"
-                      ? "bg-gradient-to-r from-green-500 to-green-600 text-white border-green-600 shadow-lg shadow-green-500/25"
-                      : "bg-gradient-to-r from-green-50 to-green-100 text-green-700 border-green-300 hover:from-green-100 hover:to-green-200"
+                      ? "bg-[#b5c9a8] text-[#4a5b3f] ring-2 ring-[#8fa67e]"
+                      : "bg-[#d5dece] text-[#6b7a5e] hover:bg-[#c8d4bf]"
                   }`}
                 >
-                  <Heart className="w-3 h-3 mx-auto mb-1" />
                   Yes
-                  {currentUserVote === "yes" && <div className="absolute inset-0 bg-white/20 animate-pulse"></div>}
-                </button>
-                <button
-                  onClick={() => handleVote("no")}
-                  className={`relative overflow-hidden px-2 sm:px-3 py-1.5 sm:py-2 text-xs font-bold rounded-lg border-2 transition-all duration-300 transform hover:scale-105 ${
-                    currentUserVote === "no"
-                      ? "bg-gradient-to-r from-red-500 to-red-600 text-white border-red-600 shadow-lg shadow-red-500/25"
-                      : "bg-gradient-to-r from-red-50 to-red-100 text-red-700 border-red-300 hover:from-red-100 hover:to-red-200"
-                  }`}
-                >
-                  <X className="w-3 h-3 mx-auto mb-1" />
-                  No
-                  {currentUserVote === "no" && <div className="absolute inset-0 bg-white/20 animate-pulse"></div>}
                 </button>
                 <button
                   onClick={() => handleVote("maybe")}
-                  className={`relative overflow-hidden px-2 sm:px-3 py-1.5 sm:py-2 text-xs font-bold rounded-lg border-2 transition-all duration-300 transform hover:scale-105 ${
+                  className={`px-2 sm:px-3 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold rounded-full text-center transition-all duration-200 ${
                     currentUserVote === "maybe"
-                      ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white border-blue-600 shadow-lg shadow-blue-500/25"
-                      : "bg-gradient-to-r from-blue-50 to-blue-100 text-blue-700 border-blue-300 hover:from-blue-100 hover:to-blue-200"
+                      ? "bg-[#f0d9b5] text-[#7a6a3a] ring-2 ring-[#d4b88a]"
+                      : "bg-[#f5e6d0] text-[#9b8a5e] hover:bg-[#eddbbd]"
                   }`}
                 >
-                  <Star className="w-3 h-3 mx-auto mb-1" />
                   Maybe
-                  {currentUserVote === "maybe" && <div className="absolute inset-0 bg-white/20 animate-pulse"></div>}
+                </button>
+                <button
+                  onClick={() => handleVote("no")}
+                  className={`px-2 sm:px-3 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold rounded-full text-center transition-all duration-200 ${
+                    currentUserVote === "no"
+                      ? "bg-[#e8b4b8] text-[#8b4c4f] ring-2 ring-[#d49396]"
+                      : "bg-[#f0cdd0] text-[#a06b6e] hover:bg-[#e8bfc3]"
+                  }`}
+                >
+                  No
                 </button>
               </div>
 
@@ -1198,49 +1353,57 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
 
         {/* Maybe Note Prompt Modal */}
         {showMaybeNotePrompt && (
-          <div className="fixed inset-0 bg-black bg-opacity-75 z-[70] flex items-center justify-center">
-            <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4">
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] flex items-center justify-center p-4">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md animate-in fade-in zoom-in-95 duration-200">
               <div className="p-6">
-                <div className="flex items-center space-x-3 mb-4">
-                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                    <MessageSquare className="w-5 h-5 text-blue-600" />
+                <div className="flex items-center gap-3 mb-5">
+                  <div className="w-10 h-10 bg-[#f5e6d0] rounded-full flex items-center justify-center flex-shrink-0">
+                    <MessageSquare className="w-5 h-5 text-[#8b7a4a]" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900">Add a Note for "Maybe"</h3>
-                    <p className="text-sm text-gray-600">Please explain why you're unsure about this actor</p>
+                    <h3 className="text-base font-bold text-slate-900">Why "Maybe"?</h3>
+                    <p className="text-sm text-slate-500">A comment is required when voting maybe</p>
                   </div>
                 </div>
-                
+
                 <textarea
                   value={maybeNoteText}
                   onChange={(e) => setMaybeNoteText(e.target.value)}
-                  placeholder="Add your thoughts about this actor..."
-                  className="w-full p-3 border border-gray-300 rounded-lg text-sm resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Share your thoughts about this actor..."
+                  className="w-full p-3 border border-slate-200 rounded-xl text-sm resize-none focus:ring-2 focus:ring-[#d4b88a] focus:border-transparent bg-slate-50 placeholder:text-slate-400"
                   rows={4}
                   autoFocus
                 />
-                
-                <div className="flex justify-end space-x-3 mt-4">
+                <p className="text-[11px] text-slate-400 mt-1.5 ml-1">{maybeNoteText.trim().length > 0 ? `${maybeNoteText.trim().length} characters` : "Required"}</p>
+
+                <div className="flex justify-end gap-3 mt-4">
                   <button
                     onClick={() => {
                       setShowMaybeNotePrompt(false)
                       setMaybeNoteText("")
                     }}
-                    className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                    className="px-4 py-2 text-sm font-medium text-slate-500 hover:text-slate-700 rounded-full hover:bg-slate-100 transition-colors"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={handleMaybeWithNote}
                     disabled={!maybeNoteText.trim()}
-                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="px-5 py-2 text-sm font-semibold rounded-full transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed bg-[#f0d9b5] text-[#7a6a3a] hover:bg-[#e8cf9f] ring-1 ring-[#d4b88a]/50"
                   >
-                    Vote Maybe
+                    Submit & Vote Maybe
                   </button>
                 </div>
               </div>
             </div>
           </div>
+        )}
+
+        {showCharacterDropdown && (
+          <div
+            className="fixed inset-0 z-40"
+            onClick={() => setShowCharacterDropdown(false)}
+          />
         )}
       </motion.div>
     </ModalPortal>

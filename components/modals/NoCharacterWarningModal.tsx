@@ -11,7 +11,7 @@ interface NoCharacterWarningModalProps {
 export default function NoCharacterWarningModal({ onClose, actionType }: NoCharacterWarningModalProps) {
   const handleCreateCharacter = () => {
     onClose()
-    // Open the Add Character modal
+    // Open the Create Character modal
     openModal("addCharacter")
   }
 

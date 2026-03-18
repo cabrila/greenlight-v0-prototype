@@ -258,7 +258,7 @@ export default function CharactersSidebar() {
           })}
         </div>
 
-        {/* Add Character Button */}
+        {/* Create Character Button */}
         <div className="flex justify-center">
           <button
             onClick={() => openModal("addCharacter")}
@@ -266,10 +266,10 @@ export default function CharactersSidebar() {
             className={`mt-3.5 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-medium rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 ${
               isCollapsed ? "w-10 h-10 flex items-center justify-center px-3" : "w-full py-3 px-4"
             }`}
-            title={isCollapsed ? `Add ${terminology.character.singular}` : undefined}
+            title={isCollapsed ? `Create ${terminology.character.singular}` : undefined}
           >
             <Plus className={`w-4 h-4 ${isCollapsed ? "" : "inline mr-1"}`} />
-            {!isCollapsed && `Add ${terminology.character.singular}`}
+            {!isCollapsed && `Create ${terminology.character.singular}`}
           </button>
         </div>
 

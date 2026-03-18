@@ -2,8 +2,9 @@
 
 import type React from "react"
 import { createContext, type ReactNode, useReducer, useEffect, useContext } from "react"
-import type { CastingState, CastingAction, Actor } from "@/types/casting"
+import type { CastingState, CastingAction, Actor, Notification } from "@/types/casting"
 import { saveToLocalStorage, clearLocalStorage, loadFromLocalStorage } from "@/utils/localStorage"
+import { MOCK_SCHEDULE_ENTRIES, MOCK_SCENES, MOCK_PRODUCTION_PHASES } from "@/data/mockScriptAndSchedule"
 
 // --- helper ---------------------------------------------
 function safeArray<T>(arr: T[] | undefined | null): T[] {
@@ -191,44 +192,17 @@ function getInitialState(): CastingState {
     },
     // New: Front-end only tab display names
     tabDisplayNames: {},
-    scheduleEntries: [],
-    scenes: [],
-    productionPhases: [
-      {
-        id: "principal",
-        name: "Principal Photography",
-        startDate: "2024-03-01",
-        color: "text-blue-700",
-        bgColor: "bg-blue-500",
-      },
-      {
-        id: "pickups",
-        name: "Pickups",
-        startDate: "2024-03-12",
-        color: "text-orange-700",
-        bgColor: "bg-orange-500",
-      },
-      {
-        id: "second-unit",
-        name: "Second Unit",
-        startDate: "2024-03-20",
-        color: "text-lime-700",
-        bgColor: "bg-lime-500",
-      },
-      {
-        id: "rehearsals",
-        name: "Rehearsals",
-        startDate: "2024-03-02",
-        color: "text-yellow-700",
-        bgColor: "bg-yellow-500",
-      },
-    ],
+    scheduleEntries: MOCK_SCHEDULE_ENTRIES,
+    scenes: MOCK_SCENES,
+    productionPhases: MOCK_PRODUCTION_PHASES,
     filters: {
       status: [],
       ageRange: { min: 0, max: 100 },
       location: [],
       showFilters: false,
     },
+    canvasActors: [], // Add canvasActors to initial state
+    tabNotifications: {}, // userId -> TabNotification[]
   }
 }
 
@@ -299,6 +273,30 @@ function validateAndCompleteState(state: any): CastingState {
                 },
               }))
             : [],
+          // Ensure canvasActors is an array
+          canvasActors: Array.isArray(project.canvasActors) ? project.canvasActors : [],
+          // Ensure prop/location inventories survive reload
+          props: Array.isArray(project.props) ? project.props : [],
+          locations: Array.isArray(project.locations) ? project.locations : [],
+          propInventory: Array.isArray(project.propInventory) ? project.propInventory : [],
+          propPurchaseRequests: Array.isArray(project.propPurchaseRequests) ? project.propPurchaseRequests : [],
+          locationInventory: Array.isArray(project.locationInventory) ? project.locationInventory : [],
+          // Ensure costumes data is structurally valid
+          costumes: project.costumes && typeof project.costumes === "object" ? {
+            actorSpecs: project.costumes.actorSpecs && typeof project.costumes.actorSpecs === "object" ? project.costumes.actorSpecs : {},
+            inventory: Array.isArray(project.costumes.inventory) ? project.costumes.inventory : [],
+            looks: Array.isArray(project.costumes.looks) ? project.costumes.looks : [],
+            shoppingList: Array.isArray(project.costumes.shoppingList) ? project.costumes.shoppingList : [],
+          } : undefined,
+          // Ensure script data is structurally valid
+          script: project.script && typeof project.script === "object" ? {
+            blocks: Array.isArray(project.script.blocks) ? project.script.blocks : [],
+            locked: !!project.script.locked,
+            lockedSceneSuffixes: project.script.lockedSceneSuffixes || {},
+            currentRevision: project.script.currentRevision || "white",
+            lastModified: project.script.lastModified || Date.now(),
+            beats: Array.isArray(project.script.beats) ? project.script.beats : [],
+          } : undefined,
         }))
       : initialState.projects,
     notifications: Array.isArray(state.notifications) ? state.notifications : initialState.notifications,
@@ -366,15 +364,15 @@ function validateAndCompleteState(state: any): CastingState {
     // Ensure tabDisplayNames exists
     tabDisplayNames: state.tabDisplayNames || {},
 
-    // Ensure scheduleEntries exists
-    scheduleEntries: Array.isArray(state.scheduleEntries) ? state.scheduleEntries : [],
-    // Ensure scenes exists
-    scenes: Array.isArray(state.scenes) ? state.scenes : [],
-    // Ensure productionPhases exists
-    productionPhases: Array.isArray(state.productionPhases) ? state.productionPhases : initialState.productionPhases,
+    // Always use fresh mock schedule/scenes/phases so updates to mock data are reflected
+    scheduleEntries: MOCK_SCHEDULE_ENTRIES,
+    scenes: MOCK_SCENES,
+    productionPhases: MOCK_PRODUCTION_PHASES,
 
     // Ensure filters exists
     filters: state.filters || initialState.filters,
+
+    tabNotifications: state.tabNotifications || {},
   }
 }
 
@@ -697,16 +695,40 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
       }
       break
 
-    case "SELECT_TAB":
-      newState = {
-        ...state,
-        currentFocus: {
-          ...state.currentFocus,
-          activeTabKey: action.payload,
-          playerView: { ...state.currentFocus.playerView, isOpen: false },
-        },
+    case "SELECT_TAB": {
+      console.log("📑 CastingContext: Selecting tab:", action.payload)
+
+      const currentUserId = state.currentUser?.id
+      const currentCharacterId = state.currentFocus.characterId
+
+      if (currentUserId && currentCharacterId) {
+        const userNotifications = state.tabNotifications[currentUserId] || []
+        const updatedNotifications = userNotifications.filter(
+          (notif) => !(notif.tabKey === action.payload && notif.characterId === currentCharacterId),
+        )
+
+        newState = {
+          ...state,
+          currentFocus: {
+            ...state.currentFocus,
+            activeTabKey: action.payload,
+          },
+          tabNotifications: {
+            ...state.tabNotifications,
+            [currentUserId]: updatedNotifications,
+          },
+        }
+      } else {
+        newState = {
+          ...state,
+          currentFocus: {
+            ...state.currentFocus,
+            activeTabKey: action.payload,
+          },
+        }
       }
       break
+    }
 
     case "SET_SEARCH_TERM":
       newState = {
@@ -997,15 +1019,15 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
             let isGreenlit = false
             let isCast = false
 
-            // Special handling for Approval list - greenlight when ALL users vote Yes
+            // Special handling for Approval list - gogreenlight when ALL users vote Yes
             if (actor.currentListKey === "approval" && yesVotes === totalUsers && totalUsers > 0) {
               consensusAction = { type: "yes", isGreenlit: true }
               isGreenlit = true
               isCast = true
 
-              // Create greenlight notification and add it to the notifications array
-              const greenlightNotification = {
-                id: `greenlight-${Date.now()}-${Math.random()}`,
+              // Create gogreenlight notification and add it to the notifications array
+              const gogreenlightNotification = {
+                id: `gogreenlight-${Date.now()}-${Math.random()}`,
                 type: "system" as const,
                 title: "Actor Greenlit!",
                 message: `🎉 ${actorName} has been officially cast as ${characterName}! All team members voted Yes.`,
@@ -1016,7 +1038,7 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
                 characterId,
               }
 
-              newNotifications = [greenlightNotification, ...newNotifications]
+              newNotifications = [gogreenlightNotification, ...newNotifications]
             } else if (yesVotes === totalUsers && actor.currentListKey !== "approval" && totalUsers > 0) {
               const currentTabIndex = state.tabDefinitions.findIndex((t) => t.key === actor.currentListKey)
               const nextTab = state.tabDefinitions[currentTabIndex + 1]
@@ -1141,6 +1163,19 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
 
       const contactStatus = getContactStatusFromTemplate(contactType, templateName)
 
+      // Build message history entry from the email that was sent
+      const emailSubject = action.payload.emailSubject || `${templateName} - ${contactType}`
+      const emailBody = action.payload.emailBody || ""
+      const senderName = state.currentUser?.name || "Casting Team"
+      const senderRole = state.currentUser?.role || "Casting Director"
+      const charName = (() => {
+        for (const p of state.projects) {
+          const ch = p.characters.find((c) => c.id === characterId)
+          if (ch) return ch.name
+        }
+        return undefined
+      })()
+
       newState = {
         ...state,
         projects: state.projects.map((project) => ({
@@ -1157,11 +1192,26 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
                     (status: any) => !(status.category === "contact" && status.label === contactStatus.label),
                   )
 
+                  // Append to messageHistory
+                  const existingMessages = actor.messageHistory || []
+                  const newMessage = {
+                    id: `msg-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+                    direction: "outgoing" as const,
+                    senderName,
+                    senderRole,
+                    subject: emailSubject.replace(/\{\{.*?\}\}/g, "").trim() || templateName,
+                    body: emailBody,
+                    timestamp,
+                    templateUsed: templateName,
+                    characterName: charName,
+                  }
+
                   return {
                     ...actor,
                     statuses: [...filteredStatuses, contactStatus],
                     lastContactDate: timestamp,
                     lastContactType: contactType,
+                    messageHistory: [...existingMessages, newMessage],
                   }
                 }
                 return actor
@@ -1209,7 +1259,6 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
           ? `${action.payload.actor.name} submitted their information via form and has been automatically added to ${addActorCharacter?.name || "Unknown Character"}`
           : `${action.payload.actor.name} was added to ${addActorCharacter?.name || "Unknown Character"}`,
         timestamp: Date.now(),
-        read: false,
         priority: isFormSubmission ? ("medium" as const) : ("low" as const),
         actorId: action.payload.actor.id,
         characterId: action.payload.characterId,
@@ -1407,7 +1456,7 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
 
       console.log("📍 CastingContext: Found character:", moveCharacter.name)
 
-      // Find the actor to move and get its name for the notification
+      // Find the actor to move and determine source list name
       let actorToMove: any = null
       let sourceListName = ""
       let destinationListName = ""
@@ -1458,6 +1507,19 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
       }
 
       console.log("🎯 CastingContext: Moving from", sourceListName, "to", destinationListName)
+
+      const moveNotification: Notification = {
+        id: `move-${Date.now()}-${Math.random()}`,
+        type: "casting",
+        title: "Actor Moved",
+        message: `${actorToMove.name} moved to ${getTabDisplayName(newState, destinationKey)}`,
+        timestamp: Date.now(),
+        read: false,
+        priority: "low",
+        relatedTabKey: destinationKey,
+        relatedActorId: actorId,
+        relatedCharacterId: characterId,
+      }
 
       // Enhanced notification messages based on move reason and destination
       let notificationMessage = `${actorToMove?.name || "Actor"} was moved from ${sourceListName} to ${destinationListName} for ${moveCharacter.name}`
@@ -1603,13 +1665,14 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
 
       newState = {
         ...state,
-        notifications: [moveActorNotification, ...state.notifications],
+        notifications: [moveActorNotification, moveNotification, ...state.notifications],
         projects: updatedProjects,
       }
       break
     }
 
     case "MOVE_MULTIPLE_ACTORS": {
+      console.log("🔄🔄 CastingContext: MOVE_MULTIPLE_ACTORS action received:", action.payload)
       const {
         actorIds,
         sourceLocation,
@@ -1628,6 +1691,18 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
 
       if (!moveCharacter) return state
 
+      const batchMoveNotification: Notification = {
+        id: `batch-move-${Date.now()}-${Math.random()}`,
+        type: "casting",
+        title: `Batch Move Complete`,
+        message: `${actorIds.length} actor${actorIds.length > 1 ? "s" : ""} moved to ${getTabDisplayName(newState, destinationKey)}`,
+        timestamp: Date.now(),
+        read: false,
+        priority: "medium",
+        relatedTabKey: destinationKey,
+        relatedCharacterId: characterId,
+      }
+
       // Enhanced notification messages based on move reason and destination
       let notificationMessage = `${actorIds.length} actors were moved to ${destinationType === "shortlist" ? "a shortlist" : destinationKey} for ${moveCharacter.name}`
       let notificationTitle = "Multiple Actors Moved"
@@ -1644,7 +1719,7 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
       }
 
       const moveActorNotification = {
-        id: `move-actors-${Date.now()}-${Math.random()}`,
+        id: `move-actor-${Date.now()}-${Math.random()}`,
         type: "user" as const,
         title: notificationTitle,
         message: notificationMessage,
@@ -1758,7 +1833,7 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
 
       newState = {
         ...state,
-        notifications: [moveActorNotification, ...state.notifications],
+        notifications: [moveActorNotification, batchMoveNotification, ...state.notifications],
         projects: updatedProjects,
       }
       break
@@ -1857,6 +1932,83 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
       newState = {
         ...state,
         projects: state.projects.map((project) => (project.id === action.payload.id ? action.payload : project)),
+      }
+      break
+
+    case "SET_PROJECT_PROPS":
+      newState = {
+        ...state,
+        projects: state.projects.map((project) =>
+          project.id === action.payload.projectId
+            ? { ...project, props: action.payload.props }
+            : project
+        ),
+      }
+      break
+
+    case "SET_PROJECT_LOCATIONS":
+      newState = {
+        ...state,
+        projects: state.projects.map((project) =>
+          project.id === action.payload.projectId
+            ? { ...project, locations: action.payload.locations }
+            : project
+        ),
+      }
+      break
+
+    case "SET_PROP_PURCHASE_REQUESTS":
+      newState = {
+        ...state,
+        projects: state.projects.map((project) =>
+          project.id === action.payload.projectId
+            ? { ...project, propPurchaseRequests: action.payload.requests }
+            : project
+        ),
+      }
+      break
+
+    case "SET_PROJECT_COSTUMES":
+      newState = {
+        ...state,
+        projects: state.projects.map((project) =>
+          project.id === action.payload.projectId
+            ? { ...project, costumes: action.payload.costumes }
+            : project
+        ),
+      }
+      break
+
+    case "SET_PROJECT_PROP_INVENTORY":
+      newState = {
+        ...state,
+        projects: state.projects.map((project) =>
+          project.id === action.payload.projectId
+            ? { ...project, propInventory: action.payload.inventory }
+            : project
+        ),
+      }
+      break
+
+    case "SET_PROJECT_LOCATION_INVENTORY":
+      newState = {
+        ...state,
+        projects: state.projects.map((project) =>
+          project.id === action.payload.projectId
+            ? { ...project, locationInventory: action.payload.inventory }
+            : project
+        ),
+      }
+      break
+
+    case "SET_PROJECT_SCRIPT":
+      newState = {
+        ...state,
+        projects: state.projects.map((project) =>
+          project.id === action.payload.projectId
+            ? { ...project, script: action.payload.script }
+            : project
+        ),
       }
       break
 
@@ -2919,13 +3071,149 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
       }
       break
 
+    case "SET_SCHEDULE_ENTRIES":
+      newState = { ...state, scheduleEntries: action.payload }
+      break
+
+    case "SET_SCENES":
+      newState = { ...state, scenes: action.payload }
+      break
+
+    case "SET_PRODUCTION_PHASES":
+      newState = { ...state, productionPhases: action.payload }
+      break
+
+    case "ADD_CANVAS_ACTOR": {
+      const { projectId, canvasActor } = action.payload
+
+      newState = {
+        ...state,
+        projects: state.projects.map((project) => {
+          if (project.id === projectId) {
+            const existingCanvasActors = project.canvasActors || []
+            // Check if actor already exists on canvas
+            const alreadyOnCanvas = existingCanvasActors.some((ca) => ca.actorId === canvasActor.actorId)
+
+            if (!alreadyOnCanvas) {
+              return {
+                ...project,
+                canvasActors: [...existingCanvasActors, canvasActor],
+              }
+            }
+          }
+          return project
+        }),
+      }
+      break
+    }
+
+    case "INCREMENT_TAB_NOTIFICATION": {
+      const { tabKey, characterId, count = 1 } = action.payload
+      const currentUserId = state.currentUser?.id
+
+      if (!currentUserId) {
+        newState = state
+        break
+      }
+
+      const userNotifs = state.tabNotifications[currentUserId] || []
+      const existingNotif = userNotifs.find((n) => n.tabKey === tabKey && n.characterId === characterId)
+
+      if (existingNotif) {
+        newState = {
+          ...state,
+          tabNotifications: {
+            ...state.tabNotifications,
+            [currentUserId]: userNotifs.map((n) =>
+              n.tabKey === tabKey && n.characterId === characterId
+                ? { ...n, unreadCount: n.unreadCount + count, lastUpdate: Date.now() }
+                : n,
+            ),
+          },
+        }
+      } else {
+        newState = {
+          ...state,
+          tabNotifications: {
+            ...state.tabNotifications,
+            [currentUserId]: [
+              ...userNotifs,
+              {
+                tabKey,
+                characterId,
+                unreadCount: count,
+                lastUpdate: Date.now(),
+              },
+            ],
+          },
+        }
+      }
+      break
+    }
+
+    case "CLEAR_TAB_NOTIFICATION": {
+      const { tabKey, characterId } = action.payload
+      const currentUserId = state.currentUser?.id
+
+      if (!currentUserId) {
+        newState = state
+        break
+      }
+
+      const userNotifs = state.tabNotifications[currentUserId] || []
+      newState = {
+        ...state,
+        tabNotifications: {
+          ...state.tabNotifications,
+          [currentUserId]: userNotifs.filter((n) => !(n.tabKey === tabKey && n.characterId === characterId)),
+        },
+      }
+      break
+    }
+
+    case "CLEAR_ALL_TAB_NOTIFICATIONS": {
+      const { characterId } = action.payload
+      const currentUserId = state.currentUser?.id
+
+      if (!currentUserId) {
+        newState = state
+        break
+      }
+
+      const userNotifs = state.tabNotifications[currentUserId] || []
+      newState = {
+        ...state,
+        tabNotifications: {
+          ...state.tabNotifications,
+          [currentUserId]: userNotifs.filter((n) => n.characterId !== characterId),
+        },
+      }
+      break
+    }
+
+    // </CHANGE> Add handler for UPDATE_CHARACTER_CONCEPT_ART action
+    case "UPDATE_CHARACTER_CONCEPT_ART": {
+      const { characterId, conceptArt } = action.payload
+      const updatedProjects = state.projects.map((project) => ({
+        ...project,
+        characters: project.characters.map((char) => (char.id === characterId ? { ...char, conceptArt } : char)),
+      }))
+      newState = {
+        ...state,
+        projects: updatedProjects,
+      }
+      break
+    }
+
     default:
-      return state
+      newState = state
   }
 
   // Save to localStorage after every state change (except LOAD_FROM_STORAGE)
   if (action.type !== "LOAD_FROM_STORAGE") {
-    saveToLocalStorage(newState)
+    if (typeof window !== "undefined") {
+      saveToLocalStorage(newState)
+    }
   }
 
   return newState
