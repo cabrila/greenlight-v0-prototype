@@ -3,15 +3,13 @@
 import { useState, useEffect } from "react"
 import { CastingProvider, useCasting } from "@/components/casting/CastingContext"
 import { ActorGridProvider } from "@/components/actors/ActorGridContext"
-import Sidebar from "@/components/layout/Sidebar"
-import MainContent from "@/components/layout/MainContent"
-import CharactersSidebar from "@/components/layout/CharactersSidebar"
-import ModalManager, { openModal } from "@/components/modals/ModalManager"
+import ModalManager from "@/components/modals/ModalManager"
 import PlayerViewModal from "@/components/modals/PlayerViewModal"
 import { UploadNotificationProvider } from "@/hooks/useUploadNotifications"
 import { useSubmissionIntegration } from "@/hooks/useSubmissionIntegration"
 import { mockData } from "@/lib/mockData"
 import GoGreenlightCoPilot from "@/components/copilot/GoGreenlightCoPilot"
+import SplashScreen from "@/components/home/SplashScreen"
 
 export default function CastingApp() {
   const [isLoaded, setIsLoaded] = useState(false)
@@ -42,51 +40,31 @@ export default function CastingApp() {
 function CastingAppContent() {
   const { state, dispatch } = useCasting()
 
-  // Initialise submission integration
+  // Initialize submission integration
   useSubmissionIntegration()
 
-  // Show splash screen on first visit only
+  // One-time placeholder sanitization on first visit
   useEffect(() => {
-    const FIRST_VISIT_KEY = "gogreenlight-first-visit-complete"
-    const CACHE_CLEARED_KEY = "gogreenlight-cache-cleared"
     const PLACEHOLDER_SANITIZED_KEY = "gogreenlight-placeholder-sanitized-v7"
 
     if (typeof window !== "undefined") {
-      // One-time full localStorage clear to remove any corrupted image data
       if (!window.localStorage.getItem(PLACEHOLDER_SANITIZED_KEY)) {
         try {
-          // Clear ALL localStorage to ensure completely fresh state
           localStorage.clear()
           window.localStorage.setItem(PLACEHOLDER_SANITIZED_KEY, "true")
-        } catch { /* ignore errors */ }
-      }
-
-      const isFirstVisit = !window.localStorage.getItem(FIRST_VISIT_KEY)
-      const wasCacheCleared = window.localStorage.getItem(CACHE_CLEARED_KEY) === "true"
-
-      if (isFirstVisit || wasCacheCleared) {
-        // Mark first visit as complete
-        window.localStorage.setItem(FIRST_VISIT_KEY, "true")
-
-        // Clear the cache cleared flag
-        if (wasCacheCleared) {
-          window.localStorage.removeItem(CACHE_CLEARED_KEY)
+        } catch {
+          /* ignore errors */
         }
-
-        // Small delay so the rest of the UI mounts first
-        setTimeout(() => openModal("splashScreen"), 500)
       }
     }
   }, [])
 
   return (
-    <div className="flex h-screen antialiased text-gray-800 text-sm bg-gray-100">
-      <Sidebar />
-      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
-        <MainContent />
-      </div>
-      <CharactersSidebar />
+    <div className="h-screen overflow-hidden antialiased text-gray-800 text-sm">
+      {/* Main Content - Splash Screen as Home */}
+      <SplashScreen />
 
+      {/* Modal Manager handles all modals including CastingModal */}
       <ModalManager />
 
       {/* Player View Modal */}

@@ -36,6 +36,9 @@ import {
 } from "lucide-react"
 import { useCasting } from "@/components/casting/CastingContext"
 import { openModal } from "./ModalManager"
+import ModalHeader from "@/components/layout/ModalHeader"
+import FloatingSidebarButton from "@/components/layout/FloatingSidebarButton"
+import FloatingSidebar from "@/components/layout/FloatingSidebar"
 import type { ProjectProp, PropVote, PropComment, PropAvailability, PropInventoryItem, PropPurchaseRequest, Character, Actor } from "@/types/casting"
 import type { Scene } from "@/types/schedule"
 import { compressImage } from "@/utils/imageCompression"
@@ -1500,28 +1503,29 @@ export default function PropsModal({ onClose }: PropsModalProps) {
   { key: "purchase", label: "Purchase/Design", icon: <ShoppingBag className="w-4 h-4" /> },
   ]
 
+const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+
   return (
-    <div className="fixed inset-0 bg-gray-100 flex flex-col z-50">
-      {/* ---- Header ---- */}
-      <header className="flex items-center justify-between px-6 py-3 bg-white border-b border-gray-200 shrink-0">
-  <div className="flex items-center gap-4">
-          <img src="/images/gogreenlight-logo.png" alt="GoGreenlight" className="h-8 w-auto" />
-          <button onClick={() => { onClose(); setTimeout(() => openModal("splashScreen"), 150) }} className="p-1.5 rounded-lg text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors" title="Home" aria-label="Go to Home">
-            <Home className="w-4 h-4" />
-          </button>
-          <div className="inline-flex items-center bg-emerald-600 text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded">
-            Props
-  </div>
-          {currentProject ? (
-            <span className="hidden sm:inline text-sm text-gray-500">{currentProject.name}</span>
-          ) : (
-            <span className="hidden sm:inline text-sm text-amber-600 font-medium">No project selected</span>
-          )}
-        </div>
-        <button onClick={onClose} className="p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors">
-          <X className="w-5 h-5" />
-        </button>
-      </header>
+  <div className="fixed inset-0 bg-gray-100 flex flex-col z-50">
+  {/* Floating Sidebar Button */}
+  <FloatingSidebarButton
+    onClick={() => setIsSidebarOpen(true)}
+    isOpen={isSidebarOpen}
+  />
+
+  {/* Floating Sidebar Drawer */}
+  <FloatingSidebar
+    isOpen={isSidebarOpen}
+    onClose={() => setIsSidebarOpen(false)}
+    currentModal="props"
+  />
+
+  {/* ---- Header ---- */}
+  <ModalHeader
+    title="Props"
+    titleColor="bg-amber-600"
+    onClose={onClose}
+  />
 
       {/* ---- Tab Bar ---- */}
       <div className="flex items-center gap-2 px-6 py-2 bg-white border-b border-gray-200 shrink-0 overflow-x-auto">
