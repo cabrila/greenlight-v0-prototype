@@ -46,6 +46,9 @@ import {
 } from "lucide-react"
 import { useCasting } from "@/components/casting/CastingContext"
 import { openModal } from "./ModalManager"
+import ModalHeader from "@/components/layout/ModalHeader"
+import FloatingSidebarButton from "@/components/layout/FloatingSidebarButton"
+import FloatingSidebar from "@/components/layout/FloatingSidebar"
 import type {
   ScriptBlock,
   ScriptBlockType,
@@ -1386,30 +1389,31 @@ export default function ScriptModal({ onClose }: { onClose: () => void }) {
     return new Set(blocks.filter((b) => b.text.toLowerCase().includes(term)).map((b) => b.id))
   }, [blocks, searchTerm])
 
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+
   return (
     <div className="fixed inset-0 bg-gradient-to-br from-stone-100 via-stone-50 to-amber-50/30 z-50 flex flex-col">
+      {/* Floating Sidebar Button */}
+      <FloatingSidebarButton
+        onClick={() => setIsSidebarOpen(true)}
+        isOpen={isSidebarOpen}
+      />
+
+      {/* Floating Sidebar Drawer */}
+      <FloatingSidebar
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
+        currentModal="script"
+      />
+
       {/* Header */}
       <header className="bg-white border-b border-stone-200 shrink-0">
         {/* Top row - Logo, Home, Title, Close */}
-        <div className="flex items-center justify-between px-6 py-3">
-          <div className="flex items-center gap-4">
-            <img src="/images/gogreenlight-logo.png" alt="GoGreenlight" className="h-8 w-auto" />
-            <button onClick={() => { onClose(); setTimeout(() => openModal("splashScreen"), 150) }} className="p-1.5 rounded-lg text-stone-400 hover:text-amber-600 hover:bg-amber-50 transition-colors" title="Home" aria-label="Go to Home">
-              <Home className="w-4 h-4" />
-            </button>
-            <div className="inline-flex items-center bg-amber-600 text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded">
-              Script
-            </div>
-            {currentProject ? (
-              <span className="hidden sm:inline text-sm text-stone-500">{currentProject.name}</span>
-            ) : (
-              <span className="hidden sm:inline text-sm text-amber-600 font-medium">No project selected</span>
-            )}
-          </div>
-          <button onClick={onClose} className="p-2 rounded-lg text-stone-500 hover:text-stone-700 hover:bg-stone-100 transition-colors" title="Close">
-            <X className="w-5 h-5" />
-          </button>
-        </div>
+        <ModalHeader
+          title="Script"
+          titleColor="bg-amber-600"
+          onClose={onClose}
+        />
 
         {/* Toolbar row */}
         <div className="flex items-center gap-2 px-6 py-2 bg-stone-50/80 border-t border-stone-100">

@@ -23,6 +23,9 @@ import {
 } from "lucide-react"
 import { useCasting } from "@/components/casting/CastingContext"
 import { openModal } from "./ModalManager"
+import ModalHeader from "@/components/layout/ModalHeader"
+import FloatingSidebarButton from "@/components/layout/FloatingSidebarButton"
+import FloatingSidebar from "@/components/layout/FloatingSidebar"
 import type { ScheduleEntry, RedFlag, ProductionPhase } from "@/types/schedule"
 import type { Actor } from "@/types/casting"
 import StripboardView from "@/components/schedule/StripboardView"
@@ -359,31 +362,29 @@ export default function ScheduleModal({ onClose }: ScheduleModalProps) {
     setActorSearchQuery("")
   }
 
+const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+
   return (
-    <div className="fixed inset-0 bg-gray-50 z-50 flex flex-col">
-      {/* Header */}
-      <header className="flex items-center justify-between px-6 py-3 bg-white border-b border-gray-200 shrink-0">
-        <div className="flex items-center gap-4">
-          <img src="/images/gogreenlight-logo.png" alt="GoGreenlight" className="h-8 w-auto" />
-          <button 
-            onClick={() => { onClose(); setTimeout(() => openModal("splashScreen"), 150) }} 
-            className="p-1.5 rounded-lg text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors" 
-            title="Home" 
-            aria-label="Go to Home"
-          >
-            <Home className="w-4 h-4" />
-          </button>
-          <div className="w-px h-6 bg-gray-200" />
-          <h1 className="text-xl font-semibold text-gray-900">Shoot Days</h1>
-        </div>
-        <button 
-          onClick={onClose} 
-          className="p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors" 
-          aria-label="Close"
-        >
-          <X className="w-5 h-5" />
-        </button>
-      </header>
+  <div className="fixed inset-0 bg-gray-50 z-50 flex flex-col">
+  {/* Floating Sidebar Button */}
+  <FloatingSidebarButton
+    onClick={() => setIsSidebarOpen(true)}
+    isOpen={isSidebarOpen}
+  />
+
+  {/* Floating Sidebar Drawer */}
+  <FloatingSidebar
+    isOpen={isSidebarOpen}
+    onClose={() => setIsSidebarOpen(false)}
+    currentModal="schedule"
+  />
+
+  {/* Header */}
+  <ModalHeader
+    title="Schedule"
+    titleColor="bg-blue-600"
+    onClose={onClose}
+  />
 
       {successMessage && (
         <div className="bg-emerald-500 text-white px-6 py-3 flex items-center justify-between shadow-md animate-in slide-in-from-top">
