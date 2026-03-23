@@ -130,15 +130,15 @@ export default function FloatingSidebar({ isOpen, onClose, onToggle, currentModa
       >
         {/* Collapsed Strip */}
         <div
-          className={`flex flex-col bg-gradient-to-b from-slate-800 via-slate-900 to-slate-800 border-r border-slate-700/50 transition-all duration-300 ${
+          className={`flex flex-col bg-gradient-to-b from-slate-50 via-white to-slate-50 border-r border-slate-200 shadow-sm transition-all duration-300 ${
             isOpen ? "w-0 opacity-0 overflow-hidden" : "w-14 opacity-100"
           }`}
         >
           {/* Logo */}
-          <div className="h-14 flex items-center justify-center border-b border-slate-700/50">
+          <div className="h-14 flex items-center justify-center border-b border-slate-200">
             <button
               onClick={onToggle}
-              className="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center hover:bg-emerald-500/30 transition-colors"
+              className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center hover:bg-emerald-100 transition-colors border border-emerald-200/50"
               title="Expand navigation"
             >
               <img src="/images/logo-mini.png" alt="GoGreenlight" className="w-6 h-6 object-contain" />
@@ -156,14 +156,14 @@ export default function FloatingSidebar({ isOpen, onClose, onToggle, currentModa
                   onClick={() => item.action ? item.action() : item.modal && handleNavigation(item.modal)}
                   className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-200 group relative ${
                     isActive
-                      ? "bg-emerald-500/30 text-emerald-400"
-                      : "text-slate-400 hover:text-white hover:bg-slate-700/50"
+                      ? "bg-emerald-100 text-emerald-600 border border-emerald-200"
+                      : `text-slate-500 ${item.color}`
                   }`}
                   title={item.label}
                 >
                   <Icon className="w-5 h-5" />
                   {/* Tooltip */}
-                  <span className="absolute left-full ml-2 px-2 py-1 bg-slate-900 text-white text-xs font-medium rounded-md opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-[80]">
+                  <span className="absolute left-full ml-2 px-2 py-1 bg-slate-800 text-white text-xs font-medium rounded-md opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-[80] shadow-lg">
                     {item.label}
                   </span>
                 </button>
@@ -172,10 +172,10 @@ export default function FloatingSidebar({ isOpen, onClose, onToggle, currentModa
           </div>
 
           {/* Expand Button */}
-          <div className="p-2 border-t border-slate-700/50">
+          <div className="p-2 border-t border-slate-200">
             <button
               onClick={onToggle}
-              className="w-10 h-10 rounded-lg flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-700/50 transition-colors"
+              className="w-10 h-10 rounded-lg flex items-center justify-center text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors"
               title="Expand sidebar"
             >
               <ChevronRight className="w-5 h-5" />
@@ -184,10 +184,10 @@ export default function FloatingSidebar({ isOpen, onClose, onToggle, currentModa
 
           {/* User Avatar */}
           {state.currentUser && (
-            <div className="p-2 border-t border-slate-700/50">
+            <div className="p-2 border-t border-slate-200">
               <div
                 ref={!isOpen ? userAvatarRef : undefined}
-                className="w-10 h-10 rounded-lg flex items-center justify-center text-sm font-bold cursor-pointer hover:opacity-90 transition-opacity"
+                className="w-10 h-10 rounded-lg flex items-center justify-center text-sm font-bold cursor-pointer hover:opacity-90 transition-opacity shadow-sm"
                 style={{
                   background: `linear-gradient(135deg, ${state.currentUser.bgColor}, ${state.currentUser.bgColor}dd)`,
                   color: state.currentUser.color,
