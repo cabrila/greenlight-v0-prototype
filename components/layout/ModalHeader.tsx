@@ -1,6 +1,7 @@
 "use client"
 
-import { Home, X, Bell } from "lucide-react"
+import { useState, useRef, useEffect } from "react"
+import { Home, X, Bell, LogOut, Settings, HelpCircle } from "lucide-react"
 import { useCasting } from "@/components/casting/CastingContext"
 import { openModal } from "@/components/modals/ModalManager"
 
@@ -24,6 +25,8 @@ export default function ModalHeader({
   const { state } = useCasting()
   const currentProject = state.projects.find((p) => p.id === state.currentFocus.currentProjectId)
   const unreadNotifications = state.notifications.filter((n) => !n.read).length
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
+  const userMenuRef = useRef<HTMLDivElement>(null)
 
   const handleHome = () => {
     if (onHome) {
@@ -38,61 +41,138 @@ export default function ModalHeader({
     openModal("notifications")
   }
 
+  // Close user menu on outside click
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setIsUserMenuOpen(false)
+      }
+    }
+    if (isUserMenuOpen) {
+      document.addEventListener("mousedown", handleClickOutside)
+    }
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [isUserMenuOpen])
+
   return (
-    <header className="flex items-center justify-between px-5 py-3 bg-white border-b border-gray-200 shrink-0">
-      <div className="flex items-center gap-4">
+    <header className="flex items-center justify-between px-4 py-2.5 bg-white border-b border-gray-200 shrink-0">
+      {/* Left Section: Logo, Title Badge, Project Name */}
+      <div className="flex items-center gap-3">
         <img
           src="/images/gogreenlight-logo.png"
           alt="GoGreenlight"
-          className="h-8 w-auto"
+          className="h-7 w-auto"
         />
+        <div className="w-px h-5 bg-gray-200" />
+        <div
+          className={`inline-flex items-center ${titleColor} text-white text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded`}
+        >
+          {title}
+        </div>
+        {showProjectName && currentProject && (
+          <span className="hidden sm:inline text-sm text-gray-500 font-medium">
+            {currentProject.name}
+          </span>
+        )}
+        {children}
+      </div>
+
+      {/* Right Section: Home, Notifications, User Avatar, Close */}
+      <div className="flex items-center gap-1">
+        {/* Home Button */}
         <button
           onClick={handleHome}
-          className="p-1.5 rounded-lg text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors"
+          className="p-2 rounded-lg text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors"
           title="Home"
           aria-label="Go to Home"
         >
           <Home className="w-4 h-4" />
         </button>
-        <div
-          className={`inline-flex items-center ${titleColor} text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded`}
-        >
-          {title}
-        </div>
-        {showProjectName && (
-          currentProject ? (
-            <span className="hidden sm:inline text-sm text-gray-500">
-              {currentProject.name}
-            </span>
-          ) : (
-            <span className="hidden sm:inline text-sm text-amber-600 font-medium">
-              No project selected
-            </span>
-          )
-        )}
-        {children}
-      </div>
 
-      <div className="flex items-center gap-2">
+        {/* Notifications */}
         <button
           onClick={handleNotifications}
-          className="relative p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+          className="relative p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
           title="Notifications"
           aria-label={`Notifications${unreadNotifications > 0 ? `, ${unreadNotifications} unread` : ""}`}
         >
-          <Bell className="w-5 h-5" />
+          <Bell className="w-4 h-4" />
           {unreadNotifications > 0 && (
-            <div className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[9px] font-bold min-w-[16px] h-4 px-1 rounded-full flex items-center justify-center shadow-sm">
+            <div className="absolute top-0.5 right-0.5 bg-red-500 text-white text-[8px] font-bold min-w-[14px] h-3.5 px-1 rounded-full flex items-center justify-center shadow-sm">
               {unreadNotifications}
             </div>
           )}
         </button>
+
+        {/* User Avatar */}
+        {state.currentUser && (
+          <div className="relative" ref={userMenuRef}>
+            <button
+              onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+              className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold cursor-pointer hover:ring-2 hover:ring-emerald-200 transition-all"
+              style={{
+                background: `linear-gradient(135deg, ${state.currentUser.bgColor}, ${state.currentUser.bgColor}dd)`,
+                color: state.currentUser.color,
+              }}
+              title={state.currentUser.name}
+              aria-label={`User menu for ${state.currentUser.name}`}
+            >
+              {state.currentUser.initials}
+            </button>
+
+            {/* User Dropdown Menu */}
+            {isUserMenuOpen && (
+              <div className="absolute right-0 top-full mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-200 py-2 z-[100]">
+                <div className="px-4 py-3 border-b border-gray-100">
+                  <p className="text-sm font-semibold text-gray-900">{state.currentUser.name}</p>
+                  <p className="text-xs text-gray-500">{state.currentUser.role}</p>
+                </div>
+                <div className="py-1">
+                  <button
+                    onClick={() => {
+                      setIsUserMenuOpen(false)
+                      openModal("userPermissions")
+                    }}
+                    className="flex items-center gap-3 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    <Settings className="w-4 h-4 text-gray-400" />
+                    Settings
+                  </button>
+                  <button
+                    onClick={() => {
+                      setIsUserMenuOpen(false)
+                      openModal("helpWizard")
+                    }}
+                    className="flex items-center gap-3 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    <HelpCircle className="w-4 h-4 text-gray-400" />
+                    Help & Support
+                  </button>
+                </div>
+                <div className="border-t border-gray-100 pt-1">
+                  <button
+                    onClick={() => setIsUserMenuOpen(false)}
+                    className="flex items-center gap-3 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Sign Out
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Divider */}
+        <div className="w-px h-5 bg-gray-200 mx-1" />
+
+        {/* Close Button */}
         <button
           onClick={onClose}
-          className="p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+          className="p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
           aria-label="Close"
         >
-          <X className="w-5 h-5" />
+          <X className="w-4 h-4" />
         </button>
       </div>
     </header>
