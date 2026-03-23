@@ -1,7 +1,8 @@
 "use client"
 import {
   Plus, FolderOpen, Database, Bell, Settings, HelpCircle, Users, Film,
-  BarChart3, ArrowRight, FileText, Shirt, MapPin, Paintbrush, Package
+  BarChart3, ArrowRight, FileText, Shirt, MapPin, Paintbrush, Package,
+  Calendar, Tv
 } from 'lucide-react'
 import { openModal } from "@/components/modals/ModalManager"
 import { useState, useEffect, useRef } from "react"
@@ -166,6 +167,26 @@ export default function SplashScreen() {
       iconBg: "bg-orange-400/20",
       iconColor: "text-orange-300",
     },
+    {
+      icon: Calendar,
+      title: "Schedule",
+      desc: "Plan shoot days, manage call sheets, track availability, and coordinate production timelines efficiently.",
+      modal: "schedule" as const,
+      accentFrom: "from-blue-400/20",
+      accentTo: "to-blue-400/5",
+      iconBg: "bg-blue-400/20",
+      iconColor: "text-blue-300",
+    },
+    {
+      icon: Tv,
+      title: "Casting for TV",
+      desc: "Specialized TV casting workflow with episode tracking, recurring roles, and series-wide talent management.",
+      modal: "castingForTV" as const,
+      accentFrom: "from-indigo-400/20",
+      accentTo: "to-indigo-400/5",
+      iconBg: "bg-indigo-400/20",
+      iconColor: "text-indigo-300",
+    },
   ]
 
   return (
@@ -327,7 +348,7 @@ export default function SplashScreen() {
               <div className="h-px flex-1 bg-white/10" />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {features.map((feature) => (
                 <button
                   key={feature.title}
