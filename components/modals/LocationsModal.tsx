@@ -54,7 +54,6 @@ import {
 import { useCasting } from "@/components/casting/CastingContext"
 import { openModal } from "./ModalManager"
 import ModalHeader from "@/components/layout/ModalHeader"
-import FloatingSidebarButton from "@/components/layout/FloatingSidebarButton"
 import FloatingSidebar from "@/components/layout/FloatingSidebar"
 import { compressImage } from "@/utils/imageCompression"
 import type {
@@ -1809,20 +1808,15 @@ export default function LocationsModal({ onClose }: LocationsModalProps) {
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
-  return (
-    <div className="fixed inset-0 bg-gray-50 flex flex-col z-50">
-      {/* Floating Sidebar Button */}
-      <FloatingSidebarButton
-        onClick={() => setIsSidebarOpen(true)}
-        isOpen={isSidebarOpen}
-      />
-
-      {/* Floating Sidebar Drawer */}
-      <FloatingSidebar
-        isOpen={isSidebarOpen}
-        onClose={() => setIsSidebarOpen(false)}
-        currentModal="locations"
-      />
+return (
+  <div className="fixed inset-0 bg-gray-50 flex flex-col z-50 pl-14">
+  {/* Slim Sidebar Strip / Expandable Drawer */}
+  <FloatingSidebar
+  isOpen={isSidebarOpen}
+  onClose={() => setIsSidebarOpen(false)}
+  onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
+  currentModal="locations"
+  />
 
       {/* Top Bar */}
       <ModalHeader

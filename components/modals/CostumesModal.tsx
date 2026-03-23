@@ -4,7 +4,6 @@ import { useState, useCallback, useRef, useMemo, useEffect } from "react"
 import { useCasting } from "@/components/casting/CastingContext"
 import { openModal } from "./ModalManager"
 import ModalHeader from "@/components/layout/ModalHeader"
-import FloatingSidebarButton from "@/components/layout/FloatingSidebarButton"
 import FloatingSidebar from "@/components/layout/FloatingSidebar"
 import { compressImage } from "@/utils/imageCompression"
 import { isValidImageUrl } from "@/lib/utils"
@@ -660,17 +659,12 @@ export default function CostumesModal({ onClose }: { onClose: () => void }) {
 const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
   return (
-  <div className="fixed inset-0 bg-gray-100 z-50 flex flex-col">
-  {/* Floating Sidebar Button */}
-  <FloatingSidebarButton
-    onClick={() => setIsSidebarOpen(true)}
-    isOpen={isSidebarOpen}
-  />
-
-  {/* Floating Sidebar Drawer */}
+  <div className="fixed inset-0 bg-gray-100 z-50 flex flex-col pl-14">
+  {/* Slim Sidebar Strip / Expandable Drawer */}
   <FloatingSidebar
     isOpen={isSidebarOpen}
     onClose={() => setIsSidebarOpen(false)}
+    onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
     currentModal="costumes"
   />
 

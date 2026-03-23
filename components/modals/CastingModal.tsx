@@ -3,7 +3,6 @@
 import { useState } from "react"
 import { useCasting } from "@/components/casting/CastingContext"
 import ModalHeader from "@/components/layout/ModalHeader"
-import FloatingSidebarButton from "@/components/layout/FloatingSidebarButton"
 import FloatingSidebar from "@/components/layout/FloatingSidebar"
 import CharacterHeader from "@/components/character/CharacterHeader"
 import TabNavigation from "@/components/tabs/TabNavigation"
@@ -24,17 +23,12 @@ export default function CastingModal({ onClose }: CastingModalProps) {
     ?.characters.find((c) => c.id === state.currentFocus.characterId)
 
   return (
-    <div className="fixed inset-0 bg-gray-50 flex flex-col z-50">
-      {/* Floating Sidebar Button */}
-      <FloatingSidebarButton
-        onClick={() => setIsSidebarOpen(true)}
-        isOpen={isSidebarOpen}
-      />
-
-      {/* Floating Sidebar Drawer */}
+    <div className="fixed inset-0 bg-gray-50 flex flex-col z-50 pl-14">
+      {/* Slim Sidebar Strip / Expandable Drawer */}
       <FloatingSidebar
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
+        onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
         currentModal="casting"
       />
 

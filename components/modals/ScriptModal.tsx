@@ -47,7 +47,6 @@ import {
 import { useCasting } from "@/components/casting/CastingContext"
 import { openModal } from "./ModalManager"
 import ModalHeader from "@/components/layout/ModalHeader"
-import FloatingSidebarButton from "@/components/layout/FloatingSidebarButton"
 import FloatingSidebar from "@/components/layout/FloatingSidebar"
 import type {
   ScriptBlock,
@@ -1392,17 +1391,12 @@ export default function ScriptModal({ onClose }: { onClose: () => void }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
   return (
-    <div className="fixed inset-0 bg-gradient-to-br from-stone-100 via-stone-50 to-amber-50/30 z-50 flex flex-col">
-      {/* Floating Sidebar Button */}
-      <FloatingSidebarButton
-        onClick={() => setIsSidebarOpen(true)}
-        isOpen={isSidebarOpen}
-      />
-
-      {/* Floating Sidebar Drawer */}
+    <div className="fixed inset-0 bg-gradient-to-br from-stone-100 via-stone-50 to-amber-50/30 z-50 flex flex-col pl-14">
+      {/* Slim Sidebar Strip / Expandable Drawer */}
       <FloatingSidebar
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
+        onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
         currentModal="script"
       />
 

@@ -37,7 +37,6 @@ import {
 import { useCasting } from "@/components/casting/CastingContext"
 import { openModal } from "./ModalManager"
 import ModalHeader from "@/components/layout/ModalHeader"
-import FloatingSidebarButton from "@/components/layout/FloatingSidebarButton"
 import FloatingSidebar from "@/components/layout/FloatingSidebar"
 import type { ProjectProp, PropVote, PropComment, PropAvailability, PropInventoryItem, PropPurchaseRequest, Character, Actor } from "@/types/casting"
 import type { Scene } from "@/types/schedule"
@@ -1506,17 +1505,12 @@ export default function PropsModal({ onClose }: PropsModalProps) {
 const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
   return (
-  <div className="fixed inset-0 bg-gray-100 flex flex-col z-50">
-  {/* Floating Sidebar Button */}
-  <FloatingSidebarButton
-    onClick={() => setIsSidebarOpen(true)}
-    isOpen={isSidebarOpen}
-  />
-
-  {/* Floating Sidebar Drawer */}
+  <div className="fixed inset-0 bg-gray-100 flex flex-col z-50 pl-14">
+  {/* Slim Sidebar Strip / Expandable Drawer */}
   <FloatingSidebar
     isOpen={isSidebarOpen}
     onClose={() => setIsSidebarOpen(false)}
+    onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
     currentModal="props"
   />
 
