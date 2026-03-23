@@ -568,9 +568,10 @@ export default function CharactersModal({ onClose }: CharactersModalProps) {
     return result
   }, [characters, filterBy, genderFilter, sortBy])
 
-  const handleCharacterClick = (characterId: string) => {
-    dispatch({ type: "SELECT_CHARACTER", payload: characterId })
-    onClose()
+const handleCharacterClick = (characterId: string) => {
+  dispatch({ type: "SELECT_CHARACTER", payload: characterId })
+  onClose()
+  setTimeout(() => openModal("casting"), 150)
   }
 
   const handleUploadClick = (e: React.MouseEvent, characterId: string) => {
