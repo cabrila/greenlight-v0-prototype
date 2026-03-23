@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
+import { useState, useEffect } from "react"
 import {
   X,
   Folder,
@@ -26,7 +26,6 @@ import {
 } from "lucide-react"
 import { useCasting } from "@/components/casting/CastingContext"
 import { openModal, closeModal } from "@/components/modals/ModalManager"
-import UserMenu from "./UserMenu"
 
 interface FloatingSidebarProps {
   isOpen: boolean
@@ -39,9 +38,7 @@ export default function FloatingSidebar({ isOpen, onClose, onToggle, currentModa
   const { state, dispatch } = useCasting()
   const [castingToolsOpen, setCastingToolsOpen] = useState(false)
   const [dataToolsOpen, setDataToolsOpen] = useState(false)
-  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const [isLoadingDemo, setIsLoadingDemo] = useState(false)
-  const userAvatarRef = useRef<HTMLDivElement>(null)
 
   const currentProject = state.projects.find((p) => p.id === state.currentFocus.currentProjectId)
 
@@ -181,24 +178,6 @@ export default function FloatingSidebar({ isOpen, onClose, onToggle, currentModa
               <ChevronRight className="w-5 h-5" />
             </button>
           </div>
-
-          {/* User Avatar */}
-          {state.currentUser && (
-            <div className="p-2 border-t border-slate-200">
-              <div
-                ref={!isOpen ? userAvatarRef : undefined}
-                className="w-10 h-10 rounded-lg flex items-center justify-center text-sm font-bold cursor-pointer hover:opacity-90 transition-opacity shadow-sm"
-                style={{
-                  background: `linear-gradient(135deg, ${state.currentUser.bgColor}, ${state.currentUser.bgColor}dd)`,
-                  color: state.currentUser.color,
-                }}
-                onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                title={state.currentUser.name}
-              >
-                {state.currentUser.initials}
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Expanded Sidebar */}
@@ -457,37 +436,7 @@ export default function FloatingSidebar({ isOpen, onClose, onToggle, currentModa
             </div>
           </div>
 
-          {/* Footer - User Avatar */}
-          {state.currentUser && (
-            <div className="p-4 border-t border-slate-200/60 shrink-0">
-              <div className="flex items-center space-x-3">
-                <div
-                  ref={isOpen ? userAvatarRef : undefined}
-                  className="relative w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold cursor-pointer hover:opacity-90 transition-opacity"
-                  style={{
-                    background: `linear-gradient(135deg, ${state.currentUser.bgColor}, ${state.currentUser.bgColor}dd)`,
-                    color: state.currentUser.color,
-                  }}
-                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                >
-                  {state.currentUser.initials}
-                  <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-gradient-to-br from-emerald-400 to-emerald-500 rounded-full border-2 border-white shadow-sm"></div>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-slate-700 truncate">{state.currentUser.name}</p>
-                  <p className="text-xs text-slate-500 truncate">{state.currentUser.role || "Team Member"}</p>
-                </div>
-              </div>
-              {isUserMenuOpen && userAvatarRef.current && (
-                <UserMenu
-                  anchorEl={userAvatarRef.current}
-                  isOpen={isUserMenuOpen}
-                  onClose={() => setIsUserMenuOpen(false)}
-                />
-              )}
-            </div>
-          )}
-        </div>
+</div>
       </div>
     </>
   )
