@@ -127,7 +127,7 @@ export default function FloatingSidebar({ isOpen, onClose, onToggle, currentModa
       >
         {/* Collapsed Strip */}
         <div
-          className={`flex flex-col bg-gradient-to-b from-slate-50 via-white to-slate-50 border-r border-slate-200 shadow-sm transition-all duration-300 ${
+          className={`flex flex-col bg-gradient-to-b from-slate-50 via-white to-slate-50 border-r border-slate-200 shadow-sm transition-all duration-300 overflow-x-hidden ${
             isOpen ? "w-0 opacity-0 overflow-hidden" : "w-14 opacity-100"
           }`}
         >
@@ -143,7 +143,7 @@ export default function FloatingSidebar({ isOpen, onClose, onToggle, currentModa
           </div>
 
           {/* Navigation Icons */}
-          <div className="flex-1 py-3 flex flex-col items-center space-y-1 overflow-y-auto">
+          <div className="flex-1 py-3 flex flex-col items-center space-y-1 overflow-y-auto overflow-x-hidden">
             {navItems.map((item, index) => {
               const Icon = item.icon
               const isActive = item.modal === currentModal
