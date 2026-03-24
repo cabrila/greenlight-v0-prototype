@@ -37,7 +37,7 @@ import {
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu"
 import AddCharacterModal from "./AddCharacterModal"
-import { openModal } from "./ModalManager"
+import { openModal, replaceModal } from "./ModalManager"
 import ModalHeader from "@/components/layout/ModalHeader"
 import FloatingSidebar from "@/components/layout/FloatingSidebar"
 import type { Character, Actor } from "@/types/casting"
@@ -573,8 +573,8 @@ export default function CharactersModal({ onClose }: CharactersModalProps) {
 
 const handleCharacterClick = (characterId: string) => {
   dispatch({ type: "SELECT_CHARACTER", payload: characterId })
-  onClose()
-  setTimeout(() => openModal("casting"), 150)
+  // Use replaceModal for smooth transition without flicker
+  replaceModal("casting")
   }
 
   const handleUploadClick = (e: React.MouseEvent, characterId: string) => {

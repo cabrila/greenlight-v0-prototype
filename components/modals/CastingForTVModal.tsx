@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useRef, useEffect } from "react"
 import { useCasting } from "@/components/casting/CastingContext"
-import { openModal } from "./ModalManager"
+import { openModal, navigateToModal } from "./ModalManager"
 import { isValidImageUrl } from "@/lib/utils"
 import {
   X,
@@ -2045,7 +2045,7 @@ const renderGridView = () => (
         <div className="flex items-center gap-4">
           <img src="/images/gogreenlight-logo.png" alt="GoGreenlight" className="h-8 w-auto" />
           <button
-            onClick={() => { onClose(); setTimeout(() => openModal("splashScreen"), 150) }}
+            onClick={() => navigateToModal("splashScreen")}
             className="p-1.5 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
             title="Home"
           >

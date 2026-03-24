@@ -4,7 +4,7 @@ import {
   BarChart3, ArrowRight, Calendar, Search, FileText, Shirt, MapPin, Paintbrush,
   Clapperboard, Package, Sparkles
 } from 'lucide-react'
-import { openModal } from "./ModalManager"
+import { openModal, replaceModal } from "./ModalManager"
 import { useState, useEffect, useRef } from "react"
 import UserMenu from "../layout/UserMenu"
 import { useCasting } from "@/components/casting/CastingContext"
@@ -93,15 +93,15 @@ export default function SplashScreenModal({ onClose }: SplashScreenModalProps) {
     if (isTimerActive) return
     setIsTimerActive(true)
     timerRef.current = setTimeout(() => {
-      onCloseRef.current()
-      setTimeout(() => openModal("projectManager"), 100)
+      // Use replaceModal for smooth transition
+      replaceModal("projectManager")
       setIsTimerActive(false)
     }, 3000)
   }
 
   const handleNewProject = () => startTimer()
   const handleOpenProject = () => startTimer()
-  const handleDatabase = () => { onClose(); setTimeout(() => openModal("database"), 100) }
+  const handleDatabase = () => replaceModal("database")
   const handleNotifications = () => openModal("notifications")
   const handleSettings = () => openModal("userPermissions")
   const handleUserMenu = () => setIsUserMenuOpen(!isUserMenuOpen)
@@ -345,12 +345,12 @@ export default function SplashScreenModal({ onClose }: SplashScreenModalProps) {
               {features.map((feature) => (
                 <button
                   key={feature.title}
-                  onClick={() => {
-                    if (feature.modal) {
-                      onClose()
-                      setTimeout(() => openModal(feature.modal!), 100)
-                    }
-                  }}
+onClick={() => {
+  if (feature.modal) {
+  // Use replaceModal for smooth transition without flicker
+  replaceModal(feature.modal)
+  }
+  }}
                   disabled={!feature.modal}
                   className="group relative text-left rounded-2xl border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.08] hover:border-white/[0.15] transition-all duration-300 overflow-hidden disabled:cursor-default"
                 >

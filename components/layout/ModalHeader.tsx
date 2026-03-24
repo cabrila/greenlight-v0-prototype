@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react"
 import { Home, X, Bell, LogOut, Settings, HelpCircle } from "lucide-react"
 import { useCasting } from "@/components/casting/CastingContext"
-import { openModal } from "@/components/modals/ModalManager"
+import { openModal, navigateToModal } from "@/components/modals/ModalManager"
 
 interface ModalHeaderProps {
   title: string
@@ -32,8 +32,8 @@ export default function ModalHeader({
     if (onHome) {
       onHome()
     } else {
-      onClose()
-      setTimeout(() => openModal("splashScreen"), 150)
+      // Use navigateToModal for smooth transition without flicker
+      navigateToModal("splashScreen")
     }
   }
 

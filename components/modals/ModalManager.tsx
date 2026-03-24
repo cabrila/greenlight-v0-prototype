@@ -75,6 +75,45 @@ export function closeAllModals() {
   }
 }
 
+// Replace current modal with a new one - opens new modal first, then removes the previous one
+// This prevents flicker/flash of underlying content during modal transitions
+export function replaceModal(type: string, data?: any) {
+  if (globalSetModalStack) {
+    const newModal = { type, data }
+    // First, add the new modal on top of the stack
+    const stackWithNewModal = [...globalModalStack, newModal]
+    globalSetModalStack(stackWithNewModal)
+    
+    // After a brief delay for the new modal to render, remove the previous modal
+    setTimeout(() => {
+      if (globalSetModalStack && globalModalStack.length > 0) {
+        // Remove the second-to-last item (the old modal) keeping the new one on top
+        const currentStack = [...globalModalStack]
+        if (currentStack.length >= 2) {
+          currentStack.splice(currentStack.length - 2, 1)
+          globalSetModalStack(currentStack)
+        }
+      }
+    }, 50)
+  }
+}
+
+// Navigate to a modal, closing all others - useful for main navigation
+export function navigateToModal(type: string, data?: any) {
+  if (globalSetModalStack) {
+    const newModal = { type, data }
+    // Add new modal first
+    globalSetModalStack([...globalModalStack, newModal])
+    
+    // Then after render, keep only the new modal
+    setTimeout(() => {
+      if (globalSetModalStack) {
+        globalSetModalStack([{ type, data }])
+      }
+    }, 50)
+  }
+}
+
 export default function ModalManager() {
   const [modalStack, setModalStack] = useState<ModalState[]>([])
   const { state, dispatch } = useCasting()

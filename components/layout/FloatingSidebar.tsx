@@ -25,7 +25,7 @@ import {
   Home,
 } from "lucide-react"
 import { useCasting } from "@/components/casting/CastingContext"
-import { openModal, closeModal } from "@/components/modals/ModalManager"
+import { openModal, closeModal, navigateToModal } from "@/components/modals/ModalManager"
 
 interface FloatingSidebarProps {
   isOpen: boolean
@@ -44,17 +44,14 @@ export default function FloatingSidebar({ isOpen, onClose, onToggle, currentModa
 
   const handleNavigation = (modalName: string) => {
     onClose()
-    if (currentModal) {
-      closeModal(currentModal)
-    }
-    setTimeout(() => openModal(modalName), 150)
+    // Use navigateToModal for smooth transition without flicker
+    navigateToModal(modalName)
   }
 
   const handleGoHome = () => {
     onClose()
-    if (currentModal) {
-      closeModal(currentModal)
-    }
+    // Navigate to splash screen smoothly
+    navigateToModal("splashScreen")
   }
 
   const handleLoadDemoData = async () => {

@@ -22,7 +22,7 @@ import {
   Home,
 } from "lucide-react"
 import { useCasting } from "@/components/casting/CastingContext"
-import { openModal } from "@/components/modals/ModalManager"
+import { openModal, navigateToModal } from "@/components/modals/ModalManager"
 import type { Actor } from "@/types/casting"
 import ActorCard from "@/components/actors/ActorCard"
 
@@ -501,10 +501,7 @@ export default function DatabaseModal({ onClose }: DatabaseModalProps) {
             {/* Close Button */}
             <div className="flex items-center gap-2">
               <button
-                onClick={() => {
-                  onClose()
-                  setTimeout(() => openModal("splashScreen"), 100)
-                }}
+onClick={() => navigateToModal("splashScreen")}
                 className="flex items-center gap-2 px-3 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
                 title="Main Menu"
               >
