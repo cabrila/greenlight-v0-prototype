@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
-import { Home, X, Bell, LogOut, Settings, HelpCircle, AlertTriangle } from "lucide-react"
+import { Home, X, Bell, LogOut, Settings, HelpCircle, CheckCircle, Save } from "lucide-react"
 import { useCasting } from "@/components/casting/CastingContext"
 import { openModal, navigateToModal } from "@/components/modals/ModalManager"
 import { Button } from "@/components/ui/button"
@@ -217,7 +217,7 @@ export default function ModalHeader({
         <div className="fixed inset-0 z-[200] flex items-center justify-center">
           {/* Backdrop */}
           <div
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
             onClick={handleCancelClose}
           />
 
@@ -225,26 +225,29 @@ export default function ModalHeader({
           <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
             {/* Header */}
             <div className="flex items-center gap-4 p-6 pb-4">
-              <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center shrink-0">
-                <AlertTriangle className="w-6 h-6 text-amber-600" />
+              <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center shrink-0">
+                <CheckCircle className="w-6 h-6 text-emerald-600" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-900">Close Project?</h3>
+                <h3 className="text-lg font-semibold text-gray-900">Return to Main Menu?</h3>
                 <p className="text-sm text-gray-500 mt-0.5">
-                  You are about to leave this project
+                  Your progress is automatically saved
                 </p>
               </div>
             </div>
 
             {/* Content */}
-            <div className="px-6 pb-4">
-              <p className="text-sm text-gray-600">
-                Are you sure you want to close{" "}
-                <span className="font-medium text-gray-900">
-                  {currentProject?.name || "this project"}
-                </span>{" "}
-                and return to the main menu? Any unsaved changes may be lost.
-              </p>
+            <div className="px-6 pb-5">
+              <div className="flex items-start gap-3 p-3 bg-emerald-50 rounded-xl border border-emerald-100">
+                <Save className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
+                <p className="text-sm text-emerald-800">
+                  All changes to{" "}
+                  <span className="font-semibold">
+                    {currentProject?.name || "this project"}
+                  </span>{" "}
+                  are saved automatically. You can return anytime to continue where you left off.
+                </p>
+              </div>
             </div>
 
             {/* Actions */}
@@ -252,15 +255,15 @@ export default function ModalHeader({
               <Button
                 variant="outline"
                 onClick={handleCancelClose}
-                className="px-4"
+                className="px-5"
               >
-                Cancel
+                Stay Here
               </Button>
               <Button
                 onClick={handleConfirmClose}
-                className="px-4 bg-amber-600 hover:bg-amber-700 text-white"
+                className="px-5 bg-emerald-600 hover:bg-emerald-700 text-white"
               >
-                Close Project
+                Go to Main Menu
               </Button>
             </div>
           </div>
