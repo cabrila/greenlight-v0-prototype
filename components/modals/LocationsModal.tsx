@@ -52,7 +52,7 @@ import {
   Home,
 } from "lucide-react"
 import { useCasting } from "@/components/casting/CastingContext"
-import { openModal } from "./ModalManager"
+import { openModal, navigateToModal } from "./ModalManager"
 import ModalHeader from "@/components/layout/ModalHeader"
 import FloatingSidebar from "@/components/layout/FloatingSidebar"
 import { compressImage } from "@/utils/imageCompression"
@@ -1769,9 +1769,8 @@ export default function LocationsModal({ onClose }: LocationsModalProps) {
     setAddAtCoords(null)
   }
 
-  const handleAddToCanvas = (loc: ProjectLocation) => {
-    onClose()
-    setTimeout(() => openModal("canvas"), 150)
+const handleAddToCanvas = (loc: ProjectLocation) => {
+  navigateToModal("canvas")
   }
 
   const handleAddAtCoords = useCallback((lat: number, lng: number) => {

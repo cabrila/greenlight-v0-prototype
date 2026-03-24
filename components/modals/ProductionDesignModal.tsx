@@ -50,7 +50,7 @@ import {
   Home,
 } from "lucide-react"
 import { useCasting } from "@/components/casting/CastingContext"
-import { openModal } from "./ModalManager"
+import { openModal, navigateToModal } from "./ModalManager"
 import ModalHeader from "@/components/layout/ModalHeader"
 import FloatingSidebar from "@/components/layout/FloatingSidebar"
 import type {
@@ -928,7 +928,7 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
                             {selectedSet.locationId && (
                               <div className="px-3 py-2 border-t border-gray-100">
                                 <button
-                                  onClick={() => { setShowLocationPicker(null); onClose(); setTimeout(() => openModal("locations"), 150) }}
+                                  onClick={() => { setShowLocationPicker(null); navigateToModal("locations") }}
                                   className="w-full flex items-center justify-center gap-1.5 text-[10px] font-semibold text-teal-600 hover:text-teal-800 transition-colors"
                                 >
                                   View in Locations <ArrowRight className="w-3 h-3" />

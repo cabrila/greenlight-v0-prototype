@@ -35,7 +35,7 @@ import {
   Home,
 } from "lucide-react"
 import { useCasting } from "@/components/casting/CastingContext"
-import { openModal } from "./ModalManager"
+import { openModal, navigateToModal } from "./ModalManager"
 import ModalHeader from "@/components/layout/ModalHeader"
 import FloatingSidebar from "@/components/layout/FloatingSidebar"
 import type { ProjectProp, PropVote, PropComment, PropAvailability, PropInventoryItem, PropPurchaseRequest, Character, Actor } from "@/types/casting"
@@ -1436,9 +1436,8 @@ export default function PropsModal({ onClose }: PropsModalProps) {
     syncProjectProps((prev) => prev.filter((p) => p.id !== id))
   }
 
-  const handleAddToCanvas = (item: InventoryItem | ProjectProp) => {
-    onClose()
-    setTimeout(() => openModal("canvas"), 150)
+const handleAddToCanvas = (item: InventoryItem | ProjectProp) => {
+  navigateToModal("canvas")
   }
 
   const handleAddInventoryItem = (item: InventoryItem) => {
