@@ -38,6 +38,8 @@ import {
 } from "@/components/ui/dropdown-menu"
 import AddCharacterModal from "./AddCharacterModal"
 import { openModal } from "./ModalManager"
+import ModalHeader from "@/components/layout/ModalHeader"
+import FloatingSidebar from "@/components/layout/FloatingSidebar"
 import type { Character, Actor } from "@/types/casting"
 import {
   DndContext,
@@ -462,6 +464,7 @@ export default function CharactersModal({ onClose }: CharactersModalProps) {
   const { state, dispatch } = useCasting()
   const [uploadingCharacterId, setUploadingCharacterId] = useState<string | null>(null)
   const [showAddCharacterModal, setShowAddCharacterModal] = useState(false)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [sortBy, setSortBy] = useState<SortOption>("alphabetical")
   const [filterBy, setFilterBy] = useState<FilterOption>("all")
   const [genderFilter, setGenderFilter] = useState<GenderFilter>("all")
@@ -793,58 +796,24 @@ const handleCharacterClick = (characterId: string) => {
 
   return (
     <>
-      <div className="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm">
-        <div className="bg-white w-full h-full flex flex-col overflow-hidden animate-in fade-in duration-200">
-          {/* Header */}
-          <div className="flex-shrink-0 px-6 py-4 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-success-500 to-success-600 flex items-center justify-center shadow-lg shadow-success-500/25">
-                  <Users className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <h2 className="text-xl font-bold text-slate-900">Characters</h2>
-                  <p className="text-sm text-slate-500">
-                    {currentProject?.name || "No project selected"} - {characters.length} character
-                    {characters.length !== 1 ? "s" : ""}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <Button
-                  onClick={handleOpenCharacterBible}
-                  variant="outline"
-                  className="rounded-xl px-4 py-2 flex items-center gap-2 border-info-200 text-info-700 hover:bg-info-50 transition-all duration-200 bg-transparent"
-                >
-                  <BookOpen className="w-4 h-4" />
-                  <span>Character Bible</span>
-                </Button>
-                <Button
-                  onClick={() => setShowAddCharacterModal(true)}
-                  className="bg-success-500 hover:bg-success-600 text-white rounded-xl px-4 py-2 flex items-center gap-2 transition-all duration-200 shadow-md hover:shadow-lg"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>Create Character</span>
-                </Button>
-                <button
-                  onClick={() => {
-                    onClose()
-                    setTimeout(() => openModal("splashScreen"), 150)
-                  }}
-                  className="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-all duration-200 flex items-center gap-1.5"
-                  title="Main Menu"
-                >
-                  <Home className="w-5 h-5" />
-                  <span className="hidden sm:inline text-sm font-medium">Main Menu</span>
-                </button>
-                <button
-                  onClick={onClose}
-                  className="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-all duration-200"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
+      <div className="fixed inset-0 z-50 bg-slate-50 flex flex-col pl-14">
+        {/* Slim Sidebar Strip / Expandable Drawer */}
+        <FloatingSidebar
+          isOpen={isSidebarOpen}
+          onClose={() => setIsSidebarOpen(false)}
+          onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
+          currentModal="characters"
+        />
+
+        {/* Header */}
+        <ModalHeader
+          title="Characters"
+          titleColor="bg-purple-600"
+          onClose={onClose}
+        />
+
+        {/* Toolbar */}
+        <div className="flex-shrink-0 px-6 py-4 border-b border-slate-200 bg-white">
 
             {characters.length > 0 && (
               <div className="mb-4">
@@ -979,6 +948,30 @@ const handleCharacterClick = (characterId: string) => {
 
                 {/* Spacer */}
                 <div className="flex-1" />
+
+                {/* Character Bible */}
+                <Button
+                  onClick={handleOpenCharacterBible}
+                  variant="outline"
+                  size="sm"
+                  className="rounded-lg gap-2 border-info-200 text-info-700 hover:bg-info-50 transition-all duration-200 bg-transparent"
+                >
+                  <BookOpen className="w-4 h-4" />
+                  <span className="hidden sm:inline">Character Bible</span>
+                </Button>
+
+                {/* Create Character */}
+                <Button
+                  onClick={() => setShowAddCharacterModal(true)}
+                  size="sm"
+                  className="bg-success-500 hover:bg-success-600 text-white rounded-lg gap-2 transition-all duration-200"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span className="hidden sm:inline">Create Character</span>
+                </Button>
+
+                {/* Divider */}
+                <div className="w-px h-6 bg-slate-200" />
 
                 {/* Category View Toggle */}
                 <Button
@@ -1265,8 +1258,7 @@ const handleCharacterClick = (characterId: string) => {
           </div>
 
           {/* Hidden File Input */}
-          <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
-        </div>
+        <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
       </div>
 
       {showAddCharacterModal && (
