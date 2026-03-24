@@ -787,11 +787,10 @@ const handleCharacterClick = (characterId: string) => {
   // Find the dragged character for DragOverlay
   const activeCharacter = activeCharId ? characters.find((c) => c.id === activeCharId) : null
 
-  const handleOpenCharacterBible = () => {
-    onClose()
-    setTimeout(() => {
-      openModal("scriptAnalysis")
-    }, 100)
+const handleOpenCharacterBible = () => {
+  // Stack Character Bible on top of Characters modal
+  // When Character Bible closes, Characters modal will still be visible underneath
+  openModal("scriptAnalysis")
   }
 
   return (
