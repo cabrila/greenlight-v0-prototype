@@ -77,8 +77,17 @@ export function closeAllModals() {
 
 // Replace current modal with a new one - opens new modal first, then removes the previous one
 // This prevents flicker/flash of underlying content during modal transitions
+// Special case: replacing with "splashScreen" closes all modals to show the base SplashScreen
 export function replaceModal(type: string, data?: any) {
   if (globalSetModalStack) {
+    // If replacing with splash screen, just close all modals
+    // The base SplashScreen component is always rendered in page.tsx
+    if (type === "splashScreen") {
+      globalSetModalStack([])
+      return
+    }
+    
+    // For other modals, replace the current modal
     const newModal = { type, data }
     // First, add the new modal on top of the stack
     const stackWithNewModal = [...globalModalStack, newModal]
@@ -99,18 +108,18 @@ export function replaceModal(type: string, data?: any) {
 }
 
 // Navigate to a modal, closing all others - useful for main navigation
+// Special case: navigating to "splashScreen" closes all modals to show the base SplashScreen component
 export function navigateToModal(type: string, data?: any) {
   if (globalSetModalStack) {
-    const newModal = { type, data }
-    // Add new modal first
-    globalSetModalStack([...globalModalStack, newModal])
+    // If navigating to splash screen, just close all modals
+    // The base SplashScreen component is always rendered in page.tsx
+    if (type === "splashScreen") {
+      globalSetModalStack([])
+      return
+    }
     
-    // Then after render, keep only the new modal
-    setTimeout(() => {
-      if (globalSetModalStack) {
-        globalSetModalStack([{ type, data }])
-      }
-    }, 50)
+    // For other modals, replace the entire stack with just this modal
+    globalSetModalStack([{ type, data }])
   }
 }
 
