@@ -103,8 +103,19 @@ export default function SplashScreen() {
 
   const unreadNotifications = state.notifications.filter((n) => !n.read).length
   const projectCount = state.projects.length
-  // Actors count is excluded from splash screen display - always show 0
-  const totalActors = 0
+  // Calculate total actors across all projects and characters
+  const totalActors = state.projects.reduce((projectSum, project) => {
+    return projectSum + project.characters.reduce((charSum, character) => {
+      const actors = character.actors || {}
+      const longListCount = Array.isArray(actors.longList) ? actors.longList.length : 0
+      const auditionCount = Array.isArray(actors.audition) ? actors.audition.length : 0
+      const approvalCount = Array.isArray(actors.approval) ? actors.approval.length : 0
+      const shortListsCount = Array.isArray(actors.shortLists) 
+        ? actors.shortLists.reduce((slSum: number, sl: any) => slSum + (Array.isArray(sl.actors) ? sl.actors.length : 0), 0) 
+        : 0
+      return charSum + longListCount + auditionCount + approvalCount + shortListsCount
+    }, 0)
+  }, 0)
   const totalCharacters = state.projects.reduce((sum, p) => sum + p.characters.length, 0)
 
   const features = [
