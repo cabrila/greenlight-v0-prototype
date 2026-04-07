@@ -216,8 +216,8 @@ dispatch({ type: "SELECT_PROJECT", payload: project.id })
                   {!isActive && (
                     <button
                       onClick={() => {
+                        // Select project and stay in project manager (don't close)
                         dispatch({ type: "SELECT_PROJECT", payload: project.id })
-                        onClose()
                       }}
                       className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs hover:bg-gray-200 transition-colors"
                     >
