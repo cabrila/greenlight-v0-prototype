@@ -103,7 +103,14 @@ export default function SplashScreen() {
 
   const unreadNotifications = state.notifications.filter((n) => !n.read).length
   const projectCount = state.projects.length
-  const totalActors = state.projects.reduce((sum, p) => sum + p.characters.reduce((cSum, c) => cSum + (c.longList?.length || 0) + (c.auditionList?.length || 0) + (c.approvalList?.length || 0), 0), 0)
+  const totalActors = state.projects.reduce((sum, p) => sum + p.characters.reduce((cSum, c) => {
+    const actors = c.actors || {}
+    const longListCount = Array.isArray(actors.longList) ? actors.longList.length : 0
+    const auditionCount = Array.isArray(actors.audition) ? actors.audition.length : 0
+    const approvalCount = Array.isArray(actors.approval) ? actors.approval.length : 0
+    const shortListsCount = Array.isArray(actors.shortLists) ? actors.shortLists.reduce((slSum: number, sl: any) => slSum + (Array.isArray(sl.actors) ? sl.actors.length : 0), 0) : 0
+    return cSum + longListCount + auditionCount + approvalCount + shortListsCount
+  }, 0), 0)
   const totalCharacters = state.projects.reduce((sum, p) => sum + p.characters.length, 0)
 
   const features = [
