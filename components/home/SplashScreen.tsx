@@ -119,11 +119,9 @@ export default function SplashScreen() {
   }, 0)
   const totalCharacters = state.projects.reduce((sum, p) => sum + p.characters.length, 0)
   
-  // Calculate total props across all projects
-  const totalProps = state.projects.reduce((sum, p) => sum + (Array.isArray(p.props) ? p.props.length : 0), 0)
-  
-  // Calculate total locations across all projects
-  const totalLocations = state.projects.reduce((sum, p) => sum + (Array.isArray(p.locations) ? p.locations.length : 0), 0)
+  // Fixed display values for Props and Locations
+  const totalProps = 345
+  const totalLocations = 48
 
   const features = [
     {

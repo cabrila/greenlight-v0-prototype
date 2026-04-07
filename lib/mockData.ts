@@ -1,6 +1,59 @@
 // lib/mockData.ts
 
-import type { CastingState } from "@/types/casting"
+import type { CastingState, ProjectProp, ProjectLocation } from "@/types/casting"
+
+// ---------------------------------------------------------------------------
+// Helper – generate dummy props for a project
+// ---------------------------------------------------------------------------
+function makeProps(prefix: string, count: number): ProjectProp[] {
+  const categories = ["Furniture", "Weapon", "Electronics", "Wardrobe", "Vehicle", "Document", "Food & Beverage", "Jewellery", "Medical", "Musical Instrument"]
+  const statuses: ProjectProp["status"][] = ["available", "in-use", "maintenance", "retired"]
+  return Array.from({ length: count }, (_, i) => ({
+    id: `${prefix}_prop_${i + 1}`,
+    name: `${prefix.replace(/_/g, " ")} Prop ${i + 1}`,
+    model: `Model-${String(i + 1).padStart(3, "0")}`,
+    category: categories[i % categories.length],
+    brand: `Brand${(i % 8) + 1}`,
+    serialNumber: `SN-${prefix.toUpperCase().slice(0, 3)}-${String(i + 1).padStart(4, "0")}`,
+    skuBarcode: `SKU${String((i + 1) * 1117).padStart(8, "0")}`,
+    notes: "",
+    imageUrl: "",
+    purchaseType: i % 2 === 0 ? "purchase" : "hire",
+    unitPrice: String(((i + 1) * 37) % 500 + 10),
+    quantity: (i % 5) + 1,
+    bookedTo: null,
+    votes: [],
+    comments: [],
+    availability: [],
+    status: statuses[i % statuses.length],
+  }))
+}
+
+// ---------------------------------------------------------------------------
+// Helper – generate dummy locations for a project
+// ---------------------------------------------------------------------------
+function makeLocations(prefix: string, count: number): ProjectLocation[] {
+  const types: ProjectLocation["locationType"][] = ["on-location", "studio"]
+  const statuses: ProjectLocation["status"][] = ["scouted", "pending-approval", "secured", "burned"]
+  const cities = ["London", "New York", "Paris", "Sydney", "Toronto", "Berlin", "Tokyo", "Los Angeles", "Cape Town", "Dublin"]
+  return Array.from({ length: count }, (_, i) => ({
+    id: `${prefix}_loc_${i + 1}`,
+    code: `LOC-${String(i + 1).padStart(3, "0")}`,
+    name: `${cities[i % cities.length]} ${prefix.replace(/_/g, " ")} Location ${i + 1}`,
+    locationType: types[i % types.length],
+    status: statuses[i % statuses.length],
+    lat: 51.5074 + (i * 0.07),
+    lng: -0.1278 + (i * 0.05),
+    address: `${(i + 1) * 10} ${cities[i % cities.length]} Street`,
+    vibeTags: ["urban", "moody"],
+    media: [],
+    notes: "",
+    contacts: [],
+    scheduleBlocks: [],
+    blackoutDates: [],
+    sceneTags: [],
+  }))
+}
 
 const predefinedStatuses = [
   {
@@ -516,6 +569,8 @@ export const mockData: CastingState = {
           },
         },
       ],
+      props: makeProps("jurassic", 45),
+      locations: makeLocations("jurassic", 5),
     },
     // Additional Dummy Project 2
     {
@@ -590,6 +645,8 @@ export const mockData: CastingState = {
           { id: "mc_act_40", name: "Octavia Spencer-Johnson", age: "49", playingAge: "45-55", location: "USA", agent: "CAA", headshots: [], currentCardHeadshotIndex: 0, userVotes: {}, isSoftRejected: false, isGreenlit: false, currentListKey: "longList", statuses: [], gender: "Female", ethnicity: "African American" },
         ], shortLists: [], audition: [], approval: [] } },
       ],
+      props: makeProps("midnight", 40),
+      locations: makeLocations("midnight", 5),
     },
     // Additional Dummy Project 3
     {
@@ -664,6 +721,8 @@ export const mockData: CastingState = {
           { id: "db_act_40", name: "Jonathan Pemberton-Hughes", age: "44", playingAge: "40-50", location: "USA", agent: "WME", headshots: [], currentCardHeadshotIndex: 0, userVotes: {}, isSoftRejected: false, isGreenlit: false, currentListKey: "longList", statuses: [], gender: "Male", ethnicity: "Caucasian" },
         ], shortLists: [], audition: [], approval: [] } },
       ],
+      props: makeProps("desert", 38),
+      locations: makeLocations("desert", 4),
     },
     // Additional Dummy Project 4
     {
@@ -738,6 +797,8 @@ export const mockData: CastingState = {
           { id: "ql_act_40", name: "Eddie Redmayne-Sterling", age: "41", playingAge: "36-46", location: "UK", agent: "CAA", headshots: [], currentCardHeadshotIndex: 0, userVotes: {}, isSoftRejected: false, isGreenlit: false, currentListKey: "longList", statuses: [], gender: "Male", ethnicity: "Caucasian" },
         ], shortLists: [], audition: [], approval: [] } },
       ],
+      props: makeProps("quantum", 42),
+      locations: makeLocations("quantum", 5),
     },
     // Additional Dummy Project 5
     {
@@ -812,6 +873,8 @@ export const mockData: CastingState = {
           { id: "od_act_40", name: "Jenna Ortega-Collins", age: "22", playingAge: "19-25", location: "USA", agent: "WME", headshots: [], currentCardHeadshotIndex: 0, userVotes: {}, isSoftRejected: false, isGreenlit: false, currentListKey: "longList", statuses: [], gender: "Female", ethnicity: "Hispanic" },
         ], shortLists: [], audition: [], approval: [] } },
       ],
+      props: makeProps("ocean", 35),
+      locations: makeLocations("ocean", 4),
     },
     // Additional Dummy Project 6
     {
@@ -886,6 +949,8 @@ export const mockData: CastingState = {
           { id: "bd_act_40", name: "Aidan Quinn-Sterling", age: "47", playingAge: "42-52", location: "Ireland/USA", agent: "WME", headshots: [], currentCardHeadshotIndex: 0, userVotes: {}, isSoftRejected: false, isGreenlit: false, currentListKey: "longList", statuses: [], gender: "Male", ethnicity: "Irish American" },
         ], shortLists: [], audition: [], approval: [] } },
       ],
+      props: makeProps("broadway", 38),
+      locations: makeLocations("broadway", 4),
     },
     // Additional Dummy Project 7
     {
@@ -960,6 +1025,8 @@ export const mockData: CastingState = {
           { id: "ae_act_40", name: "Marko Zaror-Morrison", age: "45", playingAge: "40-50", location: "Chile", agent: "WME", headshots: [], currentCardHeadshotIndex: 0, userVotes: {}, isSoftRejected: false, isGreenlit: false, currentListKey: "longList", statuses: [], gender: "Male", ethnicity: "Hispanic" },
         ], shortLists: [], audition: [], approval: [] } },
       ],
+      props: makeProps("arctic", 40),
+      locations: makeLocations("arctic", 5),
     },
     // Additional Dummy Project 8
     {
@@ -1034,6 +1101,8 @@ export const mockData: CastingState = {
           { id: "sv_act_40", name: "Jake Choi-Sterling", age: "26", playingAge: "23-30", location: "USA", agent: "CAA", headshots: [], currentCardHeadshotIndex: 0, userVotes: {}, isSoftRejected: false, isGreenlit: false, currentListKey: "longList", statuses: [], gender: "Male", ethnicity: "Korean American" },
         ], shortLists: [], audition: [], approval: [] } },
       ],
+      props: makeProps("silicon", 35),
+      locations: makeLocations("silicon", 4),
     },
     // Additional Dummy Project 9
     {
