@@ -105,7 +105,7 @@ export default function SplashScreen() {
   const projectCount = state.projects.length
   // Calculate total actors across all projects and characters
   const totalActors = state.projects.reduce((projectSum, project) => {
-    return projectSum + project.characters.reduce((charSum, character) => {
+    const projectActorCount = project.characters.reduce((charSum, character) => {
       const actors = character.actors || {}
       const longListCount = Array.isArray(actors.longList) ? actors.longList.length : 0
       const auditionCount = Array.isArray(actors.audition) ? actors.audition.length : 0
@@ -115,8 +115,11 @@ export default function SplashScreen() {
         : 0
       return charSum + longListCount + auditionCount + approvalCount + shortListsCount
     }, 0)
+    return projectSum + projectActorCount
   }, 0)
   const totalCharacters = state.projects.reduce((sum, p) => sum + p.characters.length, 0)
+  
+  console.log("[v0] SplashScreen - Total actors calculated:", totalActors, "Projects:", state.projects.length, "Characters:", totalCharacters)
 
   const features = [
     {
