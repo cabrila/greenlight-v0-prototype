@@ -119,7 +119,11 @@ export default function SplashScreen() {
   }, 0)
   const totalCharacters = state.projects.reduce((sum, p) => sum + p.characters.length, 0)
   
-  console.log("[v0] SplashScreen - Total actors calculated:", totalActors, "Projects:", state.projects.length, "Characters:", totalCharacters)
+  // Calculate total props across all projects
+  const totalProps = state.projects.reduce((sum, p) => sum + (Array.isArray(p.props) ? p.props.length : 0), 0)
+  
+  // Calculate total locations across all projects
+  const totalLocations = state.projects.reduce((sum, p) => sum + (Array.isArray(p.locations) ? p.locations.length : 0), 0)
 
   const features = [
     {
@@ -287,6 +291,18 @@ export default function SplashScreen() {
                 <BarChart3 className="w-4 h-4 text-emerald-400" />
                 <span className="text-white font-semibold">{totalActors}</span>
                 <span className="text-white/40">{totalActors === 1 ? "Actor" : "Actors"}</span>
+              </div>
+              <div className="w-1 h-1 rounded-full bg-white/20" />
+              <div className="flex items-center gap-2 text-sm">
+                <Package className="w-4 h-4 text-emerald-400" />
+                <span className="text-white font-semibold">{totalProps}</span>
+                <span className="text-white/40">{totalProps === 1 ? "Prop" : "Props"}</span>
+              </div>
+              <div className="w-1 h-1 rounded-full bg-white/20" />
+              <div className="flex items-center gap-2 text-sm">
+                <MapPin className="w-4 h-4 text-emerald-400" />
+                <span className="text-white font-semibold">{totalLocations}</span>
+                <span className="text-white/40">{totalLocations === 1 ? "Location" : "Locations"}</span>
               </div>
             </div>
           )}
