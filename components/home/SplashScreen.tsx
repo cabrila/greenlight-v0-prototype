@@ -10,9 +10,7 @@ import UserMenu from "@/components/layout/UserMenu"
 import { useCasting } from "@/components/casting/CastingContext"
 
 export default function SplashScreen() {
-  const [isTimerActive, setIsTimerActive] = useState(false)
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
-  const timerRef = useRef<NodeJS.Timeout | null>(null)
   const userButtonRef = useRef<HTMLDivElement>(null)
   const { state, dispatch } = useCasting()
 
@@ -82,17 +80,9 @@ export default function SplashScreen() {
     }
   }, [state.currentUser])
 
-  const startTimer = () => {
-    if (isTimerActive) return
-    setIsTimerActive(true)
-    timerRef.current = setTimeout(() => {
-      openModal("projectManager")
-      setIsTimerActive(false)
-    }, 3000)
-  }
-
-  const handleNewProject = () => startTimer()
-  const handleOpenProject = () => startTimer()
+  // Open project manager immediately without delay
+  const handleNewProject = () => openModal("projectManager")
+  const handleOpenProject = () => openModal("projectManager")
   const handleDatabase = () => openModal("database")
   const handleNotifications = () => openModal("notifications")
   const handleSettings = () => openModal("userPermissions")
@@ -208,15 +198,7 @@ export default function SplashScreen() {
 
   return (
     <div className="h-full flex flex-col overflow-hidden" style={{ background: "linear-gradient(180deg, #2d6b3f 0%, #1a4a2a 30%, #0f3520 55%, #0a2618 80%, #061a10 100%)" }}>
-      {/* Timer indicator */}
-      {isTimerActive && (
-        <div className="absolute top-20 left-1/2 transform -translate-x-1/2 z-30">
-          <div className="bg-white/15 backdrop-blur-md text-white px-5 py-2.5 rounded-full text-sm font-medium flex items-center gap-2 border border-white/20">
-            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-            Loading project...
-          </div>
-        </div>
-      )}
+      
 
       {/* Top Navigation Bar */}
       <header className="relative flex justify-between items-center px-6 py-3 border-b border-white/10 shrink-0 z-20">
@@ -310,8 +292,7 @@ export default function SplashScreen() {
             {/* New Project */}
             <button
               onClick={handleNewProject}
-              disabled={isTimerActive}
-              className="group relative overflow-hidden rounded-2xl bg-emerald-400 hover:bg-emerald-300 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed text-left shadow-lg shadow-emerald-900/30 hover:shadow-xl hover:shadow-emerald-900/40"
+              className="group relative overflow-hidden rounded-2xl bg-emerald-400 hover:bg-emerald-300 transition-all duration-300 text-left shadow-lg shadow-emerald-900/30 hover:shadow-xl hover:shadow-emerald-900/40"
             >
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(255,255,255,0.25)_0%,_transparent_60%)]" />
               <div className="relative p-6 md:p-7 flex flex-col gap-5">
@@ -331,8 +312,7 @@ export default function SplashScreen() {
             {/* Open Project */}
             <button
               onClick={handleOpenProject}
-              disabled={isTimerActive}
-              className="group relative overflow-hidden rounded-2xl bg-white/[0.08] hover:bg-white/[0.12] border border-white/[0.12] hover:border-white/20 backdrop-blur-sm transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed text-left"
+              className="group relative overflow-hidden rounded-2xl bg-white/[0.08] hover:bg-white/[0.12] border border-white/[0.12] hover:border-white/20 backdrop-blur-sm transition-all duration-300 text-left"
             >
               <div className="relative p-6 md:p-7 flex flex-col gap-5">
                 <div className="flex items-start justify-between">
@@ -351,8 +331,7 @@ export default function SplashScreen() {
             {/* Actor Database */}
             <button
               onClick={handleDatabase}
-              disabled={isTimerActive}
-              className="group relative overflow-hidden rounded-2xl bg-white/[0.08] hover:bg-white/[0.12] border border-white/[0.12] hover:border-white/20 backdrop-blur-sm transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed text-left"
+              className="group relative overflow-hidden rounded-2xl bg-white/[0.08] hover:bg-white/[0.12] border border-white/[0.12] hover:border-white/20 backdrop-blur-sm transition-all duration-300 text-left"
             >
               <div className="relative p-6 md:p-7 flex flex-col gap-5">
                 <div className="flex items-start justify-between">

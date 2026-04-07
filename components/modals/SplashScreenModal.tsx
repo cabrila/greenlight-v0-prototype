@@ -14,7 +14,6 @@ interface SplashScreenModalProps {
 }
 
 export default function SplashScreenModal({ onClose }: SplashScreenModalProps) {
-  const [isTimerActive, setIsTimerActive] = useState(false)
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const timerRef = useRef<NodeJS.Timeout | null>(null)
   const onCloseRef = useRef(onClose)
@@ -99,8 +98,8 @@ export default function SplashScreenModal({ onClose }: SplashScreenModalProps) {
     }, 3000)
   }
 
-  const handleNewProject = () => startTimer()
-  const handleOpenProject = () => startTimer()
+  const handleNewProject = () => replaceModal("projectManager")
+  const handleOpenProject = () => replaceModal("projectManager")
   const handleDatabase = () => replaceModal("database")
   const handleNotifications = () => openModal("notifications")
   const handleSettings = () => openModal("userPermissions")
