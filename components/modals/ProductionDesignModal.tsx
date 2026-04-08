@@ -1629,8 +1629,8 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
         )}
       </div>
 
-{/* Embedded CoPilot */}
-        <div className="fixed bottom-6 right-6 w-80 z-40">
+{/* Embedded CoPilot - Fixed position in lower right corner */}
+        <div className="fixed bottom-6 right-6 z-40">
           <EmbeddedCoPilot context="production" />
         </div>
 

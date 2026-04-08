@@ -351,22 +351,22 @@ export default function EmbeddedCoPilot({ context, className = "" }: EmbeddedCoP
   if (!isExpanded) {
     const notificationCount = config.notifications?.length || 0
     return (
-      <div className={`relative ${className}`}>
+      <div className={`relative group ${className}`}>
         <button
           onClick={() => setIsExpanded(true)}
-          className="w-14 h-14 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 group"
+          className="w-14 h-14 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200"
           title={`${config.title} - Click to open`}
         >
           <Sparkles className="w-6 h-6 group-hover:scale-110 transition-transform" />
         </button>
         {/* Notification badge */}
         {notificationCount > 0 && (
-          <div className="absolute -top-1 -right-1 w-5 h-5 bg-amber-500 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-sm">
+          <div className="absolute -top-1 -right-1 w-5 h-5 bg-amber-500 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-sm animate-pulse">
             {notificationCount}
           </div>
         )}
         {/* Tooltip on hover */}
-        <div className="absolute bottom-full right-0 mb-2 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity">
+        <div className="absolute bottom-full right-0 mb-2 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200">
           <div className="bg-slate-800 text-white text-xs px-3 py-1.5 rounded-lg whitespace-nowrap shadow-lg">
             {config.title}
           </div>
@@ -377,7 +377,7 @@ export default function EmbeddedCoPilot({ context, className = "" }: EmbeddedCoP
 
   // Expanded state - full panel
   return (
-    <div className={`bg-white rounded-xl border border-slate-200 shadow-lg overflow-hidden flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-200 ${className}`}>
+    <div className={`w-80 max-h-[500px] bg-white rounded-xl border border-slate-200 shadow-lg overflow-hidden flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-200 ${className}`}>
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-emerald-50 to-teal-50 border-b border-slate-100">
         <div className="flex items-center gap-3">
