@@ -293,8 +293,8 @@ export default function EmbeddedCoPilot({ context, className = "" }: EmbeddedCoP
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  const config = CONTEXT_CONFIGS[context]
-  const responses = DEMO_RESPONSES[context]
+  const config = CONTEXT_CONFIGS[context] || CONTEXT_CONFIGS.splash
+  const responses = DEMO_RESPONSES[context] || DEMO_RESPONSES.splash
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
