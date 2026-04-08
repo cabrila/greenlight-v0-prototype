@@ -92,18 +92,18 @@ export default function FloatingSidebar({ isOpen, onClose, onToggle, currentModa
   }, [isOpen, onClose])
 
   // Navigation items for the slim strip
-  // Order: Project, Script, Characters, Casting, Casting Tools, then other items
+  // Order: Project, Script, Characters, Casting, then other items, with Casting Tools at bottom
   const navItems = [
     { icon: Home, label: "Project", action: handleGoHome, color: "hover:text-emerald-600 hover:bg-emerald-50" },
     { icon: ScrollText, label: "Script", modal: "script", color: "hover:text-amber-600 hover:bg-amber-50" },
     { icon: UserCircle, label: "Characters", modal: "characters", color: "hover:text-purple-600 hover:bg-purple-50" },
     { icon: Film, label: "Casting", modal: "casting", color: "hover:text-emerald-600 hover:bg-emerald-50" },
-    { icon: Tv, label: "Casting Tools", modal: "castingForTV", color: "hover:text-indigo-600 hover:bg-indigo-50" },
     { icon: Package, label: "Props", modal: "props", color: "hover:text-amber-700 hover:bg-amber-50" },
     { icon: Scissors, label: "Costumes", modal: "costumes", color: "hover:text-pink-600 hover:bg-pink-50" },
     { icon: MapPin, label: "Locations", modal: "locations", color: "hover:text-teal-600 hover:bg-teal-50" },
     { icon: Paintbrush, label: "Production", modal: "productionDesign", color: "hover:text-slate-700 hover:bg-slate-100" },
     { icon: Calendar, label: "Schedule", modal: "schedule", color: "hover:text-blue-600 hover:bg-blue-50" },
+    { icon: Tv, label: "Casting Tools", modal: "castingForTV", color: "hover:text-indigo-600 hover:bg-indigo-50" },
   ]
 
   return (
