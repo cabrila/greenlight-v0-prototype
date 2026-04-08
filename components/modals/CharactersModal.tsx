@@ -40,6 +40,7 @@ import AddCharacterModal from "./AddCharacterModal"
 import { openModal, replaceModal } from "./ModalManager"
 import ModalHeader from "@/components/layout/ModalHeader"
 import FloatingSidebar from "@/components/layout/FloatingSidebar"
+import EmbeddedCoPilot from "@/components/copilot/EmbeddedCoPilot"
 import type { Character, Actor } from "@/types/casting"
 import {
   DndContext,
@@ -1258,6 +1259,11 @@ const handleOpenCharacterBible = () => {
 
           {/* Hidden File Input */}
         <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
+
+        {/* Embedded CoPilot */}
+        <div className="fixed bottom-6 right-6 w-80 z-40">
+          <EmbeddedCoPilot context="characters" />
+        </div>
       </div>
 
       {showAddCharacterModal && (

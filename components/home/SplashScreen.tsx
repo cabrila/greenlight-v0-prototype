@@ -5,6 +5,7 @@ import {
   Calendar, Tv
 } from 'lucide-react'
 import { openModal } from "@/components/modals/ModalManager"
+import EmbeddedCoPilot from "@/components/copilot/EmbeddedCoPilot"
 import { useState, useEffect, useRef } from "react"
 import UserMenu from "@/components/layout/UserMenu"
 import { useCasting } from "@/components/casting/CastingContext"
@@ -397,6 +398,11 @@ export default function SplashScreen() {
               GoGreenlight -- All your creative assets, one dashboard, zero silos.
             </p>
           </div>
+        </div>
+
+        {/* Embedded CoPilot - Fixed position on right side */}
+        <div className="fixed bottom-6 right-6 w-80 z-40">
+          <EmbeddedCoPilot context="splash" />
         </div>
       </main>
 

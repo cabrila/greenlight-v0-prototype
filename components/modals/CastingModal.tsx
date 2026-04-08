@@ -9,6 +9,7 @@ import TabNavigation from "@/components/tabs/TabNavigation"
 import ViewControls from "@/components/views/ViewControls"
 import ActorGrid from "@/components/actors/ActorGrid"
 import CharactersSidebar from "@/components/layout/CharactersSidebar"
+import EmbeddedCoPilot from "@/components/copilot/EmbeddedCoPilot"
 
 interface CastingModalProps {
   onClose: () => void
@@ -81,6 +82,11 @@ export default function CastingModal({ onClose }: CastingModalProps) {
 
         {/* Right Sidebar - Characters */}
         <CharactersSidebar />
+      </div>
+
+      {/* Embedded CoPilot - Fixed position */}
+      <div className="fixed bottom-6 right-6 w-80 z-40">
+        <EmbeddedCoPilot context="casting" />
       </div>
     </div>
   )

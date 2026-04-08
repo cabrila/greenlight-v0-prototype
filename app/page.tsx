@@ -8,7 +8,7 @@ import PlayerViewModal from "@/components/modals/PlayerViewModal"
 import { UploadNotificationProvider } from "@/hooks/useUploadNotifications"
 import { useSubmissionIntegration } from "@/hooks/useSubmissionIntegration"
 import { mockData } from "@/lib/mockData"
-import GoGreenlightCoPilot from "@/components/copilot/GoGreenlightCoPilot"
+
 import SplashScreen from "@/components/home/SplashScreen"
 
 export default function CastingApp() {
@@ -74,8 +74,7 @@ function CastingAppContent() {
         </div>
       )}
 
-      {/* GoGreenlight CoPilot - Always visible */}
-      <GoGreenlightCoPilot />
+      
     </div>
   )
 }

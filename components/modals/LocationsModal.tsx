@@ -55,6 +55,7 @@ import { useCasting } from "@/components/casting/CastingContext"
 import { openModal, navigateToModal } from "./ModalManager"
 import ModalHeader from "@/components/layout/ModalHeader"
 import FloatingSidebar from "@/components/layout/FloatingSidebar"
+import EmbeddedCoPilot from "@/components/copilot/EmbeddedCoPilot"
 import { compressImage } from "@/utils/imageCompression"
 import type {
   ProjectLocation,

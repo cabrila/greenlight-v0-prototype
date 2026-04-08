@@ -48,6 +48,7 @@ import { useCasting } from "@/components/casting/CastingContext"
 import { openModal } from "./ModalManager"
 import ModalHeader from "@/components/layout/ModalHeader"
 import FloatingSidebar from "@/components/layout/FloatingSidebar"
+import EmbeddedCoPilot from "@/components/copilot/EmbeddedCoPilot"
 import type {
   ScriptBlock,
   ScriptBlockType,
@@ -1709,6 +1710,11 @@ export default function ScriptModal({ onClose }: { onClose: () => void }) {
           )}
           <span>Auto-saving</span>
         </div>
+      </div>
+
+      {/* Embedded CoPilot */}
+      <div className="fixed bottom-6 right-6 w-80 z-40">
+        <EmbeddedCoPilot context="script" />
       </div>
     </div>
   )
