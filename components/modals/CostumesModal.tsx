@@ -572,8 +572,15 @@ export default function CostumesModal({ onClose }: { onClose: () => void }) {
     setEditingLook(null)
   }
 
-  const handleDeleteLook = (id: string) => {
-    syncCostumes((prev) => ({ ...prev, looks: prev.looks.filter((l) => l.id !== id) }))
+const handleDeleteLook = (id: string) => {
+  syncCostumes((prev) => ({ ...prev, looks: prev.looks.filter((l) => l.id !== id) }))
+  }
+
+  const handleUpdateLookCharacter = (lookId: string, newCharacterId: string) => {
+    syncCostumes((prev) => ({
+      ...prev,
+      looks: prev.looks.map((l) => (l.id === lookId ? { ...l, characterId: newCharacterId } : l)),
+    }))
   }
 
   /* ================================================================ */
@@ -778,22 +785,23 @@ const [isSidebarOpen, setIsSidebarOpen] = useState(false)
             onImageReplace={handleCostumeImageReplace}
           />
         ) : mainTab === "looks" ? (
-          <LooksTab
-            looks={costumes.looks}
-            inventory={costumes.inventory}
-            characters={characters}
-            selectedCharacterId={selectedCharacterId}
-            onNewLook={() => {
-              setEditingLook(null)
-              setShowLookBuilder(true)
-            }}
-            onEditLook={(l) => {
-              setEditingLook(l)
-              setShowLookBuilder(true)
-            }}
-            onDeleteLook={handleDeleteLook}
-            allergyWarnings={getAllergyWarnings}
-          />
+<LooksTab
+  looks={costumes.looks}
+  inventory={costumes.inventory}
+  characters={characters}
+  selectedCharacterId={selectedCharacterId}
+  onNewLook={() => {
+  setEditingLook(null)
+  setShowLookBuilder(true)
+  }}
+  onEditLook={(l) => {
+  setEditingLook(l)
+  setShowLookBuilder(true)
+  }}
+  onDeleteLook={handleDeleteLook}
+  onUpdateLookCharacter={handleUpdateLookCharacter}
+  allergyWarnings={getAllergyWarnings}
+  />
         ) : mainTab === "crossplot" ? (
           <CrossPlotTab
             looks={costumes.looks}
@@ -1757,6 +1765,7 @@ function LooksTab({
   onNewLook,
   onEditLook,
   onDeleteLook,
+  onUpdateLookCharacter,
   allergyWarnings,
 }: {
   looks: CostumeLook[]
@@ -1766,8 +1775,10 @@ function LooksTab({
   onNewLook: () => void
   onEditLook: (l: CostumeLook) => void
   onDeleteLook: (id: string) => void
+  onUpdateLookCharacter: (lookId: string, newCharacterId: string) => void
   allergyWarnings: (characterId: string, itemIds: string[]) => string[]
 }) {
+  const [editingCharacterForLook, setEditingCharacterForLook] = useState<string | null>(null)
   const filtered = selectedCharacterId ? looks.filter((l) => l.characterId === selectedCharacterId) : looks
 
   const groupedByCharacter: Record<string, CostumeLook[]> = {}
@@ -1815,6 +1826,9 @@ function LooksTab({
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {charLooks.map((look) => {
                       const warnings = allergyWarnings(look.characterId, look.itemIds)
+                      const lookChar = characters.find((c) => c.id === look.characterId)
+                      const lookActor = lookChar ? getCastActorForCharacter(lookChar) : null
+                      const isEditingChar = editingCharacterForLook === look.id
                       return (
                         <div key={look.id} className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-md transition-all">
                           {/* Item thumbnails strip */}
@@ -1836,6 +1850,54 @@ function LooksTab({
                             )}
                           </div>
                           <div className="p-3">
+                            {/* Editable character assignment */}
+                            <div className="relative mb-2">
+                              <button
+                                onClick={() => setEditingCharacterForLook(isEditingChar ? null : look.id)}
+                                className="flex items-center gap-2 px-2 py-1.5 -mx-2 rounded-md hover:bg-gray-100 transition-colors group w-full text-left"
+                                title="Click to change character"
+                              >
+                                {isValidImageUrl(lookActor?.headshots?.[0]) ? (
+                                  <img src={lookActor.headshots[0]} alt="" className="w-6 h-6 rounded-full object-cover border border-gray-200" />
+                                ) : (
+                                  <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center"><User className="w-3 h-3 text-gray-400" /></div>
+                                )}
+                                <span className="text-xs font-medium text-gray-700 group-hover:text-gray-900 flex-1 truncate">{lookChar?.name ?? "Unknown"}</span>
+                                <ChevronDown className={`w-3.5 h-3.5 text-gray-400 transition-transform ${isEditingChar ? "rotate-180" : ""}`} />
+                              </button>
+                              {/* Character selector dropdown */}
+                              {isEditingChar && (
+                                <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-20 max-h-48 overflow-y-auto">
+                                  {characters.map((char) => {
+                                    const charActor = getCastActorForCharacter(char)
+                                    const isSelected = char.id === look.characterId
+                                    return (
+                                      <button
+                                        key={char.id}
+                                        onClick={() => {
+                                          if (!isSelected) {
+                                            onUpdateLookCharacter(look.id, char.id)
+                                          }
+                                          setEditingCharacterForLook(null)
+                                        }}
+                                        className={`flex items-center gap-2 w-full px-3 py-2 text-left hover:bg-gray-50 transition-colors ${isSelected ? "bg-rose-50" : ""}`}
+                                      >
+                                        {isValidImageUrl(charActor?.headshots?.[0]) ? (
+                                          <img src={charActor.headshots[0]} alt="" className="w-6 h-6 rounded-full object-cover border border-gray-200" />
+                                        ) : (
+                                          <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center"><User className="w-3 h-3 text-gray-400" /></div>
+                                        )}
+                                        <div className="flex-1 min-w-0">
+                                          <p className={`text-xs font-medium truncate ${isSelected ? "text-rose-700" : "text-gray-700"}`}>{char.name}</p>
+                                          {charActor && <p className="text-[10px] text-gray-500 truncate">{charActor.name}</p>}
+                                        </div>
+                                        {isSelected && <Check className="w-4 h-4 text-rose-600 shrink-0" />}
+                                      </button>
+                                    )
+                                  })}
+                                </div>
+                              )}
+                            </div>
                             <div className="flex items-start justify-between gap-2">
                               <div>
                                 <p className="text-sm font-semibold text-gray-900">{look.name}</p>
