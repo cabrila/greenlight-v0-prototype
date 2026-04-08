@@ -90,8 +90,6 @@ export default function SplashScreen() {
   const handleUserMenu = () => setIsUserMenuOpen(!isUserMenuOpen)
   const handleCloseUserMenu = () => setIsUserMenuOpen(false)
 
-  useEffect(() => { return () => { if (timerRef.current) clearTimeout(timerRef.current) } }, [])
-
   const unreadNotifications = state.notifications.filter((n) => !n.read).length
   const projectCount = state.projects.length
   // Calculate total actors across all projects and characters
