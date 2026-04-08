@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from "react"
 import { 
-  Send, Loader2, Sparkles, MessageCircle, 
+  Send, Loader2, Sparkles, MessageCircle, X,
   Users, Film, Calendar, Search, ArrowRight, 
   ChevronRight, CheckCircle2, ChevronDown, ChevronUp,
   MapPin, Palette, Shirt, Package, Tv, FileText,
@@ -289,7 +289,7 @@ export default function EmbeddedCoPilot({ context, className = "" }: EmbeddedCoP
   const [messages, setMessages] = useState<Message[]>([])
   const [inputValue, setInputValue] = useState("")
   const [isProcessing, setIsProcessing] = useState(false)
-  const [isExpanded, setIsExpanded] = useState(true)
+  const [isExpanded, setIsExpanded] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -347,13 +347,39 @@ export default function EmbeddedCoPilot({ context, className = "" }: EmbeddedCoP
     handleSendMessage(prompt)
   }
 
+  // Collapsed state - just a small round icon button
+  if (!isExpanded) {
+    const notificationCount = config.notifications?.length || 0
+    return (
+      <div className={`relative ${className}`}>
+        <button
+          onClick={() => setIsExpanded(true)}
+          className="w-14 h-14 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 group"
+          title={`${config.title} - Click to open`}
+        >
+          <Sparkles className="w-6 h-6 group-hover:scale-110 transition-transform" />
+        </button>
+        {/* Notification badge */}
+        {notificationCount > 0 && (
+          <div className="absolute -top-1 -right-1 w-5 h-5 bg-amber-500 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-sm">
+            {notificationCount}
+          </div>
+        )}
+        {/* Tooltip on hover */}
+        <div className="absolute bottom-full right-0 mb-2 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity">
+          <div className="bg-slate-800 text-white text-xs px-3 py-1.5 rounded-lg whitespace-nowrap shadow-lg">
+            {config.title}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Expanded state - full panel
   return (
-    <div className={`bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col ${className}`}>
+    <div className={`bg-white rounded-xl border border-slate-200 shadow-lg overflow-hidden flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-200 ${className}`}>
       {/* Header */}
-      <div 
-        className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-emerald-50 to-teal-50 border-b border-slate-100 cursor-pointer"
-        onClick={() => setIsExpanded(!isExpanded)}
-      >
+      <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-emerald-50 to-teal-50 border-b border-slate-100">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white shadow-sm">
             {config.icon}
@@ -368,17 +394,21 @@ export default function EmbeddedCoPilot({ context, className = "" }: EmbeddedCoP
             <Sparkles className="w-3 h-3" />
             <span className="text-xs font-medium">AI</span>
           </div>
-          {isExpanded ? (
-            <ChevronUp className="w-4 h-4 text-slate-400" />
-          ) : (
-            <ChevronDown className="w-4 h-4 text-slate-400" />
-          )}
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              setIsExpanded(false)
+            }}
+            className="p-1 rounded-md hover:bg-slate-200 text-slate-400 hover:text-slate-600 transition-colors"
+          >
+            <X className="w-4 h-4" />
+          </button>
         </div>
       </div>
 
-      {isExpanded && (
-        <>
-          {/* Notifications */}
+      {/* Content */}
+      <>
+        {/* Notifications */}
           {config.notifications && config.notifications.length > 0 && messages.length === 0 && (
             <div className="px-4 py-3 space-y-2 bg-slate-50 border-b border-slate-100">
               {config.notifications.map((notification, idx) => (
@@ -512,7 +542,7 @@ export default function EmbeddedCoPilot({ context, className = "" }: EmbeddedCoP
             )}
           </div>
         </>
-      )}
+      )
     </div>
   )
 }
