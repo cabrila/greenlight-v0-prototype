@@ -2057,8 +2057,13 @@ return (
         </div>
       </div>
 
-      {/* Sub-modals */}
-      {showAddModal && <AddLocationModal onClose={() => { setShowAddModal(false); setAddAtCoords(null) }} onAdd={handleAddLocation} existingLocations={inventory} prefillCoords={addAtCoords} />}
+{/* Embedded CoPilot */}
+      <div className="fixed bottom-6 right-6 w-80 z-40">
+        <EmbeddedCoPilot context="locations" />
+      </div>
+
+  {/* Sub-modals */}
+  {showAddModal && <AddLocationModal onClose={() => { setShowAddModal(false); setAddAtCoords(null) }} onAdd={handleAddLocation} existingLocations={inventory} prefillCoords={addAtCoords} />}
       {editingLocation && <EditLocationModal location={editingLocation} onClose={() => setEditingLocation(null)} onSave={handleSaveEdit} />}
 
       {/* Delete Confirmation */}

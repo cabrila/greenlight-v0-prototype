@@ -1830,8 +1830,13 @@ const [isSidebarOpen, setIsSidebarOpen] = useState(false)
         )}
       </div>
 
-      {/* Sub-modals */}
-      {showAddModal && <AddItemModal onClose={() => setShowAddModal(false)} onAdd={handleAddInventoryItem} scenes={scenes} characters={characters} characterActorMap={characterActorMap} />}
+{/* Embedded CoPilot */}
+      <div className="fixed bottom-6 right-6 w-80 z-40">
+        <EmbeddedCoPilot context="props" />
+      </div>
+
+  {/* Sub-modals */}
+  {showAddModal && <AddItemModal onClose={() => setShowAddModal(false)} onAdd={handleAddInventoryItem} scenes={scenes} characters={characters} characterActorMap={characterActorMap} />}
       {editingInventoryItem && <EditItemModal item={editingInventoryItem} onClose={() => setEditingInventoryItem(null)} onSave={handleSaveInventoryEdit} scenes={scenes} characters={characters} characterActorMap={characterActorMap} />}
       {editingProjectProp && <EditItemModal item={editingProjectProp} onClose={() => setEditingProjectProp(null)} onSave={handleSaveProjectPropEdit} scenes={scenes} characters={characters} characterActorMap={characterActorMap} />}
 
