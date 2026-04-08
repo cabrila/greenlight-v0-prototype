@@ -53,6 +53,7 @@ import { useCasting } from "@/components/casting/CastingContext"
 import { openModal, navigateToModal } from "./ModalManager"
 import ModalHeader from "@/components/layout/ModalHeader"
 import FloatingSidebar from "@/components/layout/FloatingSidebar"
+import EmbeddedCoPilot from "@/components/copilot/EmbeddedCoPilot"
 import type {
   ProductionDesignSet,
   BuildElement,
@@ -1628,12 +1629,17 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
         )}
       </div>
 
-      {/* ============================================================
-         OVERLAY MODALS
-         ============================================================ */}
+{/* Embedded CoPilot */}
+        <div className="fixed bottom-6 right-6 w-80 z-40">
+          <EmbeddedCoPilot context="production" />
+        </div>
 
-      {/* Confirm Delete */}
-      {confirmDelete && (
+        {/* ============================================================
+        OVERLAY MODALS
+        ============================================================ */}
+
+        {/* Confirm Delete */}
+        {confirmDelete && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[60]" onClick={() => setConfirmDelete(null)}>
           <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm mx-4" onClick={(e) => e.stopPropagation()}>
             <div className="w-12 h-12 rounded-xl bg-red-50 flex items-center justify-center mx-auto mb-4">

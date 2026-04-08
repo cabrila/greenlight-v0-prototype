@@ -25,6 +25,7 @@ import { useCasting } from "@/components/casting/CastingContext"
 import { openModal } from "./ModalManager"
 import ModalHeader from "@/components/layout/ModalHeader"
 import FloatingSidebar from "@/components/layout/FloatingSidebar"
+import EmbeddedCoPilot from "@/components/copilot/EmbeddedCoPilot"
 import type { ScheduleEntry, RedFlag, ProductionPhase } from "@/types/schedule"
 import type { Actor } from "@/types/casting"
 import StripboardView from "@/components/schedule/StripboardView"
@@ -1163,6 +1164,11 @@ const [isSidebarOpen, setIsSidebarOpen] = useState(false)
           </div>
         </div>
       )}
+
+      {/* Embedded CoPilot */}
+      <div className="fixed bottom-6 right-6 w-80 z-40">
+        <EmbeddedCoPilot context="schedule" />
+      </div>
 
       {showActorSelector && selectedEntryId && (
         <div className="fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4">

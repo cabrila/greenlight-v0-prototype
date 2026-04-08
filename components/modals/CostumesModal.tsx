@@ -5,6 +5,7 @@ import { useCasting } from "@/components/casting/CastingContext"
 import { openModal } from "./ModalManager"
 import ModalHeader from "@/components/layout/ModalHeader"
 import FloatingSidebar from "@/components/layout/FloatingSidebar"
+import EmbeddedCoPilot from "@/components/copilot/EmbeddedCoPilot"
 import { compressImage } from "@/utils/imageCompression"
 import { isValidImageUrl } from "@/lib/utils"
 import type {
@@ -869,6 +870,11 @@ const [isSidebarOpen, setIsSidebarOpen] = useState(false)
           </div>
         </div>
       )}
+
+      {/* Embedded CoPilot */}
+      <div className="fixed bottom-6 right-6 w-80 z-40">
+        <EmbeddedCoPilot context="costumes" />
+      </div>
     </div>
   )
 }
