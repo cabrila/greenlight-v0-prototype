@@ -1,29 +1,73 @@
 const STORAGE_KEY = "gogreenlight-casting-state"
 
+// Debounce timer for saving to localStorage
+let saveTimeout: ReturnType<typeof setTimeout> | null = null
+const DEBOUNCE_DELAY = 500 // milliseconds
+
 export function saveToLocalStorage(state: any): void {
   try {
     // Only save if we're in the browser
     if (typeof window === "undefined") return
 
-    // Create a clean copy of the state for storage
+    // Clear any pending save
+    if (saveTimeout) {
+      clearTimeout(saveTimeout)
+    }
+
+    // Debounce the save operation to prevent excessive writes
+    saveTimeout = setTimeout(() => {
+      try {
+        // Create a clean copy of the state for storage
+        const stateToSave = {
+          ...state,
+          // Don't save temporary UI state
+          currentFocus: {
+            ...state.currentFocus,
+            playerView: {
+              ...state.currentFocus.playerView,
+              isOpen: false, // Don't persist open player view
+            },
+          },
+          // Don't save modal states
+          modals: {},
+        }
+
+        const serializedState = JSON.stringify(stateToSave)
+        localStorage.setItem(STORAGE_KEY, serializedState)
+      } catch (error) {
+        console.warn("Failed to save state to localStorage:", error)
+      }
+    }, DEBOUNCE_DELAY)
+  } catch (error) {
+    console.warn("Failed to schedule localStorage save:", error)
+  }
+}
+
+// Immediate save for critical operations (like before page unload)
+export function saveToLocalStorageImmediate(state: any): void {
+  try {
+    if (typeof window === "undefined") return
+
+    // Clear any pending debounced save
+    if (saveTimeout) {
+      clearTimeout(saveTimeout)
+      saveTimeout = null
+    }
+
     const stateToSave = {
       ...state,
-      // Don't save temporary UI state
       currentFocus: {
         ...state.currentFocus,
         playerView: {
           ...state.currentFocus.playerView,
-          isOpen: false, // Don't persist open player view
+          isOpen: false,
         },
       },
-      // Don't save modal states
       modals: {},
     }
 
     const serializedState = JSON.stringify(stateToSave)
     localStorage.setItem(STORAGE_KEY, serializedState)
-
-
   } catch (error) {
     console.warn("Failed to save state to localStorage:", error)
   }
