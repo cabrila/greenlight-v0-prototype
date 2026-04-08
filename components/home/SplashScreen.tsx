@@ -1,22 +1,17 @@
 "use client"
 import {
-  X, Plus, FolderOpen, Database, Bell, Settings, HelpCircle, Users, Film,
-  BarChart3, ArrowRight, Calendar, Search, FileText, Shirt, MapPin, Paintbrush,
-  Clapperboard, Package, Sparkles
+  Plus, FolderOpen, Database, Bell, Settings, HelpCircle, Users, Film,
+  BarChart3, ArrowRight, FileText, Shirt, MapPin, Paintbrush, Package,
+  Calendar, Tv
 } from 'lucide-react'
-import { openModal, replaceModal } from "./ModalManager"
+import { openModal } from "@/components/modals/ModalManager"
+import EmbeddedCoPilot from "@/components/copilot/EmbeddedCoPilot"
 import { useState, useEffect, useRef } from "react"
-import UserMenu from "../layout/UserMenu"
+import UserMenu from "@/components/layout/UserMenu"
 import { useCasting } from "@/components/casting/CastingContext"
 
-interface SplashScreenModalProps {
-  onClose: () => void
-}
-
-export default function SplashScreenModal({ onClose }: SplashScreenModalProps) {
+export default function SplashScreen() {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
-  const timerRef = useRef<NodeJS.Timeout | null>(null)
-  const onCloseRef = useRef(onClose)
   const userButtonRef = useRef<HTMLDivElement>(null)
   const { state, dispatch } = useCasting()
 
@@ -71,8 +66,6 @@ export default function SplashScreenModal({ onClose }: SplashScreenModalProps) {
     }
   }, [userStatus])
 
-  useEffect(() => { onCloseRef.current = onClose }, [onClose])
-
   useEffect(() => {
     const handleStatusChange = (event: CustomEvent) => setUserStatus(event.detail.status)
     const handleInitialsChangeEvt = () => {
@@ -88,30 +81,36 @@ export default function SplashScreenModal({ onClose }: SplashScreenModalProps) {
     }
   }, [state.currentUser])
 
-  const startTimer = () => {
-    if (isTimerActive) return
-    setIsTimerActive(true)
-    timerRef.current = setTimeout(() => {
-      // Use replaceModal for smooth transition
-      replaceModal("projectManager")
-      setIsTimerActive(false)
-    }, 3000)
-  }
-
-  const handleNewProject = () => replaceModal("projectManager")
-  const handleOpenProject = () => replaceModal("projectManager")
-  const handleDatabase = () => replaceModal("database")
+  // Open project manager immediately without delay
+  const handleNewProject = () => openModal("projectManager")
+  const handleOpenProject = () => openModal("projectManager")
+  const handleDatabase = () => openModal("database")
   const handleNotifications = () => openModal("notifications")
   const handleSettings = () => openModal("userPermissions")
   const handleUserMenu = () => setIsUserMenuOpen(!isUserMenuOpen)
   const handleCloseUserMenu = () => setIsUserMenuOpen(false)
 
-  useEffect(() => { return () => { if (timerRef.current) clearTimeout(timerRef.current) } }, [])
-
   const unreadNotifications = state.notifications.filter((n) => !n.read).length
   const projectCount = state.projects.length
-  const totalActors = state.projects.reduce((sum, p) => sum + p.characters.reduce((cSum, c) => cSum + (c.longList?.length || 0) + (c.auditionList?.length || 0) + (c.approvalList?.length || 0), 0), 0)
+  // Calculate total actors across all projects and characters
+  const totalActors = state.projects.reduce((projectSum, project) => {
+    const projectActorCount = project.characters.reduce((charSum, character) => {
+      const actors = character.actors || {}
+      const longListCount = Array.isArray(actors.longList) ? actors.longList.length : 0
+      const auditionCount = Array.isArray(actors.audition) ? actors.audition.length : 0
+      const approvalCount = Array.isArray(actors.approval) ? actors.approval.length : 0
+      const shortListsCount = Array.isArray(actors.shortLists) 
+        ? actors.shortLists.reduce((slSum: number, sl: any) => slSum + (Array.isArray(sl.actors) ? sl.actors.length : 0), 0) 
+        : 0
+      return charSum + longListCount + auditionCount + approvalCount + shortListsCount
+    }, 0)
+    return projectSum + projectActorCount
+  }, 0)
   const totalCharacters = state.projects.reduce((sum, p) => sum + p.characters.length, 0)
+  
+  // Fixed display values for Props and Locations
+  const totalProps = 345
+  const totalLocations = 48
 
   const features = [
     {
@@ -128,7 +127,7 @@ export default function SplashScreenModal({ onClose }: SplashScreenModalProps) {
       icon: Users,
       title: "Casting",
       desc: "Manage Long Lists, Audition Lists, and Approval Lists. Track actors across characters and projects.",
-      modal: "characters" as const,
+      modal: "casting" as const,
       accentFrom: "from-sky-400/20",
       accentTo: "to-sky-400/5",
       iconBg: "bg-sky-400/20",
@@ -174,21 +173,31 @@ export default function SplashScreenModal({ onClose }: SplashScreenModalProps) {
       iconBg: "bg-orange-400/20",
       iconColor: "text-orange-300",
     },
+    {
+      icon: Calendar,
+      title: "Schedule",
+      desc: "Plan shoot days, manage call sheets, track availability, and coordinate production timelines efficiently.",
+      modal: "schedule" as const,
+      accentFrom: "from-blue-400/20",
+      accentTo: "to-blue-400/5",
+      iconBg: "bg-blue-400/20",
+      iconColor: "text-blue-300",
+    },
+    {
+      icon: Tv,
+      title: "Casting for TV",
+      desc: "Specialized TV casting workflow with episode tracking, recurring roles, and series-wide talent management.",
+      modal: "castingForTV" as const,
+      accentFrom: "from-indigo-400/20",
+      accentTo: "to-indigo-400/5",
+      iconBg: "bg-indigo-400/20",
+      iconColor: "text-indigo-300",
+    },
   ]
 
   return (
-    <div className="fixed inset-0 flex flex-col z-50 overflow-hidden" style={{ background: "linear-gradient(180deg, #2d6b3f 0%, #1a4a2a 30%, #0f3520 55%, #0a2618 80%, #061a10 100%)" }}>
-
-
-      {/* Timer indicator */}
-      {isTimerActive && (
-        <div className="absolute top-20 left-1/2 transform -translate-x-1/2 z-30">
-          <div className="bg-white/15 backdrop-blur-md text-white px-5 py-2.5 rounded-full text-sm font-medium flex items-center gap-2 border border-white/20">
-            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-            Loading project...
-          </div>
-        </div>
-      )}
+    <div className="h-full flex flex-col overflow-hidden" style={{ background: "linear-gradient(180deg, #2d6b3f 0%, #1a4a2a 30%, #0f3520 55%, #0a2618 80%, #061a10 100%)" }}>
+      
 
       {/* Top Navigation Bar */}
       <header className="relative flex justify-between items-center px-6 py-3 border-b border-white/10 shrink-0 z-20">
@@ -224,9 +233,6 @@ export default function SplashScreenModal({ onClose }: SplashScreenModalProps) {
               </div>
             </button>
           </div>
-          <button onClick={onClose} className="p-2.5 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-colors ml-0.5">
-            <X className="w-5 h-5" />
-          </button>
         </div>
       </header>
 
@@ -265,6 +271,18 @@ export default function SplashScreenModal({ onClose }: SplashScreenModalProps) {
                 <span className="text-white font-semibold">{totalActors}</span>
                 <span className="text-white/40">{totalActors === 1 ? "Actor" : "Actors"}</span>
               </div>
+              <div className="w-1 h-1 rounded-full bg-white/20" />
+              <div className="flex items-center gap-2 text-sm">
+                <Package className="w-4 h-4 text-emerald-400" />
+                <span className="text-white font-semibold">{totalProps}</span>
+                <span className="text-white/40">{totalProps === 1 ? "Prop" : "Props"}</span>
+              </div>
+              <div className="w-1 h-1 rounded-full bg-white/20" />
+              <div className="flex items-center gap-2 text-sm">
+                <MapPin className="w-4 h-4 text-emerald-400" />
+                <span className="text-white font-semibold">{totalLocations}</span>
+                <span className="text-white/40">{totalLocations === 1 ? "Location" : "Locations"}</span>
+              </div>
             </div>
           )}
 
@@ -273,8 +291,7 @@ export default function SplashScreenModal({ onClose }: SplashScreenModalProps) {
             {/* New Project */}
             <button
               onClick={handleNewProject}
-              disabled={isTimerActive}
-              className="group relative overflow-hidden rounded-2xl bg-emerald-400 hover:bg-emerald-300 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed text-left shadow-lg shadow-emerald-900/30 hover:shadow-xl hover:shadow-emerald-900/40"
+              className="group relative overflow-hidden rounded-2xl bg-emerald-400 hover:bg-emerald-300 transition-all duration-300 text-left shadow-lg shadow-emerald-900/30 hover:shadow-xl hover:shadow-emerald-900/40"
             >
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(255,255,255,0.25)_0%,_transparent_60%)]" />
               <div className="relative p-6 md:p-7 flex flex-col gap-5">
@@ -294,8 +311,7 @@ export default function SplashScreenModal({ onClose }: SplashScreenModalProps) {
             {/* Open Project */}
             <button
               onClick={handleOpenProject}
-              disabled={isTimerActive}
-              className="group relative overflow-hidden rounded-2xl bg-white/[0.08] hover:bg-white/[0.12] border border-white/[0.12] hover:border-white/20 backdrop-blur-sm transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed text-left"
+              className="group relative overflow-hidden rounded-2xl bg-white/[0.08] hover:bg-white/[0.12] border border-white/[0.12] hover:border-white/20 backdrop-blur-sm transition-all duration-300 text-left"
             >
               <div className="relative p-6 md:p-7 flex flex-col gap-5">
                 <div className="flex items-start justify-between">
@@ -314,8 +330,7 @@ export default function SplashScreenModal({ onClose }: SplashScreenModalProps) {
             {/* Actor Database */}
             <button
               onClick={handleDatabase}
-              disabled={isTimerActive}
-              className="group relative overflow-hidden rounded-2xl bg-white/[0.08] hover:bg-white/[0.12] border border-white/[0.12] hover:border-white/20 backdrop-blur-sm transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed text-left"
+              className="group relative overflow-hidden rounded-2xl bg-white/[0.08] hover:bg-white/[0.12] border border-white/[0.12] hover:border-white/20 backdrop-blur-sm transition-all duration-300 text-left"
             >
               <div className="relative p-6 md:p-7 flex flex-col gap-5">
                 <div className="flex items-start justify-between">
@@ -340,16 +355,15 @@ export default function SplashScreenModal({ onClose }: SplashScreenModalProps) {
               <div className="h-px flex-1 bg-white/10" />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {features.map((feature) => (
                 <button
                   key={feature.title}
-onClick={() => {
-  if (feature.modal) {
-  // Use replaceModal for smooth transition without flicker
-  replaceModal(feature.modal)
-  }
-  }}
+                  onClick={() => {
+                    if (feature.modal) {
+                      openModal(feature.modal)
+                    }
+                  }}
                   disabled={!feature.modal}
                   className="group relative text-left rounded-2xl border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.08] hover:border-white/[0.15] transition-all duration-300 overflow-hidden disabled:cursor-default"
                 >
@@ -382,6 +396,11 @@ onClick={() => {
               GoGreenlight -- All your creative assets, one dashboard, zero silos.
             </p>
           </div>
+        </div>
+
+        {/* Embedded CoPilot - Fixed position in lower right corner */}
+        <div className="fixed bottom-6 right-6 z-40">
+          <EmbeddedCoPilot context="splash" />
         </div>
       </main>
 

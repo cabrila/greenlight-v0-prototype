@@ -52,7 +52,10 @@ import {
   Home,
 } from "lucide-react"
 import { useCasting } from "@/components/casting/CastingContext"
-import { openModal } from "./ModalManager"
+import { openModal, navigateToModal } from "./ModalManager"
+import ModalHeader from "@/components/layout/ModalHeader"
+import FloatingSidebar from "@/components/layout/FloatingSidebar"
+import EmbeddedCoPilot from "@/components/copilot/EmbeddedCoPilot"
 import { compressImage } from "@/utils/imageCompression"
 import type {
   ProjectLocation,
@@ -1767,9 +1770,8 @@ export default function LocationsModal({ onClose }: LocationsModalProps) {
     setAddAtCoords(null)
   }
 
-  const handleAddToCanvas = (loc: ProjectLocation) => {
-    onClose()
-    setTimeout(() => openModal("canvas"), 150)
+const handleAddToCanvas = (loc: ProjectLocation) => {
+  navigateToModal("canvas")
   }
 
   const handleAddAtCoords = useCallback((lat: number, lng: number) => {
@@ -1804,24 +1806,24 @@ export default function LocationsModal({ onClose }: LocationsModalProps) {
 
   const isProjectTab = activeTab === "project"
 
-  return (
-    <div className="fixed inset-0 bg-gray-50 flex flex-col z-50">
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+
+return (
+  <div className="fixed inset-0 bg-gray-50 flex flex-col z-50 pl-14">
+  {/* Slim Sidebar Strip / Expandable Drawer */}
+  <FloatingSidebar
+  isOpen={isSidebarOpen}
+  onClose={() => setIsSidebarOpen(false)}
+  onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
+  currentModal="locations"
+  />
+
       {/* Top Bar */}
-      <header className="flex items-center justify-between px-5 py-3 bg-white border-b border-gray-200 shrink-0">
-  <div className="flex items-center gap-4">
-          <img src="/images/gogreenlight-logo.png" alt="GoGreenlight" className="h-8 w-auto" />
-          <button onClick={() => { onClose(); setTimeout(() => openModal("splashScreen"), 150) }} className="p-1.5 rounded-lg text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors" title="Home" aria-label="Go to Home">
-            <Home className="w-4 h-4" />
-          </button>
-          <div className="inline-flex items-center bg-teal-600 text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded">Locations</div>
-          {currentProject ? (
-            <span className="hidden sm:inline text-sm text-gray-500">{currentProject.name}</span>
-          ) : (
-            <span className="hidden sm:inline text-sm text-amber-600 font-medium">No project selected</span>
-          )}
-        </div>
-        <button onClick={onClose} className="p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors"><X className="w-5 h-5" /></button>
-      </header>
+      <ModalHeader
+        title="Locations"
+        titleColor="bg-teal-600"
+        onClose={onClose}
+      />
 
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-3 px-5 py-3 bg-white border-b border-gray-200 shrink-0">
@@ -2055,8 +2057,13 @@ export default function LocationsModal({ onClose }: LocationsModalProps) {
         </div>
       </div>
 
-      {/* Sub-modals */}
-      {showAddModal && <AddLocationModal onClose={() => { setShowAddModal(false); setAddAtCoords(null) }} onAdd={handleAddLocation} existingLocations={inventory} prefillCoords={addAtCoords} />}
+{/* Embedded CoPilot - Fixed position in lower right corner */}
+      <div className="fixed bottom-6 right-6 z-40">
+        <EmbeddedCoPilot context="locations" />
+      </div>
+
+  {/* Sub-modals */}
+  {showAddModal && <AddLocationModal onClose={() => { setShowAddModal(false); setAddAtCoords(null) }} onAdd={handleAddLocation} existingLocations={inventory} prefillCoords={addAtCoords} />}
       {editingLocation && <EditLocationModal location={editingLocation} onClose={() => setEditingLocation(null)} onSave={handleSaveEdit} />}
 
       {/* Delete Confirmation */}

@@ -21,7 +21,7 @@ import {
   Download,
   Upload,
 } from "lucide-react"
-import { openModal } from "./ModalManager"
+import { openModal, replaceModal, navigateToModal } from "./ModalManager"
 import type { Project } from "@/types/casting"
 
 interface ProjectManagerModalProps {
@@ -103,10 +103,9 @@ export default function ProjectManagerModal({ onClose }: ProjectManagerModalProp
             <div className="flex items-center gap-2">
               <button
                 onClick={() => {
-                  dispatch({ type: "SELECT_PROJECT", payload: currentProject.id })
-                  onClose()
-                  setTimeout(() => openModal("characters"), 100)
-                }}
+dispatch({ type: "SELECT_PROJECT", payload: currentProject.id })
+  replaceModal("characters")
+  }}
                 className="p-2 text-success-600 hover:text-success-800 hover:bg-success-100 rounded-lg transition-colors"
                 title="View Characters"
               >
@@ -169,10 +168,9 @@ export default function ProjectManagerModal({ onClose }: ProjectManagerModalProp
                     <button
                       onClick={(e) => {
                         e.stopPropagation()
-                        dispatch({ type: "SELECT_PROJECT", payload: project.id })
-                        onClose()
-                        setTimeout(() => openModal("characters"), 100)
-                      }}
+dispatch({ type: "SELECT_PROJECT", payload: project.id })
+  replaceModal("characters")
+  }}
                       className="p-1.5 text-gray-400 hover:text-success-600 hover:bg-success-50 rounded-md transition-colors"
                       title="View Characters"
                     >
@@ -218,8 +216,8 @@ export default function ProjectManagerModal({ onClose }: ProjectManagerModalProp
                   {!isActive && (
                     <button
                       onClick={() => {
+                        // Select project and stay in project manager (don't close)
                         dispatch({ type: "SELECT_PROJECT", payload: project.id })
-                        onClose()
                       }}
                       className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs hover:bg-gray-200 transition-colors"
                     >
@@ -1626,10 +1624,7 @@ Please ensure you're importing a file exported from this application, or check t
           {/* Header actions */}
           <div className="flex items-center gap-2">
             <button
-              onClick={() => {
-                onClose()
-                setTimeout(() => openModal("splashScreen"), 100)
-              }}
+onClick={() => navigateToModal("splashScreen")}
               className="flex items-center gap-2 px-3 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
               title="Main Menu"
             >

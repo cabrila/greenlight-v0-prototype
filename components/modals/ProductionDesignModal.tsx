@@ -50,7 +50,10 @@ import {
   Home,
 } from "lucide-react"
 import { useCasting } from "@/components/casting/CastingContext"
-import { openModal } from "./ModalManager"
+import { openModal, navigateToModal } from "./ModalManager"
+import ModalHeader from "@/components/layout/ModalHeader"
+import FloatingSidebar from "@/components/layout/FloatingSidebar"
+import EmbeddedCoPilot from "@/components/copilot/EmbeddedCoPilot"
 import type {
   ProductionDesignSet,
   BuildElement,
@@ -650,24 +653,24 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
      RENDER
      ======================================== */
 
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+
   return (
-    <div className="fixed inset-0 bg-gray-50 flex flex-col z-50">
+    <div className="fixed inset-0 bg-gray-50 flex flex-col z-50 pl-14">
+      {/* Slim Sidebar Strip / Expandable Drawer */}
+      <FloatingSidebar
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
+        onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
+        currentModal="productionDesign"
+      />
+
       {/* -------- HEADER -------- */}
-      <header className="flex items-center justify-between px-5 py-3 bg-white border-b border-gray-200 shrink-0">
-  <div className="flex items-center gap-4">
-          <img src="/images/gogreenlight-logo.png" alt="GoGreenlight" className="h-8 w-auto" />
-          <button onClick={() => { onClose(); setTimeout(() => openModal("splashScreen"), 150) }} className="p-1.5 rounded-lg text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors" title="Home" aria-label="Go to Home">
-            <Home className="w-4 h-4" />
-          </button>
-          <div className="inline-flex items-center bg-slate-600 text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded">
-            Production Design
-  </div>
-          {currentProject && <span className="hidden sm:inline text-sm text-gray-500">{currentProject.name}</span>}
-        </div>
-        <button onClick={onClose} className="p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors" aria-label="Close">
-          <X className="w-5 h-5" />
-        </button>
-      </header>
+      <ModalHeader
+        title="Production Design"
+        titleColor="bg-slate-600"
+        onClose={onClose}
+      />
 
       {/* -------- TOOLBAR -------- */}
       <div className="flex flex-wrap items-center gap-3 px-5 py-3 bg-white border-b border-gray-200 shrink-0">
@@ -926,7 +929,7 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
                             {selectedSet.locationId && (
                               <div className="px-3 py-2 border-t border-gray-100">
                                 <button
-                                  onClick={() => { setShowLocationPicker(null); onClose(); setTimeout(() => openModal("locations"), 150) }}
+                                  onClick={() => { setShowLocationPicker(null); navigateToModal("locations") }}
                                   className="w-full flex items-center justify-center gap-1.5 text-[10px] font-semibold text-teal-600 hover:text-teal-800 transition-colors"
                                 >
                                   View in Locations <ArrowRight className="w-3 h-3" />
@@ -1626,12 +1629,17 @@ export default function ProductionDesignModal({ onClose }: { onClose: () => void
         )}
       </div>
 
-      {/* ============================================================
-         OVERLAY MODALS
-         ============================================================ */}
+{/* Embedded CoPilot - Fixed position in lower right corner */}
+        <div className="fixed bottom-6 right-6 z-40">
+          <EmbeddedCoPilot context="production" />
+        </div>
 
-      {/* Confirm Delete */}
-      {confirmDelete && (
+        {/* ============================================================
+        OVERLAY MODALS
+        ============================================================ */}
+
+        {/* Confirm Delete */}
+        {confirmDelete && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[60]" onClick={() => setConfirmDelete(null)}>
           <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm mx-4" onClick={(e) => e.stopPropagation()}>
             <div className="w-12 h-12 rounded-xl bg-red-50 flex items-center justify-center mx-auto mb-4">

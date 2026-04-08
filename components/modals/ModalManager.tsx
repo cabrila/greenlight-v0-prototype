@@ -43,6 +43,7 @@ import CostumesModal from "./CostumesModal"
 import ScriptModal from "./ScriptModal"
 import ProductionDesignModal from "./ProductionDesignModal"
 import CastingForTVModal from "./CastingForTVModal"
+import CastingModal from "./CastingModal"
 
 export interface ModalState {
   type: string | null
@@ -71,6 +72,54 @@ export function closeModal() {
 export function closeAllModals() {
   if (globalSetModalStack) {
     globalSetModalStack([])
+  }
+}
+
+// Replace current modal with a new one - opens new modal first, then removes the previous one
+// This prevents flicker/flash of underlying content during modal transitions
+// Special case: replacing with "splashScreen" closes all modals to show the base SplashScreen
+export function replaceModal(type: string, data?: any) {
+  if (globalSetModalStack) {
+    // If replacing with splash screen, just close all modals
+    // The base SplashScreen component is always rendered in page.tsx
+    if (type === "splashScreen") {
+      globalSetModalStack([])
+      return
+    }
+    
+    // For other modals, replace the current modal
+    const newModal = { type, data }
+    // First, add the new modal on top of the stack
+    const stackWithNewModal = [...globalModalStack, newModal]
+    globalSetModalStack(stackWithNewModal)
+    
+    // After a brief delay for the new modal to render, remove the previous modal
+    setTimeout(() => {
+      if (globalSetModalStack && globalModalStack.length > 0) {
+        // Remove the second-to-last item (the old modal) keeping the new one on top
+        const currentStack = [...globalModalStack]
+        if (currentStack.length >= 2) {
+          currentStack.splice(currentStack.length - 2, 1)
+          globalSetModalStack(currentStack)
+        }
+      }
+    }, 50)
+  }
+}
+
+// Navigate to a modal, closing all others - useful for main navigation
+// Special case: navigating to "splashScreen" closes all modals to show the base SplashScreen component
+export function navigateToModal(type: string, data?: any) {
+  if (globalSetModalStack) {
+    // If navigating to splash screen, just close all modals
+    // The base SplashScreen component is always rendered in page.tsx
+    if (type === "splashScreen") {
+      globalSetModalStack([])
+      return
+    }
+    
+    // For other modals, replace the entire stack with just this modal
+    globalSetModalStack([{ type, data }])
   }
 }
 
@@ -278,6 +327,8 @@ export default function ModalManager() {
           return <ProductionDesignModal onClose={handleClose} />
         case "castingForTV":
           return <CastingForTVModal onClose={handleClose} />
+        case "casting":
+          return <CastingModal onClose={handleClose} />
         default:
           return null
       }
@@ -297,7 +348,8 @@ export default function ModalManager() {
       modal.type === "script" ||
       modal.type === "schedule" ||
       modal.type === "productionDesign" ||
-      modal.type === "castingForTV"
+      modal.type === "castingForTV" ||
+      modal.type === "casting"
     ) {
       return <div key={`modal-${index}`}>{modalContent}</div>
     }

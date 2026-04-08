@@ -35,7 +35,10 @@ import {
   Home,
 } from "lucide-react"
 import { useCasting } from "@/components/casting/CastingContext"
-import { openModal } from "./ModalManager"
+import { openModal, navigateToModal } from "./ModalManager"
+import ModalHeader from "@/components/layout/ModalHeader"
+import FloatingSidebar from "@/components/layout/FloatingSidebar"
+import EmbeddedCoPilot from "@/components/copilot/EmbeddedCoPilot"
 import type { ProjectProp, PropVote, PropComment, PropAvailability, PropInventoryItem, PropPurchaseRequest, Character, Actor } from "@/types/casting"
 import type { Scene } from "@/types/schedule"
 import { compressImage } from "@/utils/imageCompression"
@@ -1434,9 +1437,8 @@ export default function PropsModal({ onClose }: PropsModalProps) {
     syncProjectProps((prev) => prev.filter((p) => p.id !== id))
   }
 
-  const handleAddToCanvas = (item: InventoryItem | ProjectProp) => {
-    onClose()
-    setTimeout(() => openModal("canvas"), 150)
+const handleAddToCanvas = (item: InventoryItem | ProjectProp) => {
+  navigateToModal("canvas")
   }
 
   const handleAddInventoryItem = (item: InventoryItem) => {
@@ -1500,28 +1502,24 @@ export default function PropsModal({ onClose }: PropsModalProps) {
   { key: "purchase", label: "Purchase/Design", icon: <ShoppingBag className="w-4 h-4" /> },
   ]
 
+const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+
   return (
-    <div className="fixed inset-0 bg-gray-100 flex flex-col z-50">
-      {/* ---- Header ---- */}
-      <header className="flex items-center justify-between px-6 py-3 bg-white border-b border-gray-200 shrink-0">
-  <div className="flex items-center gap-4">
-          <img src="/images/gogreenlight-logo.png" alt="GoGreenlight" className="h-8 w-auto" />
-          <button onClick={() => { onClose(); setTimeout(() => openModal("splashScreen"), 150) }} className="p-1.5 rounded-lg text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors" title="Home" aria-label="Go to Home">
-            <Home className="w-4 h-4" />
-          </button>
-          <div className="inline-flex items-center bg-emerald-600 text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded">
-            Props
-  </div>
-          {currentProject ? (
-            <span className="hidden sm:inline text-sm text-gray-500">{currentProject.name}</span>
-          ) : (
-            <span className="hidden sm:inline text-sm text-amber-600 font-medium">No project selected</span>
-          )}
-        </div>
-        <button onClick={onClose} className="p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors">
-          <X className="w-5 h-5" />
-        </button>
-      </header>
+  <div className="fixed inset-0 bg-gray-100 flex flex-col z-50 pl-14">
+  {/* Slim Sidebar Strip / Expandable Drawer */}
+  <FloatingSidebar
+    isOpen={isSidebarOpen}
+    onClose={() => setIsSidebarOpen(false)}
+    onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
+    currentModal="props"
+  />
+
+  {/* ---- Header ---- */}
+  <ModalHeader
+    title="Props"
+    titleColor="bg-amber-600"
+    onClose={onClose}
+  />
 
       {/* ---- Tab Bar ---- */}
       <div className="flex items-center gap-2 px-6 py-2 bg-white border-b border-gray-200 shrink-0 overflow-x-auto">
@@ -1832,8 +1830,13 @@ export default function PropsModal({ onClose }: PropsModalProps) {
         )}
       </div>
 
-      {/* Sub-modals */}
-      {showAddModal && <AddItemModal onClose={() => setShowAddModal(false)} onAdd={handleAddInventoryItem} scenes={scenes} characters={characters} characterActorMap={characterActorMap} />}
+{/* Embedded CoPilot - Fixed position in lower right corner */}
+      <div className="fixed bottom-6 right-6 z-40">
+        <EmbeddedCoPilot context="props" />
+      </div>
+
+  {/* Sub-modals */}
+  {showAddModal && <AddItemModal onClose={() => setShowAddModal(false)} onAdd={handleAddInventoryItem} scenes={scenes} characters={characters} characterActorMap={characterActorMap} />}
       {editingInventoryItem && <EditItemModal item={editingInventoryItem} onClose={() => setEditingInventoryItem(null)} onSave={handleSaveInventoryEdit} scenes={scenes} characters={characters} characterActorMap={characterActorMap} />}
       {editingProjectProp && <EditItemModal item={editingProjectProp} onClose={() => setEditingProjectProp(null)} onSave={handleSaveProjectPropEdit} scenes={scenes} characters={characters} characterActorMap={characterActorMap} />}
 

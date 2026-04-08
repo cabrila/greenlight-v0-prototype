@@ -3,7 +3,7 @@
 import type React from "react"
 import { createContext, type ReactNode, useReducer, useEffect, useContext } from "react"
 import type { CastingState, CastingAction, Actor, Notification } from "@/types/casting"
-import { saveToLocalStorage, clearLocalStorage, loadFromLocalStorage } from "@/utils/localStorage"
+import { saveToLocalStorage, clearLocalStorage, loadFromLocalStorage, saveToLocalStorageImmediate } from "@/utils/localStorage"
 import { MOCK_SCHEDULE_ENTRIES, MOCK_SCENES, MOCK_PRODUCTION_PHASES } from "@/data/mockScriptAndSchedule"
 
 // --- helper ---------------------------------------------
@@ -3238,17 +3238,29 @@ function getCurrentPlayerViewList(state: CastingState) {
 export function CastingProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(castingReducer, getInitialState())
 
-  // Load from localStorage on mount
+// Load from localStorage on mount
   useEffect(() => {
-    const savedState = loadFromLocalStorage()
-    if (savedState) {
-      dispatch({ type: "LOAD_FROM_STORAGE", payload: savedState })
-    } else {
-      // If no saved state, ensure currentUser is set
-      const initialState = getInitialState()
-      dispatch({ type: "SET_CURRENT_USER", payload: initialState.users[0] })
-    }
+  const savedState = loadFromLocalStorage()
+  if (savedState) {
+  dispatch({ type: "LOAD_FROM_STORAGE", payload: savedState })
+  } else {
+  // If no saved state, ensure currentUser is set
+  const initialState = getInitialState()
+  dispatch({ type: "SET_CURRENT_USER", payload: initialState.users[0] })
+  }
   }, [])
+
+  // Save immediately before page unload to ensure no data loss
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      saveToLocalStorageImmediate(state)
+    }
+
+    window.addEventListener("beforeunload", handleBeforeUnload)
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload)
+    }
+  }, [state])
 
   return <CastingContext.Provider value={{ state, dispatch }}>{children}</CastingContext.Provider>
 }

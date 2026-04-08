@@ -2,7 +2,10 @@
 
 import { useState, useMemo, useRef, useEffect } from "react"
 import { useCasting } from "@/components/casting/CastingContext"
-import { openModal } from "./ModalManager"
+import { openModal, navigateToModal } from "./ModalManager"
+import ModalHeader from "@/components/layout/ModalHeader"
+import FloatingSidebar from "@/components/layout/FloatingSidebar"
+import EmbeddedCoPilot from "@/components/copilot/EmbeddedCoPilot"
 import { isValidImageUrl } from "@/lib/utils"
 import {
   X,
@@ -379,6 +382,7 @@ const MOCK_PARTICIPANTS: Participant[] = [
 
 export default function CastingForTVModal({ onClose }: CastingForTVModalProps) {
   const { state } = useCasting()
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [activeView, setActiveView] = useState<"pipeline" | "grid" | "list" | "mix">("grid")
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedParticipant, setSelectedParticipant] = useState<Participant | null>(null)
@@ -2039,42 +2043,21 @@ const renderGridView = () => (
   }
 
   return (
-    <div className="fixed inset-0 bg-muted z-50 flex flex-col">
+    <div className="fixed inset-0 bg-muted z-50 flex flex-col pl-14">
+      {/* Slim Sidebar Strip / Expandable Drawer */}
+      <FloatingSidebar
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
+        onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
+        currentModal="castingForTV"
+      />
+
       {/* Header */}
-      <div className="bg-background border-b border-border px-6 py-4 flex items-center justify-between shrink-0">
-        <div className="flex items-center gap-4">
-          <img src="/images/gogreenlight-logo.png" alt="GoGreenlight" className="h-8 w-auto" />
-          <button
-            onClick={() => { onClose(); setTimeout(() => openModal("splashScreen"), 150) }}
-            className="p-1.5 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
-            title="Home"
-          >
-            <Home className="w-4 h-4" />
-          </button>
-          <div className="inline-flex items-center bg-info-600 text-info-foreground text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded">
-            <Tv className="w-3 h-3 mr-1.5" />
-            Casting for TV
-          </div>
-          {currentProject && (
-            <span className="text-sm text-muted-foreground">
-              {currentProject.name}
-              {!isNonFictionProject && (
-                <span className="ml-2 text-xs text-warning-600 bg-warning-100 px-2 py-0.5 rounded">
-                  Switch to Non-Fiction TV project for full features
-                </span>
-              )}
-            </span>
-          )}
-        </div>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={onClose}
-            className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-      </div>
+      <ModalHeader
+        title="Casting for TV"
+        titleColor="bg-indigo-600"
+        onClose={onClose}
+      />
 
       {/* Toolbar */}
       <div className="bg-background border-b border-border px-6 py-3 flex items-center justify-between shrink-0">
@@ -5673,6 +5656,11 @@ const renderGridView = () => (
           </div>
         </>
       )}
+
+      {/* Embedded CoPilot - Fixed position in lower right corner */}
+      <div className="fixed bottom-6 right-6 z-40">
+        <EmbeddedCoPilot context="tv-casting" />
+      </div>
     </div>
   )
 }
