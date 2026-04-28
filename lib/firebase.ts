@@ -1,5 +1,5 @@
-import { initializeApp } from "firebase/app"
-import { getAuth } from "firebase/auth"
+import { initializeApp, getApps, FirebaseApp } from "firebase/app"
+import { getAuth, Auth } from "firebase/auth"
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -10,7 +10,24 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 }
 
-const app = initializeApp(firebaseConfig)
-export const auth = getAuth(app)
+// Initialize Firebase only on client side or if not already initialized
+let app: FirebaseApp
+let auth: Auth
 
+if (typeof window !== "undefined") {
+  // Client-side initialization
+  if (!getApps().length) {
+    app = initializeApp(firebaseConfig)
+  } else {
+    app = getApps()[0]
+  }
+  auth = getAuth(app)
+} else {
+  // Server-side: create a placeholder that will be replaced on client
+  // This prevents SSR errors while still allowing imports
+  app = {} as FirebaseApp
+  auth = {} as Auth
+}
+
+export { auth }
 export default app
