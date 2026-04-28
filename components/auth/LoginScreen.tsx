@@ -147,7 +147,7 @@ export default function LoginScreen({ onDemoAccess }: LoginScreenProps) {
 
       {/* Footer */}
       <p className="mt-12 text-[11px] text-white/30 text-center font-sans">
-        GoGreenlight -- All your creative assets, one dashboard, zero silos.
+        © 2026 GoGreenlight. All rights reserved.
       </p>
     </div>
   )

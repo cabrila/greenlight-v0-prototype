@@ -138,7 +138,7 @@ export default function SplashScreen({ onSignOut }: SplashScreenProps) {
       {/* Bottom tagline */}
       <footer className="text-center py-6 shrink-0">
         <p className="text-[11px] text-white/20 tracking-wide">
-          GoGreenlight -- All your creative assets, one dashboard, zero silos.
+          © 2026 GoGreenlight. All rights reserved.
         </p>
       </footer>
 
