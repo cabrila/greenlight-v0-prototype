@@ -41,22 +41,20 @@ export default function LoginScreen() {
       }}
     >
       {/* Logo */}
-      <div className="mb-10">
-        <div className="bg-[#4a8c5e] rounded-2xl px-6 py-3 shadow-lg">
-          <img
-            src="/images/gogreenlight-logo.png"
-            alt="GoGreenlight"
-            className="h-10 w-auto"
-          />
-        </div>
+      <div className="mb-12">
+        <img
+          src="/gogreenlight-logo.png"
+          alt="GoGreenlight"
+          className="h-16 w-auto"
+        />
       </div>
 
       {/* Welcome Text */}
       <div className="text-center mb-8">
-        <h1 className="text-4xl md:text-5xl font-bold text-white mb-3 font-serif">
+        <h1 className="text-4xl md:text-5xl font-bold text-white mb-3 font-sans">
           Welcome!
         </h1>
-        <p className="text-white/70 text-base md:text-lg">
+        <p className="text-white/70 text-base md:text-lg font-sans">
           Your project begins here
         </p>
       </div>
@@ -68,10 +66,10 @@ export default function LoginScreen() {
             <div className="flex justify-center mb-4">
               <CheckCircle className="w-16 h-16 text-[#b8e986]" />
             </div>
-            <h2 className="text-xl font-semibold text-white mb-2">
+            <h2 className="text-xl font-semibold text-white mb-2 font-sans">
               Check your email
             </h2>
-            <p className="text-white/70 text-sm leading-relaxed">
+            <p className="text-white/70 text-sm leading-relaxed font-sans">
               We&apos;ve sent a magic link to<br />
               <span className="text-white font-medium">{email}</span>
             </p>
@@ -80,7 +78,7 @@ export default function LoginScreen() {
                 setLoginState("idle")
                 setEmail("")
               }}
-              className="mt-6 text-[#b8e986] hover:text-[#c8f096] text-sm underline underline-offset-2 transition-colors"
+              className="mt-6 text-[#b8e986] hover:text-[#c8f096] text-sm underline underline-offset-2 transition-colors font-sans"
             >
               Use a different email
             </button>
@@ -100,7 +98,7 @@ export default function LoginScreen() {
                   }
                 }}
                 placeholder="Enter your email"
-                className="w-full px-5 py-4 bg-white rounded-2xl text-gray-700 placeholder-gray-400 text-base focus:outline-none focus:ring-2 focus:ring-[#b8e986] transition-shadow"
+                className="w-full px-5 py-4 bg-white rounded-2xl text-gray-700 placeholder-gray-400 text-base focus:outline-none focus:ring-2 focus:ring-[#b8e986] transition-shadow font-sans"
                 disabled={loginState === "loading"}
                 autoComplete="email"
                 autoFocus
@@ -110,14 +108,14 @@ export default function LoginScreen() {
 
             {/* Error Message */}
             {loginState === "error" && errorMessage && (
-              <p className="text-red-300 text-sm text-center">{errorMessage}</p>
+              <p className="text-red-300 text-sm text-center font-sans">{errorMessage}</p>
             )}
 
             {/* Submit Button */}
             <button
               type="submit"
               disabled={loginState === "loading" || !email.trim()}
-              className="w-full py-4 bg-[#b8e986] hover:bg-[#c8f096] disabled:bg-[#b8e986]/50 disabled:cursor-not-allowed rounded-2xl text-[#2d5a3d] font-semibold text-base transition-colors flex items-center justify-center gap-2"
+              className="w-full py-4 bg-[#b8e986] hover:bg-[#c8f096] disabled:bg-[#b8e986]/50 disabled:cursor-not-allowed rounded-2xl text-[#2d5a3d] font-semibold text-base transition-colors flex items-center justify-center gap-2 font-sans"
             >
               {loginState === "loading" ? (
                 <>
@@ -133,7 +131,7 @@ export default function LoginScreen() {
       </div>
 
       {/* Footer */}
-      <p className="mt-12 text-[11px] text-white/30 text-center">
+      <p className="mt-12 text-[11px] text-white/30 text-center font-sans">
         GoGreenlight -- All your creative assets, one dashboard, zero silos.
       </p>
     </div>
