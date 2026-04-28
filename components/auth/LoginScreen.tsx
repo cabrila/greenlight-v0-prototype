@@ -41,7 +41,7 @@ export default function LoginScreen({ onDemoAccess }: LoginScreenProps) {
       className="min-h-screen flex flex-col items-center justify-center px-6 relative"
       style={{
         background:
-          "linear-gradient(180deg, #4a8c5e 0%, #3d7a50 15%, #2d6b3f 35%, #1a4a2a 55%, #0f3520 75%, #0a2618 100%)",
+          "linear-gradient(180deg, #2d6b3f 0%, #1a4a2a 30%, #0f3520 55%, #0a2618 80%, #061a10 100%)",
       }}
     >
       {/* Demo Access Button — upper right */}
@@ -49,15 +49,9 @@ export default function LoginScreen({ onDemoAccess }: LoginScreenProps) {
         <button
           onClick={onDemoAccess}
           aria-label="Enter demo as John Doe"
-          className="absolute top-5 right-5 flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 hover:border-white/35 transition-all duration-200 group"
+          className="absolute top-5 right-5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 hover:border-white/35 transition-all duration-200 text-white/60 hover:text-white/90 text-xs font-sans"
         >
-          {/* JD avatar */}
-          <span className="w-6 h-6 rounded-full bg-[#3B82F6] flex items-center justify-center text-white text-[10px] font-bold leading-none select-none">
-            JD
-          </span>
-          <span className="text-white/60 group-hover:text-white/90 text-xs font-sans transition-colors">
-            Demo
-          </span>
+          Demo
         </button>
       )}
 
