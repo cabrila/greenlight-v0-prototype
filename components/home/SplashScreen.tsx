@@ -1,9 +1,44 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
-import { LogOut, MessageSquarePlus } from "lucide-react"
+import { LogOut, MessageSquarePlus, BookUser, MapPin, Users, Share2, ArrowRight } from "lucide-react"
 import { useCasting } from "@/components/casting/CastingContext"
 import FeedbackModal from "@/components/modals/FeedbackModal"
+
+const featureButtons = [
+  {
+    id: "character-bible",
+    title: "Character Bible",
+    description: "Generate comprehensive lists and detailed descriptions of characters based on your script.",
+    icon: BookUser,
+    iconBg: "bg-emerald-500/20",
+    iconColor: "text-emerald-400",
+  },
+  {
+    id: "location-overview",
+    title: "Location Overview",
+    description: "Produce lists and descriptions of locations inspired by your script for efficient scouting.",
+    icon: MapPin,
+    iconBg: "bg-amber-500/20",
+    iconColor: "text-amber-400",
+  },
+  {
+    id: "actor-list",
+    title: "Actor List",
+    description: "Create and manage an easily navigable list of actors for your production.",
+    icon: Users,
+    iconBg: "bg-sky-500/20",
+    iconColor: "text-sky-400",
+  },
+  {
+    id: "public-casting",
+    title: "Public Casting",
+    description: "Share a simple casting form for actors to submit themselves for roles in your project.",
+    icon: Share2,
+    iconBg: "bg-violet-500/20",
+    iconColor: "text-violet-400",
+  },
+]
 
 interface SplashScreenProps {
   onSignOut?: () => void
@@ -122,9 +157,9 @@ export default function SplashScreen({ onSignOut }: SplashScreenProps) {
         </div>
       </header>
 
-      {/* Main Content - Centered Hero */}
-      <main className="flex-1 flex items-center justify-center relative z-10">
-        <div className="text-center px-6 max-w-2xl">
+      {/* Main Content - Hero and Feature Buttons */}
+      <main className="flex-1 flex flex-col items-center justify-center relative z-10 overflow-y-auto py-8">
+        <div className="text-center px-6 max-w-2xl mb-10">
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 text-balance leading-tight">
             Every creative asset.{" "}
             <span className="text-emerald-300">One platform.</span>
@@ -132,6 +167,41 @@ export default function SplashScreen({ onSignOut }: SplashScreenProps) {
           <p className="text-white/50 text-base md:text-lg leading-relaxed text-pretty max-w-xl mx-auto">
             GoGreenlight enables you to create and orchestrate your creative assets - making it easy, fast and seamless to reach creative alignment in your production.
           </p>
+        </div>
+
+        {/* Feature Buttons Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 px-6 w-full max-w-3xl">
+          {featureButtons.map((feature) => {
+            const IconComponent = feature.icon
+            return (
+              <button
+                key={feature.id}
+                onClick={() => {
+                  // Feature navigation would be implemented here
+                  console.log(`[v0] Navigate to ${feature.id}`)
+                }}
+                className="group flex items-start gap-4 p-5 bg-white/[0.03] hover:bg-white/[0.07] border border-white/10 hover:border-white/20 rounded-xl text-left transition-all duration-200"
+              >
+                {/* Icon */}
+                <div className={`shrink-0 w-12 h-12 rounded-lg ${feature.iconBg} flex items-center justify-center`}>
+                  <IconComponent className={`w-6 h-6 ${feature.iconColor}`} />
+                </div>
+
+                {/* Content */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="text-base font-semibold text-white font-sans">
+                      {feature.title}
+                    </h3>
+                    <ArrowRight className="w-4 h-4 text-white/40 group-hover:text-white/70 group-hover:translate-x-0.5 transition-all duration-200" />
+                  </div>
+                  <p className="text-sm text-white/50 leading-relaxed font-sans">
+                    {feature.description}
+                  </p>
+                </div>
+              </button>
+            )
+          })}
         </div>
       </main>
 
