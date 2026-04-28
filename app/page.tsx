@@ -2,9 +2,12 @@
 
 import { useState, useEffect } from "react"
 import LoginScreen from "@/components/auth/LoginScreen"
+import SplashScreen from "@/components/home/SplashScreen"
+import { CastingProvider } from "@/components/casting/CastingContext"
 
 export default function App() {
   const [isLoaded, setIsLoaded] = useState(false)
+  const [view, setView] = useState<"login" | "splash">("login")
 
   useEffect(() => {
     setIsLoaded(true)
@@ -18,5 +21,15 @@ export default function App() {
     )
   }
 
-  return <LoginScreen />
+  if (view === "splash") {
+    return (
+      <CastingProvider>
+        <div className="h-screen">
+          <SplashScreen onSignOut={() => setView("login")} />
+        </div>
+      </CastingProvider>
+    )
+  }
+
+  return <LoginScreen onDemoAccess={() => setView("splash")} />
 }

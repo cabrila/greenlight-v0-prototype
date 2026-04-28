@@ -4,7 +4,11 @@ import { useState, useRef, useEffect } from "react"
 import { LogOut } from "lucide-react"
 import { useCasting } from "@/components/casting/CastingContext"
 
-export default function SplashScreen() {
+interface SplashScreenProps {
+  onSignOut?: () => void
+}
+
+export default function SplashScreen({ onSignOut }: SplashScreenProps) {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const userButtonRef = useRef<HTMLDivElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -13,8 +17,8 @@ export default function SplashScreen() {
   const handleUserMenu = () => setIsUserMenuOpen(!isUserMenuOpen)
 
   const handleSignOut = () => {
-    alert("Sign out functionality would be implemented here")
     setIsUserMenuOpen(false)
+    onSignOut?.()
   }
 
   // Close menu when clicking outside
