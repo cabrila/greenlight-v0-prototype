@@ -14,6 +14,7 @@ export default function FeedbackModal({ onClose }: FeedbackModalProps) {
   const [screenshotPreview, setScreenshotPreview] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const modalRef = useRef<HTMLDivElement>(null)
 
@@ -52,17 +53,51 @@ export default function FeedbackModal({ onClose }: FeedbackModalProps) {
     if (!message.trim()) return
 
     setIsSubmitting(true)
-    
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500))
-    
-    setIsSubmitting(false)
-    setIsSuccess(true)
-    
-    // Close modal after showing success
-    setTimeout(() => {
-      onClose()
-    }, 2000)
+    setError(null)
+
+    try {
+      const formData = new FormData()
+      formData.append("heading", heading)
+      formData.append("message", message)
+      
+      if (screenshot) {
+        formData.append("screenshot", screenshot)
+      }
+      if (screenshotPreview) {
+        formData.append("screenshotUrl", screenshotPreview)
+      }
+
+      const response = await fetch("/api/feedback", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          heading,
+          message,
+          screenshotUrl: screenshotPreview,
+        }),
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || "Failed to submit feedback")
+      }
+
+      setIsSubmitting(false)
+      setIsSuccess(true)
+
+      // Close modal after showing success
+      setTimeout(() => {
+        onClose()
+      }, 2000)
+    } catch (err) {
+      console.error("[v0] Feedback submission error:", err)
+      setError(
+        err instanceof Error ? err.message : "Failed to submit feedback. Please try again."
+      )
+      setIsSubmitting(false)
+    }
   }
 
   const handleBackdropClick = (e: React.MouseEvent) => {
@@ -110,6 +145,13 @@ export default function FeedbackModal({ onClose }: FeedbackModalProps) {
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="p-5 space-y-4">
+            {/* Error Message */}
+            {error && (
+              <div className="px-4 py-3 bg-red-500/10 border border-red-500/30 rounded-lg">
+                <p className="text-sm text-red-300 font-sans">{error}</p>
+              </div>
+            )}
+
             {/* Heading (Optional) */}
             <div>
               <label
