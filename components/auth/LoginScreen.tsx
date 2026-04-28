@@ -69,6 +69,12 @@ export default function LoginScreen({ onDemoAccess }: LoginScreenProps) {
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
+    if (!email.trim()) {
+      setErrorMessage("Please enter your email address")
+      setLoginState("error")
+      return
+    }
+
     if (!isValidEmail(email)) {
       setErrorMessage("Please enter a valid email address")
       setLoginState("error")
@@ -81,10 +87,28 @@ export default function LoginScreen({ onDemoAccess }: LoginScreenProps) {
     try {
       await sendMagicLink(email)
       setLoginState("success")
-    } catch (error) {
-      console.error("[v0] Error sending magic link:", error)
-      const errorMsg =
-        error instanceof Error ? error.message : "Failed to send magic link. Please try again."
+    } catch (error: unknown) {
+      console.error("[v0] Email login error:", error)
+      if (error && typeof error === "object" && "code" in error) {
+        console.error("[v0] Email login error code:", (error as { code: string }).code)
+      }
+      if (error && typeof error === "object" && "message" in error) {
+        console.error("[v0] Email login error message:", (error as { message: string }).message)
+      }
+      console.error("[v0] Full email login error:", error)
+      
+      let errorMsg = "Failed to send magic link. Please try again."
+      if (error && typeof error === "object" && "code" in error) {
+        const code = (error as { code: string }).code
+        if (code === "auth/invalid-email") {
+          errorMsg = "Invalid email address."
+        } else if (code === "auth/missing-continue-uri") {
+          errorMsg = "Configuration error. Please contact support."
+        } else if (code === "auth/unauthorized-continue-uri") {
+          errorMsg = "Domain not authorized. Please contact support."
+        }
+      }
+      
       setErrorMessage(errorMsg)
       setLoginState("error")
     }

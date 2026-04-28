@@ -26,14 +26,30 @@ const actionCodeSettings = {
  * Send a magic link to the user's email
  */
 export async function sendMagicLink(email: string): Promise<void> {
+  const settings = {
+    url: `${typeof window !== "undefined" ? window.location.origin : ""}/auth/callback`,
+    handleCodeInApp: true,
+  }
+  
+  console.log("[v0] sendMagicLink called with email:", email)
+  console.log("[v0] actionCodeSettings.url:", settings.url)
+  
   try {
-    await sendSignInLinkToEmail(auth, email, actionCodeSettings)
+    await sendSignInLinkToEmail(auth, email, settings)
+    console.log("[v0] sendSignInLinkToEmail succeeded")
     // Store email in localStorage for verification later
     if (typeof window !== "undefined") {
       window.localStorage.setItem("emailForSignIn", email)
+      console.log("[v0] Stored email in localStorage")
     }
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("[v0] Error sending magic link:", error)
+    if (error && typeof error === "object" && "code" in error) {
+      console.error("[v0] Firebase error code:", (error as { code: string }).code)
+    }
+    if (error && typeof error === "object" && "message" in error) {
+      console.error("[v0] Firebase error message:", (error as { message: string }).message)
+    }
     throw error
   }
 }
@@ -43,31 +59,50 @@ export async function sendMagicLink(email: string): Promise<void> {
  */
 export function isMagicLinkCallback(): boolean {
   if (typeof window === "undefined") return false
-  return isSignInWithEmailLink(auth, window.location.href)
+  const isEmailLink = isSignInWithEmailLink(auth, window.location.href)
+  console.log("[v0] isMagicLinkCallback check:", isEmailLink, "URL:", window.location.href)
+  return isEmailLink
 }
 
 /**
  * Complete the magic link sign-in process
  */
 export async function completeMagicLinkSignIn(email?: string): Promise<User> {
+  console.log("[v0] completeMagicLinkSignIn called")
+  console.log("[v0] Provided email:", email)
+  
   try {
-    const emailToUse =
-      email || (typeof window !== "undefined" ? window.localStorage.getItem("emailForSignIn") : null)
+    const storedEmail = typeof window !== "undefined" ? window.localStorage.getItem("emailForSignIn") : null
+    console.log("[v0] Stored email from localStorage:", storedEmail)
+    
+    const emailToUse = email || storedEmail
 
     if (!emailToUse) {
-      throw new Error("No email found for sign-in. Please try again.")
+      console.error("[v0] No email found for sign-in")
+      throw new Error("No email found for sign-in. Please enter your email again.")
     }
 
+    console.log("[v0] Attempting signInWithEmailLink with email:", emailToUse)
+    console.log("[v0] Current URL:", window.location.href)
+    
     const result = await signInWithEmailLink(auth, emailToUse, window.location.href)
+    console.log("[v0] signInWithEmailLink succeeded, user:", result.user.email)
 
     // Clean up localStorage
     if (typeof window !== "undefined") {
       window.localStorage.removeItem("emailForSignIn")
+      console.log("[v0] Removed email from localStorage")
     }
 
     return result.user
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("[v0] Error completing magic link sign-in:", error)
+    if (error && typeof error === "object" && "code" in error) {
+      console.error("[v0] Firebase error code:", (error as { code: string }).code)
+    }
+    if (error && typeof error === "object" && "message" in error) {
+      console.error("[v0] Firebase error message:", (error as { message: string }).message)
+    }
     throw error
   }
 }
