@@ -127,14 +127,27 @@ export function initRecaptchaVerifier(buttonId: string): RecaptchaVerifier {
  * Send a verification code to the user's phone number
  */
 export async function sendPhoneVerificationCode(phoneNumber: string): Promise<void> {
+  console.log("[v0] sendPhoneVerificationCode called with:", phoneNumber)
+  console.log("[v0] recaptchaVerifier exists:", !!recaptchaVerifier)
+  console.log("[v0] auth object exists:", !!auth)
+  
   if (!recaptchaVerifier) {
     throw new Error("reCAPTCHA verifier not initialized. Call initRecaptchaVerifier first.")
   }
 
   try {
+    console.log("[v0] Calling signInWithPhoneNumber...")
     confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, recaptchaVerifier)
-  } catch (error) {
+    console.log("[v0] signInWithPhoneNumber succeeded, confirmationResult:", !!confirmationResult)
+  } catch (error: unknown) {
     console.error("[v0] Error sending phone verification code:", error)
+    // Log specific Firebase error details
+    if (error && typeof error === "object" && "code" in error) {
+      console.error("[v0] Firebase error code:", (error as { code: string }).code)
+    }
+    if (error && typeof error === "object" && "message" in error) {
+      console.error("[v0] Firebase error message:", (error as { message: string }).message)
+    }
     // Reset reCAPTCHA on error
     if (recaptchaVerifier) {
       recaptchaVerifier.clear()
