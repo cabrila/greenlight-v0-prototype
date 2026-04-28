@@ -1,8 +1,9 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
-import { LogOut } from "lucide-react"
+import { LogOut, MessageSquarePlus } from "lucide-react"
 import { useCasting } from "@/components/casting/CastingContext"
+import FeedbackModal from "@/components/modals/FeedbackModal"
 
 interface SplashScreenProps {
   onSignOut?: () => void
@@ -10,6 +11,7 @@ interface SplashScreenProps {
 
 export default function SplashScreen({ onSignOut }: SplashScreenProps) {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
+  const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false)
   const userButtonRef = useRef<HTMLDivElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
   const { state } = useCasting()
@@ -57,52 +59,66 @@ export default function SplashScreen({ onSignOut }: SplashScreenProps) {
             className="h-9 w-auto"
           />
         </div>
-        <div className="relative" ref={userButtonRef}>
+        <div className="flex items-center gap-2">
+          {/* Feedback & Requests Button */}
           <button
-            onClick={handleUserMenu}
-            className="relative p-1 rounded-lg hover:bg-white/10 transition-all duration-200"
-            title={state.currentUser?.name || "User"}
-            aria-label="User menu"
-            aria-expanded={isUserMenuOpen}
-            aria-haspopup="true"
+            onClick={() => setIsFeedbackModalOpen(true)}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-all duration-200"
+            title="Feedback & Requests"
+            aria-label="Open feedback form"
           >
-            <div
-              className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold"
-              style={{
-                backgroundColor: state.currentUser?.bgColor || "#6B7280",
-                color: state.currentUser?.color || "#FFFFFF",
-              }}
-            >
-              {state.currentUser?.initials || "??"}
-            </div>
+            <MessageSquarePlus className="w-4 h-4" />
+            <span className="text-sm font-medium font-sans hidden sm:inline">Feedback</span>
           </button>
 
-          {/* User Dropdown Menu */}
-          {isUserMenuOpen && (
-            <div
-              ref={menuRef}
-              className="absolute right-0 top-full mt-2 w-48 bg-[#1a3a25] border border-white/15 rounded-lg shadow-xl overflow-hidden z-50"
+          {/* User Avatar */}
+          <div className="relative" ref={userButtonRef}>
+            <button
+              onClick={handleUserMenu}
+              className="relative p-1 rounded-lg hover:bg-white/10 transition-all duration-200"
+              title={state.currentUser?.name || "User"}
+              aria-label="User menu"
+              aria-expanded={isUserMenuOpen}
+              aria-haspopup="true"
             >
-              {/* User Info */}
-              <div className="px-4 py-3 border-b border-white/10">
-                <p className="text-sm font-medium text-white truncate">
-                  {state.currentUser?.name || "User"}
-                </p>
-                <p className="text-xs text-white/50 truncate">
-                  {state.currentUser?.email || ""}
-                </p>
-              </div>
-
-              {/* Sign Out Button */}
-              <button
-                onClick={handleSignOut}
-                className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-400 hover:bg-white/5 transition-colors"
+              <div
+                className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold"
+                style={{
+                  backgroundColor: state.currentUser?.bgColor || "#6B7280",
+                  color: state.currentUser?.color || "#FFFFFF",
+                }}
               >
-                <LogOut className="w-4 h-4" />
-                <span>Sign Out</span>
-              </button>
-            </div>
-          )}
+                {state.currentUser?.initials || "??"}
+              </div>
+            </button>
+
+            {/* User Dropdown Menu */}
+            {isUserMenuOpen && (
+              <div
+                ref={menuRef}
+                className="absolute right-0 top-full mt-2 w-48 bg-[#1a3a25] border border-white/15 rounded-lg shadow-xl overflow-hidden z-50"
+              >
+                {/* User Info */}
+                <div className="px-4 py-3 border-b border-white/10">
+                  <p className="text-sm font-medium text-white truncate">
+                    {state.currentUser?.name || "User"}
+                  </p>
+                  <p className="text-xs text-white/50 truncate">
+                    {state.currentUser?.email || ""}
+                  </p>
+                </div>
+
+                {/* Sign Out Button */}
+                <button
+                  onClick={handleSignOut}
+                  className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-400 hover:bg-white/5 transition-colors"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span>Sign Out</span>
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </header>
 
@@ -127,6 +143,11 @@ export default function SplashScreen({ onSignOut }: SplashScreenProps) {
           GoGreenlight -- All your creative assets, one dashboard, zero silos.
         </p>
       </footer>
+
+      {/* Feedback Modal */}
+      {isFeedbackModalOpen && (
+        <FeedbackModal onClose={() => setIsFeedbackModalOpen(false)} />
+      )}
     </div>
   )
 }
