@@ -43,14 +43,17 @@ export default function AuthCallbackPage() {
 
   const handleSignIn = async (emailToUse: string) => {
     console.log("[v0] Attempting sign-in with email:", emailToUse)
+    console.log("[v0] Full URL for verification:", window.location.href)
     
     try {
-      await completeMagicLinkSignIn(emailToUse)
-      console.log("[v0] Sign-in successful!")
+      const user = await completeMagicLinkSignIn(emailToUse)
+      console.log("[v0] Sign-in successful! User:", user.email)
       setState("success")
       
-      // Redirect to home after short delay
+      // Redirect to home after short delay - auth state will show splash screen
       setTimeout(() => {
+        // Clear the URL parameters by replacing the history state
+        window.history.replaceState({}, document.title, "/")
         router.push("/")
       }, 1500)
     } catch (error: unknown) {
