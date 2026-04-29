@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useCallback } from "react"
 import { X, ExternalLink } from "lucide-react"
 import { CastingCall } from "@/types/public-casting"
 
@@ -9,16 +10,33 @@ interface CastingCallPreviewModalProps {
 }
 
 export default function CastingCallPreviewModal({ castingCall, onClose }: CastingCallPreviewModalProps) {
+  // Handle escape key
+  const handleEscape = useCallback((e: KeyboardEvent) => {
+    if (e.key === "Escape") {
+      onClose()
+    }
+  }, [onClose])
+
+  useEffect(() => {
+    document.addEventListener("keydown", handleEscape)
+    // Prevent body scroll when modal is open
+    document.body.style.overflow = "hidden"
+    return () => {
+      document.removeEventListener("keydown", handleEscape)
+      document.body.style.overflow = ""
+    }
+  }, [handleEscape])
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4">
       {/* Backdrop */}
       <div 
-        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/80 backdrop-blur-sm"
         onClick={onClose}
       />
       
-      {/* Modal */}
-      <div className="relative w-full max-w-2xl max-h-[90vh] bg-gradient-to-b from-[#1a4a2a] to-[#0f1f17] rounded-2xl border border-white/10 shadow-2xl overflow-hidden flex flex-col">
+      {/* Modal - Full screen on mobile, centered on larger screens */}
+      <div className="relative w-full h-full sm:h-auto sm:max-h-[90vh] sm:max-w-2xl bg-gradient-to-b from-[#1a4a2a] to-[#0f1f17] sm:rounded-2xl border-0 sm:border border-white/10 shadow-2xl overflow-hidden flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 shrink-0">
           <div className="flex items-center gap-3">
