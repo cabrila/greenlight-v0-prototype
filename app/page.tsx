@@ -6,10 +6,11 @@ import { subscribeToAuthStateChanges, isMagicLinkCallback, completeMagicLinkSign
 import LoginScreen from "@/components/auth/LoginScreen"
 import SplashScreen from "@/components/home/SplashScreen"
 import CharacterBibleScreen from "@/components/character-bible/CharacterBibleScreen"
+import LocationScoutingScreen from "@/components/location-scouting/LocationScoutingScreen"
 import { CastingProvider } from "@/components/casting/CastingContext"
 
 export default function App() {
-  const [view, setView] = useState<"login" | "splash" | "character-bible">("login")
+  const [view, setView] = useState<"login" | "splash" | "character-bible" | "location-overview">("login")
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -70,8 +71,9 @@ export default function App() {
   const handleNavigate = (feature: string) => {
     if (feature === "character-bible") {
       setView("character-bible")
+    } else if (feature === "location-overview") {
+      setView("location-overview")
     }
-    // Other features can be added here
   }
 
   if (isLoading) {
@@ -101,6 +103,9 @@ export default function App() {
       case "character-bible":
         console.log("[v0] Rendering CharacterBibleScreen")
         return <CharacterBibleScreen onBack={() => setView("splash")} />
+      case "location-overview":
+        console.log("[v0] Rendering LocationScoutingScreen")
+        return <LocationScoutingScreen onBack={() => setView("splash")} />
       default:
         console.log("[v0] Rendering default LoginScreen")
         return <LoginScreen onDemoAccess={handleDemoAccess} />
