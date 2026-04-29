@@ -56,14 +56,8 @@ export default function App() {
   }
 
   const handleNavigate = (feature: string) => {
-    if (feature === "character-bible") {
-      setView("character-bible")
-    } else if (feature === "location-overview") {
-      setView("location-overview")
-    } else if (feature === "actor-database") {
-      setView("actor-database")
-    } else if (feature === "public-casting") {
-      setView("public-casting")
+    if (feature === "character-bible" || feature === "location-overview" || feature === "actor-database" || feature === "public-casting") {
+      setView(feature)
     }
   }
 
@@ -80,25 +74,25 @@ export default function App() {
       case "character-bible":
         return (
           <CastingProvider>
-            <CharacterBibleScreen onBack={() => setView("splash")} onSignOut={handleSignOut} />
+            <CharacterBibleScreen onBack={() => setView("splash")} onSignOut={handleSignOut} activeView="character-bible" onNavigate={handleNavigate} />
           </CastingProvider>
         )
       case "location-overview":
         return (
           <CastingProvider>
-            <LocationScoutingScreen onBack={() => setView("splash")} onSignOut={handleSignOut} />
+            <LocationScoutingScreen onBack={() => setView("splash")} onSignOut={handleSignOut} activeView="location-overview" onNavigate={handleNavigate} />
           </CastingProvider>
         )
       case "actor-database":
         return (
           <CastingProvider>
-            <ActorListScreen onBack={() => setView("splash")} onSignOut={handleSignOut} />
+            <ActorListScreen onBack={() => setView("splash")} onSignOut={handleSignOut} activeView="actor-database" onNavigate={handleNavigate} />
           </CastingProvider>
         )
       case "public-casting":
         return (
           <CastingProvider>
-            <PublicCastingScreen onBack={() => setView("splash")} onSignOut={handleSignOut} />
+            <PublicCastingScreen onBack={() => setView("splash")} onSignOut={handleSignOut} activeView="public-casting" onNavigate={handleNavigate} />
           </CastingProvider>
         )
       default:

@@ -9,10 +9,13 @@ import FeatureLayout from "@/components/layout/FeatureLayout"
 import { CastingCall, PublicCastingProject } from "@/types/public-casting"
 
 type View = "list" | "setup" | "submissions"
+type ActiveView = "character-bible" | "location-overview" | "actor-database" | "public-casting"
 
 interface PublicCastingScreenProps {
   onBack: () => void
   onSignOut?: () => void
+  activeView?: ActiveView
+  onNavigate?: (view: string) => void
 }
 
 interface EditingState {
@@ -20,7 +23,7 @@ interface EditingState {
   project: PublicCastingProject
 }
 
-function PublicCastingContent({ onBack, onSignOut }: PublicCastingScreenProps) {
+function PublicCastingContent({ onBack, onSignOut, activeView, onNavigate }: PublicCastingScreenProps) {
   const [view, setView] = useState<View>("list")
   const [editingState, setEditingState] = useState<EditingState | null>(null)
 
@@ -66,7 +69,7 @@ function PublicCastingContent({ onBack, onSignOut }: PublicCastingScreenProps) {
   }
 
   return (
-    <FeatureLayout onBack={onBack} onSignOut={onSignOut}>
+    <FeatureLayout onBack={onBack} onSignOut={onSignOut} activeView={activeView} onNavigate={onNavigate as (view: ActiveView) => void}>
       <div className="h-full flex flex-col overflow-hidden">
         {renderContent()}
       </div>
@@ -74,10 +77,10 @@ function PublicCastingContent({ onBack, onSignOut }: PublicCastingScreenProps) {
   )
 }
 
-export default function PublicCastingScreen({ onBack, onSignOut }: PublicCastingScreenProps) {
+export default function PublicCastingScreen({ onBack, onSignOut, activeView, onNavigate }: PublicCastingScreenProps) {
   return (
     <PublicCastingProvider>
-      <PublicCastingContent onBack={onBack} onSignOut={onSignOut} />
+      <PublicCastingContent onBack={onBack} onSignOut={onSignOut} activeView={activeView} onNavigate={onNavigate} />
     </PublicCastingProvider>
   )
 }
