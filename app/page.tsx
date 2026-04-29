@@ -8,10 +8,11 @@ import SplashScreen from "@/components/home/SplashScreen"
 import CharacterBibleScreen from "@/components/character-bible/CharacterBibleScreen"
 import LocationScoutingScreen from "@/components/location-scouting/LocationScoutingScreen"
 import ActorListScreen from "@/components/actor-list/ActorListScreen"
+import PublicCastingScreen from "@/components/public-casting/PublicCastingScreen"
 import { CastingProvider } from "@/components/casting/CastingContext"
 
 export default function App() {
-  const [view, setView] = useState<"login" | "splash" | "character-bible" | "location-overview" | "actor-database">("login")
+  const [view, setView] = useState<"login" | "splash" | "character-bible" | "location-overview" | "actor-database" | "public-casting">("login")
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -76,6 +77,8 @@ export default function App() {
       setView("location-overview")
     } else if (feature === "actor-database") {
       setView("actor-database")
+    } else if (feature === "public-casting") {
+      setView("public-casting")
     }
   }
 
@@ -112,6 +115,9 @@ export default function App() {
       case "actor-database":
         console.log("[v0] Rendering ActorListScreen")
         return <ActorListScreen onBack={() => setView("splash")} />
+      case "public-casting":
+        console.log("[v0] Rendering PublicCastingScreen")
+        return <PublicCastingScreen onBack={() => setView("splash")} />
       default:
         console.log("[v0] Rendering default LoginScreen")
         return <LoginScreen onDemoAccess={handleDemoAccess} />

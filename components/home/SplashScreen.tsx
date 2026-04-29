@@ -23,7 +23,7 @@ const featureButtons = [
     iconColor: "text-amber-400",
   },
   {
-    id: "actor-list",
+    id: "actor-database",
     title: "Actor List",
     description: "Create and manage an easily navigable list of actors for your production.",
     icon: Users,
