@@ -27,9 +27,9 @@ export default function LocationProjectsList() {
     <div className="p-6">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-white font-sans mb-2">My Projects</h1>
+        <h1 className="text-3xl font-bold text-white font-sans mb-2">My Locations</h1>
         <p className="text-white/60 font-sans">
-          Manage your Character Bibles, Locations, and Actor Lists.
+          Scout and manage location lists generated from your scripts.
         </p>
       </div>
 

@@ -20,9 +20,9 @@ export default function ActorProjectsList() {
     <div className="p-6">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-white mb-2 font-sans">My Projects</h1>
+        <h1 className="text-3xl font-bold text-white mb-2 font-sans">Actor Lists</h1>
         <p className="text-white/50 font-sans">
-          Manage your Character Bibles, Locations, and Actor Lists.
+          Import and manage actor profiles for your productions.
         </p>
       </div>
 
