@@ -5,6 +5,8 @@ import { Plus, Share2, Calendar, Users, Pencil, Trash2, Link, Eye } from "lucide
 import { usePublicCasting } from "./PublicCastingContext"
 import { CastingCall, PublicCastingProject } from "@/types/public-casting"
 import CastingCallPreviewModal from "./CastingCallPreviewModal"
+import DeleteConfirmationModal from "@/components/ui/DeleteConfirmationModal"
+import EditProjectModal from "@/components/ui/EditProjectModal"
 
 interface CastingCallsListProps {
   onNewCastingCall: () => void
@@ -17,12 +19,36 @@ export default function CastingCallsList({
   onViewSubmissions,
   onEditCastingCall,
 }: CastingCallsListProps) {
-  const { state, deleteProject, getNewSubmissionsCount, getTotalSubmissions } = usePublicCasting()
+  const { state, deleteProject, updateProject, getNewSubmissionsCount, getTotalSubmissions } = usePublicCasting()
   const [hoveredProjectId, setHoveredProjectId] = useState<string | null>(null)
   const [previewCastingCall, setPreviewCastingCall] = useState<CastingCall | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<PublicCastingProject | null>(null)
+  const [editTarget, setEditTarget] = useState<PublicCastingProject | null>(null)
 
   const newCount = getNewSubmissionsCount()
   const totalSubmissions = getTotalSubmissions()
+
+  const handleDeleteProject = (e: React.MouseEvent, project: PublicCastingProject) => {
+    e.stopPropagation()
+    setDeleteTarget(project)
+  }
+
+  const handleEditProject = (e: React.MouseEvent, project: PublicCastingProject) => {
+    e.stopPropagation()
+    setEditTarget(project)
+  }
+
+  const handleConfirmDelete = () => {
+    if (deleteTarget) {
+      deleteProject(deleteTarget.id)
+    }
+  }
+
+  const handleSaveEdit = (newName: string) => {
+    if (editTarget) {
+      updateProject(editTarget.id, { name: newName })
+    }
+  }
 
   return (
     <div className="h-full overflow-y-auto p-6">
@@ -108,10 +134,14 @@ export default function CastingCallsList({
                     </>
                   )}
                   <button
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      deleteProject(project.id)
-                    }}
+                    onClick={(e) => handleEditProject(e, project)}
+                    className="p-2 bg-white/10 hover:bg-white/20 rounded-lg text-white/70 hover:text-white transition-colors"
+                    title="Rename project"
+                  >
+                    <Pencil className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={(e) => handleDeleteProject(e, project)}
                     className="p-2 bg-red-500/20 hover:bg-red-500/30 rounded-lg text-red-400 hover:text-red-300 transition-colors"
                     title="Delete project"
                   >
@@ -166,6 +196,26 @@ export default function CastingCallsList({
           onClose={() => setPreviewCastingCall(null)}
         />
       )}
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal
+        isOpen={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleConfirmDelete}
+        title="Delete Casting Project"
+        itemName={deleteTarget?.name || ""}
+        description="This will permanently delete this project, all its casting calls, and submissions. This action cannot be undone."
+      />
+
+      {/* Edit Project Modal */}
+      <EditProjectModal
+        isOpen={!!editTarget}
+        onClose={() => setEditTarget(null)}
+        onSave={handleSaveEdit}
+        currentName={editTarget?.name || ""}
+        title="Rename Casting Project"
+        label="Project Name"
+      />
     </div>
   )
 }

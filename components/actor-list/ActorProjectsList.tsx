@@ -3,10 +3,37 @@
 import { useState } from "react"
 import { Plus, Users, Calendar, Pencil, Trash2 } from "lucide-react"
 import { useActorList } from "./ActorListContext"
+import { ActorListProject } from "@/types/actor-list"
+import DeleteConfirmationModal from "@/components/ui/DeleteConfirmationModal"
+import EditProjectModal from "@/components/ui/EditProjectModal"
 
 export default function ActorProjectsList() {
-  const { projects, selectProject, deleteProject, setView } = useActorList()
+  const { projects, selectProject, deleteProject, updateProject, setView } = useActorList()
   const [hoveredId, setHoveredId] = useState<string | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<ActorListProject | null>(null)
+  const [editTarget, setEditTarget] = useState<ActorListProject | null>(null)
+
+  const handleDeleteProject = (e: React.MouseEvent, project: ActorListProject) => {
+    e.stopPropagation()
+    setDeleteTarget(project)
+  }
+
+  const handleEditProject = (e: React.MouseEvent, project: ActorListProject) => {
+    e.stopPropagation()
+    setEditTarget(project)
+  }
+
+  const handleConfirmDelete = () => {
+    if (deleteTarget) {
+      deleteProject(deleteTarget.id)
+    }
+  }
+
+  const handleSaveEdit = (newName: string) => {
+    if (editTarget) {
+      updateProject(editTarget.id, { name: newName })
+    }
+  }
 
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat("en-US", {
@@ -41,20 +68,14 @@ export default function ActorProjectsList() {
             {hoveredId === project.id && (
               <div className="absolute top-3 right-3 flex items-center gap-2 z-10">
                 <button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    selectProject(project.id)
-                  }}
+                  onClick={(e) => handleEditProject(e, project)}
                   className="p-2 bg-white/10 hover:bg-white/20 rounded-lg text-white/70 hover:text-white transition-colors"
                   title="Edit project"
                 >
                   <Pencil className="w-4 h-4" />
                 </button>
                 <button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    deleteProject(project.id)
-                  }}
+                  onClick={(e) => handleDeleteProject(e, project)}
                   className="p-2 bg-red-500/20 hover:bg-red-500/30 rounded-lg text-red-400 hover:text-red-300 transition-colors"
                   title="Delete project"
                 >
@@ -100,6 +121,26 @@ export default function ActorProjectsList() {
           </span>
         </button>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal
+        isOpen={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleConfirmDelete}
+        title="Delete Actor List"
+        itemName={deleteTarget?.name || ""}
+        description="This will permanently delete this actor list and all its actor profiles. This action cannot be undone."
+      />
+
+      {/* Edit Project Modal */}
+      <EditProjectModal
+        isOpen={!!editTarget}
+        onClose={() => setEditTarget(null)}
+        onSave={handleSaveEdit}
+        currentName={editTarget?.name || ""}
+        title="Rename Actor List"
+        label="Actor List Name"
+      />
     </div>
   )
 }

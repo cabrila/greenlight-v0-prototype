@@ -14,6 +14,7 @@ interface PublicCastingContextType {
   state: PublicCastingState
   createProject: (name: string) => PublicCastingProject
   selectProject: (id: string) => void
+  updateProject: (id: string, updates: Partial<PublicCastingProject>) => void
   deleteProject: (id: string) => void
   createCastingCall: (projectId: string, title: string, description: string, projectName: string, fields: CastingCallField[]) => CastingCall
   updateCastingCall: (projectId: string, castingCallId: string, updates: Partial<CastingCall>) => void
@@ -181,6 +182,14 @@ export function PublicCastingProvider({ children }: { children: ReactNode }) {
     }))
   }, [])
 
+  const updateProject = useCallback((id: string, updates: Partial<PublicCastingProject>) => {
+    setState((prev) => ({
+      ...prev,
+      projects: prev.projects.map((p) => (p.id === id ? { ...p, ...updates } : p)),
+      currentProject: prev.currentProject?.id === id ? { ...prev.currentProject, ...updates } : prev.currentProject,
+    }))
+  }, [])
+
   const deleteProject = useCallback((id: string) => {
     setState((prev) => ({
       ...prev,
@@ -317,6 +326,7 @@ export function PublicCastingProvider({ children }: { children: ReactNode }) {
         state,
         createProject,
         selectProject,
+        updateProject,
         deleteProject,
         createCastingCall,
         updateCastingCall,

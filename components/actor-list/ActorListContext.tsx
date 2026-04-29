@@ -10,6 +10,7 @@ interface ActorListContextType {
   setView: (view: "list" | "upload" | "results") => void
   createProject: (name: string, actors: Actor[]) => void
   selectProject: (id: string) => void
+  updateProject: (id: string, updates: Partial<ActorListProject>) => void
   deleteProject: (id: string) => void
   addActor: (actor: Actor) => void
   updateActor: (actor: Actor) => void
@@ -119,6 +120,13 @@ export function ActorListProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  const updateProject = (id: string, updates: Partial<ActorListProject>) => {
+    setProjects(projects.map((p) => (p.id === id ? { ...p, ...updates, updatedAt: new Date() } : p)))
+    if (currentProject?.id === id) {
+      setCurrentProject({ ...currentProject, ...updates, updatedAt: new Date() })
+    }
+  }
+
   const deleteProject = (id: string) => {
     setProjects(projects.filter((p) => p.id !== id))
     if (currentProject?.id === id) {
@@ -178,6 +186,7 @@ export function ActorListProvider({ children }: { children: ReactNode }) {
         setView,
         createProject,
         selectProject,
+        updateProject,
         deleteProject,
         addActor,
         updateActor,

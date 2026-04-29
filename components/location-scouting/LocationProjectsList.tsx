@@ -3,10 +3,15 @@
 import { useState } from "react"
 import { MapPin, Calendar, Plus, Pencil, Trash2 } from "lucide-react"
 import { useLocationScouting } from "./LocationScoutingContext"
+import { LocationProject } from "@/types/location-scouting"
+import DeleteConfirmationModal from "@/components/ui/DeleteConfirmationModal"
+import EditProjectModal from "@/components/ui/EditProjectModal"
 
 export default function LocationProjectsList() {
-  const { projects, setView, setCurrentProject, deleteProject } = useLocationScouting()
+  const { projects, setView, setCurrentProject, deleteProject, updateProject } = useLocationScouting()
   const [hoveredId, setHoveredId] = useState<string | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<LocationProject | null>(null)
+  const [editTarget, setEditTarget] = useState<LocationProject | null>(null)
 
   const handleProjectClick = (projectId: string) => {
     const project = projects.find((p) => p.id === projectId)
@@ -16,10 +21,25 @@ export default function LocationProjectsList() {
     }
   }
 
-  const handleDeleteProject = (e: React.MouseEvent, projectId: string) => {
+  const handleDeleteProject = (e: React.MouseEvent, project: LocationProject) => {
     e.stopPropagation()
-    if (confirm("Are you sure you want to delete this location list?")) {
-      deleteProject(projectId)
+    setDeleteTarget(project)
+  }
+
+  const handleEditProject = (e: React.MouseEvent, project: LocationProject) => {
+    e.stopPropagation()
+    setEditTarget(project)
+  }
+
+  const handleConfirmDelete = () => {
+    if (deleteTarget) {
+      deleteProject(deleteTarget.id)
+    }
+  }
+
+  const handleSaveEdit = (newName: string) => {
+    if (editTarget) {
+      updateProject({ ...editTarget, name: newName, updatedAt: new Date() })
     }
   }
 
@@ -47,20 +67,20 @@ export default function LocationProjectsList() {
             {/* Hover Actions */}
             {hoveredId === project.id && (
               <div className="absolute top-4 right-4 flex items-center gap-2">
-                <span
-                  onClick={(e) => e.stopPropagation()}
-                  className="p-2 bg-white/10 hover:bg-white/20 rounded-lg text-white/70 hover:text-white transition-colors cursor-pointer"
+                <button
+                  onClick={(e) => handleEditProject(e, project)}
+                  className="p-2 bg-white/10 hover:bg-white/20 rounded-lg text-white/70 hover:text-white transition-colors"
                   title="Edit project"
                 >
                   <Pencil className="w-4 h-4" />
-                </span>
-                <span
-                  onClick={(e) => handleDeleteProject(e, project.id)}
-                  className="p-2 bg-red-500/20 hover:bg-red-500/30 rounded-lg text-red-400 hover:text-red-300 transition-colors cursor-pointer"
+                </button>
+                <button
+                  onClick={(e) => handleDeleteProject(e, project)}
+                  className="p-2 bg-red-500/20 hover:bg-red-500/30 rounded-lg text-red-400 hover:text-red-300 transition-colors"
                   title="Delete project"
                 >
                   <Trash2 className="w-4 h-4" />
-                </span>
+                </button>
               </div>
             )}
 
@@ -103,6 +123,26 @@ export default function LocationProjectsList() {
           <span className="text-white/50 font-sans font-medium">New Location List</span>
         </button>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal
+        isOpen={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleConfirmDelete}
+        title="Delete Location List"
+        itemName={deleteTarget?.name || ""}
+        description="This will permanently delete this location list and all its locations. This action cannot be undone."
+      />
+
+      {/* Edit Project Modal */}
+      <EditProjectModal
+        isOpen={!!editTarget}
+        onClose={() => setEditTarget(null)}
+        onSave={handleSaveEdit}
+        currentName={editTarget?.name || ""}
+        title="Rename Location List"
+        label="Location List Name"
+      />
     </div>
   )
 }

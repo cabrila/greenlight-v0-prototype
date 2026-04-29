@@ -4,10 +4,14 @@ import { useState } from "react"
 import { FileText, Users, Calendar, Plus, Pencil, Trash2 } from "lucide-react"
 import { useCharacterBible } from "./CharacterBibleContext"
 import { CharacterBible } from "@/types/character-bible"
+import DeleteConfirmationModal from "@/components/ui/DeleteConfirmationModal"
+import EditProjectModal from "@/components/ui/EditProjectModal"
 
 export default function ProjectsList() {
-  const { bibles, setView, setCurrentBible, deleteBible } = useCharacterBible()
+  const { bibles, setView, setCurrentBible, deleteBible, updateBible } = useCharacterBible()
   const [hoveredId, setHoveredId] = useState<string | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<CharacterBible | null>(null)
+  const [editTarget, setEditTarget] = useState<CharacterBible | null>(null)
 
   const handleOpenBible = (bible: CharacterBible) => {
     setCurrentBible(bible)
@@ -18,10 +22,25 @@ export default function ProjectsList() {
     setView("upload")
   }
 
-  const handleDelete = (e: React.MouseEvent, id: string) => {
+  const handleDelete = (e: React.MouseEvent, bible: CharacterBible) => {
     e.stopPropagation()
-    if (confirm("Are you sure you want to delete this Character Bible?")) {
-      deleteBible(id)
+    setDeleteTarget(bible)
+  }
+
+  const handleEdit = (e: React.MouseEvent, bible: CharacterBible) => {
+    e.stopPropagation()
+    setEditTarget(bible)
+  }
+
+  const handleConfirmDelete = () => {
+    if (deleteTarget) {
+      deleteBible(deleteTarget.id)
+    }
+  }
+
+  const handleSaveEdit = (newName: string) => {
+    if (editTarget) {
+      updateBible(editTarget.id, { name: newName })
     }
   }
 
@@ -64,17 +83,14 @@ export default function ProjectsList() {
             {hoveredId === bible.id && (
               <div className="absolute top-3 right-3 flex items-center gap-1">
                 <button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    // Edit functionality
-                  }}
+                  onClick={(e) => handleEdit(e, bible)}
                   className="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
                   title="Edit"
                 >
                   <Pencil className="w-4 h-4 text-white/70" />
                 </button>
                 <button
-                  onClick={(e) => handleDelete(e, bible.id)}
+                  onClick={(e) => handleDelete(e, bible)}
                   className="p-2 rounded-lg bg-red-500/20 hover:bg-red-500/30 transition-colors"
                   title="Delete"
                 >
@@ -118,6 +134,26 @@ export default function ProjectsList() {
           </span>
         </button>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal
+        isOpen={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleConfirmDelete}
+        title="Delete Character Bible"
+        itemName={deleteTarget?.name || ""}
+        description="This will permanently delete this character bible and all its characters. This action cannot be undone."
+      />
+
+      {/* Edit Project Modal */}
+      <EditProjectModal
+        isOpen={!!editTarget}
+        onClose={() => setEditTarget(null)}
+        onSave={handleSaveEdit}
+        currentName={editTarget?.name || ""}
+        title="Rename Character Bible"
+        label="Character Bible Name"
+      />
     </div>
   )
 }
