@@ -5,10 +5,11 @@ import { User } from "firebase/auth"
 import { subscribeToAuthStateChanges, isMagicLinkCallback, completeMagicLinkSignIn } from "@/lib/auth"
 import LoginScreen from "@/components/auth/LoginScreen"
 import SplashScreen from "@/components/home/SplashScreen"
+import CharacterBibleScreen from "@/components/character-bible/CharacterBibleScreen"
 import { CastingProvider } from "@/components/casting/CastingContext"
 
 export default function App() {
-  const [view, setView] = useState<"login" | "splash">("login")
+  const [view, setView] = useState<"login" | "splash" | "character-bible">("login")
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -53,6 +54,13 @@ export default function App() {
     setView("splash")
   }
 
+  const handleNavigate = (feature: string) => {
+    if (feature === "character-bible") {
+      setView("character-bible")
+    }
+    // Other features can be added here
+  }
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-[#2d6b3f] via-[#1a4a2a] to-[#061a10]">
@@ -64,15 +72,26 @@ export default function App() {
     )
   }
 
+  const renderView = () => {
+    switch (view) {
+      case "login":
+        return <LoginScreen onDemoAccess={handleDemoAccess} />
+      case "splash":
+        return (
+          <CastingProvider>
+            <SplashScreen onSignOut={handleSignOut} onNavigate={handleNavigate} />
+          </CastingProvider>
+        )
+      case "character-bible":
+        return <CharacterBibleScreen onBack={() => setView("splash")} />
+      default:
+        return <LoginScreen onDemoAccess={handleDemoAccess} />
+    }
+  }
+
   return (
-    <div>
-      {view === "login" ? (
-        <LoginScreen onDemoAccess={handleDemoAccess} />
-      ) : (
-        <CastingProvider>
-          <SplashScreen onSignOut={handleSignOut} />
-        </CastingProvider>
-      )}
+    <div className="h-screen">
+      {renderView()}
       
       {error && (
         <div className="fixed bottom-4 right-4 px-4 py-3 bg-red-500/10 border border-red-500/30 rounded-lg">

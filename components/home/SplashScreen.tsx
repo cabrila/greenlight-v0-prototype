@@ -42,9 +42,10 @@ const featureButtons = [
 
 interface SplashScreenProps {
   onSignOut?: () => void
+  onNavigate?: (feature: string) => void
 }
 
-export default function SplashScreen({ onSignOut }: SplashScreenProps) {
+export default function SplashScreen({ onSignOut, onNavigate }: SplashScreenProps) {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false)
   const userButtonRef = useRef<HTMLDivElement>(null)
@@ -177,8 +178,7 @@ export default function SplashScreen({ onSignOut }: SplashScreenProps) {
               <button
                 key={feature.id}
                 onClick={() => {
-                  // Feature navigation would be implemented here
-                  console.log(`[v0] Navigate to ${feature.id}`)
+                  onNavigate?.(feature.id)
                 }}
                 className="group flex items-start gap-4 p-5 bg-white/[0.03] hover:bg-white/[0.07] border border-white/10 hover:border-white/20 rounded-xl text-left transition-all duration-200"
               >

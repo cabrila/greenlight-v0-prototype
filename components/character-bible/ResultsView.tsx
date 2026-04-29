@@ -1,0 +1,182 @@
+"use client"
+
+import { useState } from "react"
+import { ArrowLeft, Plus, FileJson, Download, Trash2 } from "lucide-react"
+import { useCharacterBible } from "./CharacterBibleContext"
+import CharacterCard from "./CharacterCard"
+import { Character } from "@/types/character-bible"
+
+export default function ResultsView() {
+  const { currentBible, setView, setCurrentBible, updateCharacter, deleteCharacter, addCharacter, deleteBible } = useCharacterBible()
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+
+  if (!currentBible) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <p className="text-white/60 font-sans">No Character Bible selected</p>
+      </div>
+    )
+  }
+
+  const handleAddCharacter = () => {
+    const newCharacter: Character = {
+      id: crypto.randomUUID(),
+      name: "New Character",
+      age: "",
+      gender: "",
+      ethnicity: "Not specified",
+      scenes: 0,
+      castingNotes: "",
+    }
+    addCharacter(currentBible.id, newCharacter)
+  }
+
+  const handleExportJSON = () => {
+    const data = JSON.stringify(currentBible, null, 2)
+    const blob = new Blob([data], { type: "application/json" })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = `${currentBible.name.toLowerCase().replace(/\s+/g, "-")}.json`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  const handleExportPDF = () => {
+    // In a real implementation, this would generate a PDF
+    alert("PDF export would be implemented here")
+  }
+
+  const handleDeleteList = () => {
+    setShowDeleteConfirm(true)
+  }
+
+  const confirmDelete = () => {
+    deleteBible(currentBible.id)
+    setShowDeleteConfirm(false)
+  }
+
+  const handleBack = () => {
+    setCurrentBible(null)
+    setView("list")
+  }
+
+  return (
+    <div className="flex flex-col h-full overflow-hidden">
+      {/* Header */}
+      <div className="shrink-0 border-b border-white/10">
+        {/* Back Navigation */}
+        <div className="px-6 py-3 border-b border-white/5">
+          <button
+            onClick={handleBack}
+            className="flex items-center gap-2 text-white/60 hover:text-white transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span className="text-sm font-sans">Back to Projects</span>
+          </button>
+        </div>
+
+        {/* Title and Actions */}
+        <div className="px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-white font-sans">
+              {currentBible.name}
+            </h1>
+            <p className="text-white/50 text-sm font-sans">
+              Character Bible &bull; Found {currentBible.characters.length} items.
+            </p>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              onClick={handleAddCharacter}
+              className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg text-white transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+              <span className="text-sm font-sans">Add Character</span>
+            </button>
+            <button
+              onClick={handleExportJSON}
+              className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg text-white transition-colors"
+            >
+              <FileJson className="w-4 h-4" />
+              <span className="text-sm font-sans">JSON</span>
+            </button>
+            <button
+              onClick={handleExportPDF}
+              className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-white transition-colors"
+            >
+              <Download className="w-4 h-4" />
+              <span className="text-sm font-sans">Save PDF</span>
+            </button>
+            <button
+              onClick={handleDeleteList}
+              className="flex items-center gap-2 px-4 py-2 bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 rounded-lg text-red-400 transition-colors"
+            >
+              <Trash2 className="w-4 h-4" />
+              <span className="text-sm font-sans">Delete List</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Characters Grid */}
+      <div className="flex-1 overflow-y-auto p-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 max-w-6xl mx-auto">
+          {currentBible.characters.map((character) => (
+            <CharacterCard
+              key={character.id}
+              character={character}
+              onUpdate={(updates) => updateCharacter(currentBible.id, character.id, updates)}
+              onDelete={() => deleteCharacter(currentBible.id, character.id)}
+            />
+          ))}
+
+          {currentBible.characters.length === 0 && (
+            <div className="col-span-full flex flex-col items-center justify-center py-16 text-center">
+              <p className="text-white/50 font-sans mb-4">
+                No characters yet. Add your first character to get started.
+              </p>
+              <button
+                onClick={handleAddCharacter}
+                className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-white transition-colors"
+              >
+                <Plus className="w-4 h-4" />
+                <span className="text-sm font-sans">Add Character</span>
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
+          <div className="bg-[#1a2e23] border border-white/10 rounded-xl p-6 max-w-md mx-4">
+            <h2 className="text-xl font-bold text-white mb-2 font-sans">
+              Delete Character Bible?
+            </h2>
+            <p className="text-white/60 text-sm mb-6 font-sans">
+              Are you sure you want to delete &quot;{currentBible.name}&quot;? This action cannot be undone.
+            </p>
+            <div className="flex items-center justify-end gap-3">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="px-4 py-2 bg-red-500 hover:bg-red-600 rounded-lg text-white transition-colors"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
