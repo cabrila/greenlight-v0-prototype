@@ -6,6 +6,7 @@ import CastingCallsList from "./CastingCallsList"
 import CastingCallSetup from "./CastingCallSetup"
 import SubmissionsList from "./SubmissionsList"
 import FeatureLayout from "@/components/layout/FeatureLayout"
+import { CastingCall, PublicCastingProject } from "@/types/public-casting"
 
 type View = "list" | "setup" | "submissions"
 
@@ -14,26 +15,47 @@ interface PublicCastingScreenProps {
   onSignOut?: () => void
 }
 
+interface EditingState {
+  castingCall: CastingCall
+  project: PublicCastingProject
+}
+
 function PublicCastingContent({ onBack, onSignOut }: PublicCastingScreenProps) {
   const [view, setView] = useState<View>("list")
+  const [editingState, setEditingState] = useState<EditingState | null>(null)
+
+  const handleNewCastingCall = () => {
+    setEditingState(null)
+    setView("setup")
+  }
+
+  const handleEditCastingCall = (castingCall: CastingCall, project: PublicCastingProject) => {
+    setEditingState({ castingCall, project })
+    setView("setup")
+  }
+
+  const handleBackToList = () => {
+    setEditingState(null)
+    setView("list")
+  }
 
   const renderContent = () => {
     switch (view) {
       case "list":
         return (
           <CastingCallsList
-            onNewCastingCall={() => setView("setup")}
+            onNewCastingCall={handleNewCastingCall}
             onViewSubmissions={() => setView("submissions")}
-            onSelectCastingCall={(id) => {
-              console.log("Selected casting call:", id)
-            }}
+            onEditCastingCall={handleEditCastingCall}
           />
         )
       case "setup":
         return (
           <CastingCallSetup
-            onBack={() => setView("list")}
-            onSuccess={() => setView("list")}
+            onBack={handleBackToList}
+            onSuccess={handleBackToList}
+            editingCastingCall={editingState?.castingCall}
+            editingProject={editingState?.project}
           />
         )
       case "submissions":

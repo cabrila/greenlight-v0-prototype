@@ -1,13 +1,16 @@
 "use client"
 
-import { useState } from "react"
-import { ArrowLeft, Plus, Trash2, GripVertical, Copy, Check, ExternalLink } from "lucide-react"
+import { useState, useEffect } from "react"
+import { ArrowLeft, Plus, Trash2, GripVertical, Copy, Check, ExternalLink, Eye, X } from "lucide-react"
 import { usePublicCasting } from "./PublicCastingContext"
-import { CastingCallField } from "@/types/public-casting"
+import { CastingCallField, CastingCall, PublicCastingProject } from "@/types/public-casting"
+import CastingCallPreviewModal from "./CastingCallPreviewModal"
 
 interface CastingCallSetupProps {
   onBack: () => void
   onSuccess: () => void
+  editingCastingCall?: CastingCall
+  editingProject?: PublicCastingProject
 }
 
 const fieldTypeOptions = [
@@ -30,16 +33,31 @@ const defaultFields: CastingCallField[] = [
   { id: "f7", label: "About You", type: "textarea", required: false, placeholder: "Tell us about yourself..." },
 ]
 
-export default function CastingCallSetup({ onBack, onSuccess }: CastingCallSetupProps) {
-  const { state, createProject, createCastingCall } = usePublicCasting()
+export default function CastingCallSetup({ onBack, onSuccess, editingCastingCall, editingProject }: CastingCallSetupProps) {
+  const { state, createProject, createCastingCall, updateCastingCall } = usePublicCasting()
+  
+  const isEditing = !!editingCastingCall
   
   const [step, setStep] = useState<"setup" | "success">("setup")
-  const [title, setTitle] = useState("")
-  const [description, setDescription] = useState("")
-  const [projectName, setProjectName] = useState("")
-  const [fields, setFields] = useState<CastingCallField[]>(defaultFields)
-  const [createdLink, setCreatedLink] = useState("")
+  const [title, setTitle] = useState(editingCastingCall?.title || "")
+  const [description, setDescription] = useState(editingCastingCall?.description || "")
+  const [projectName, setProjectName] = useState(editingCastingCall?.projectName || editingProject?.name || "")
+  const [fields, setFields] = useState<CastingCallField[]>(editingCastingCall?.fields || defaultFields)
+  const [createdLink, setCreatedLink] = useState(editingCastingCall?.shareableLink || "")
   const [copied, setCopied] = useState(false)
+  const [showPreview, setShowPreview] = useState(false)
+
+  // Create a preview casting call object for the modal
+  const previewCastingCall: CastingCall = {
+    id: editingCastingCall?.id || "preview",
+    title: title || "Untitled Casting Call",
+    description,
+    projectName: projectName || "Untitled Project",
+    fields,
+    createdAt: editingCastingCall?.createdAt || new Date(),
+    isActive: true,
+    shareableLink: createdLink || "https://gogreenlight.ai/cast/preview",
+  }
 
   const addField = () => {
     const newField: CastingCallField = {
@@ -60,18 +78,30 @@ export default function CastingCallSetup({ onBack, onSuccess }: CastingCallSetup
     setFields(fields.filter((f) => f.id !== id))
   }
 
-  const handleCreate = () => {
+  const handleSave = () => {
     if (!title.trim() || !projectName.trim()) return
 
-    // Find or create project
-    let project = state.projects.find((p) => p.name === projectName)
-    if (!project) {
-      project = createProject(projectName)
-    }
+    if (isEditing && editingProject && editingCastingCall) {
+      // Update existing casting call
+      updateCastingCall(editingProject.id, editingCastingCall.id, {
+        title,
+        description,
+        projectName,
+        fields,
+      })
+      setCreatedLink(editingCastingCall.shareableLink)
+      setStep("success")
+    } else {
+      // Create new casting call
+      let project = state.projects.find((p) => p.name === projectName)
+      if (!project) {
+        project = createProject(projectName)
+      }
 
-    const castingCall = createCastingCall(project.id, title, description, projectName, fields)
-    setCreatedLink(castingCall.shareableLink)
-    setStep("success")
+      const castingCall = createCastingCall(project.id, title, description, projectName, fields)
+      setCreatedLink(castingCall.shareableLink)
+      setStep("success")
+    }
   }
 
   const handleCopyLink = async () => {
@@ -92,10 +122,12 @@ export default function CastingCallSetup({ onBack, onSuccess }: CastingCallSetup
             </div>
 
             <h2 className="text-2xl font-bold text-white mb-2 font-sans">
-              Casting Call Created!
+              {isEditing ? "Casting Call Updated!" : "Casting Call Created!"}
             </h2>
             <p className="text-white/60 mb-6 font-sans">
-              Your public casting form is ready to share with actors.
+              {isEditing 
+                ? "Your changes have been saved successfully."
+                : "Your public casting form is ready to share with actors."}
             </p>
 
             {/* Link Box */}
@@ -145,13 +177,21 @@ export default function CastingCallSetup({ onBack, onSuccess }: CastingCallSetup
                 Back to Casting Calls
               </button>
               <button
-                onClick={() => window.open(createdLink, "_blank")}
-                className="flex items-center justify-center gap-2 px-4 py-3 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-white font-semibold transition-colors font-sans"
+                onClick={() => setShowPreview(true)}
+                className="flex items-center justify-center gap-2 px-4 py-3 bg-violet-500 hover:bg-violet-600 rounded-lg text-white font-semibold transition-colors font-sans"
               >
-                <ExternalLink className="w-4 h-4" />
+                <Eye className="w-4 h-4" />
                 Preview
               </button>
             </div>
+
+            {/* Preview Modal */}
+            {showPreview && (
+              <CastingCallPreviewModal
+                castingCall={previewCastingCall}
+                onClose={() => setShowPreview(false)}
+              />
+            )}
           </div>
         </div>
       </div>
@@ -173,13 +213,27 @@ export default function CastingCallSetup({ onBack, onSuccess }: CastingCallSetup
 
       <div className="max-w-3xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2 font-sans">
-            Create Casting Call
-          </h1>
-          <p className="text-white/60 font-sans">
-            Set up a custom form for actors to submit their information.
-          </p>
+        <div className="flex items-start justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-white mb-2 font-sans">
+              {isEditing ? "Edit Casting Call" : "Create Casting Call"}
+            </h1>
+            <p className="text-white/60 font-sans">
+              {isEditing 
+                ? "Update your casting form settings and fields."
+                : "Set up a custom form for actors to submit their information."}
+            </p>
+          </div>
+          
+          {/* Preview Button */}
+          <button
+            onClick={() => setShowPreview(true)}
+            disabled={!title.trim()}
+            className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/15 disabled:bg-white/5 disabled:cursor-not-allowed border border-white/10 rounded-lg text-white/70 hover:text-white disabled:text-white/30 transition-colors font-sans"
+          >
+            <Eye className="w-4 h-4" />
+            Preview
+          </button>
         </div>
 
         {/* Form */}
@@ -309,16 +363,24 @@ export default function CastingCallSetup({ onBack, onSuccess }: CastingCallSetup
             </div>
           </div>
 
-          {/* Create Button */}
+          {/* Save/Create Button */}
           <button
-            onClick={handleCreate}
+            onClick={handleSave}
             disabled={!title.trim() || !projectName.trim()}
             className="w-full py-4 bg-emerald-500 hover:bg-emerald-600 disabled:bg-emerald-500/30 disabled:cursor-not-allowed rounded-xl text-white font-semibold text-lg transition-colors font-sans"
           >
-            Create Casting Call
+            {isEditing ? "Save Changes" : "Create Casting Call"}
           </button>
         </div>
       </div>
+
+      {/* Preview Modal */}
+      {showPreview && (
+        <CastingCallPreviewModal
+          castingCall={previewCastingCall}
+          onClose={() => setShowPreview(false)}
+        />
+      )}
     </div>
   )
 }
