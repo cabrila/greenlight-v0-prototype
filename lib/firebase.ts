@@ -10,21 +10,29 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 }
 
+// Check if Firebase config is valid
+const isConfigValid = firebaseConfig.apiKey && firebaseConfig.projectId
+
 // Initialize Firebase only on client side or if not already initialized
 let app: FirebaseApp
 let auth: Auth
 
-if (typeof window !== "undefined") {
-  // Client-side initialization
-  if (!getApps().length) {
-    app = initializeApp(firebaseConfig)
-  } else {
-    app = getApps()[0]
+if (typeof window !== "undefined" && isConfigValid) {
+  // Client-side initialization with valid config
+  try {
+    if (!getApps().length) {
+      app = initializeApp(firebaseConfig)
+    } else {
+      app = getApps()[0]
+    }
+    auth = getAuth(app)
+  } catch (error) {
+    console.error("[v0] Firebase initialization error:", error)
+    app = {} as FirebaseApp
+    auth = {} as Auth
   }
-  auth = getAuth(app)
 } else {
-  // Server-side: create a placeholder that will be replaced on client
-  // This prevents SSR errors while still allowing imports
+  // Server-side or missing config: create a placeholder
   app = {} as FirebaseApp
   auth = {} as Auth
 }

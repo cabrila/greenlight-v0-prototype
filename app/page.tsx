@@ -14,50 +14,35 @@ import { CastingProvider } from "@/components/casting/CastingContext"
 export default function App() {
   const [view, setView] = useState<"login" | "splash" | "character-bible" | "location-overview" | "actor-database" | "public-casting">("login")
   const [user, setUser] = useState<User | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    // Fallback timeout - if auth doesn't respond within 3 seconds, show login
-    const fallbackTimeout = setTimeout(() => {
-      if (isLoading) {
-        console.log("[v0] Auth timeout - showing login screen")
-        setIsLoading(false)
-        setView("login")
-      }
-    }, 3000)
-
+    let mounted = true
+    
     // Check if this is a magic link callback
     if (typeof window !== "undefined" && isMagicLinkCallback()) {
-      console.log("[v0] Magic link detected in URL")
       completeMagicLinkSignIn()
         .then(() => {
-          console.log("[v0] Magic link sign-in successful")
-          // The auth state change will be picked up by the subscription below
+          // Auth state change handled by subscription
         })
         .catch((err) => {
-          console.error("[v0] Magic link completion error:", err)
-          setError(err instanceof Error ? err.message : "Failed to verify magic link")
+          if (mounted) {
+            setError(err instanceof Error ? err.message : "Failed to verify magic link")
+          }
         })
     }
 
     // Subscribe to authentication state changes
     const unsubscribe = subscribeToAuthStateChanges((authUser) => {
-      console.log("[v0] Auth state changed:", authUser?.email)
-      clearTimeout(fallbackTimeout)
+      if (!mounted) return
       setUser(authUser)
-      
       if (authUser) {
         setView("splash")
-      } else {
-        setView("login")
       }
-      
-      setIsLoading(false)
     })
 
     return () => {
-      clearTimeout(fallbackTimeout)
+      mounted = false
       unsubscribe()
     }
   }, [])
@@ -82,44 +67,41 @@ export default function App() {
     }
   }
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-[#2d6b3f] via-[#1a4a2a] to-[#061a10]">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-white/20 border-t-white rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-white/60 font-sans">Verifying your session...</p>
-        </div>
-      </div>
-    )
-  }
-
   const renderView = () => {
-    console.log("[v0] renderView called, current view:", view)
     switch (view) {
       case "login":
-        console.log("[v0] Rendering LoginScreen")
         return <LoginScreen onDemoAccess={handleDemoAccess} />
       case "splash":
-        console.log("[v0] Rendering SplashScreen")
         return (
           <CastingProvider>
             <SplashScreen onSignOut={handleSignOut} onNavigate={handleNavigate} />
           </CastingProvider>
         )
       case "character-bible":
-        console.log("[v0] Rendering CharacterBibleScreen")
-        return <CharacterBibleScreen onBack={() => setView("splash")} />
+        return (
+          <CastingProvider>
+            <CharacterBibleScreen onBack={() => setView("splash")} onSignOut={handleSignOut} />
+          </CastingProvider>
+        )
       case "location-overview":
-        console.log("[v0] Rendering LocationScoutingScreen")
-        return <LocationScoutingScreen onBack={() => setView("splash")} />
+        return (
+          <CastingProvider>
+            <LocationScoutingScreen onBack={() => setView("splash")} onSignOut={handleSignOut} />
+          </CastingProvider>
+        )
       case "actor-database":
-        console.log("[v0] Rendering ActorListScreen")
-        return <ActorListScreen onBack={() => setView("splash")} />
+        return (
+          <CastingProvider>
+            <ActorListScreen onBack={() => setView("splash")} onSignOut={handleSignOut} />
+          </CastingProvider>
+        )
       case "public-casting":
-        console.log("[v0] Rendering PublicCastingScreen")
-        return <PublicCastingScreen onBack={() => setView("splash")} />
+        return (
+          <CastingProvider>
+            <PublicCastingScreen onBack={() => setView("splash")} onSignOut={handleSignOut} />
+          </CastingProvider>
+        )
       default:
-        console.log("[v0] Rendering default LoginScreen")
         return <LoginScreen onDemoAccess={handleDemoAccess} />
     }
   }

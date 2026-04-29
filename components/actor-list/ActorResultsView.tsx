@@ -52,7 +52,7 @@ export default function ActorResultsView() {
   return (
     <div className="flex-1 flex flex-col h-full">
       {/* Header */}
-      <div className="p-4 border-b border-white/10">
+      <div className="px-6 py-4 border-b border-white/10">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button
@@ -60,7 +60,9 @@ export default function ActorResultsView() {
               className="flex items-center gap-2 text-white/60 hover:text-white transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
+              <span className="text-sm font-sans">Back to Projects</span>
             </button>
+            <div className="h-6 w-px bg-white/20" />
             <div>
               <h1 className="text-xl font-bold text-white font-sans">
                 {currentProject.name}

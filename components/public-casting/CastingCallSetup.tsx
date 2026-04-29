@@ -82,7 +82,7 @@ export default function CastingCallSetup({ onBack, onSuccess }: CastingCallSetup
 
   if (step === "success") {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-[#2d6b3f] via-[#1a4a2a] to-[#061a10] flex items-center justify-center p-6">
+      <div className="h-full overflow-y-auto flex items-center justify-center p-6">
         <div className="max-w-lg w-full">
           {/* Success Card */}
           <div className="bg-[#1a2e23] border border-emerald-500/30 rounded-2xl p-8 text-center">
@@ -159,15 +159,17 @@ export default function CastingCallSetup({ onBack, onSuccess }: CastingCallSetup
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#2d6b3f] via-[#1a4a2a] to-[#061a10] p-6">
+    <div className="h-full overflow-y-auto p-6">
       {/* Back Button */}
-      <button
-        onClick={onBack}
-        className="flex items-center gap-2 text-white/60 hover:text-white mb-6 transition-colors font-sans"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        <span>Back</span>
-      </button>
+      <div className="max-w-3xl mx-auto">
+        <button
+          onClick={onBack}
+          className="flex items-center gap-2 text-white/60 hover:text-white mb-6 transition-colors font-sans"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>Back to Casting Calls</span>
+        </button>
+      </div>
 
       <div className="max-w-3xl mx-auto">
         {/* Header */}

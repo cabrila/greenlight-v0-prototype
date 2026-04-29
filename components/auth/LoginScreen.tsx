@@ -45,11 +45,9 @@ export default function LoginScreen({ onDemoAccess }: LoginScreenProps) {
     if (authMethod === "phone" && !recaptchaInitialized.current && typeof window !== "undefined") {
       // Small delay to ensure DOM is ready
       const timer = setTimeout(() => {
-        try {
-          initRecaptchaVerifier("phone-sign-in-button")
+        const verifier = initRecaptchaVerifier("phone-sign-in-button")
+        if (verifier) {
           recaptchaInitialized.current = true
-        } catch (error) {
-          console.error("[v0] Error initializing reCAPTCHA:", error)
         }
       }, 100)
       return () => clearTimeout(timer)
@@ -88,15 +86,6 @@ export default function LoginScreen({ onDemoAccess }: LoginScreenProps) {
       await sendMagicLink(email)
       setLoginState("success")
     } catch (error: unknown) {
-      console.error("[v0] Email login error:", error)
-      if (error && typeof error === "object" && "code" in error) {
-        console.error("[v0] Email login error code:", (error as { code: string }).code)
-      }
-      if (error && typeof error === "object" && "message" in error) {
-        console.error("[v0] Email login error message:", (error as { message: string }).message)
-      }
-      console.error("[v0] Full email login error:", error)
-      
       let errorMsg = "Failed to send magic link. Please try again."
       if (error && typeof error === "object" && "code" in error) {
         const code = (error as { code: string }).code
@@ -132,12 +121,10 @@ export default function LoginScreen({ onDemoAccess }: LoginScreenProps) {
       await sendPhoneVerificationCode(cleanedPhone)
       setLoginState("verify-code")
     } catch (error) {
-      console.error("[v0] Error sending verification code:", error)
       const errorMsg =
         error instanceof Error ? error.message : "Failed to send verification code. Please try again."
       setErrorMessage(errorMsg)
       setLoginState("error")
-      // Re-initialize reCAPTCHA on error
       recaptchaInitialized.current = false
     }
   }
@@ -158,7 +145,6 @@ export default function LoginScreen({ onDemoAccess }: LoginScreenProps) {
       await verifyPhoneCode(verificationCode)
       // Auth state change will be handled by the parent component
     } catch (error) {
-      console.error("[v0] Error verifying code:", error)
       const errorMsg =
         error instanceof Error ? error.message : "Invalid verification code. Please try again."
       setErrorMessage(errorMsg)
@@ -185,8 +171,6 @@ export default function LoginScreen({ onDemoAccess }: LoginScreenProps) {
     recaptchaInitialized.current = false
   }
 
-  console.log("[v0] LoginScreen rendering, loginState:", loginState, "authMethod:", authMethod)
-  
   return (
     <div
       className="min-h-screen flex flex-col items-center justify-center px-6 relative"

@@ -31,25 +31,13 @@ export async function sendMagicLink(email: string): Promise<void> {
     handleCodeInApp: true,
   }
   
-  console.log("[v0] sendMagicLink called with email:", email)
-  console.log("[v0] actionCodeSettings.url:", settings.url)
-  
   try {
     await sendSignInLinkToEmail(auth, email, settings)
-    console.log("[v0] sendSignInLinkToEmail succeeded")
-    // Store email in localStorage for verification later
     if (typeof window !== "undefined") {
       window.localStorage.setItem("emailForSignIn", email)
-      console.log("[v0] Stored email in localStorage")
     }
   } catch (error: unknown) {
-    console.error("[v0] Error sending magic link:", error)
-    if (error && typeof error === "object" && "code" in error) {
-      console.error("[v0] Firebase error code:", (error as { code: string }).code)
-    }
-    if (error && typeof error === "object" && "message" in error) {
-      console.error("[v0] Firebase error message:", (error as { message: string }).message)
-    }
+    console.error("Error sending magic link:", error)
     throw error
   }
 }
@@ -59,50 +47,37 @@ export async function sendMagicLink(email: string): Promise<void> {
  */
 export function isMagicLinkCallback(): boolean {
   if (typeof window === "undefined") return false
-  const isEmailLink = isSignInWithEmailLink(auth, window.location.href)
-  console.log("[v0] isMagicLinkCallback check:", isEmailLink, "URL:", window.location.href)
-  return isEmailLink
+  // Check if auth is properly initialized
+  if (!auth || typeof auth.onIdTokenChanged !== "function") return false
+  
+  try {
+    return isSignInWithEmailLink(auth, window.location.href)
+  } catch {
+    return false
+  }
 }
 
 /**
  * Complete the magic link sign-in process
  */
 export async function completeMagicLinkSignIn(email?: string): Promise<User> {
-  console.log("[v0] completeMagicLinkSignIn called")
-  console.log("[v0] Provided email:", email)
-  
   try {
     const storedEmail = typeof window !== "undefined" ? window.localStorage.getItem("emailForSignIn") : null
-    console.log("[v0] Stored email from localStorage:", storedEmail)
-    
     const emailToUse = email || storedEmail
 
     if (!emailToUse) {
-      console.error("[v0] No email found for sign-in")
       throw new Error("No email found for sign-in. Please enter your email again.")
     }
-
-    console.log("[v0] Attempting signInWithEmailLink with email:", emailToUse)
-    console.log("[v0] Current URL:", window.location.href)
     
     const result = await signInWithEmailLink(auth, emailToUse, window.location.href)
-    console.log("[v0] signInWithEmailLink succeeded, user:", result.user.email)
 
-    // Clean up localStorage
     if (typeof window !== "undefined") {
       window.localStorage.removeItem("emailForSignIn")
-      console.log("[v0] Removed email from localStorage")
     }
 
     return result.user
   } catch (error: unknown) {
-    console.error("[v0] Error completing magic link sign-in:", error)
-    if (error && typeof error === "object" && "code" in error) {
-      console.error("[v0] Firebase error code:", (error as { code: string }).code)
-    }
-    if (error && typeof error === "object" && "message" in error) {
-      console.error("[v0] Firebase error message:", (error as { message: string }).message)
-    }
+    console.error("Error completing magic link sign-in:", error)
     throw error
   }
 }
@@ -114,7 +89,7 @@ export async function signOut(): Promise<void> {
   try {
     await firebaseSignOut(auth)
   } catch (error) {
-    console.error("[v0] Error signing out:", error)
+    console.error("Error signing out:", error)
     throw error
   }
 }
@@ -125,18 +100,23 @@ export async function signOut(): Promise<void> {
 export function subscribeToAuthStateChanges(callback: (user: User | null) => void): () => void {
   // Guard against SSR - auth is a placeholder object on server
   if (typeof window === "undefined") {
-    // Return a no-op unsubscribe function for SSR
     return () => {}
   }
   
-  // Check if auth is properly initialized (has onAuthStateChanged)
+  // Check if auth is properly initialized
   if (!auth || typeof auth.onIdTokenChanged !== "function") {
     // Firebase not properly initialized, call callback with null immediately
     setTimeout(() => callback(null), 0)
     return () => {}
   }
   
-  return onAuthStateChanged(auth, callback)
+  try {
+    return onAuthStateChanged(auth, callback)
+  } catch {
+    // If subscription fails, call callback with null
+    setTimeout(() => callback(null), 0)
+    return () => {}
+  }
 }
 
 /**
@@ -150,53 +130,49 @@ export function getCurrentUser(): User | null {
  * Initialize the invisible reCAPTCHA verifier for phone auth
  * Must be called before sendPhoneVerificationCode
  */
-export function initRecaptchaVerifier(buttonId: string): RecaptchaVerifier {
+export function initRecaptchaVerifier(buttonId: string): RecaptchaVerifier | null {
+  // Check if auth is properly initialized
+  if (!auth || typeof auth.onIdTokenChanged !== "function") {
+    console.warn("Firebase auth not initialized, skipping reCAPTCHA setup")
+    return null
+  }
+
   // Clean up existing verifier if present
   if (recaptchaVerifier) {
     recaptchaVerifier.clear()
     recaptchaVerifier = null
   }
 
-  recaptchaVerifier = new RecaptchaVerifier(auth, buttonId, {
-    size: "invisible",
-    callback: () => {
-      // reCAPTCHA solved - allow sign-in
-    },
-    "expired-callback": () => {
-      // reCAPTCHA expired - reset
-      console.warn("[v0] reCAPTCHA expired, please try again")
-    },
-  })
+  try {
+    recaptchaVerifier = new RecaptchaVerifier(auth, buttonId, {
+      size: "invisible",
+      callback: () => {
+        // reCAPTCHA solved - allow sign-in
+      },
+      "expired-callback": () => {
+        // reCAPTCHA expired - reset
+      },
+    })
 
-  return recaptchaVerifier
+    return recaptchaVerifier
+  } catch (error) {
+    console.warn("Failed to initialize reCAPTCHA:", error)
+    return null
+  }
 }
 
 /**
  * Send a verification code to the user's phone number
  */
 export async function sendPhoneVerificationCode(phoneNumber: string): Promise<void> {
-  console.log("[v0] sendPhoneVerificationCode called with:", phoneNumber)
-  console.log("[v0] recaptchaVerifier exists:", !!recaptchaVerifier)
-  console.log("[v0] auth object exists:", !!auth)
-  
   if (!recaptchaVerifier) {
     throw new Error("reCAPTCHA verifier not initialized. Call initRecaptchaVerifier first.")
   }
 
   try {
-    console.log("[v0] Calling signInWithPhoneNumber...")
     confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, recaptchaVerifier)
-    console.log("[v0] signInWithPhoneNumber succeeded, confirmationResult:", !!confirmationResult)
   } catch (error: unknown) {
-    console.error("[v0] Error sending phone verification code:", error)
-    // Log specific Firebase error details
-    if (error && typeof error === "object" && "code" in error) {
-      console.error("[v0] Firebase error code:", (error as { code: string }).code)
-    }
-    if (error && typeof error === "object" && "message" in error) {
-      console.error("[v0] Firebase error message:", (error as { message: string }).message)
-    }
-    // Reset reCAPTCHA on error
+    console.error("Error sending phone verification code:", error)
     if (recaptchaVerifier) {
       recaptchaVerifier.clear()
       recaptchaVerifier = null
@@ -218,7 +194,7 @@ export async function verifyPhoneCode(code: string): Promise<User> {
     confirmationResult = null
     return result.user
   } catch (error) {
-    console.error("[v0] Error verifying phone code:", error)
+    console.error("Error verifying phone code:", error)
     throw error
   }
 }

@@ -129,15 +129,15 @@ export default function ActorUploadView() {
   }
 
   return (
-    <div className="flex-1 flex flex-col">
+    <div className="flex-1 flex flex-col overflow-y-auto">
       {/* Back Button */}
-      <div className="p-4 border-b border-white/10">
+      <div className="px-6 py-4 border-b border-white/10">
         <button
           onClick={goBack}
           className="flex items-center gap-2 text-white/60 hover:text-white transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span className="font-sans">Back to Projects</span>
+          <span className="text-sm font-sans">Back to Projects</span>
         </button>
       </div>
 

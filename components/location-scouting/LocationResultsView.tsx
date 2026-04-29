@@ -68,11 +68,12 @@ export default function LocationResultsView() {
           <div className="flex items-center gap-4">
             <button
               onClick={() => setView("projects")}
-              className="p-2 hover:bg-white/10 rounded-lg transition-colors"
-              title="Back to projects"
+              className="flex items-center gap-2 text-white/60 hover:text-white transition-colors"
             >
-              <ArrowLeft className="w-5 h-5 text-white/70" />
+              <ArrowLeft className="w-4 h-4" />
+              <span className="text-sm font-sans">Back to Projects</span>
             </button>
+            <div className="h-6 w-px bg-white/20" />
             <div>
               <h1 className="text-2xl font-bold text-white font-sans">
                 {currentProject.name}

@@ -96,9 +96,9 @@ export default function SubmissionsList({ onBack }: SubmissionsListProps) {
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#2d6b3f] via-[#1a4a2a] to-[#061a10]">
+    <div className="h-full overflow-y-auto">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-[#0f1f17]/95 backdrop-blur-sm border-b border-white/10">
+      <div className="sticky top-0 z-10 bg-[#1a4a2a]/95 backdrop-blur-sm border-b border-white/10">
         <div className="px-6 py-4">
           {/* Back Button */}
           <button
