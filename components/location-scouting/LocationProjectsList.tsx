@@ -44,17 +44,17 @@ export default function LocationProjectsList() {
   }
 
   return (
-    <div className="p-6">
+    <div className="p-6 md:p-10 max-w-6xl mx-auto">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-white font-sans mb-2">My Locations</h1>
-        <p className="text-white/60 font-sans">
+        <h1 className="text-3xl md:text-4xl font-bold text-white font-sans mb-2">My Locations</h1>
+        <p className="text-white/60 text-base font-sans">
           Scout and manage location lists generated from your scripts.
         </p>
       </div>
 
       {/* Projects Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {/* Existing Projects */}
         {projects.map((project) => (
           <button

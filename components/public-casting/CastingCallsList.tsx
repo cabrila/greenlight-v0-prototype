@@ -51,11 +51,12 @@ export default function CastingCallsList({
   }
 
   return (
-    <div className="h-full overflow-y-auto p-6">
+    <div className="h-full overflow-y-auto p-6 md:p-10">
+      <div className="max-w-6xl mx-auto">
       {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-white mb-2 font-sans">Public Casting</h1>
-        <p className="text-white/50 font-sans">
+      <div className="mb-8">
+        <h1 className="text-3xl md:text-4xl font-bold text-white mb-2 font-sans">Public Casting</h1>
+        <p className="text-white/60 text-base font-sans">
           Create shareable casting forms and manage actor submissions.
         </p>
       </div>
@@ -98,7 +99,7 @@ export default function CastingCallsList({
           <p className="text-white/40 text-sm font-sans mb-4">Create your first casting call to start receiving submissions.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {state.projects.map((project) => (
             <div
               key={project.id}
@@ -216,6 +217,7 @@ export default function CastingCallsList({
         title="Rename Casting Project"
         label="Project Name"
       />
+      </div>
     </div>
   )
 }
