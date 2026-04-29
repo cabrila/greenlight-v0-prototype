@@ -123,6 +123,19 @@ export async function signOut(): Promise<void> {
  * Subscribe to authentication state changes
  */
 export function subscribeToAuthStateChanges(callback: (user: User | null) => void): () => void {
+  // Guard against SSR - auth is a placeholder object on server
+  if (typeof window === "undefined") {
+    // Return a no-op unsubscribe function for SSR
+    return () => {}
+  }
+  
+  // Check if auth is properly initialized (has onAuthStateChanged)
+  if (!auth || typeof auth.onIdTokenChanged !== "function") {
+    // Firebase not properly initialized, call callback with null immediately
+    setTimeout(() => callback(null), 0)
+    return () => {}
+  }
+  
   return onAuthStateChanged(auth, callback)
 }
 

@@ -15,6 +15,15 @@ export default function App() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    // Fallback timeout - if auth doesn't respond within 3 seconds, show login
+    const fallbackTimeout = setTimeout(() => {
+      if (isLoading) {
+        console.log("[v0] Auth timeout - showing login screen")
+        setIsLoading(false)
+        setView("login")
+      }
+    }, 3000)
+
     // Check if this is a magic link callback
     if (typeof window !== "undefined" && isMagicLinkCallback()) {
       console.log("[v0] Magic link detected in URL")
@@ -32,6 +41,7 @@ export default function App() {
     // Subscribe to authentication state changes
     const unsubscribe = subscribeToAuthStateChanges((authUser) => {
       console.log("[v0] Auth state changed:", authUser?.email)
+      clearTimeout(fallbackTimeout)
       setUser(authUser)
       
       if (authUser) {
@@ -43,7 +53,10 @@ export default function App() {
       setIsLoading(false)
     })
 
-    return () => unsubscribe()
+    return () => {
+      clearTimeout(fallbackTimeout)
+      unsubscribe()
+    }
   }, [])
 
   const handleSignOut = () => {
