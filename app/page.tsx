@@ -86,18 +86,23 @@ export default function App() {
   }
 
   const renderView = () => {
+    console.log("[v0] renderView called, current view:", view)
     switch (view) {
       case "login":
+        console.log("[v0] Rendering LoginScreen")
         return <LoginScreen onDemoAccess={handleDemoAccess} />
       case "splash":
+        console.log("[v0] Rendering SplashScreen")
         return (
           <CastingProvider>
             <SplashScreen onSignOut={handleSignOut} onNavigate={handleNavigate} />
           </CastingProvider>
         )
       case "character-bible":
+        console.log("[v0] Rendering CharacterBibleScreen")
         return <CharacterBibleScreen onBack={() => setView("splash")} />
       default:
+        console.log("[v0] Rendering default LoginScreen")
         return <LoginScreen onDemoAccess={handleDemoAccess} />
     }
   }

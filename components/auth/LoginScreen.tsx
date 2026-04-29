@@ -185,6 +185,8 @@ export default function LoginScreen({ onDemoAccess }: LoginScreenProps) {
     recaptchaInitialized.current = false
   }
 
+  console.log("[v0] LoginScreen rendering, loginState:", loginState, "authMethod:", authMethod)
+  
   return (
     <div
       className="min-h-screen flex flex-col items-center justify-center px-6 relative"
