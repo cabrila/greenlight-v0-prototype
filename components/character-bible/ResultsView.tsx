@@ -123,7 +123,7 @@ export default function ResultsView() {
 
       {/* Characters Grid */}
       <div className="flex-1 overflow-y-auto p-6">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
           {currentBible.characters.map((character) => (
             <CharacterCard
               key={character.id}

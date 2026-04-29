@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Trash2, X, Save } from "lucide-react"
+import { Trash2, X, Save, Pencil } from "lucide-react"
 import { Character } from "@/types/character-bible"
 
 interface CharacterCardProps {
@@ -137,12 +137,27 @@ export default function CharacterCard({ character, onUpdate, onDelete }: Charact
 
   // View Mode
   return (
-    <button
-      onClick={() => setIsEditing(true)}
-      className="w-full text-left p-5 rounded-xl border border-white/10 bg-[#1a2e23] hover:border-white/20 transition-colors"
-    >
+    <div className="group relative p-5 rounded-xl border border-white/10 bg-[#1a2e23] hover:border-white/20 transition-colors">
+      {/* Hover Actions */}
+      <div className="absolute top-4 right-4 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+        <button
+          onClick={() => setIsEditing(true)}
+          className="p-2 bg-white/10 hover:bg-white/20 rounded-lg text-white/70 hover:text-white transition-colors"
+          title="Edit character"
+        >
+          <Pencil className="w-4 h-4" />
+        </button>
+        <button
+          onClick={onDelete}
+          className="p-2 bg-red-500/20 hover:bg-red-500/30 rounded-lg text-red-400 hover:text-red-300 transition-colors"
+          title="Delete character"
+        >
+          <Trash2 className="w-4 h-4" />
+        </button>
+      </div>
+
       {/* Character Name */}
-      <h3 className="text-xl font-bold text-white mb-4 font-sans uppercase tracking-wide">
+      <h3 className="text-xl font-bold text-white mb-4 font-sans uppercase tracking-wide pr-20">
         {character.name}
       </h3>
 
@@ -191,6 +206,6 @@ export default function CharacterCard({ character, onUpdate, onDelete }: Charact
           {character.castingNotes}
         </p>
       </div>
-    </button>
+    </div>
   )
 }
