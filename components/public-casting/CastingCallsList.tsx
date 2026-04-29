@@ -61,8 +61,8 @@ export default function CastingCallsList({
         </p>
       </div>
 
-      {/* Action Bar - New Casting Call + Submissions */}
-      <div className="flex items-center justify-between mb-6">
+      {/* Action Bar - New Casting Call + Submissions grouped together */}
+      <div className="flex items-center gap-3 mb-6">
         <button
           onClick={onNewCastingCall}
           className="flex items-center gap-2 px-4 py-2.5 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-white font-semibold transition-colors font-sans"
