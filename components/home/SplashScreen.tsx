@@ -166,7 +166,7 @@ export default function SplashScreen({ onSignOut, onNavigate }: SplashScreenProp
             <span className="text-emerald-300">One platform.</span>
           </h1>
           <p className="text-white/50 text-base md:text-lg leading-relaxed text-pretty max-w-xl mx-auto">
-            GoGreenlight enables you to create and orchestrate your creative assets - making it easy, fast and seamless to reach creative alignment in your production.
+            Organize characters, actors, locations and casting calls in one streamlined and efficient workflow.
           </p>
         </div>
 
