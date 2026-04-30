@@ -1,10 +1,11 @@
 "use client"
 
 import { useState, useMemo, useEffect } from "react"
-import { ArrowLeft, Search, SlidersHorizontal, ChevronDown } from "lucide-react"
+import { ArrowLeft, Search, SlidersHorizontal, ChevronDown, FileJson, FileSpreadsheet, Download } from "lucide-react"
 import { usePublicCasting } from "./PublicCastingContext"
 import SubmissionCard from "./SubmissionCard"
 import { CastingSubmission } from "@/types/public-casting"
+import { exportSubmissionsAsJSON, exportSubmissionsAsPDF, exportSubmissionsAsExcel } from "@/lib/submission-export"
 
 interface SubmissionsListProps {
   onBack: () => void
@@ -117,6 +118,18 @@ export default function SubmissionsList({ onBack }: SubmissionsListProps) {
     }
   }
 
+  const handleExportJSON = () => {
+    exportSubmissionsAsJSON(filteredSubmissions, "casting_submissions")
+  }
+
+  const handleExportPDF = () => {
+    exportSubmissionsAsPDF(filteredSubmissions, "casting_submissions")
+  }
+
+  const handleExportExcel = () => {
+    exportSubmissionsAsExcel(filteredSubmissions, "casting_submissions")
+  }
+
   const sortOptions: { value: SortOption; label: string }[] = [
     { value: "newest", label: "Newest First" },
     { value: "oldest", label: "Oldest First" },
@@ -150,12 +163,43 @@ export default function SubmissionsList({ onBack }: SubmissionsListProps) {
           </button>
 
           {/* Title & Stats */}
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
             <div>
               <h1 className="text-2xl font-bold text-white font-sans">Submissions</h1>
               <p className="text-white/50 text-sm font-sans">
                 {filteredSubmissions.length} total submissions
               </p>
+            </div>
+
+            {/* Export Buttons */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleExportJSON}
+                disabled={filteredSubmissions.length === 0}
+                className="flex items-center gap-2 px-3 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Export as JSON"
+              >
+                <FileJson className="w-4 h-4" />
+                <span className="font-sans text-sm hidden sm:inline">JSON</span>
+              </button>
+              <button
+                onClick={handleExportExcel}
+                disabled={filteredSubmissions.length === 0}
+                className="flex items-center gap-2 px-3 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Export as Excel"
+              >
+                <FileSpreadsheet className="w-4 h-4" />
+                <span className="font-sans text-sm hidden sm:inline">Excel</span>
+              </button>
+              <button
+                onClick={handleExportPDF}
+                disabled={filteredSubmissions.length === 0}
+                className="flex items-center gap-2 px-3 py-2 bg-violet-500 hover:bg-violet-400 rounded-lg text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Export as PDF"
+              >
+                <Download className="w-4 h-4" />
+                <span className="font-sans text-sm hidden sm:inline">PDF</span>
+              </button>
             </div>
           </div>
 
