@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import { ArrowLeft, Plus, FileJson, Download, Trash2, FileSpreadsheet } from "lucide-react"
 import { useCharacterBible } from "./CharacterBibleContext"
 import CharacterCard from "./CharacterCard"
@@ -10,6 +10,24 @@ import { exportCharactersAsJSON, exportCharactersAsPDF, exportCharactersAsExcel 
 export default function ResultsView() {
   const { currentBible, setView, setCurrentBible, updateCharacter, deleteCharacter, addCharacter, deleteBible } = useCharacterBible()
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [newItemId, setNewItemId] = useState<string | null>(null)
+  const gridRef = useRef<HTMLDivElement>(null)
+
+  // Scroll to newly added item
+  useEffect(() => {
+    if (newItemId && gridRef.current) {
+      const newElement = gridRef.current.querySelector(`[data-character-id="${newItemId}"]`)
+      if (newElement) {
+        newElement.scrollIntoView({ behavior: "smooth", block: "center" })
+        // Add a brief highlight effect
+        newElement.classList.add("ring-2", "ring-emerald-500", "ring-offset-2", "ring-offset-[#0f1f17]")
+        setTimeout(() => {
+          newElement.classList.remove("ring-2", "ring-emerald-500", "ring-offset-2", "ring-offset-[#0f1f17]")
+          setNewItemId(null)
+        }, 2000)
+      }
+    }
+  }, [newItemId, currentBible?.characters])
 
   if (!currentBible) {
     return (
@@ -20,8 +38,9 @@ export default function ResultsView() {
   }
 
   const handleAddCharacter = () => {
+    const id = crypto.randomUUID()
     const newCharacter: Character = {
-      id: crypto.randomUUID(),
+      id,
       name: "New Character",
       age: "",
       gender: "",
@@ -30,6 +49,7 @@ export default function ResultsView() {
       castingNotes: "",
     }
     addCharacter(currentBible.id, newCharacter)
+    setNewItemId(id)
   }
 
   const handleExportJSON = () => {
@@ -132,14 +152,15 @@ export default function ResultsView() {
 
       {/* Characters Grid */}
       <div className="flex-1 overflow-y-auto p-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
+        <div ref={gridRef} className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
           {currentBible.characters.map((character) => (
-            <CharacterCard
-              key={character.id}
-              character={character}
-              onUpdate={(updates) => updateCharacter(currentBible.id, character.id, updates)}
-              onDelete={() => deleteCharacter(currentBible.id, character.id)}
-            />
+            <div key={character.id} data-character-id={character.id} className="transition-all duration-300 rounded-xl">
+              <CharacterCard
+                character={character}
+                onUpdate={(updates) => updateCharacter(currentBible.id, character.id, updates)}
+                onDelete={() => deleteCharacter(currentBible.id, character.id)}
+              />
+            </div>
           ))}
 
           {currentBible.characters.length === 0 && (

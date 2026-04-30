@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import { ArrowLeft, Plus, FileJson, Download, Trash2, Search, FileSpreadsheet } from "lucide-react"
 import { useActorList } from "./ActorListContext"
 import ActorCard from "./ActorCard"
@@ -10,6 +10,24 @@ import { exportActorsAsJSON, exportActorsAsPDF, exportActorsAsExcel } from "@/li
 export default function ActorResultsView() {
   const { currentProject, goBack, addActor, updateActor, deleteActor, deleteProject } = useActorList()
   const [searchQuery, setSearchQuery] = useState("")
+  const [newItemId, setNewItemId] = useState<string | null>(null)
+  const gridRef = useRef<HTMLDivElement>(null)
+
+  // Scroll to newly added item
+  useEffect(() => {
+    if (newItemId && gridRef.current) {
+      const newElement = gridRef.current.querySelector(`[data-actor-id="${newItemId}"]`)
+      if (newElement) {
+        newElement.scrollIntoView({ behavior: "smooth", block: "center" })
+        // Add a brief highlight effect
+        newElement.classList.add("ring-2", "ring-sky-500", "ring-offset-2", "ring-offset-[#0f1f17]")
+        setTimeout(() => {
+          newElement.classList.remove("ring-2", "ring-sky-500", "ring-offset-2", "ring-offset-[#0f1f17]")
+          setNewItemId(null)
+        }, 2000)
+      }
+    }
+  }, [newItemId, currentProject?.actors])
 
   if (!currentProject) return null
 
@@ -20,8 +38,9 @@ export default function ActorResultsView() {
   )
 
   const handleAddActor = () => {
+    const id = Date.now().toString()
     const newActor: Actor = {
-      id: Date.now().toString(),
+      id,
       name: "New Actor",
       age: 30,
       playingAge: "25-35",
@@ -31,6 +50,7 @@ export default function ActorResultsView() {
       notes: "",
     }
     addActor(newActor)
+    setNewItemId(id)
   }
 
   const handleExportJSON = () => {
@@ -135,14 +155,15 @@ export default function ActorResultsView() {
 
       {/* Actors Grid */}
       <div className="flex-1 overflow-y-auto p-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
+        <div ref={gridRef} className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
           {filteredActors.map((actor) => (
-            <ActorCard
-              key={actor.id}
-              actor={actor}
-              onUpdate={updateActor}
-              onDelete={() => deleteActor(actor.id)}
-            />
+            <div key={actor.id} data-actor-id={actor.id} className="transition-all duration-300 rounded-xl">
+              <ActorCard
+                actor={actor}
+                onUpdate={updateActor}
+                onDelete={() => deleteActor(actor.id)}
+              />
+            </div>
           ))}
         </div>
 

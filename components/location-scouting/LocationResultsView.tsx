@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import { ArrowLeft, Plus, FileJson, Download, Trash2, Search, FileSpreadsheet } from "lucide-react"
 import { useLocationScouting } from "./LocationScoutingContext"
 import LocationCard from "./LocationCard"
@@ -17,6 +17,24 @@ export default function LocationResultsView() {
     deleteProject,
   } = useLocationScouting()
   const [searchQuery, setSearchQuery] = useState("")
+  const [newItemId, setNewItemId] = useState<string | null>(null)
+  const gridRef = useRef<HTMLDivElement>(null)
+
+  // Scroll to newly added item
+  useEffect(() => {
+    if (newItemId && gridRef.current) {
+      const newElement = gridRef.current.querySelector(`[data-location-id="${newItemId}"]`)
+      if (newElement) {
+        newElement.scrollIntoView({ behavior: "smooth", block: "center" })
+        // Add a brief highlight effect
+        newElement.classList.add("ring-2", "ring-amber-500", "ring-offset-2", "ring-offset-[#0f1f17]")
+        setTimeout(() => {
+          newElement.classList.remove("ring-2", "ring-amber-500", "ring-offset-2", "ring-offset-[#0f1f17]")
+          setNewItemId(null)
+        }, 2000)
+      }
+    }
+  }, [newItemId, currentProject?.locations])
 
   if (!currentProject) {
     return (
@@ -32,8 +50,9 @@ export default function LocationResultsView() {
   )
 
   const handleAddLocation = () => {
+    const id = crypto.randomUUID()
     const newLocation: Location = {
-      id: crypto.randomUUID(),
+      id,
       name: "NEW LOCATION",
       type: "EXT",
       timeOfDay: "DAY",
@@ -41,6 +60,7 @@ export default function LocationResultsView() {
       scoutingNotes: "Add scouting notes here...",
     }
     addLocation(currentProject.id, newLocation)
+    setNewItemId(id)
   }
 
   const handleExportJSON = () => {
@@ -146,14 +166,15 @@ export default function LocationResultsView() {
 
       {/* Locations Grid */}
       <div className="flex-1 overflow-y-auto p-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
+        <div ref={gridRef} className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
           {filteredLocations.map((location) => (
-            <LocationCard
-              key={location.id}
-              location={location}
-              onUpdate={(updated) => updateLocation(currentProject.id, updated)}
-              onDelete={() => deleteLocation(currentProject.id, location.id)}
-            />
+            <div key={location.id} data-location-id={location.id} className="transition-all duration-300 rounded-xl">
+              <LocationCard
+                location={location}
+                onUpdate={(updated) => updateLocation(currentProject.id, updated)}
+                onDelete={() => deleteLocation(currentProject.id, location.id)}
+              />
+            </div>
           ))}
         </div>
 
