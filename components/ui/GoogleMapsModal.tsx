@@ -138,9 +138,9 @@ export default function GoogleMapsModal({ isOpen, onClose, url, title = "Locatio
       />
       
       {/* Modal */}
-      <div className="relative w-full h-full sm:h-auto sm:max-h-[90vh] sm:max-w-4xl bg-[#0f1f17] sm:rounded-2xl border-0 sm:border border-white/10 shadow-2xl overflow-hidden flex flex-col">
+      <div className="relative w-full h-full sm:w-[90vw] sm:h-[90vh] sm:max-w-6xl bg-[#0f1f17] sm:rounded-2xl border-0 sm:border border-white/10 shadow-2xl overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-white/10 shrink-0">
+        <div className="flex items-center justify-between p-3 border-b border-white/10 shrink-0 bg-[#0f1f17]/95 backdrop-blur-sm">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center">
               <svg className="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 24 24">
@@ -173,7 +173,7 @@ export default function GoogleMapsModal({ isOpen, onClose, url, title = "Locatio
         </div>
 
         {/* Map Container */}
-        <div className="flex-1 relative min-h-[300px] sm:min-h-[500px]">
+        <div className="flex-1 relative">
           {isLoading && embedUrl && (
             <div className="absolute inset-0 flex items-center justify-center bg-[#1a2e23]">
               <div className="flex flex-col items-center gap-3">
@@ -185,8 +185,8 @@ export default function GoogleMapsModal({ isOpen, onClose, url, title = "Locatio
           {embedUrl ? (
             <iframe
               src={embedUrl}
-              className="w-full h-full"
-              style={{ border: 0, minHeight: "300px" }}
+              className="absolute inset-0 w-full h-full"
+              style={{ border: 0 }}
               allowFullScreen
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
