@@ -204,8 +204,8 @@ export default function LoginScreen({ onDemoAccess }: LoginScreenProps) {
         <h1 className="text-4xl md:text-5xl font-bold text-white mb-3 font-sans">
           Welcome!
         </h1>
-        <p className="text-white/70 text-base md:text-lg font-sans">
-          Your project begins here
+        <p className="text-white/70 text-base md:text-lg font-sans max-w-md">
+          A creative tool for film and television creators to organize and manage their creative assets.
         </p>
       </div>
 
