@@ -116,6 +116,18 @@ export default function CastingCallsList({
                 {/* Top-right Quick Actions (always visible on hover) */}
                 {hoveredProjectId === project.id && (
                   <div className="absolute top-3 right-3 flex items-center gap-1.5">
+                    {hasCastingCall && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setQrCodeCastingCall(castingCall)
+                        }}
+                        className="p-1.5 bg-white/10 hover:bg-white/20 rounded-lg text-white/70 hover:text-white transition-colors"
+                        title="Generate QR Code"
+                      >
+                        <QrCode className="w-4 h-4" />
+                      </button>
+                    )}
                     <button
                       onClick={(e) => handleEditProject(e, project)}
                       className="p-1.5 bg-white/10 hover:bg-white/20 rounded-lg text-white/70 hover:text-white transition-colors"
@@ -187,16 +199,6 @@ export default function CastingCallsList({
                     >
                       <Eye className="w-4 h-4" />
                       Preview
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        setQrCodeCastingCall(castingCall)
-                      }}
-                      className="p-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-white/70 hover:text-white transition-colors"
-                      title="Generate QR Code"
-                    >
-                      <QrCode className="w-4 h-4" />
                     </button>
                     <button
                       onClick={(e) => {
