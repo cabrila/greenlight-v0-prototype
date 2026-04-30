@@ -1,8 +1,10 @@
 "use client"
 
 import { useState } from "react"
-import { Pencil, Trash2, Phone, Mail, X, Save, Plus, Link, ExternalLink, Video } from "lucide-react"
+import { Pencil, Trash2, Phone, Mail, X, Save, Plus, Video, ExternalLink } from "lucide-react"
 import { Actor, CustomField } from "@/types/actor-list"
+import ImageModal from "@/components/ui/ImageModal"
+import MediaModal from "@/components/ui/MediaModal"
 
 interface ActorCardProps {
   actor: Actor
@@ -30,6 +32,8 @@ export default function ActorCard({ actor, onUpdate, onDelete }: ActorCardProps)
   const [isEditing, setIsEditing] = useState(false)
   const [editedActor, setEditedActor] = useState(actor)
   const [newFieldName, setNewFieldName] = useState("")
+  const [showImageModal, setShowImageModal] = useState(false)
+  const [showMediaModal, setShowMediaModal] = useState(false)
 
   const handleSave = () => {
     onUpdate(editedActor)
@@ -296,7 +300,14 @@ export default function ActorCard({ actor, onUpdate, onDelete }: ActorCardProps)
 
       {/* Header with Headshot and Name */}
       <div className="flex items-center gap-4 mb-4">
-        <div className="w-16 h-16 rounded-full overflow-hidden bg-white/10 shrink-0">
+        <button
+          onClick={() => actor.headshotUrl && setShowImageModal(true)}
+          className={`w-16 h-16 rounded-full overflow-hidden bg-white/10 shrink-0 transition-all ${
+            actor.headshotUrl ? "cursor-pointer hover:ring-2 hover:ring-emerald-500/50 hover:ring-offset-2 hover:ring-offset-[#1a2e23]" : "cursor-default"
+          }`}
+          disabled={!actor.headshotUrl}
+          title={actor.headshotUrl ? "Click to view full image" : undefined}
+        >
           {actor.headshotUrl ? (
             <img
               src={actor.headshotUrl}
@@ -308,7 +319,7 @@ export default function ActorCard({ actor, onUpdate, onDelete }: ActorCardProps)
               {actor.name.charAt(0)}
             </div>
           )}
-        </div>
+        </button>
         <div className="min-w-0 pr-16">
           <h3 className="text-lg font-bold text-white uppercase tracking-wide font-sans truncate">
             {actor.name}
@@ -345,16 +356,15 @@ export default function ActorCard({ actor, onUpdate, onDelete }: ActorCardProps)
           <p className="text-xs font-semibold text-white/40 uppercase tracking-wider mb-2">
             Media Material
           </p>
-          <a
-            href={actor.mediaMaterial}
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            onClick={() => setShowMediaModal(true)}
             className="inline-flex items-center gap-2 px-3 py-2 bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/20 rounded-lg text-sky-400 hover:text-sky-300 text-sm transition-colors group/link"
+            title="Click to play video"
           >
             <Video className="w-4 h-4" />
             <span className="font-sans">{mediaPlatform.name}</span>
             <ExternalLink className="w-3 h-3 opacity-60 group-hover/link:opacity-100 transition-opacity" />
-          </a>
+          </button>
         </div>
       )}
 
@@ -386,6 +396,22 @@ export default function ActorCard({ actor, onUpdate, onDelete }: ActorCardProps)
           </p>
         </div>
       )}
+
+      {/* Image Modal */}
+      <ImageModal
+        isOpen={showImageModal}
+        onClose={() => setShowImageModal(false)}
+        src={actor.headshotUrl}
+        alt={actor.name}
+      />
+
+      {/* Media Modal */}
+      <MediaModal
+        isOpen={showMediaModal}
+        onClose={() => setShowMediaModal(false)}
+        url={actor.mediaMaterial || ""}
+        title={`${actor.name} - Media Material`}
+      />
     </div>
   )
 }
