@@ -53,7 +53,8 @@ export default function ProjectsList() {
   }
 
   return (
-    <div className="p-6 md:p-10 max-w-6xl mx-auto">
+    <div className="h-full overflow-y-auto p-6 md:p-10">
+      <div className="max-w-6xl mx-auto">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl md:text-4xl font-bold text-white mb-2 font-sans">
@@ -154,6 +155,7 @@ export default function ProjectsList() {
         title="Rename Character Bible"
         label="Character Bible Name"
       />
+      </div>
     </div>
   )
 }

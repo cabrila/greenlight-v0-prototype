@@ -44,7 +44,8 @@ export default function LocationProjectsList() {
   }
 
   return (
-    <div className="p-6 md:p-10 max-w-6xl mx-auto">
+    <div className="h-full overflow-y-auto p-6 md:p-10">
+      <div className="max-w-6xl mx-auto">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl md:text-4xl font-bold text-white font-sans mb-2">My Locations</h1>
@@ -143,6 +144,7 @@ export default function LocationProjectsList() {
         title="Rename Location List"
         label="Location List Name"
       />
+      </div>
     </div>
   )
 }
