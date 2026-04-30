@@ -1,11 +1,12 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
-import { ArrowLeft, Plus, FileJson, Download, Trash2, Search, FileSpreadsheet } from "lucide-react"
+import { ArrowLeft, Plus, FileJson, Download, Trash2, FileSpreadsheet } from "lucide-react"
 import { useLocationScouting } from "./LocationScoutingContext"
 import LocationCard from "./LocationCard"
 import { Location } from "@/types/location-scouting"
 import { exportLocationsAsJSON, exportLocationsAsPDF, exportLocationsAsExcel } from "@/lib/location-export"
+import SearchBar from "@/components/ui/SearchBar"
 
 export default function LocationResultsView() {
   const {
@@ -152,14 +153,11 @@ export default function LocationResultsView() {
         </div>
 
         {/* Search */}
-        <div className="mt-4 relative max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
-          <input
-            type="text"
-            placeholder="Search locations..."
+        <div className="mt-4">
+          <SearchBar
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-[#1a2e23] border border-white/10 rounded-lg text-white placeholder-white/40 font-sans text-sm focus:outline-none focus:border-amber-500/50"
+            onChange={setSearchQuery}
+            placeholder="Search locations..."
           />
         </div>
       </header>

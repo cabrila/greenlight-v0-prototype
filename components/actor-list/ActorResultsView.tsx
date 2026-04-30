@@ -1,11 +1,12 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
-import { ArrowLeft, Plus, FileJson, Download, Trash2, Search, FileSpreadsheet } from "lucide-react"
+import { ArrowLeft, Plus, FileJson, Download, Trash2, FileSpreadsheet } from "lucide-react"
 import { useActorList } from "./ActorListContext"
 import ActorCard from "./ActorCard"
 import { Actor } from "@/types/actor-list"
 import { exportActorsAsJSON, exportActorsAsPDF, exportActorsAsExcel } from "@/lib/actor-export"
+import SearchBar from "@/components/ui/SearchBar"
 
 export default function ActorResultsView() {
   const { currentProject, goBack, addActor, updateActor, deleteActor, deleteProject } = useActorList()
@@ -143,14 +144,11 @@ export default function ActorResultsView() {
         </div>
 
         {/* Search Bar */}
-        <div className="px-6 pb-4 relative max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
-          <input
-            type="text"
-            placeholder="Search actors..."
+        <div className="px-6 pb-4">
+          <SearchBar
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/40 font-sans focus:outline-none focus:border-emerald-500/50"
+            onChange={setSearchQuery}
+            placeholder="Search actors..."
           />
         </div>
       </div>

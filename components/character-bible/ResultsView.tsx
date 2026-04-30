@@ -6,11 +6,13 @@ import { useCharacterBible } from "./CharacterBibleContext"
 import CharacterCard from "./CharacterCard"
 import { Character } from "@/types/character-bible"
 import { exportCharactersAsJSON, exportCharactersAsPDF, exportCharactersAsExcel } from "@/lib/character-export"
+import SearchBar from "@/components/ui/SearchBar"
 
 export default function ResultsView() {
   const { currentBible, setView, setCurrentBible, updateCharacter, deleteCharacter, addCharacter, deleteBible } = useCharacterBible()
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [newItemId, setNewItemId] = useState<string | null>(null)
+  const [searchQuery, setSearchQuery] = useState("")
   const gridRef = useRef<HTMLDivElement>(null)
 
   // Scroll to newly added item
@@ -36,6 +38,12 @@ export default function ResultsView() {
       </div>
     )
   }
+
+  const filteredCharacters = currentBible.characters.filter((character) =>
+    character.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    character.castingNotes.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (character.ethnicity && character.ethnicity.toLowerCase().includes(searchQuery.toLowerCase()))
+  )
 
   const handleAddCharacter = () => {
     const id = crypto.randomUUID()
@@ -148,12 +156,21 @@ export default function ResultsView() {
             </button>
           </div>
         </div>
+
+        {/* Search Bar */}
+        <div className="px-6 pb-4">
+          <SearchBar
+            value={searchQuery}
+            onChange={setSearchQuery}
+            placeholder="Search characters..."
+          />
+        </div>
       </div>
 
       {/* Characters Grid */}
       <div className="flex-1 overflow-y-auto p-6">
         <div ref={gridRef} className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
-          {currentBible.characters.map((character) => (
+          {filteredCharacters.map((character) => (
             <div key={character.id} data-character-id={character.id} className="transition-all duration-300 rounded-xl">
               <CharacterCard
                 character={character}
@@ -162,12 +179,14 @@ export default function ResultsView() {
               />
             </div>
           ))}
+        </div>
 
-          {currentBible.characters.length === 0 && (
-            <div className="col-span-full flex flex-col items-center justify-center py-16 text-center">
-              <p className="text-white/50 font-sans mb-4">
-                No characters yet. Add your first character to get started.
-              </p>
+        {filteredCharacters.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <p className="text-white/50 font-sans mb-4">
+              {searchQuery ? "No characters match your search." : "No characters yet. Add your first character to get started."}
+            </p>
+            {!searchQuery && (
               <button
                 onClick={handleAddCharacter}
                 className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-white transition-colors"
@@ -175,9 +194,9 @@ export default function ResultsView() {
                 <Plus className="w-4 h-4" />
                 <span className="text-sm font-sans">Add Character</span>
               </button>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Delete Confirmation Modal */}
