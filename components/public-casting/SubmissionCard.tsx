@@ -209,43 +209,38 @@ export default function SubmissionCard({ submission, onUpdate, onDelete }: Submi
   // View Mode
   return (
     <div className="group relative p-5 rounded-xl border border-white/10 bg-[#1a2e23] hover:border-white/20 transition-colors">
-      {/* Grade Badge - Upper Right Corner */}
-      <div className="absolute top-4 right-4 flex items-center gap-2">
+      {/* Action Icons - Upper Right Corner */}
+      <div className="absolute top-4 right-4 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        <button
+          onClick={() => setIsEditing(true)}
+          className="p-2 bg-white/10 hover:bg-white/20 rounded-lg text-white/70 hover:text-white transition-colors"
+          title="Edit submission"
+        >
+          <Pencil className="w-4 h-4" />
+        </button>
+        <button
+          onClick={onDelete}
+          className="p-2 bg-red-500/20 hover:bg-red-500/30 rounded-lg text-red-400 hover:text-red-300 transition-colors"
+          title="Delete submission"
+        >
+          <Trash2 className="w-4 h-4" />
+        </button>
+        {/* Grade Icon */}
         {submission.grade && submission.grade > 0 ? (
           <div 
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border font-bold text-lg ${getGradeColor(submission.grade)}`}
+            className={`p-2 rounded-lg flex items-center justify-center ${getGradeColor(submission.grade)}`}
             title={`Grade: ${submission.grade}/10`}
           >
-            <Star className="w-4 h-4" />
-            <span>{submission.grade}</span>
+            <span className="w-4 h-4 flex items-center justify-center text-xs font-bold">{submission.grade}</span>
           </div>
         ) : (
           <div 
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/10 bg-white/5 text-white/40 font-bold text-lg"
+            className="p-2 rounded-lg border border-white/10 bg-white/5 text-white/40 flex items-center justify-center"
             title="Not graded"
           >
             <Star className="w-4 h-4" />
-            <span>-</span>
           </div>
         )}
-        
-        {/* Hover Actions */}
-        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-          <button
-            onClick={() => setIsEditing(true)}
-            className="p-2 bg-white/10 hover:bg-white/20 rounded-lg text-white/70 hover:text-white transition-colors"
-            title="Edit submission"
-          >
-            <Pencil className="w-4 h-4" />
-          </button>
-          <button
-            onClick={onDelete}
-            className="p-2 bg-red-500/20 hover:bg-red-500/30 rounded-lg text-red-400 hover:text-red-300 transition-colors"
-            title="Delete submission"
-          >
-            <Trash2 className="w-4 h-4" />
-          </button>
-        </div>
       </div>
 
       {/* New Badge */}
