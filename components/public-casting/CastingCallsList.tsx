@@ -1,12 +1,13 @@
 "use client"
 
 import { useState } from "react"
-import { Plus, Share2, Calendar, Users, Pencil, Trash2, Link, Eye, FileEdit, FolderEdit } from "lucide-react"
+import { Plus, Share2, Calendar, Users, Trash2, Link, Eye, FileEdit, FolderEdit, QrCode } from "lucide-react"
 import { usePublicCasting } from "./PublicCastingContext"
 import { CastingCall, PublicCastingProject } from "@/types/public-casting"
 import CastingCallPreviewModal from "./CastingCallPreviewModal"
 import DeleteConfirmationModal from "@/components/ui/DeleteConfirmationModal"
 import EditProjectModal from "@/components/ui/EditProjectModal"
+import QRCodeModal from "./QRCodeModal"
 
 interface CastingCallsListProps {
   onNewCastingCall: () => void
@@ -24,6 +25,7 @@ export default function CastingCallsList({
   const [previewCastingCall, setPreviewCastingCall] = useState<CastingCall | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<PublicCastingProject | null>(null)
   const [editTarget, setEditTarget] = useState<PublicCastingProject | null>(null)
+  const [qrCodeCastingCall, setQrCodeCastingCall] = useState<CastingCall | null>(null)
 
   const newCount = getNewSubmissionsCount()
   const totalSubmissions = getTotalSubmissions()
@@ -189,6 +191,16 @@ export default function CastingCallsList({
                     <button
                       onClick={(e) => {
                         e.stopPropagation()
+                        setQrCodeCastingCall(castingCall)
+                      }}
+                      className="p-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-white/70 hover:text-white transition-colors"
+                      title="Generate QR Code"
+                    >
+                      <QrCode className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
                         onEditCastingCall(castingCall, project)
                       }}
                       className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-violet-500/20 hover:bg-violet-500/30 border border-violet-500/30 rounded-lg text-violet-300 hover:text-violet-200 text-sm transition-colors font-sans"
@@ -212,6 +224,14 @@ export default function CastingCallsList({
           onClose={() => setPreviewCastingCall(null)}
         />
       )}
+
+      {/* QR Code Modal */}
+      <QRCodeModal
+        isOpen={!!qrCodeCastingCall}
+        onClose={() => setQrCodeCastingCall(null)}
+        url={qrCodeCastingCall?.shareableLink || ""}
+        title={qrCodeCastingCall?.title || "Casting Call"}
+      />
 
       {/* Delete Confirmation Modal */}
       <DeleteConfirmationModal
