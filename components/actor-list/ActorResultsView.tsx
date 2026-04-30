@@ -1,10 +1,11 @@
 "use client"
 
 import { useState } from "react"
-import { ArrowLeft, Plus, FileJson, Download, Trash2, Search } from "lucide-react"
+import { ArrowLeft, Plus, FileJson, Download, Trash2, Search, FileSpreadsheet } from "lucide-react"
 import { useActorList } from "./ActorListContext"
 import ActorCard from "./ActorCard"
 import { Actor } from "@/types/actor-list"
+import { exportActorsAsJSON, exportActorsAsPDF, exportActorsAsExcel } from "@/lib/actor-export"
 
 export default function ActorResultsView() {
   const { currentProject, goBack, addActor, updateActor, deleteActor, deleteProject } = useActorList()
@@ -33,14 +34,15 @@ export default function ActorResultsView() {
   }
 
   const handleExportJSON = () => {
-    const data = JSON.stringify(currentProject.actors, null, 2)
-    const blob = new Blob([data], { type: "application/json" })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement("a")
-    a.href = url
-    a.download = `${currentProject.name}.json`
-    a.click()
-    URL.revokeObjectURL(url)
+    exportActorsAsJSON(currentProject.actors, currentProject.name)
+  }
+
+  const handleExportPDF = () => {
+    exportActorsAsPDF(currentProject.actors, currentProject.name)
+  }
+
+  const handleExportExcel = () => {
+    exportActorsAsExcel(currentProject.actors, currentProject.name)
   }
 
   const handleDeleteList = () => {
@@ -84,14 +86,27 @@ export default function ActorResultsView() {
             </button>
             <button
               onClick={handleExportJSON}
-              className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg text-white transition-colors"
+              className="flex items-center gap-2 px-3 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg text-white transition-colors"
+              title="Export as JSON"
             >
               <FileJson className="w-4 h-4" />
-              <span className="font-sans text-sm">JSON</span>
+              <span className="font-sans text-sm hidden sm:inline">JSON</span>
             </button>
-            <button className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-white transition-colors">
+            <button
+              onClick={handleExportExcel}
+              className="flex items-center gap-2 px-3 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg text-white transition-colors"
+              title="Export as Excel"
+            >
+              <FileSpreadsheet className="w-4 h-4" />
+              <span className="font-sans text-sm hidden sm:inline">Excel</span>
+            </button>
+            <button
+              onClick={handleExportPDF}
+              className="flex items-center gap-2 px-3 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-white transition-colors"
+              title="Export as PDF"
+            >
               <Download className="w-4 h-4" />
-              <span className="font-sans text-sm">Save PDF</span>
+              <span className="font-sans text-sm hidden sm:inline">PDF</span>
             </button>
             <button
               onClick={handleDeleteList}
