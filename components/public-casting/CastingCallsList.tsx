@@ -57,7 +57,7 @@ export default function CastingCallsList({
       <div className="max-w-6xl mx-auto">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl md:text-4xl font-bold text-white mb-2 font-sans">Public Casting</h1>
+        <h1 className="text-3xl md:text-4xl font-bold text-white mb-2 font-sans">My Casting Calls</h1>
         <p className="text-white/60 text-base font-sans">
           Create shareable casting forms and manage actor submissions.
         </p>
