@@ -79,7 +79,7 @@ export default function CastingCallsList({
           className="relative flex items-center gap-2 px-4 py-2.5 bg-violet-500/20 hover:bg-violet-500/30 border border-violet-500/30 rounded-lg text-violet-300 transition-colors font-sans"
         >
           <Users className="w-4 h-4" />
-          <span>View Submissions</span>
+          <span>Submissions</span>
           {totalSubmissions > 0 && (
             <span className="flex items-center justify-center min-w-[20px] h-5 px-1.5 bg-violet-500 text-white text-xs font-bold rounded-full">
               {totalSubmissions}
