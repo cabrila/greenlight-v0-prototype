@@ -34,23 +34,25 @@ export function exportLocationsAsPDF(locations: Location[], projectName: string)
   doc.text(`Location List - ${locations.length} locations`, 14, 28)
   doc.text(`Generated on ${new Date().toLocaleDateString()}`, 14, 34)
   
-  // Table data
+  // Table data - including new Location Idea fields
   const tableData = locations.map((loc) => [
     loc.name,
     loc.type,
     loc.timeOfDay,
     loc.description || "-",
     loc.scoutingNotes || "-",
+    loc.locationIdeaMapUrl || "-",
+    loc.locationIdeaLink || "-",
   ])
   
   // Create table
   autoTable(doc, {
     startY: 42,
-    head: [["Location Name", "Type", "Time of Day", "Description", "Scouting Notes"]],
+    head: [["Location Name", "Type", "Time", "Description", "Scouting Notes", "Map URL", "Reference Link"]],
     body: tableData,
     styles: {
-      fontSize: 9,
-      cellPadding: 3,
+      fontSize: 8,
+      cellPadding: 2,
     },
     headStyles: {
       fillColor: [245, 158, 11], // Amber
@@ -61,11 +63,13 @@ export function exportLocationsAsPDF(locations: Location[], projectName: string)
       fillColor: [255, 251, 235], // Light amber
     },
     columnStyles: {
-      0: { cellWidth: 35 },
-      1: { cellWidth: 15 },
-      2: { cellWidth: 20 },
-      3: { cellWidth: 50 },
-      4: { cellWidth: "auto" },
+      0: { cellWidth: 25 },
+      1: { cellWidth: 12 },
+      2: { cellWidth: 12 },
+      3: { cellWidth: 35 },
+      4: { cellWidth: 35 },
+      5: { cellWidth: 35 },
+      6: { cellWidth: 35 },
     },
   })
   
@@ -90,13 +94,15 @@ export function exportLocationsAsPDF(locations: Location[], projectName: string)
  * Export locations as Excel file
  */
 export function exportLocationsAsExcel(locations: Location[], projectName: string) {
-  // Prepare data for Excel
+  // Prepare data for Excel - including new Location Idea fields
   const excelData = locations.map((loc) => ({
     "Location Name": loc.name,
     "Type": loc.type,
     "Time of Day": loc.timeOfDay,
     "Description": loc.description || "",
     "Scouting Notes": loc.scoutingNotes || "",
+    "Location Idea - Map URL": loc.locationIdeaMapUrl || "",
+    "Location Idea - Reference Link": loc.locationIdeaLink || "",
   }))
   
   // Create workbook and worksheet
@@ -110,6 +116,8 @@ export function exportLocationsAsExcel(locations: Location[], projectName: strin
     { wch: 15 }, // Time of Day
     { wch: 40 }, // Description
     { wch: 40 }, // Scouting Notes
+    { wch: 50 }, // Location Idea - Map URL
+    { wch: 50 }, // Location Idea - Reference Link
   ]
   
   // Add worksheet to workbook

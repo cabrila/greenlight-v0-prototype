@@ -5,6 +5,8 @@ export interface Location {
   timeOfDay: "DAY" | "NIGHT" | "DAWN" | "DUSK"
   description: string
   scoutingNotes: string
+  locationIdeaMapUrl?: string
+  locationIdeaLink?: string
 }
 
 export interface LocationProject {

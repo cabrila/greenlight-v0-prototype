@@ -1,8 +1,9 @@
 "use client"
 
 import { useState } from "react"
-import { MapPin, Pencil, Trash2, X, Save } from "lucide-react"
+import { MapPin, Pencil, Trash2, X, Save, Map, ExternalLink } from "lucide-react"
 import { Location } from "@/types/location-scouting"
+import GoogleMapsModal from "@/components/ui/GoogleMapsModal"
 
 interface LocationCardProps {
   location: Location
@@ -13,6 +14,7 @@ interface LocationCardProps {
 export default function LocationCard({ location, onUpdate, onDelete }: LocationCardProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [editData, setEditData] = useState<Location>(location)
+  const [showMapModal, setShowMapModal] = useState(false)
 
   const handleSave = () => {
     onUpdate(editData)
@@ -27,7 +29,7 @@ export default function LocationCard({ location, onUpdate, onDelete }: LocationC
   if (isEditing) {
     return (
       <div className="p-5 rounded-xl border border-amber-500/50 bg-[#1a2e23]">
-        {/* Character Name Label */}
+        {/* Location Name Label */}
         <label className="block text-xs font-semibold text-amber-400 uppercase tracking-wider mb-2">
           Location Name
         </label>
@@ -96,6 +98,37 @@ export default function LocationCard({ location, onUpdate, onDelete }: LocationC
           rows={3}
           className="w-full px-4 py-3 bg-[#0f1f17] rounded-lg text-white font-sans mb-4 border border-white/10 focus:border-amber-500/50 focus:outline-none resize-none"
         />
+
+        {/* Location Idea Section */}
+        <div className="p-4 bg-[#0f1f17] rounded-lg mb-4 border border-white/10">
+          <p className="text-xs font-semibold text-amber-400 uppercase tracking-wider mb-3">
+            Location Idea
+          </p>
+          
+          {/* Google Maps Link */}
+          <label className="block text-xs text-white/60 mb-2 font-sans">
+            Google Maps URL (opens in modal)
+          </label>
+          <input
+            type="url"
+            value={editData.locationIdeaMapUrl || ""}
+            onChange={(e) => setEditData({ ...editData, locationIdeaMapUrl: e.target.value })}
+            placeholder="https://maps.google.com/..."
+            className="w-full px-3 py-2 bg-[#1a2e23] rounded-lg text-white font-sans text-sm mb-3 border border-white/10 focus:border-amber-500/50 focus:outline-none"
+          />
+          
+          {/* External Reference Link */}
+          <label className="block text-xs text-white/60 mb-2 font-sans">
+            Reference Link (opens in new tab)
+          </label>
+          <input
+            type="url"
+            value={editData.locationIdeaLink || ""}
+            onChange={(e) => setEditData({ ...editData, locationIdeaLink: e.target.value })}
+            placeholder="https://example.com/location-reference"
+            className="w-full px-3 py-2 bg-[#1a2e23] rounded-lg text-white font-sans text-sm border border-white/10 focus:border-amber-500/50 focus:outline-none"
+          />
+        </div>
 
         {/* Actions */}
         <div className="flex items-center justify-between pt-2">
@@ -174,6 +207,37 @@ export default function LocationCard({ location, onUpdate, onDelete }: LocationC
         {location.description}
       </p>
 
+      {/* Location Idea Links */}
+      {(location.locationIdeaMapUrl || location.locationIdeaLink) && (
+        <div className="mb-4">
+          <p className="text-xs font-semibold text-amber-400 uppercase tracking-wider mb-2">
+            Location Idea
+          </p>
+          <div className="flex flex-wrap items-center gap-2">
+            {location.locationIdeaMapUrl && (
+              <button
+                onClick={() => setShowMapModal(true)}
+                className="inline-flex items-center gap-2 px-3 py-2 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 rounded-lg text-amber-400 hover:text-amber-300 text-sm transition-colors"
+              >
+                <Map className="w-4 h-4" />
+                <span className="font-sans">View Map</span>
+              </button>
+            )}
+            {location.locationIdeaLink && (
+              <a
+                href={location.locationIdeaLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-white/70 hover:text-white text-sm transition-colors"
+              >
+                <ExternalLink className="w-4 h-4" />
+                <span className="font-sans">Reference Link</span>
+              </a>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Scouting Notes */}
       <div className="p-3 bg-[#0f1f17] rounded-lg">
         <p className="text-xs font-semibold text-amber-400 uppercase tracking-wider mb-2">
@@ -183,6 +247,14 @@ export default function LocationCard({ location, onUpdate, onDelete }: LocationC
           {location.scoutingNotes}
         </p>
       </div>
+
+      {/* Google Maps Modal */}
+      <GoogleMapsModal
+        isOpen={showMapModal}
+        onClose={() => setShowMapModal(false)}
+        url={location.locationIdeaMapUrl || ""}
+        title={location.name}
+      />
     </div>
   )
 }
