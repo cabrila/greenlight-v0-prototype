@@ -38,11 +38,6 @@ export default function SubmissionCard({ submission, onUpdate, onDelete }: Submi
     setIsEditing(false)
   }
 
-  const handleGradeChange = (newGrade: number) => {
-    // Immediate update without entering edit mode
-    onUpdate({ grade: newGrade })
-  }
-
   // Grade color based on value
   const getGradeColor = (grade: number) => {
     if (grade >= 8) return "text-emerald-400 bg-emerald-500/20 border-emerald-500/30"
@@ -125,24 +120,46 @@ export default function SubmissionCard({ submission, onUpdate, onDelete }: Submi
           />
         </div>
 
-        {/* Grade Slider */}
+        {/* Grade Clicking Scale */}
         <div className="mb-4">
-          <label className="block text-xs font-semibold text-violet-400 uppercase tracking-wider mb-2">
-            Grade (1-10)
-          </label>
-          <div className="flex items-center gap-4">
-            <input
-              type="range"
-              min="0"
-              max="10"
-              step="1"
-              value={editData.grade}
-              onChange={(e) => setEditData({ ...editData, grade: parseInt(e.target.value) })}
-              className="flex-1 h-2 bg-[#0f1f17] rounded-lg appearance-none cursor-pointer accent-violet-500"
-            />
-            <span className={`w-10 text-center font-bold font-sans ${editData.grade > 0 ? getGradeColor(editData.grade).split(" ")[0] : "text-white/40"}`}>
-              {editData.grade > 0 ? editData.grade : "-"}
-            </span>
+          <div className="flex items-center justify-between mb-2">
+            <label className="text-xs font-semibold text-violet-400 uppercase tracking-wider flex items-center gap-1.5">
+              <Star className="w-3.5 h-3.5" />
+              Grade (1-10)
+            </label>
+            {editData.grade > 0 && (
+              <button
+                onClick={() => setEditData({ ...editData, grade: 0 })}
+                className="text-xs text-white/40 hover:text-white/60 transition-colors"
+              >
+                Clear
+              </button>
+            )}
+          </div>
+          <div className="flex items-center gap-1 p-2 bg-[#0f1f17] rounded-lg">
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
+              <button
+                key={num}
+                onClick={() => setEditData({ ...editData, grade: num })}
+                className={`flex-1 h-9 rounded-md text-sm font-bold transition-all ${
+                  editData.grade >= num
+                    ? num >= 8
+                      ? "bg-emerald-500/50 text-emerald-200 border border-emerald-500/50"
+                      : num >= 5
+                      ? "bg-amber-500/50 text-amber-200 border border-amber-500/50"
+                      : "bg-red-500/50 text-red-200 border border-red-500/50"
+                    : "bg-white/5 text-white/40 hover:bg-white/10 hover:text-white/60 border border-transparent"
+                }`}
+                title={`Grade ${num}`}
+              >
+                {num}
+              </button>
+            ))}
+          </div>
+          <div className="flex justify-between mt-2 text-xs text-white/30 px-1">
+            <span>Low</span>
+            <span>Medium</span>
+            <span>High</span>
           </div>
         </div>
 
@@ -192,22 +209,43 @@ export default function SubmissionCard({ submission, onUpdate, onDelete }: Submi
   // View Mode
   return (
     <div className="group relative p-5 rounded-xl border border-white/10 bg-[#1a2e23] hover:border-white/20 transition-colors">
-      {/* Hover Actions */}
-      <div className="absolute top-4 right-4 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-        <button
-          onClick={() => setIsEditing(true)}
-          className="p-2 bg-white/10 hover:bg-white/20 rounded-lg text-white/70 hover:text-white transition-colors"
-          title="Edit submission"
-        >
-          <Pencil className="w-4 h-4" />
-        </button>
-        <button
-          onClick={onDelete}
-          className="p-2 bg-red-500/20 hover:bg-red-500/30 rounded-lg text-red-400 hover:text-red-300 transition-colors"
-          title="Delete submission"
-        >
-          <Trash2 className="w-4 h-4" />
-        </button>
+      {/* Grade Badge - Upper Right Corner */}
+      <div className="absolute top-4 right-4 flex items-center gap-2">
+        {submission.grade && submission.grade > 0 ? (
+          <div 
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border font-bold text-lg ${getGradeColor(submission.grade)}`}
+            title={`Grade: ${submission.grade}/10`}
+          >
+            <Star className="w-4 h-4" />
+            <span>{submission.grade}</span>
+          </div>
+        ) : (
+          <div 
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/10 bg-white/5 text-white/40 font-bold text-lg"
+            title="Not graded"
+          >
+            <Star className="w-4 h-4" />
+            <span>-</span>
+          </div>
+        )}
+        
+        {/* Hover Actions */}
+        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          <button
+            onClick={() => setIsEditing(true)}
+            className="p-2 bg-white/10 hover:bg-white/20 rounded-lg text-white/70 hover:text-white transition-colors"
+            title="Edit submission"
+          >
+            <Pencil className="w-4 h-4" />
+          </button>
+          <button
+            onClick={onDelete}
+            className="p-2 bg-red-500/20 hover:bg-red-500/30 rounded-lg text-red-400 hover:text-red-300 transition-colors"
+            title="Delete submission"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        </div>
       </div>
 
       {/* New Badge */}
@@ -262,41 +300,6 @@ export default function SubmissionCard({ submission, onUpdate, onDelete }: Submi
               </span>
             )}
           </div>
-        </div>
-      </div>
-
-      {/* Grading System */}
-      <div className="mb-4 p-3 bg-[#0f1f17] rounded-lg">
-        <div className="flex items-center justify-between mb-2">
-          <p className="text-xs font-semibold text-white/40 uppercase tracking-wider flex items-center gap-1.5">
-            <Star className="w-3.5 h-3.5" />
-            Grade
-          </p>
-          {submission.grade && (
-            <span className={`px-2 py-0.5 text-sm font-bold rounded border ${getGradeColor(submission.grade)}`}>
-              {submission.grade}/10
-            </span>
-          )}
-        </div>
-        <div className="flex items-center gap-1">
-          {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
-            <button
-              key={num}
-              onClick={() => handleGradeChange(num)}
-              className={`flex-1 h-7 rounded text-xs font-bold transition-all ${
-                submission.grade && num <= submission.grade
-                  ? num >= 8
-                    ? "bg-emerald-500/40 text-emerald-300"
-                    : num >= 5
-                    ? "bg-amber-500/40 text-amber-300"
-                    : "bg-red-500/40 text-red-300"
-                  : "bg-white/5 text-white/30 hover:bg-white/10 hover:text-white/50"
-              }`}
-              title={`Grade ${num}`}
-            >
-              {num}
-            </button>
-          ))}
         </div>
       </div>
 
