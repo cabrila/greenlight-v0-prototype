@@ -14,6 +14,7 @@ interface SubmissionCardProps {
 
 export default function SubmissionCard({ submission, onUpdate, onDelete }: SubmissionCardProps) {
   const [isEditing, setIsEditing] = useState(false)
+  const [focusGrade, setFocusGrade] = useState(false)
   const [showImageModal, setShowImageModal] = useState(false)
   const [editData, setEditData] = useState({
     name: submission.name,
@@ -36,6 +37,17 @@ export default function SubmissionCard({ submission, onUpdate, onDelete }: Submi
       grade: editData.grade || undefined,
     })
     setIsEditing(false)
+    setFocusGrade(false)
+  }
+
+  const handleGradeClick = () => {
+    setIsEditing(true)
+    setFocusGrade(true)
+  }
+
+  const handleCancel = () => {
+    setIsEditing(false)
+    setFocusGrade(false)
   }
 
   // Grade color based on value
@@ -121,7 +133,7 @@ export default function SubmissionCard({ submission, onUpdate, onDelete }: Submi
         </div>
 
         {/* Grade Clicking Scale */}
-        <div className="mb-4">
+        <div className={`mb-4 p-3 rounded-lg transition-all ${focusGrade ? "bg-violet-500/10 ring-2 ring-violet-500/50" : ""}`}>
           <div className="flex items-center justify-between mb-2">
             <label className="text-xs font-semibold text-violet-400 uppercase tracking-wider flex items-center gap-1.5">
               <Star className="w-3.5 h-3.5" />
@@ -187,7 +199,7 @@ export default function SubmissionCard({ submission, onUpdate, onDelete }: Submi
           </button>
           <div className="flex items-center gap-2">
             <button
-              onClick={() => setIsEditing(false)}
+              onClick={handleCancel}
               className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/15 rounded-lg text-white transition-colors font-sans text-sm"
             >
               <X className="w-4 h-4" />
@@ -228,21 +240,23 @@ export default function SubmissionCard({ submission, onUpdate, onDelete }: Submi
             <Trash2 className="w-4 h-4" />
           </button>
         </div>
-        {/* Grade Icon - Always visible */}
+        {/* Grade Icon - Always visible, clickable to edit grade */}
         {submission.grade && submission.grade > 0 ? (
-          <div 
-            className={`p-2 rounded-lg flex items-center justify-center ${getGradeColor(submission.grade)}`}
-            title={`Grade: ${submission.grade}/10`}
+          <button 
+            onClick={handleGradeClick}
+            className={`p-2 rounded-lg flex items-center justify-center hover:ring-2 hover:ring-offset-1 hover:ring-offset-[#1a2e23] transition-all ${getGradeColor(submission.grade)} hover:ring-current`}
+            title={`Grade: ${submission.grade}/10 - Click to edit`}
           >
             <span className="w-4 h-4 flex items-center justify-center text-xs font-bold">{submission.grade}</span>
-          </div>
+          </button>
         ) : (
-          <div 
-            className="p-2 rounded-lg border border-white/10 bg-white/5 text-white/40 flex items-center justify-center"
-            title="Not graded"
+          <button 
+            onClick={handleGradeClick}
+            className="p-2 rounded-lg border border-white/10 bg-white/5 text-white/40 flex items-center justify-center hover:bg-white/10 hover:text-white/60 transition-colors"
+            title="Click to add grade"
           >
             <Star className="w-4 h-4" />
-          </div>
+          </button>
         )}
       </div>
 
