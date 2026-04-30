@@ -74,29 +74,31 @@ export default function ActorResultsView() {
   return (
     <div className="flex-1 flex flex-col h-full">
       {/* Header */}
-      <div className="px-6 py-4 border-b border-white/10">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={goBack}
-              className="flex items-center gap-2 text-white/60 hover:text-white transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              <span className="text-sm font-sans">Back to Projects</span>
-            </button>
-            <div className="h-6 w-px bg-white/20" />
-            <div>
-              <h1 className="text-xl font-bold text-white font-sans">
-                {currentProject.name}
-              </h1>
-              <p className="text-white/50 text-sm font-sans">
-                Actor List &bull; Found {currentProject.actors.length} items.
-              </p>
-            </div>
+      <div className="shrink-0 border-b border-white/10">
+        {/* Back Navigation */}
+        <div className="px-6 py-3 border-b border-white/5">
+          <button
+            onClick={goBack}
+            className="flex items-center gap-2 text-white/60 hover:text-white transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span className="text-sm font-sans">Back to Projects</span>
+          </button>
+        </div>
+
+        {/* Title and Actions */}
+        <div className="px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-white font-sans">
+              {currentProject.name}
+            </h1>
+            <p className="text-white/50 text-sm font-sans">
+              Actor List &bull; Found {currentProject.actors.length} items.
+            </p>
           </div>
 
           {/* Actions */}
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={handleAddActor}
               className="flex items-center gap-2 px-3 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg text-white transition-colors"
@@ -141,7 +143,7 @@ export default function ActorResultsView() {
         </div>
 
         {/* Search Bar */}
-        <div className="mt-4 relative max-w-md">
+        <div className="px-6 pb-4 relative max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
           <input
             type="text"
