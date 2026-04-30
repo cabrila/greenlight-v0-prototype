@@ -1,3 +1,9 @@
+export interface CustomField {
+  id: string
+  name: string
+  value: string
+}
+
 export interface Actor {
   id: string
   name: string
@@ -7,6 +13,8 @@ export interface Actor {
   email: string
   headshotUrl: string
   notes: string
+  mediaMaterial?: string
+  customFields?: CustomField[]
 }
 
 export interface ActorListProject {

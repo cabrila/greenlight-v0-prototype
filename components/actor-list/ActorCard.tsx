@@ -1,8 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { Pencil, Trash2, Phone, Mail, X, Save } from "lucide-react"
-import { Actor } from "@/types/actor-list"
+import { Pencil, Trash2, Phone, Mail, X, Save, Plus, Link, ExternalLink, Video } from "lucide-react"
+import { Actor, CustomField } from "@/types/actor-list"
 
 interface ActorCardProps {
   actor: Actor
@@ -10,9 +10,26 @@ interface ActorCardProps {
   onDelete: () => void
 }
 
+// Helper to detect media platform from URL
+function getMediaPlatform(url: string): { name: string; icon: "youtube" | "vimeo" | "drive" | "link" } | null {
+  if (!url) return null
+  const lowerUrl = url.toLowerCase()
+  if (lowerUrl.includes("youtube.com") || lowerUrl.includes("youtu.be")) {
+    return { name: "YouTube", icon: "youtube" }
+  }
+  if (lowerUrl.includes("vimeo.com")) {
+    return { name: "Vimeo", icon: "vimeo" }
+  }
+  if (lowerUrl.includes("drive.google.com")) {
+    return { name: "Google Drive", icon: "drive" }
+  }
+  return { name: "Media Link", icon: "link" }
+}
+
 export default function ActorCard({ actor, onUpdate, onDelete }: ActorCardProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [editedActor, setEditedActor] = useState(actor)
+  const [newFieldName, setNewFieldName] = useState("")
 
   const handleSave = () => {
     onUpdate(editedActor)
@@ -22,7 +39,40 @@ export default function ActorCard({ actor, onUpdate, onDelete }: ActorCardProps)
   const handleCancel = () => {
     setEditedActor(actor)
     setIsEditing(false)
+    setNewFieldName("")
   }
+
+  const handleAddCustomField = () => {
+    if (!newFieldName.trim()) return
+    const newField: CustomField = {
+      id: crypto.randomUUID(),
+      name: newFieldName.trim(),
+      value: "",
+    }
+    setEditedActor({
+      ...editedActor,
+      customFields: [...(editedActor.customFields || []), newField],
+    })
+    setNewFieldName("")
+  }
+
+  const handleUpdateCustomField = (fieldId: string, value: string) => {
+    setEditedActor({
+      ...editedActor,
+      customFields: (editedActor.customFields || []).map((f) =>
+        f.id === fieldId ? { ...f, value } : f
+      ),
+    })
+  }
+
+  const handleRemoveCustomField = (fieldId: string) => {
+    setEditedActor({
+      ...editedActor,
+      customFields: (editedActor.customFields || []).filter((f) => f.id !== fieldId),
+    })
+  }
+
+  const mediaPlatform = getMediaPlatform(actor.mediaMaterial || "")
 
   // Edit Mode
   if (isEditing) {
@@ -106,6 +156,23 @@ export default function ActorCard({ actor, onUpdate, onDelete }: ActorCardProps)
           />
         </div>
 
+        {/* Media Material URL */}
+        <div className="mb-4">
+          <label className="block text-xs font-semibold text-emerald-400 uppercase tracking-wider mb-2">
+            Media Material (YouTube, Vimeo, Google Drive)
+          </label>
+          <div className="relative">
+            <Video className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+            <input
+              type="url"
+              value={editedActor.mediaMaterial || ""}
+              onChange={(e) => setEditedActor({ ...editedActor, mediaMaterial: e.target.value })}
+              placeholder="https://youtube.com/watch?v=..."
+              className="w-full pl-10 pr-4 py-2.5 bg-[#0f1f17] border border-white/10 rounded-lg text-white font-sans focus:outline-none focus:border-emerald-500/50 text-sm"
+            />
+          </div>
+        </div>
+
         {/* Notes */}
         <div className="mb-4">
           <label className="block text-xs font-semibold text-emerald-400 uppercase tracking-wider mb-2">
@@ -117,6 +184,63 @@ export default function ActorCard({ actor, onUpdate, onDelete }: ActorCardProps)
             rows={3}
             className="w-full px-4 py-2.5 bg-[#0f1f17] border border-white/10 rounded-lg text-white font-sans focus:outline-none focus:border-emerald-500/50 resize-none"
           />
+        </div>
+
+        {/* Custom Fields */}
+        <div className="mb-4">
+          <label className="block text-xs font-semibold text-emerald-400 uppercase tracking-wider mb-2">
+            Custom Fields
+          </label>
+          
+          {/* Existing Custom Fields */}
+          {(editedActor.customFields || []).map((field) => (
+            <div key={field.id} className="flex items-center gap-2 mb-2">
+              <div className="flex-1 grid grid-cols-2 gap-2">
+                <div className="px-3 py-2 bg-[#0f1f17] border border-white/10 rounded-lg text-white/60 text-sm truncate">
+                  {field.name}
+                </div>
+                <input
+                  type="text"
+                  value={field.value}
+                  onChange={(e) => handleUpdateCustomField(field.id, e.target.value)}
+                  placeholder="Enter value..."
+                  className="px-3 py-2 bg-[#0f1f17] border border-white/10 rounded-lg text-white font-sans focus:outline-none focus:border-emerald-500/50 text-sm"
+                />
+              </div>
+              <button
+                onClick={() => handleRemoveCustomField(field.id)}
+                className="p-2 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-colors"
+                title="Remove field"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          ))}
+
+          {/* Add New Custom Field */}
+          <div className="flex items-center gap-2 mt-3">
+            <input
+              type="text"
+              value={newFieldName}
+              onChange={(e) => setNewFieldName(e.target.value)}
+              placeholder="Field name..."
+              className="flex-1 px-3 py-2 bg-[#0f1f17] border border-white/10 rounded-lg text-white font-sans focus:outline-none focus:border-emerald-500/50 text-sm"
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault()
+                  handleAddCustomField()
+                }
+              }}
+            />
+            <button
+              onClick={handleAddCustomField}
+              disabled={!newFieldName.trim()}
+              className="flex items-center gap-1.5 px-3 py-2 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 rounded-lg text-emerald-400 text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Plus className="w-4 h-4" />
+              Add Field
+            </button>
+          </div>
         </div>
 
         {/* Actions */}
@@ -214,6 +338,42 @@ export default function ActorCard({ actor, onUpdate, onDelete }: ActorCardProps)
           </div>
         </div>
       </div>
+
+      {/* Media Material */}
+      {actor.mediaMaterial && mediaPlatform && (
+        <div className="mb-4">
+          <p className="text-xs font-semibold text-white/40 uppercase tracking-wider mb-2">
+            Media Material
+          </p>
+          <a
+            href={actor.mediaMaterial}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-3 py-2 bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/20 rounded-lg text-sky-400 hover:text-sky-300 text-sm transition-colors group/link"
+          >
+            <Video className="w-4 h-4" />
+            <span className="font-sans">{mediaPlatform.name}</span>
+            <ExternalLink className="w-3 h-3 opacity-60 group-hover/link:opacity-100 transition-opacity" />
+          </a>
+        </div>
+      )}
+
+      {/* Custom Fields */}
+      {actor.customFields && actor.customFields.length > 0 && (
+        <div className="mb-4">
+          <p className="text-xs font-semibold text-white/40 uppercase tracking-wider mb-2">
+            Additional Info
+          </p>
+          <div className="space-y-1.5">
+            {actor.customFields.map((field) => (
+              <div key={field.id} className="flex items-start gap-2 text-sm">
+                <span className="text-white/50 font-sans shrink-0">{field.name}:</span>
+                <span className="text-white/80 font-sans">{field.value || "-"}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Notes */}
       {actor.notes && (
