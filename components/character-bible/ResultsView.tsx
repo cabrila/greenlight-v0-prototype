@@ -1,10 +1,11 @@
 "use client"
 
 import { useState } from "react"
-import { ArrowLeft, Plus, FileJson, Download, Trash2 } from "lucide-react"
+import { ArrowLeft, Plus, FileJson, Download, Trash2, FileSpreadsheet } from "lucide-react"
 import { useCharacterBible } from "./CharacterBibleContext"
 import CharacterCard from "./CharacterCard"
 import { Character } from "@/types/character-bible"
+import { exportCharactersAsJSON, exportCharactersAsPDF, exportCharactersAsExcel } from "@/lib/character-export"
 
 export default function ResultsView() {
   const { currentBible, setView, setCurrentBible, updateCharacter, deleteCharacter, addCharacter, deleteBible } = useCharacterBible()
@@ -32,19 +33,15 @@ export default function ResultsView() {
   }
 
   const handleExportJSON = () => {
-    const data = JSON.stringify(currentBible, null, 2)
-    const blob = new Blob([data], { type: "application/json" })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement("a")
-    a.href = url
-    a.download = `${currentBible.name.toLowerCase().replace(/\s+/g, "-")}.json`
-    a.click()
-    URL.revokeObjectURL(url)
+    exportCharactersAsJSON(currentBible.characters, currentBible.name)
   }
 
   const handleExportPDF = () => {
-    // In a real implementation, this would generate a PDF
-    alert("PDF export would be implemented here")
+    exportCharactersAsPDF(currentBible.characters, currentBible.name)
+  }
+
+  const handleExportExcel = () => {
+    exportCharactersAsExcel(currentBible.characters, currentBible.name)
   }
 
   const handleDeleteList = () => {
@@ -91,31 +88,43 @@ export default function ResultsView() {
           <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={handleAddCharacter}
-              className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg text-white transition-colors"
+              className="flex items-center gap-2 px-3 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg text-white transition-colors"
+              title="Add Character"
             >
               <Plus className="w-4 h-4" />
-              <span className="text-sm font-sans">Add Character</span>
+              <span className="text-sm font-sans hidden sm:inline">Add Character</span>
             </button>
             <button
               onClick={handleExportJSON}
-              className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg text-white transition-colors"
+              className="flex items-center gap-2 px-3 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg text-white transition-colors"
+              title="Export as JSON"
             >
               <FileJson className="w-4 h-4" />
-              <span className="text-sm font-sans">JSON</span>
+              <span className="text-sm font-sans hidden sm:inline">JSON</span>
+            </button>
+            <button
+              onClick={handleExportExcel}
+              className="flex items-center gap-2 px-3 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg text-white transition-colors"
+              title="Export as Excel"
+            >
+              <FileSpreadsheet className="w-4 h-4" />
+              <span className="text-sm font-sans hidden sm:inline">Excel</span>
             </button>
             <button
               onClick={handleExportPDF}
-              className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-white transition-colors"
+              className="flex items-center gap-2 px-3 py-2 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-white transition-colors"
+              title="Export as PDF"
             >
               <Download className="w-4 h-4" />
-              <span className="text-sm font-sans">Save PDF</span>
+              <span className="text-sm font-sans hidden sm:inline">PDF</span>
             </button>
             <button
               onClick={handleDeleteList}
-              className="flex items-center gap-2 px-4 py-2 bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 rounded-lg text-red-400 transition-colors"
+              className="flex items-center gap-2 px-3 py-2 bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 rounded-lg text-red-400 transition-colors"
+              title="Delete List"
             >
               <Trash2 className="w-4 h-4" />
-              <span className="text-sm font-sans">Delete List</span>
+              <span className="text-sm font-sans hidden sm:inline">Delete</span>
             </button>
           </div>
         </div>

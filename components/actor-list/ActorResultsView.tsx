@@ -79,10 +79,11 @@ export default function ActorResultsView() {
           <div className="flex items-center gap-2">
             <button
               onClick={handleAddActor}
-              className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg text-white transition-colors"
+              className="flex items-center gap-2 px-3 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg text-white transition-colors"
+              title="Add Actor"
             >
               <Plus className="w-4 h-4" />
-              <span className="font-sans text-sm">Add Actor</span>
+              <span className="font-sans text-sm hidden sm:inline">Add Actor</span>
             </button>
             <button
               onClick={handleExportJSON}
@@ -110,10 +111,11 @@ export default function ActorResultsView() {
             </button>
             <button
               onClick={handleDeleteList}
-              className="flex items-center gap-2 px-4 py-2 bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 rounded-lg text-red-400 transition-colors"
+              className="flex items-center gap-2 px-3 py-2 bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 rounded-lg text-red-400 transition-colors"
+              title="Delete List"
             >
               <Trash2 className="w-4 h-4" />
-              <span className="font-sans text-sm">Delete List</span>
+              <span className="font-sans text-sm hidden sm:inline">Delete</span>
             </button>
           </div>
         </div>

@@ -1,10 +1,11 @@
 "use client"
 
 import { useState } from "react"
-import { ArrowLeft, Plus, FileJson, Download, Trash2, Search } from "lucide-react"
+import { ArrowLeft, Plus, FileJson, Download, Trash2, Search, FileSpreadsheet } from "lucide-react"
 import { useLocationScouting } from "./LocationScoutingContext"
 import LocationCard from "./LocationCard"
 import { Location } from "@/types/location-scouting"
+import { exportLocationsAsJSON, exportLocationsAsPDF, exportLocationsAsExcel } from "@/lib/location-export"
 
 export default function LocationResultsView() {
   const {
@@ -43,14 +44,15 @@ export default function LocationResultsView() {
   }
 
   const handleExportJSON = () => {
-    const data = JSON.stringify(currentProject, null, 2)
-    const blob = new Blob([data], { type: "application/json" })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement("a")
-    a.href = url
-    a.download = `${currentProject.name.toLowerCase().replace(/\s+/g, "-")}-locations.json`
-    a.click()
-    URL.revokeObjectURL(url)
+    exportLocationsAsJSON(currentProject.locations, currentProject.name)
+  }
+
+  const handleExportPDF = () => {
+    exportLocationsAsPDF(currentProject.locations, currentProject.name)
+  }
+
+  const handleExportExcel = () => {
+    exportLocationsAsExcel(currentProject.locations, currentProject.name)
   }
 
   const handleDeleteList = () => {
@@ -88,30 +90,43 @@ export default function LocationResultsView() {
           <div className="flex items-center gap-2 flex-wrap">
             <button
               onClick={handleAddLocation}
-              className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white font-sans text-sm transition-colors"
+              className="flex items-center gap-2 px-3 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white font-sans text-sm transition-colors"
+              title="Add Location"
             >
               <Plus className="w-4 h-4" />
-              Add Location
+              <span className="hidden sm:inline">Add Location</span>
             </button>
             <button
               onClick={handleExportJSON}
-              className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white font-sans text-sm transition-colors"
+              className="flex items-center gap-2 px-3 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white font-sans text-sm transition-colors"
+              title="Export as JSON"
             >
               <FileJson className="w-4 h-4" />
-              JSON
+              <span className="hidden sm:inline">JSON</span>
             </button>
             <button
-              className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-400 rounded-lg text-black font-semibold font-sans text-sm transition-colors"
+              onClick={handleExportExcel}
+              className="flex items-center gap-2 px-3 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white font-sans text-sm transition-colors"
+              title="Export as Excel"
+            >
+              <FileSpreadsheet className="w-4 h-4" />
+              <span className="hidden sm:inline">Excel</span>
+            </button>
+            <button
+              onClick={handleExportPDF}
+              className="flex items-center gap-2 px-3 py-2 bg-amber-500 hover:bg-amber-400 rounded-lg text-black font-semibold font-sans text-sm transition-colors"
+              title="Export as PDF"
             >
               <Download className="w-4 h-4" />
-              Save PDF
+              <span className="hidden sm:inline">PDF</span>
             </button>
             <button
               onClick={handleDeleteList}
-              className="flex items-center gap-2 px-4 py-2 bg-red-500/20 hover:bg-red-500/30 rounded-lg text-red-400 font-sans text-sm transition-colors"
+              className="flex items-center gap-2 px-3 py-2 bg-red-500/20 hover:bg-red-500/30 rounded-lg text-red-400 font-sans text-sm transition-colors"
+              title="Delete List"
             >
               <Trash2 className="w-4 h-4" />
-              Delete List
+              <span className="hidden sm:inline">Delete</span>
             </button>
           </div>
         </div>
