@@ -10,13 +10,15 @@ interface SubmissionsListProps {
   onBack: () => void
 }
 
-type SortOption = "newest" | "oldest" | "alphabetical" | "form"
+type SortOption = "newest" | "oldest" | "alphabetical" | "form" | "grade-high" | "grade-low"
+type GradeFilter = "all" | "graded" | "ungraded" | "high" | "medium" | "low"
 
 export default function SubmissionsList({ onBack }: SubmissionsListProps) {
-  const { state, markSubmissionsAsRead, getSubmissionsForProject } = usePublicCasting()
+  const { state, markSubmissionsAsRead, updateSubmission, deleteSubmission } = usePublicCasting()
   const [searchQuery, setSearchQuery] = useState("")
   const [sortBy, setSortBy] = useState<SortOption>("newest")
   const [filterByForm, setFilterByForm] = useState<string>("all")
+  const [filterByGrade, setFilterByGrade] = useState<GradeFilter>("all")
   const [showSortDropdown, setShowSortDropdown] = useState(false)
 
   // Get all submissions across all projects
@@ -59,6 +61,27 @@ export default function SubmissionsList({ onBack }: SubmissionsListProps) {
       result = result.filter((s) => s.castingCallTitle === filterByForm)
     }
 
+    // Filter by grade
+    if (filterByGrade !== "all") {
+      switch (filterByGrade) {
+        case "graded":
+          result = result.filter((s) => s.grade !== undefined && s.grade > 0)
+          break
+        case "ungraded":
+          result = result.filter((s) => !s.grade || s.grade === 0)
+          break
+        case "high":
+          result = result.filter((s) => s.grade !== undefined && s.grade >= 8)
+          break
+        case "medium":
+          result = result.filter((s) => s.grade !== undefined && s.grade >= 5 && s.grade < 8)
+          break
+        case "low":
+          result = result.filter((s) => s.grade !== undefined && s.grade > 0 && s.grade < 5)
+          break
+      }
+    }
+
     // Sort
     switch (sortBy) {
       case "newest":
@@ -73,19 +96,25 @@ export default function SubmissionsList({ onBack }: SubmissionsListProps) {
       case "form":
         result.sort((a, b) => a.castingCallTitle.localeCompare(b.castingCallTitle))
         break
+      case "grade-high":
+        result.sort((a, b) => (b.grade || 0) - (a.grade || 0))
+        break
+      case "grade-low":
+        result.sort((a, b) => (a.grade || 0) - (b.grade || 0))
+        break
     }
 
     return result
-  }, [allSubmissions, searchQuery, filterByForm, sortBy])
+  }, [allSubmissions, searchQuery, filterByForm, filterByGrade, sortBy])
 
   const handleUpdateSubmission = (submissionId: string, updates: Partial<CastingSubmission>) => {
-    // Implementation would update the submission in context
-    console.log("Update submission:", submissionId, updates)
+    updateSubmission(submissionId, updates)
   }
 
   const handleDeleteSubmission = (submissionId: string) => {
-    // Implementation would delete the submission from context
-    console.log("Delete submission:", submissionId)
+    if (confirm("Are you sure you want to delete this submission?")) {
+      deleteSubmission(submissionId)
+    }
   }
 
   const sortOptions: { value: SortOption; label: string }[] = [
@@ -93,6 +122,17 @@ export default function SubmissionsList({ onBack }: SubmissionsListProps) {
     { value: "oldest", label: "Oldest First" },
     { value: "alphabetical", label: "A-Z by Name" },
     { value: "form", label: "By Form" },
+    { value: "grade-high", label: "Highest Grade" },
+    { value: "grade-low", label: "Lowest Grade" },
+  ]
+
+  const gradeOptions: { value: GradeFilter; label: string }[] = [
+    { value: "all", label: "All Grades" },
+    { value: "graded", label: "Graded Only" },
+    { value: "ungraded", label: "Ungraded" },
+    { value: "high", label: "High (8-10)" },
+    { value: "medium", label: "Medium (5-7)" },
+    { value: "low", label: "Low (1-4)" },
   ]
 
   return (
@@ -137,12 +177,25 @@ export default function SubmissionsList({ onBack }: SubmissionsListProps) {
             <select
               value={filterByForm}
               onChange={(e) => setFilterByForm(e.target.value)}
-              className="px-4 py-2.5 bg-[#1a2e23] border border-white/10 rounded-lg text-white text-sm focus:border-violet-500/50 focus:outline-none font-sans min-w-[180px]"
+              className="px-4 py-2.5 bg-[#1a2e23] border border-white/10 rounded-lg text-white text-sm focus:border-violet-500/50 focus:outline-none font-sans min-w-[140px]"
             >
               <option value="all">All Forms</option>
               {formNames.map((name) => (
                 <option key={name} value={name}>
                   {name}
+                </option>
+              ))}
+            </select>
+
+            {/* Grade Filter */}
+            <select
+              value={filterByGrade}
+              onChange={(e) => setFilterByGrade(e.target.value as GradeFilter)}
+              className="px-4 py-2.5 bg-[#1a2e23] border border-white/10 rounded-lg text-white text-sm focus:border-violet-500/50 focus:outline-none font-sans min-w-[130px]"
+            >
+              {gradeOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
                 </option>
               ))}
             </select>
@@ -191,7 +244,7 @@ export default function SubmissionsList({ onBack }: SubmissionsListProps) {
               <Search className="w-8 h-8 text-white/20" />
             </div>
             <p className="text-white/40 font-sans">
-              {searchQuery || filterByForm !== "all"
+              {searchQuery || filterByForm !== "all" || filterByGrade !== "all"
                 ? "No submissions match your filters"
                 : "No submissions yet"}
             </p>

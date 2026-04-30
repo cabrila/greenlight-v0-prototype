@@ -33,6 +33,8 @@ export interface CastingSubmission {
   playingAge?: string
   headshot?: string
   notes?: string
+  // Grading (1-10 scale)
+  grade?: number
 }
 
 export interface PublicCastingProject {

@@ -21,6 +21,8 @@ interface PublicCastingContextType {
   deleteCastingCall: (projectId: string, castingCallId: string) => void
   selectCastingCall: (id: string) => void
   addSubmission: (castingCallId: string, data: Record<string, string>) => void
+  updateSubmission: (submissionId: string, updates: Partial<CastingSubmission>) => void
+  deleteSubmission: (submissionId: string) => void
   markSubmissionsAsRead: (projectId: string) => void
   getSubmissionsForProject: (projectId: string) => CastingSubmission[]
   getTotalSubmissions: () => number
@@ -289,6 +291,28 @@ export function PublicCastingProvider({ children }: { children: ReactNode }) {
     })
   }, [])
 
+  const updateSubmission = useCallback((submissionId: string, updates: Partial<CastingSubmission>) => {
+    setState((prev) => ({
+      ...prev,
+      projects: prev.projects.map((p) => ({
+        ...p,
+        submissions: p.submissions.map((s) =>
+          s.id === submissionId ? { ...s, ...updates } : s
+        ),
+      })),
+    }))
+  }, [])
+
+  const deleteSubmission = useCallback((submissionId: string) => {
+    setState((prev) => ({
+      ...prev,
+      projects: prev.projects.map((p) => ({
+        ...p,
+        submissions: p.submissions.filter((s) => s.id !== submissionId),
+      })),
+    }))
+  }, [])
+
   const markSubmissionsAsRead = useCallback((projectId: string) => {
     setState((prev) => ({
       ...prev,
@@ -333,6 +357,8 @@ export function PublicCastingProvider({ children }: { children: ReactNode }) {
         deleteCastingCall,
         selectCastingCall,
         addSubmission,
+        updateSubmission,
+        deleteSubmission,
         markSubmissionsAsRead,
         getSubmissionsForProject,
         getTotalSubmissions,

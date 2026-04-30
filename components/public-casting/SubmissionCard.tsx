@@ -1,9 +1,10 @@
 "use client"
 
 import { useState } from "react"
-import { Phone, Mail, Pencil, Trash2, X, Save, Tag } from "lucide-react"
+import { Phone, Mail, Pencil, Trash2, X, Save, Tag, Star } from "lucide-react"
 import { CastingSubmission } from "@/types/public-casting"
 import Image from "next/image"
+import ImageModal from "@/components/ui/ImageModal"
 
 interface SubmissionCardProps {
   submission: CastingSubmission
@@ -13,6 +14,7 @@ interface SubmissionCardProps {
 
 export default function SubmissionCard({ submission, onUpdate, onDelete }: SubmissionCardProps) {
   const [isEditing, setIsEditing] = useState(false)
+  const [showImageModal, setShowImageModal] = useState(false)
   const [editData, setEditData] = useState({
     name: submission.name,
     email: submission.email,
@@ -20,6 +22,7 @@ export default function SubmissionCard({ submission, onUpdate, onDelete }: Submi
     age: submission.age || "",
     playingAge: submission.playingAge || "",
     notes: submission.notes || "",
+    grade: submission.grade || 0,
   })
 
   const handleSave = () => {
@@ -30,8 +33,21 @@ export default function SubmissionCard({ submission, onUpdate, onDelete }: Submi
       age: editData.age,
       playingAge: editData.playingAge,
       notes: editData.notes,
+      grade: editData.grade || undefined,
     })
     setIsEditing(false)
+  }
+
+  const handleGradeChange = (newGrade: number) => {
+    // Immediate update without entering edit mode
+    onUpdate({ grade: newGrade })
+  }
+
+  // Grade color based on value
+  const getGradeColor = (grade: number) => {
+    if (grade >= 8) return "text-emerald-400 bg-emerald-500/20 border-emerald-500/30"
+    if (grade >= 5) return "text-amber-400 bg-amber-500/20 border-amber-500/30"
+    return "text-red-400 bg-red-500/20 border-red-500/30"
   }
 
   // Edit Mode
@@ -109,6 +125,27 @@ export default function SubmissionCard({ submission, onUpdate, onDelete }: Submi
           />
         </div>
 
+        {/* Grade Slider */}
+        <div className="mb-4">
+          <label className="block text-xs font-semibold text-violet-400 uppercase tracking-wider mb-2">
+            Grade (1-10)
+          </label>
+          <div className="flex items-center gap-4">
+            <input
+              type="range"
+              min="0"
+              max="10"
+              step="1"
+              value={editData.grade}
+              onChange={(e) => setEditData({ ...editData, grade: parseInt(e.target.value) })}
+              className="flex-1 h-2 bg-[#0f1f17] rounded-lg appearance-none cursor-pointer accent-violet-500"
+            />
+            <span className={`w-10 text-center font-bold font-sans ${editData.grade > 0 ? getGradeColor(editData.grade).split(" ")[0] : "text-white/40"}`}>
+              {editData.grade > 0 ? editData.grade : "-"}
+            </span>
+          </div>
+        </div>
+
         {/* Notes */}
         <div className="mb-4">
           <label className="block text-xs font-semibold text-violet-400 uppercase tracking-wider mb-2">
@@ -182,8 +219,17 @@ export default function SubmissionCard({ submission, onUpdate, onDelete }: Submi
 
       {/* Header with Avatar */}
       <div className="flex items-start gap-4 mb-4">
-        {/* Avatar */}
-        <div className="w-14 h-14 rounded-full overflow-hidden bg-violet-500/20 flex-shrink-0">
+        {/* Avatar - Clickable to open modal */}
+        <button
+          onClick={() => submission.headshot && setShowImageModal(true)}
+          className={`w-14 h-14 rounded-full overflow-hidden bg-violet-500/20 flex-shrink-0 transition-all ${
+            submission.headshot 
+              ? "cursor-pointer hover:ring-2 hover:ring-violet-500/50 hover:ring-offset-2 hover:ring-offset-[#1a2e23]" 
+              : "cursor-default"
+          }`}
+          disabled={!submission.headshot}
+          title={submission.headshot ? "Click to view full image" : undefined}
+        >
           {submission.headshot ? (
             <Image
               src={submission.headshot}
@@ -197,7 +243,7 @@ export default function SubmissionCard({ submission, onUpdate, onDelete }: Submi
               {submission.name.charAt(0).toUpperCase()}
             </div>
           )}
-        </div>
+        </button>
 
         {/* Name & Age */}
         <div className="flex-1 min-w-0 pt-1">
@@ -216,6 +262,41 @@ export default function SubmissionCard({ submission, onUpdate, onDelete }: Submi
               </span>
             )}
           </div>
+        </div>
+      </div>
+
+      {/* Grading System */}
+      <div className="mb-4 p-3 bg-[#0f1f17] rounded-lg">
+        <div className="flex items-center justify-between mb-2">
+          <p className="text-xs font-semibold text-white/40 uppercase tracking-wider flex items-center gap-1.5">
+            <Star className="w-3.5 h-3.5" />
+            Grade
+          </p>
+          {submission.grade && (
+            <span className={`px-2 py-0.5 text-sm font-bold rounded border ${getGradeColor(submission.grade)}`}>
+              {submission.grade}/10
+            </span>
+          )}
+        </div>
+        <div className="flex items-center gap-1">
+          {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
+            <button
+              key={num}
+              onClick={() => handleGradeChange(num)}
+              className={`flex-1 h-7 rounded text-xs font-bold transition-all ${
+                submission.grade && num <= submission.grade
+                  ? num >= 8
+                    ? "bg-emerald-500/40 text-emerald-300"
+                    : num >= 5
+                    ? "bg-amber-500/40 text-amber-300"
+                    : "bg-red-500/40 text-red-300"
+                  : "bg-white/5 text-white/30 hover:bg-white/10 hover:text-white/50"
+              }`}
+              title={`Grade ${num}`}
+            >
+              {num}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -261,6 +342,14 @@ export default function SubmissionCard({ submission, onUpdate, onDelete }: Submi
         Submitted {submission.submittedAt.toLocaleDateString()} at{" "}
         {submission.submittedAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
       </div>
+
+      {/* Image Modal */}
+      <ImageModal
+        isOpen={showImageModal}
+        onClose={() => setShowImageModal(false)}
+        src={submission.headshot}
+        alt={submission.name}
+      />
     </div>
   )
 }
