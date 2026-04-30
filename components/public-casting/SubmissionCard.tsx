@@ -210,22 +210,25 @@ export default function SubmissionCard({ submission, onUpdate, onDelete }: Submi
   return (
     <div className="group relative p-5 rounded-xl border border-white/10 bg-[#1a2e23] hover:border-white/20 transition-colors">
       {/* Action Icons - Upper Right Corner */}
-      <div className="absolute top-4 right-4 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-        <button
-          onClick={() => setIsEditing(true)}
-          className="p-2 bg-white/10 hover:bg-white/20 rounded-lg text-white/70 hover:text-white transition-colors"
-          title="Edit submission"
-        >
-          <Pencil className="w-4 h-4" />
-        </button>
-        <button
-          onClick={onDelete}
-          className="p-2 bg-red-500/20 hover:bg-red-500/30 rounded-lg text-red-400 hover:text-red-300 transition-colors"
-          title="Delete submission"
-        >
-          <Trash2 className="w-4 h-4" />
-        </button>
-        {/* Grade Icon */}
+      <div className="absolute top-4 right-4 flex items-center gap-1">
+        {/* Edit & Delete - Show on hover */}
+        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          <button
+            onClick={() => setIsEditing(true)}
+            className="p-2 bg-white/10 hover:bg-white/20 rounded-lg text-white/70 hover:text-white transition-colors"
+            title="Edit submission"
+          >
+            <Pencil className="w-4 h-4" />
+          </button>
+          <button
+            onClick={onDelete}
+            className="p-2 bg-red-500/20 hover:bg-red-500/30 rounded-lg text-red-400 hover:text-red-300 transition-colors"
+            title="Delete submission"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        </div>
+        {/* Grade Icon - Always visible */}
         {submission.grade && submission.grade > 0 ? (
           <div 
             className={`p-2 rounded-lg flex items-center justify-center ${getGradeColor(submission.grade)}`}
