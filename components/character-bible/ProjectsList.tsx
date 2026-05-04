@@ -80,18 +80,13 @@ export default function ProjectsList() {
             }`}
           >
             {/* Thumbnail Section - 1/3 width */}
-            <div className="w-1/3 min-h-[140px] bg-[#0f1f17] border-r border-white/10 flex-shrink-0 relative">
+            <div className="w-1/3 min-h-[140px] bg-[#0f1f17] border-r border-white/10 flex-shrink-0">
               {bible.thumbnailUrl ? (
-                <>
-                  <img
-                    src={bible.thumbnailUrl}
-                    alt={bible.name}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute top-2 left-2 w-8 h-8 rounded-lg bg-sky-500/80 flex items-center justify-center">
-                    <FileText className="w-4 h-4 text-white" />
-                  </div>
-                </>
+                <img
+                  src={bible.thumbnailUrl}
+                  alt={bible.name}
+                  className="w-full h-full object-cover"
+                />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
                   <div className="w-16 h-16 rounded-xl bg-sky-500/20 flex items-center justify-center">

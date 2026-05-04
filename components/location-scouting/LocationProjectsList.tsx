@@ -65,18 +65,13 @@ export default function LocationProjectsList() {
             className="group relative flex rounded-xl border border-white/10 bg-[#1a2e23] hover:border-amber-500/50 transition-all overflow-hidden"
           >
             {/* Thumbnail Section - 1/3 width */}
-            <div className="w-1/3 min-h-[140px] bg-[#0f1f17] border-r border-white/10 flex-shrink-0 relative">
+            <div className="w-1/3 min-h-[140px] bg-[#0f1f17] border-r border-white/10 flex-shrink-0">
               {project.thumbnailUrl ? (
-                <>
-                  <img
-                    src={project.thumbnailUrl}
-                    alt={project.name}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute top-2 left-2 w-8 h-8 rounded-lg bg-amber-500/80 flex items-center justify-center">
-                    <MapPin className="w-4 h-4 text-white" />
-                  </div>
-                </>
+                <img
+                  src={project.thumbnailUrl}
+                  alt={project.name}
+                  className="w-full h-full object-cover"
+                />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
                   <div className="w-16 h-16 rounded-xl bg-amber-500/20 flex items-center justify-center">
