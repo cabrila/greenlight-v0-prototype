@@ -1,28 +1,17 @@
 "use client"
 
 import { useState } from "react"
-import { FileText, Users, Calendar, Plus, Pencil, Trash2, ImageIcon } from "lucide-react"
+import { FileText, Users, Calendar, Plus, Pencil, Trash2 } from "lucide-react"
 import { useCharacterBible } from "./CharacterBibleContext"
 import { CharacterBible } from "@/types/character-bible"
 import DeleteConfirmationModal from "@/components/ui/DeleteConfirmationModal"
-import EditProjectModal from "@/components/ui/EditProjectModal"
-import ThumbnailUpload from "@/components/ui/ThumbnailUpload"
+import EditProjectWithThumbnailModal from "@/components/ui/EditProjectWithThumbnailModal"
 
 export default function ProjectsList() {
   const { bibles, setView, setCurrentBible, deleteBible, updateBible } = useCharacterBible()
   const [hoveredId, setHoveredId] = useState<string | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<CharacterBible | null>(null)
   const [editTarget, setEditTarget] = useState<CharacterBible | null>(null)
-  const [thumbnailTarget, setThumbnailTarget] = useState<string | null>(null)
-
-  const handleThumbnailUpload = (bibleId: string, url: string) => {
-    updateBible(bibleId, { thumbnailUrl: url })
-    setThumbnailTarget(null)
-  }
-
-  const handleThumbnailRemove = (bibleId: string) => {
-    updateBible(bibleId, { thumbnailUrl: undefined })
-  }
 
   const handleOpenBible = (bible: CharacterBible) => {
     setCurrentBible(bible)
@@ -49,9 +38,9 @@ export default function ProjectsList() {
     }
   }
 
-  const handleSaveEdit = (newName: string) => {
+  const handleSaveEdit = (newName: string, thumbnailUrl?: string) => {
     if (editTarget) {
-      updateBible(editTarget.id, { name: newName })
+      updateBible(editTarget.id, { name: newName, thumbnailUrl })
     }
   }
 
@@ -92,31 +81,16 @@ export default function ProjectsList() {
           >
             {/* Thumbnail Section - 1/3 width */}
             <div className="w-1/3 min-h-[140px] bg-[#0f1f17] border-r border-white/10 flex-shrink-0">
-              {thumbnailTarget === bible.id || !bible.thumbnailUrl ? (
-                <ThumbnailUpload
-                  currentThumbnail={bible.thumbnailUrl}
-                  onUpload={(url) => handleThumbnailUpload(bible.id, url)}
-                  onRemove={() => handleThumbnailRemove(bible.id)}
-                  accentColor="sky"
+              {bible.thumbnailUrl ? (
+                <img
+                  src={bible.thumbnailUrl}
+                  alt={bible.name}
+                  className="w-full h-full object-cover"
                 />
               ) : (
-                <div className="relative w-full h-full group/thumb">
-                  <img
-                    src={bible.thumbnailUrl}
-                    alt={bible.name}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover/thumb:opacity-100 transition-opacity flex items-center justify-center">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        setThumbnailTarget(bible.id)
-                      }}
-                      className="p-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors"
-                      title="Change thumbnail"
-                    >
-                      <ImageIcon className="w-4 h-4 text-white" />
-                    </button>
+                <div className="w-full h-full flex items-center justify-center">
+                  <div className="w-16 h-16 rounded-xl bg-sky-500/20 flex items-center justify-center">
+                    <FileText className="w-8 h-8 text-sky-400" />
                   </div>
                 </div>
               )}
@@ -195,13 +169,15 @@ export default function ProjectsList() {
       />
 
       {/* Edit Project Modal */}
-      <EditProjectModal
+      <EditProjectWithThumbnailModal
         isOpen={!!editTarget}
         onClose={() => setEditTarget(null)}
         onSave={handleSaveEdit}
         currentName={editTarget?.name || ""}
-        title="Rename Character Bible"
+        currentThumbnail={editTarget?.thumbnailUrl}
+        title="Edit Character Bible"
         label="Character Bible Name"
+        accentColor="sky"
       />
       </div>
     </div>

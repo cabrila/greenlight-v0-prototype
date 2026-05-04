@@ -1,34 +1,17 @@
 "use client"
 
 import { useState } from "react"
-import { MapPin, Calendar, Plus, Pencil, Trash2, ImageIcon } from "lucide-react"
+import { MapPin, Calendar, Plus, Pencil, Trash2 } from "lucide-react"
 import { useLocationScouting } from "./LocationScoutingContext"
 import { LocationProject } from "@/types/location-scouting"
 import DeleteConfirmationModal from "@/components/ui/DeleteConfirmationModal"
-import EditProjectModal from "@/components/ui/EditProjectModal"
-import ThumbnailUpload from "@/components/ui/ThumbnailUpload"
+import EditProjectWithThumbnailModal from "@/components/ui/EditProjectWithThumbnailModal"
 
 export default function LocationProjectsList() {
   const { projects, setView, setCurrentProject, deleteProject, updateProject } = useLocationScouting()
   const [hoveredId, setHoveredId] = useState<string | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<LocationProject | null>(null)
   const [editTarget, setEditTarget] = useState<LocationProject | null>(null)
-  const [thumbnailTarget, setThumbnailTarget] = useState<string | null>(null)
-
-  const handleThumbnailUpload = (projectId: string, url: string) => {
-    const project = projects.find((p) => p.id === projectId)
-    if (project) {
-      updateProject({ ...project, thumbnailUrl: url, updatedAt: new Date() })
-    }
-    setThumbnailTarget(null)
-  }
-
-  const handleThumbnailRemove = (projectId: string) => {
-    const project = projects.find((p) => p.id === projectId)
-    if (project) {
-      updateProject({ ...project, thumbnailUrl: undefined, updatedAt: new Date() })
-    }
-  }
 
   const handleProjectClick = (projectId: string) => {
     const project = projects.find((p) => p.id === projectId)
@@ -54,9 +37,9 @@ export default function LocationProjectsList() {
     }
   }
 
-  const handleSaveEdit = (newName: string) => {
+  const handleSaveEdit = (newName: string, thumbnailUrl?: string) => {
     if (editTarget) {
-      updateProject({ ...editTarget, name: newName, updatedAt: new Date() })
+      updateProject({ ...editTarget, name: newName, thumbnailUrl, updatedAt: new Date() })
     }
   }
 
@@ -83,31 +66,16 @@ export default function LocationProjectsList() {
           >
             {/* Thumbnail Section - 1/3 width */}
             <div className="w-1/3 min-h-[140px] bg-[#0f1f17] border-r border-white/10 flex-shrink-0">
-              {thumbnailTarget === project.id || !project.thumbnailUrl ? (
-                <ThumbnailUpload
-                  currentThumbnail={project.thumbnailUrl}
-                  onUpload={(url) => handleThumbnailUpload(project.id, url)}
-                  onRemove={() => handleThumbnailRemove(project.id)}
-                  accentColor="amber"
+              {project.thumbnailUrl ? (
+                <img
+                  src={project.thumbnailUrl}
+                  alt={project.name}
+                  className="w-full h-full object-cover"
                 />
               ) : (
-                <div className="relative w-full h-full group/thumb">
-                  <img
-                    src={project.thumbnailUrl}
-                    alt={project.name}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover/thumb:opacity-100 transition-opacity flex items-center justify-center">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        setThumbnailTarget(project.id)
-                      }}
-                      className="p-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors"
-                      title="Change thumbnail"
-                    >
-                      <ImageIcon className="w-4 h-4 text-white" />
-                    </button>
+                <div className="w-full h-full flex items-center justify-center">
+                  <div className="w-16 h-16 rounded-xl bg-amber-500/20 flex items-center justify-center">
+                    <MapPin className="w-8 h-8 text-amber-400" />
                   </div>
                 </div>
               )}
@@ -190,13 +158,15 @@ export default function LocationProjectsList() {
       />
 
       {/* Edit Project Modal */}
-      <EditProjectModal
+      <EditProjectWithThumbnailModal
         isOpen={!!editTarget}
         onClose={() => setEditTarget(null)}
         onSave={handleSaveEdit}
         currentName={editTarget?.name || ""}
-        title="Rename Location List"
+        currentThumbnail={editTarget?.thumbnailUrl}
+        title="Edit Location List"
         label="Location List Name"
+        accentColor="amber"
       />
       </div>
     </div>

@@ -1,28 +1,17 @@
 "use client"
 
 import { useState } from "react"
-import { Plus, Users, Calendar, Pencil, Trash2, ImageIcon } from "lucide-react"
+import { Plus, Users, Calendar, Pencil, Trash2 } from "lucide-react"
 import { useActorList } from "./ActorListContext"
 import { ActorListProject } from "@/types/actor-list"
 import DeleteConfirmationModal from "@/components/ui/DeleteConfirmationModal"
-import EditProjectModal from "@/components/ui/EditProjectModal"
-import ThumbnailUpload from "@/components/ui/ThumbnailUpload"
+import EditProjectWithThumbnailModal from "@/components/ui/EditProjectWithThumbnailModal"
 
 export default function ActorProjectsList() {
   const { projects, selectProject, deleteProject, updateProject, setView } = useActorList()
   const [hoveredId, setHoveredId] = useState<string | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<ActorListProject | null>(null)
   const [editTarget, setEditTarget] = useState<ActorListProject | null>(null)
-  const [thumbnailTarget, setThumbnailTarget] = useState<string | null>(null)
-
-  const handleThumbnailUpload = (projectId: string, url: string) => {
-    updateProject(projectId, { thumbnailUrl: url })
-    setThumbnailTarget(null)
-  }
-
-  const handleThumbnailRemove = (projectId: string) => {
-    updateProject(projectId, { thumbnailUrl: undefined })
-  }
 
   const handleDeleteProject = (e: React.MouseEvent, project: ActorListProject) => {
     e.stopPropagation()
@@ -40,9 +29,9 @@ export default function ActorProjectsList() {
     }
   }
 
-  const handleSaveEdit = (newName: string) => {
+  const handleSaveEdit = (newName: string, thumbnailUrl?: string) => {
     if (editTarget) {
-      updateProject(editTarget.id, { name: newName })
+      updateProject(editTarget.id, { name: newName, thumbnailUrl })
     }
   }
 
@@ -77,31 +66,16 @@ export default function ActorProjectsList() {
           >
             {/* Thumbnail Section - 1/3 width */}
             <div className="w-1/3 min-h-[140px] bg-[#0f1f17] border-r border-white/10 flex-shrink-0">
-              {thumbnailTarget === project.id || !project.thumbnailUrl ? (
-                <ThumbnailUpload
-                  currentThumbnail={project.thumbnailUrl}
-                  onUpload={(url) => handleThumbnailUpload(project.id, url)}
-                  onRemove={() => handleThumbnailRemove(project.id)}
-                  accentColor="emerald"
+              {project.thumbnailUrl ? (
+                <img
+                  src={project.thumbnailUrl}
+                  alt={project.name}
+                  className="w-full h-full object-cover"
                 />
               ) : (
-                <div className="relative w-full h-full group/thumb">
-                  <img
-                    src={project.thumbnailUrl}
-                    alt={project.name}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover/thumb:opacity-100 transition-opacity flex items-center justify-center">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        setThumbnailTarget(project.id)
-                      }}
-                      className="p-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors"
-                      title="Change thumbnail"
-                    >
-                      <ImageIcon className="w-4 h-4 text-white" />
-                    </button>
+                <div className="w-full h-full flex items-center justify-center">
+                  <div className="w-16 h-16 rounded-xl bg-emerald-500/20 flex items-center justify-center">
+                    <Users className="w-8 h-8 text-emerald-400" />
                   </div>
                 </div>
               )}
@@ -182,13 +156,15 @@ export default function ActorProjectsList() {
       />
 
       {/* Edit Project Modal */}
-      <EditProjectModal
+      <EditProjectWithThumbnailModal
         isOpen={!!editTarget}
         onClose={() => setEditTarget(null)}
         onSave={handleSaveEdit}
         currentName={editTarget?.name || ""}
-        title="Rename Actor List"
+        currentThumbnail={editTarget?.thumbnailUrl}
+        title="Edit Actor List"
         label="Actor List Name"
+        accentColor="emerald"
       />
       </div>
     </div>

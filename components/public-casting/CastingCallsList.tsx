@@ -1,14 +1,13 @@
 "use client"
 
 import { useState } from "react"
-import { Plus, Share2, Calendar, Users, Trash2, Link, Eye, FileEdit, FolderEdit, QrCode, ImageIcon } from "lucide-react"
+import { Plus, Share2, Calendar, Users, Trash2, Link, Eye, FileEdit, FolderEdit, QrCode } from "lucide-react"
 import { usePublicCasting } from "./PublicCastingContext"
 import { CastingCall, PublicCastingProject } from "@/types/public-casting"
 import CastingCallPreviewModal from "./CastingCallPreviewModal"
 import DeleteConfirmationModal from "@/components/ui/DeleteConfirmationModal"
-import EditProjectModal from "@/components/ui/EditProjectModal"
+import EditProjectWithThumbnailModal from "@/components/ui/EditProjectWithThumbnailModal"
 import QRCodeModal from "./QRCodeModal"
-import ThumbnailUpload from "@/components/ui/ThumbnailUpload"
 
 interface CastingCallsListProps {
   onNewCastingCall: () => void
@@ -27,16 +26,6 @@ export default function CastingCallsList({
   const [deleteTarget, setDeleteTarget] = useState<PublicCastingProject | null>(null)
   const [editTarget, setEditTarget] = useState<PublicCastingProject | null>(null)
   const [qrCodeCastingCall, setQrCodeCastingCall] = useState<CastingCall | null>(null)
-  const [thumbnailTarget, setThumbnailTarget] = useState<string | null>(null)
-
-  const handleThumbnailUpload = (projectId: string, url: string) => {
-    updateProject(projectId, { thumbnailUrl: url })
-    setThumbnailTarget(null)
-  }
-
-  const handleThumbnailRemove = (projectId: string) => {
-    updateProject(projectId, { thumbnailUrl: undefined })
-  }
 
   const newCount = getNewSubmissionsCount()
   const totalSubmissions = getTotalSubmissions()
@@ -57,9 +46,9 @@ export default function CastingCallsList({
     }
   }
 
-  const handleSaveEdit = (newName: string) => {
+  const handleSaveEdit = (newName: string, thumbnailUrl?: string) => {
     if (editTarget) {
-      updateProject(editTarget.id, { name: newName })
+      updateProject(editTarget.id, { name: newName, thumbnailUrl })
     }
   }
 
@@ -126,31 +115,16 @@ export default function CastingCallsList({
               >
                 {/* Thumbnail Section - 1/3 width */}
                 <div className="w-1/3 min-h-[180px] bg-[#0f1f17] border-r border-white/10 flex-shrink-0">
-                  {thumbnailTarget === project.id || !project.thumbnailUrl ? (
-                    <ThumbnailUpload
-                      currentThumbnail={project.thumbnailUrl}
-                      onUpload={(url) => handleThumbnailUpload(project.id, url)}
-                      onRemove={() => handleThumbnailRemove(project.id)}
-                      accentColor="violet"
+                  {project.thumbnailUrl ? (
+                    <img
+                      src={project.thumbnailUrl}
+                      alt={project.name}
+                      className="w-full h-full object-cover"
                     />
                   ) : (
-                    <div className="relative w-full h-full group/thumb">
-                      <img
-                        src={project.thumbnailUrl}
-                        alt={project.name}
-                        className="w-full h-full object-cover"
-                      />
-                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover/thumb:opacity-100 transition-opacity flex items-center justify-center">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            setThumbnailTarget(project.id)
-                          }}
-                          className="p-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors"
-                          title="Change thumbnail"
-                        >
-                          <ImageIcon className="w-4 h-4 text-white" />
-                        </button>
+                    <div className="w-full h-full flex items-center justify-center">
+                      <div className="w-16 h-16 rounded-xl bg-violet-500/20 flex items-center justify-center">
+                        <Share2 className="w-8 h-8 text-violet-400" />
                       </div>
                     </div>
                   )}
@@ -292,13 +266,15 @@ export default function CastingCallsList({
       />
 
       {/* Edit Project Modal */}
-      <EditProjectModal
+      <EditProjectWithThumbnailModal
         isOpen={!!editTarget}
         onClose={() => setEditTarget(null)}
         onSave={handleSaveEdit}
         currentName={editTarget?.name || ""}
-        title="Rename Casting Project"
+        currentThumbnail={editTarget?.thumbnailUrl}
+        title="Edit Casting Project"
         label="Project Name"
+        accentColor="violet"
       />
       </div>
     </div>
