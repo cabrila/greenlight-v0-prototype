@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
-import { LogOut, MessageSquarePlus, BookUser, MapPin, Users, Share2, ArrowRight } from "lucide-react"
+import { LogOut, MessageSquarePlus, BookUser, MapPin, Users, Megaphone, ArrowRight } from "lucide-react"
 import { useCasting } from "@/components/casting/CastingContext"
 import FeedbackModal from "@/components/modals/FeedbackModal"
 
@@ -34,7 +34,7 @@ const featureButtons = [
     id: "public-casting",
     title: "Public Casting",
     description: "Share a simple casting form for actors to submit themselves for roles in your project.",
-    icon: Share2,
+    icon: Megaphone,
     iconBg: "bg-violet-500/20",
     iconColor: "text-violet-400",
   },

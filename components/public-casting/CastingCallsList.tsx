@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Plus, Share2, Calendar, Users, Trash2, Link, Eye, FileEdit, FolderEdit, QrCode } from "lucide-react"
+import { Plus, Megaphone, Calendar, Users, Trash2, Link, Eye, FileEdit, FolderEdit, QrCode } from "lucide-react"
 import { usePublicCasting } from "./PublicCastingContext"
 import { CastingCall, PublicCastingProject } from "@/types/public-casting"
 import CastingCallPreviewModal from "./CastingCallPreviewModal"
@@ -95,7 +95,7 @@ export default function CastingCallsList({
       {state.projects.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 text-center">
           <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4">
-            <Share2 className="w-8 h-8 text-white/30" />
+            <Megaphone className="w-8 h-8 text-white/30" />
           </div>
           <h3 className="text-lg font-semibold text-white/70 mb-2 font-sans">No casting calls yet</h3>
           <p className="text-white/40 text-sm font-sans mb-4">Create your first casting call to start receiving submissions.</p>
@@ -124,7 +124,7 @@ export default function CastingCallsList({
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
                       <div className="w-16 h-16 rounded-xl bg-violet-500/20 flex items-center justify-center">
-                        <Share2 className="w-8 h-8 text-violet-400" />
+                        <Megaphone className="w-8 h-8 text-violet-400" />
                       </div>
                     </div>
                   )}
@@ -238,6 +238,7 @@ export default function CastingCallsList({
       {previewCastingCall && (
         <CastingCallPreviewModal
           castingCall={previewCastingCall}
+          project={state.projects.find(p => p.castingCalls.some(cc => cc.id === previewCastingCall.id))}
           onClose={() => setPreviewCastingCall(null)}
         />
       )}

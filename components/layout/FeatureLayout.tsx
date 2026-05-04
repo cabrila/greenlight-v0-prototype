@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
-import { Home, LogOut, MessageSquarePlus, BookUser, MapPin, Users, Share2 } from "lucide-react"
+import { Home, LogOut, MessageSquarePlus, BookUser, MapPin, Users, Megaphone } from "lucide-react"
 import { useCasting } from "@/components/casting/CastingContext"
 import FeedbackModal from "@/components/modals/FeedbackModal"
 
@@ -38,7 +38,7 @@ const sidebarItems = [
   {
     id: "public-casting" as ActiveView,
     title: "Public Casting",
-    icon: Share2,
+    icon: Megaphone,
     iconBg: "bg-violet-500/20",
     iconColor: "text-violet-400",
     activeBg: "bg-violet-500/30",
