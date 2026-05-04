@@ -23,4 +23,5 @@ export interface ActorListProject {
   actors: Actor[]
   createdAt: Date
   updatedAt: Date
+  thumbnailUrl?: string
 }

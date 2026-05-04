@@ -43,4 +43,5 @@ export interface PublicCastingProject {
   castingCalls: CastingCall[]
   submissions: CastingSubmission[]
   createdAt: Date
+  thumbnailUrl?: string
 }

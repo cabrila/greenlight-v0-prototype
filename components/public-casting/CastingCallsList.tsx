@@ -1,13 +1,14 @@
 "use client"
 
 import { useState } from "react"
-import { Plus, Share2, Calendar, Users, Trash2, Link, Eye, FileEdit, FolderEdit, QrCode } from "lucide-react"
+import { Plus, Share2, Calendar, Users, Trash2, Link, Eye, FileEdit, FolderEdit, QrCode, ImageIcon } from "lucide-react"
 import { usePublicCasting } from "./PublicCastingContext"
 import { CastingCall, PublicCastingProject } from "@/types/public-casting"
 import CastingCallPreviewModal from "./CastingCallPreviewModal"
 import DeleteConfirmationModal from "@/components/ui/DeleteConfirmationModal"
 import EditProjectModal from "@/components/ui/EditProjectModal"
 import QRCodeModal from "./QRCodeModal"
+import ThumbnailUpload from "@/components/ui/ThumbnailUpload"
 
 interface CastingCallsListProps {
   onNewCastingCall: () => void
@@ -26,6 +27,16 @@ export default function CastingCallsList({
   const [deleteTarget, setDeleteTarget] = useState<PublicCastingProject | null>(null)
   const [editTarget, setEditTarget] = useState<PublicCastingProject | null>(null)
   const [qrCodeCastingCall, setQrCodeCastingCall] = useState<CastingCall | null>(null)
+  const [thumbnailTarget, setThumbnailTarget] = useState<string | null>(null)
+
+  const handleThumbnailUpload = (projectId: string, url: string) => {
+    updateProject(projectId, { thumbnailUrl: url })
+    setThumbnailTarget(null)
+  }
+
+  const handleThumbnailRemove = (projectId: string) => {
+    updateProject(projectId, { thumbnailUrl: undefined })
+  }
 
   const newCount = getNewSubmissionsCount()
   const totalSubmissions = getTotalSubmissions()
@@ -109,110 +120,145 @@ export default function CastingCallsList({
             return (
               <div
                 key={project.id}
-                className="group relative p-5 rounded-xl border border-white/10 bg-[#1a2e23] hover:border-violet-500/30 transition-colors"
+                className="group relative flex rounded-xl border border-white/10 bg-[#1a2e23] hover:border-violet-500/30 transition-colors overflow-hidden"
                 onMouseEnter={() => setHoveredProjectId(project.id)}
                 onMouseLeave={() => setHoveredProjectId(null)}
               >
-                {/* Top-right Quick Actions (always visible on hover) */}
-                {hoveredProjectId === project.id && (
-                  <div className="absolute top-3 right-3 flex items-center gap-1.5">
-                    {hasCastingCall && (
+                {/* Thumbnail Section - 1/3 width */}
+                <div className="w-1/3 min-h-[180px] bg-[#0f1f17] border-r border-white/10 flex-shrink-0">
+                  {thumbnailTarget === project.id || !project.thumbnailUrl ? (
+                    <ThumbnailUpload
+                      currentThumbnail={project.thumbnailUrl}
+                      onUpload={(url) => handleThumbnailUpload(project.id, url)}
+                      onRemove={() => handleThumbnailRemove(project.id)}
+                      accentColor="violet"
+                    />
+                  ) : (
+                    <div className="relative w-full h-full group/thumb">
+                      <img
+                        src={project.thumbnailUrl}
+                        alt={project.name}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover/thumb:opacity-100 transition-opacity flex items-center justify-center">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setThumbnailTarget(project.id)
+                          }}
+                          className="p-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors"
+                          title="Change thumbnail"
+                        >
+                          <ImageIcon className="w-4 h-4 text-white" />
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Content Section - 2/3 width */}
+                <div className="flex-1 flex flex-col p-4">
+                  {/* Top-right Quick Actions (always visible on hover) */}
+                  {hoveredProjectId === project.id && (
+                    <div className="absolute top-3 right-3 flex items-center gap-1">
+                      {hasCastingCall && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setQrCodeCastingCall(castingCall)
+                          }}
+                          className="p-1.5 bg-white/10 hover:bg-white/20 rounded-lg text-white/70 hover:text-white transition-colors"
+                          title="Generate QR Code"
+                        >
+                          <QrCode className="w-4 h-4" />
+                        </button>
+                      )}
+                      <button
+                        onClick={(e) => handleEditProject(e, project)}
+                        className="p-1.5 bg-white/10 hover:bg-white/20 rounded-lg text-white/70 hover:text-white transition-colors"
+                        title="Rename"
+                      >
+                        <FolderEdit className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={(e) => handleDeleteProject(e, project)}
+                        className="p-1.5 bg-red-500/20 hover:bg-red-500/30 rounded-lg text-red-400 hover:text-red-300 transition-colors"
+                        title="Delete"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Icon */}
+                  <div className="w-9 h-9 rounded-lg bg-violet-500/20 flex items-center justify-center mb-2">
+                    <Share2 className="w-4 h-4 text-violet-400" />
+                  </div>
+
+                  {/* Project Name */}
+                  <h3 className="text-sm font-semibold text-white mb-0.5 font-sans pr-16 line-clamp-1">
+                    {project.name}
+                  </h3>
+
+                  {/* Casting Call Title (if exists) */}
+                  {hasCastingCall && castingCall.title && (
+                    <p className="text-xs text-white/50 mb-2 font-sans truncate pr-16">
+                      {castingCall.title}
+                    </p>
+                  )}
+
+                  {/* Meta Info */}
+                  <div className="flex flex-wrap items-center gap-2 text-xs text-white/50 mb-2">
+                    <div className="flex items-center gap-1">
+                      <Link className="w-3 h-3" />
+                      <span>{project.castingCalls.length} forms</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Calendar className="w-3 h-3" />
+                      <span>{project.createdAt.toLocaleDateString()}</span>
+                    </div>
+                  </div>
+
+                  {/* Submissions count */}
+                  {project.submissions.length > 0 && (
+                    <div className="mb-2 flex items-center gap-1 text-xs text-violet-300">
+                      <Users className="w-3 h-3" />
+                      <span>{project.submissions.length} submissions</span>
+                      {project.submissions.some((s) => s.isNew) && (
+                        <span className="ml-1 px-1 py-0.5 bg-emerald-500/20 text-emerald-300 text-[10px] rounded">
+                          {project.submissions.filter((s) => s.isNew).length} new
+                        </span>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Action Buttons for Casting Call */}
+                  {hasCastingCall && (
+                    <div className="flex items-center gap-2 pt-2 mt-auto border-t border-white/10">
                       <button
                         onClick={(e) => {
                           e.stopPropagation()
-                          setQrCodeCastingCall(castingCall)
+                          setPreviewCastingCall(castingCall)
                         }}
-                        className="p-1.5 bg-white/10 hover:bg-white/20 rounded-lg text-white/70 hover:text-white transition-colors"
-                        title="Generate QR Code"
+                        className="flex-1 flex items-center justify-center gap-1 px-2 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-white/70 hover:text-white text-xs transition-colors font-sans"
                       >
-                        <QrCode className="w-4 h-4" />
+                        <Eye className="w-3.5 h-3.5" />
+                        Preview
                       </button>
-                    )}
-                    <button
-                      onClick={(e) => handleEditProject(e, project)}
-                      className="p-1.5 bg-white/10 hover:bg-white/20 rounded-lg text-white/70 hover:text-white transition-colors"
-                      title={`Rename "${project.name}"`}
-                    >
-                      <FolderEdit className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={(e) => handleDeleteProject(e, project)}
-                      className="p-1.5 bg-red-500/20 hover:bg-red-500/30 rounded-lg text-red-400 hover:text-red-300 transition-colors"
-                      title={`Delete "${project.name}"`}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                )}
-
-                {/* Icon */}
-                <div className="w-12 h-12 rounded-lg bg-violet-500/20 flex items-center justify-center mb-4">
-                  <Share2 className="w-6 h-6 text-violet-400" />
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          onEditCastingCall(castingCall, project)
+                        }}
+                        className="flex-1 flex items-center justify-center gap-1 px-2 py-1.5 bg-violet-500/20 hover:bg-violet-500/30 border border-violet-500/30 rounded-lg text-violet-300 hover:text-violet-200 text-xs transition-colors font-sans"
+                        title={`Edit form: ${castingCall.title}`}
+                      >
+                        <FileEdit className="w-3.5 h-3.5" />
+                        Edit
+                      </button>
+                    </div>
+                  )}
                 </div>
-
-                {/* Project Name */}
-                <h3 className="text-lg font-semibold text-white mb-1 font-sans pr-20">
-                  {project.name}
-                </h3>
-
-                {/* Casting Call Title (if exists) */}
-                {hasCastingCall && castingCall.title && (
-                  <p className="text-sm text-white/50 mb-3 font-sans truncate pr-20">
-                    {castingCall.title}
-                  </p>
-                )}
-
-                {/* Meta Info */}
-                <div className="flex items-center gap-4 text-sm text-white/50 mb-4">
-                  <div className="flex items-center gap-1.5">
-                    <Link className="w-4 h-4" />
-                    <span>{project.castingCalls.length} forms</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <Calendar className="w-4 h-4" />
-                    <span>{project.createdAt.toLocaleDateString()}</span>
-                  </div>
-                </div>
-
-                {/* Submissions count */}
-                {project.submissions.length > 0 && (
-                  <div className="mb-4 flex items-center gap-1.5 text-sm text-violet-300">
-                    <Users className="w-4 h-4" />
-                    <span>{project.submissions.length} submissions</span>
-                    {project.submissions.some((s) => s.isNew) && (
-                      <span className="ml-1 px-1.5 py-0.5 bg-emerald-500/20 text-emerald-300 text-xs rounded">
-                        {project.submissions.filter((s) => s.isNew).length} new
-                      </span>
-                    )}
-                  </div>
-                )}
-
-                {/* Action Buttons for Casting Call */}
-                {hasCastingCall && (
-                  <div className="flex items-center gap-2 pt-3 border-t border-white/10">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        setPreviewCastingCall(castingCall)
-                      }}
-                      className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-white/70 hover:text-white text-sm transition-colors font-sans"
-                    >
-                      <Eye className="w-4 h-4" />
-                      Preview
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        onEditCastingCall(castingCall, project)
-                      }}
-                      className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-violet-500/20 hover:bg-violet-500/30 border border-violet-500/30 rounded-lg text-violet-300 hover:text-violet-200 text-sm transition-colors font-sans"
-                      title={`Edit form: ${castingCall.title}`}
-                    >
-                      <FileEdit className="w-4 h-4" />
-                      Edit Form
-                    </button>
-                  </div>
-                )}
               </div>
             )
           })}

@@ -1,17 +1,34 @@
 "use client"
 
 import { useState } from "react"
-import { MapPin, Calendar, Plus, Pencil, Trash2 } from "lucide-react"
+import { MapPin, Calendar, Plus, Pencil, Trash2, ImageIcon } from "lucide-react"
 import { useLocationScouting } from "./LocationScoutingContext"
 import { LocationProject } from "@/types/location-scouting"
 import DeleteConfirmationModal from "@/components/ui/DeleteConfirmationModal"
 import EditProjectModal from "@/components/ui/EditProjectModal"
+import ThumbnailUpload from "@/components/ui/ThumbnailUpload"
 
 export default function LocationProjectsList() {
   const { projects, setView, setCurrentProject, deleteProject, updateProject } = useLocationScouting()
   const [hoveredId, setHoveredId] = useState<string | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<LocationProject | null>(null)
   const [editTarget, setEditTarget] = useState<LocationProject | null>(null)
+  const [thumbnailTarget, setThumbnailTarget] = useState<string | null>(null)
+
+  const handleThumbnailUpload = (projectId: string, url: string) => {
+    const project = projects.find((p) => p.id === projectId)
+    if (project) {
+      updateProject({ ...project, thumbnailUrl: url, updatedAt: new Date() })
+    }
+    setThumbnailTarget(null)
+  }
+
+  const handleThumbnailRemove = (projectId: string) => {
+    const project = projects.find((p) => p.id === projectId)
+    if (project) {
+      updateProject({ ...project, thumbnailUrl: undefined, updatedAt: new Date() })
+    }
+  }
 
   const handleProjectClick = (projectId: string) => {
     const project = projects.find((p) => p.id === projectId)
@@ -58,61 +75,98 @@ export default function LocationProjectsList() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {/* Existing Projects */}
         {projects.map((project) => (
-          <button
+          <div
             key={project.id}
-            onClick={() => handleProjectClick(project.id)}
             onMouseEnter={() => setHoveredId(project.id)}
             onMouseLeave={() => setHoveredId(null)}
-            className="relative group text-left p-5 rounded-xl border border-white/10 bg-[#1a2e23] hover:border-amber-500/50 transition-all"
+            className="group relative flex rounded-xl border border-white/10 bg-[#1a2e23] hover:border-amber-500/50 transition-all overflow-hidden"
           >
-            {/* Hover Actions */}
-            {hoveredId === project.id && (
-              <div className="absolute top-4 right-4 flex items-center gap-2">
-                <button
-                  onClick={(e) => handleEditProject(e, project)}
-                  className="p-2 bg-white/10 hover:bg-white/20 rounded-lg text-white/70 hover:text-white transition-colors"
-                  title="Edit project"
-                >
-                  <Pencil className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={(e) => handleDeleteProject(e, project)}
-                  className="p-2 bg-red-500/20 hover:bg-red-500/30 rounded-lg text-red-400 hover:text-red-300 transition-colors"
-                  title="Delete project"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              </div>
-            )}
-
-            {/* Icon */}
-            <div className="w-12 h-12 rounded-lg bg-amber-500/20 flex items-center justify-center mb-4">
-              <MapPin className="w-6 h-6 text-amber-400" />
+            {/* Thumbnail Section - 1/3 width */}
+            <div className="w-1/3 min-h-[140px] bg-[#0f1f17] border-r border-white/10 flex-shrink-0">
+              {thumbnailTarget === project.id || !project.thumbnailUrl ? (
+                <ThumbnailUpload
+                  currentThumbnail={project.thumbnailUrl}
+                  onUpload={(url) => handleThumbnailUpload(project.id, url)}
+                  onRemove={() => handleThumbnailRemove(project.id)}
+                  accentColor="amber"
+                />
+              ) : (
+                <div className="relative w-full h-full group/thumb">
+                  <img
+                    src={project.thumbnailUrl}
+                    alt={project.name}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover/thumb:opacity-100 transition-opacity flex items-center justify-center">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setThumbnailTarget(project.id)
+                      }}
+                      className="p-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors"
+                      title="Change thumbnail"
+                    >
+                      <ImageIcon className="w-4 h-4 text-white" />
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
 
-            {/* Project Name */}
-            <h3 className="text-lg font-bold text-white font-sans mb-4 pr-16">
-              {project.name}
-            </h3>
+            {/* Content Section - 2/3 width */}
+            <button
+              onClick={() => handleProjectClick(project.id)}
+              className="flex-1 flex flex-col p-5 text-left"
+            >
+              {/* Hover Actions */}
+              {hoveredId === project.id && (
+                <div className="absolute top-3 right-3 flex items-center gap-1">
+                  <button
+                    onClick={(e) => handleEditProject(e, project)}
+                    className="p-2 bg-white/10 hover:bg-white/20 rounded-lg text-white/70 hover:text-white transition-colors"
+                    title="Rename"
+                  >
+                    <Pencil className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={(e) => handleDeleteProject(e, project)}
+                    className="p-2 bg-red-500/20 hover:bg-red-500/30 rounded-lg text-red-400 hover:text-red-300 transition-colors"
+                    title="Delete"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
 
-            {/* Meta Info */}
-            <div className="flex items-center gap-4 text-sm text-white/50">
-              <div className="flex items-center gap-1.5">
-                <MapPin className="w-4 h-4" />
-                <span>{project.locations.length} locations</span>
+              {/* Icon */}
+              <div className="w-10 h-10 rounded-lg bg-amber-500/20 flex items-center justify-center mb-3">
+                <MapPin className="w-5 h-5 text-amber-400" />
               </div>
-              <div className="flex items-center gap-1.5">
-                <Calendar className="w-4 h-4" />
-                <span>
-                  {project.createdAt.toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                    year: "numeric",
-                  })}
-                </span>
+
+              {/* Project Name */}
+              <h3 className="text-base font-bold text-white font-sans mb-2 pr-16 line-clamp-1">
+                {project.name}
+              </h3>
+
+              {/* Meta Info */}
+              <div className="flex flex-wrap items-center gap-3 text-xs text-white/50">
+                <div className="flex items-center gap-1">
+                  <MapPin className="w-3.5 h-3.5" />
+                  <span>{project.locations.length} locations</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Calendar className="w-3.5 h-3.5" />
+                  <span>
+                    {project.createdAt.toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })}
+                  </span>
+                </div>
               </div>
-            </div>
-          </button>
+            </button>
+          </div>
         ))}
 
         {/* New Location List Card */}

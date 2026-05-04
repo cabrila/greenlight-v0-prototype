@@ -14,6 +14,7 @@ export interface CharacterBible {
   characters: Character[]
   createdAt: Date
   updatedAt: Date
+  thumbnailUrl?: string
 }
 
 export type CharacterBibleView = "list" | "upload" | "results"

@@ -15,4 +15,5 @@ export interface LocationProject {
   locations: Location[]
   createdAt: Date
   updatedAt: Date
+  thumbnailUrl?: string
 }

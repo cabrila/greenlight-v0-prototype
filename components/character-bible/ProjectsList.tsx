@@ -1,17 +1,28 @@
 "use client"
 
 import { useState } from "react"
-import { FileText, Users, Calendar, Plus, Pencil, Trash2 } from "lucide-react"
+import { FileText, Users, Calendar, Plus, Pencil, Trash2, ImageIcon } from "lucide-react"
 import { useCharacterBible } from "./CharacterBibleContext"
 import { CharacterBible } from "@/types/character-bible"
 import DeleteConfirmationModal from "@/components/ui/DeleteConfirmationModal"
 import EditProjectModal from "@/components/ui/EditProjectModal"
+import ThumbnailUpload from "@/components/ui/ThumbnailUpload"
 
 export default function ProjectsList() {
   const { bibles, setView, setCurrentBible, deleteBible, updateBible } = useCharacterBible()
   const [hoveredId, setHoveredId] = useState<string | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<CharacterBible | null>(null)
   const [editTarget, setEditTarget] = useState<CharacterBible | null>(null)
+  const [thumbnailTarget, setThumbnailTarget] = useState<string | null>(null)
+
+  const handleThumbnailUpload = (bibleId: string, url: string) => {
+    updateBible(bibleId, { thumbnailUrl: url })
+    setThumbnailTarget(null)
+  }
+
+  const handleThumbnailRemove = (bibleId: string) => {
+    updateBible(bibleId, { thumbnailUrl: undefined })
+  }
 
   const handleOpenBible = (bible: CharacterBible) => {
     setCurrentBible(bible)
@@ -69,59 +80,96 @@ export default function ProjectsList() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {/* Existing Projects */}
         {bibles.map((bible) => (
-          <button
+          <div
             key={bible.id}
-            onClick={() => handleOpenBible(bible)}
             onMouseEnter={() => setHoveredId(bible.id)}
             onMouseLeave={() => setHoveredId(null)}
-            className={`relative flex flex-col p-5 rounded-xl border text-left transition-all duration-200 ${
+            className={`relative flex rounded-xl border text-left transition-all duration-200 overflow-hidden ${
               hoveredId === bible.id
                 ? "bg-white/[0.07] border-emerald-500/50"
                 : "bg-white/[0.03] border-white/10 hover:border-white/20"
             }`}
           >
-            {/* Action buttons on hover */}
-            {hoveredId === bible.id && (
-              <div className="absolute top-3 right-3 flex items-center gap-1">
-                <button
-                  onClick={(e) => handleEdit(e, bible)}
-                  className="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
-                  title="Edit"
-                >
-                  <Pencil className="w-4 h-4 text-white/70" />
-                </button>
-                <button
-                  onClick={(e) => handleDelete(e, bible)}
-                  className="p-2 rounded-lg bg-red-500/20 hover:bg-red-500/30 transition-colors"
-                  title="Delete"
-                >
-                  <Trash2 className="w-4 h-4 text-red-400" />
-                </button>
+            {/* Thumbnail Section - 1/3 width */}
+            <div className="w-1/3 min-h-[140px] bg-[#0f1f17] border-r border-white/10 flex-shrink-0">
+              {thumbnailTarget === bible.id || !bible.thumbnailUrl ? (
+                <ThumbnailUpload
+                  currentThumbnail={bible.thumbnailUrl}
+                  onUpload={(url) => handleThumbnailUpload(bible.id, url)}
+                  onRemove={() => handleThumbnailRemove(bible.id)}
+                  accentColor="sky"
+                />
+              ) : (
+                <div className="relative w-full h-full group/thumb">
+                  <img
+                    src={bible.thumbnailUrl}
+                    alt={bible.name}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover/thumb:opacity-100 transition-opacity flex items-center justify-center">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setThumbnailTarget(bible.id)
+                      }}
+                      className="p-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors"
+                      title="Change thumbnail"
+                    >
+                      <ImageIcon className="w-4 h-4 text-white" />
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Content Section - 2/3 width */}
+            <button
+              onClick={() => handleOpenBible(bible)}
+              className="flex-1 flex flex-col p-5 text-left"
+            >
+              {/* Action buttons on hover */}
+              {hoveredId === bible.id && (
+                <div className="absolute top-3 right-3 flex items-center gap-1">
+                  <button
+                    onClick={(e) => handleEdit(e, bible)}
+                    className="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
+                    title="Rename"
+                  >
+                    <Pencil className="w-4 h-4 text-white/70" />
+                  </button>
+                  <button
+                    onClick={(e) => handleDelete(e, bible)}
+                    className="p-2 rounded-lg bg-red-500/20 hover:bg-red-500/30 transition-colors"
+                    title="Delete"
+                  >
+                    <Trash2 className="w-4 h-4 text-red-400" />
+                  </button>
+                </div>
+              )}
+
+              {/* Icon */}
+              <div className="w-10 h-10 rounded-lg bg-sky-500/20 flex items-center justify-center mb-3">
+                <FileText className="w-5 h-5 text-sky-400" />
               </div>
-            )}
 
-            {/* Icon */}
-            <div className="w-12 h-12 rounded-lg bg-sky-500/20 flex items-center justify-center mb-4">
-              <FileText className="w-6 h-6 text-sky-400" />
-            </div>
+              {/* Project Name */}
+              <h3 className="text-base font-semibold text-white mb-2 font-sans pr-16 line-clamp-1">
+                {bible.name}
+              </h3>
 
-            {/* Project Name */}
-            <h3 className="text-lg font-semibold text-white mb-3 font-sans pr-16">
-              {bible.name}
-            </h3>
-
-            {/* Meta Info */}
-            <div className="flex items-center gap-4 text-sm text-white/50">
-              <span className="flex items-center gap-1.5">
-                <Users className="w-4 h-4" />
-                {bible.characters.length} characters
-              </span>
-              <span className="flex items-center gap-1.5">
-                <Calendar className="w-4 h-4" />
-                {formatDate(bible.createdAt)}
-              </span>
-            </div>
-          </button>
+              {/* Meta Info */}
+              <div className="flex flex-wrap items-center gap-3 text-xs text-white/50">
+                <span className="flex items-center gap-1">
+                  <Users className="w-3.5 h-3.5" />
+                  {bible.characters.length} characters
+                </span>
+                <span className="flex items-center gap-1">
+                  <Calendar className="w-3.5 h-3.5" />
+                  {formatDate(bible.createdAt)}
+                </span>
+              </div>
+            </button>
+          </div>
         ))}
 
         {/* New Character Bible Card */}
