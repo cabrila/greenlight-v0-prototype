@@ -84,7 +84,7 @@ export default function ActorProjectsList() {
             {/* Content Section - 2/3 width */}
             <button
               onClick={() => selectProject(project.id)}
-              className="flex-1 flex flex-col p-5 text-left cursor-pointer"
+              className="flex-1 flex flex-col justify-center p-5 text-left cursor-pointer"
             >
               {/* Hover Actions */}
               {hoveredId === project.id && (

@@ -84,7 +84,7 @@ export default function LocationProjectsList() {
             {/* Content Section - 2/3 width */}
             <button
               onClick={() => handleProjectClick(project.id)}
-              className="flex-1 flex flex-col p-5 text-left"
+              className="flex-1 flex flex-col justify-center p-5 text-left"
             >
               {/* Hover Actions */}
               {hoveredId === project.id && (

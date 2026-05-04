@@ -99,7 +99,7 @@ export default function ProjectsList() {
             {/* Content Section - 2/3 width */}
             <button
               onClick={() => handleOpenBible(bible)}
-              className="flex-1 flex flex-col p-5 text-left"
+              className="flex-1 flex flex-col justify-center p-5 text-left"
             >
               {/* Action buttons on hover */}
               {hoveredId === bible.id && (
