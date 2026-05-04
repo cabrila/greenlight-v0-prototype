@@ -1,7 +1,7 @@
 export interface CastingCallField {
   id: string
   label: string
-  type: "text" | "email" | "phone" | "textarea" | "select" | "file" | "url" | "number"
+  type: "text" | "email" | "phone" | "textarea" | "select" | "file" | "url" | "number" | "image"
   required: boolean
   placeholder?: string
   options?: string[] // For select fields

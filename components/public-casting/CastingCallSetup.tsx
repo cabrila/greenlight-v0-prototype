@@ -21,6 +21,7 @@ const fieldTypeOptions = [
   { value: "textarea", label: "Long Text" },
   { value: "url", label: "URL" },
   { value: "select", label: "Dropdown" },
+  { value: "image", label: "Image" },
 ]
 
 const defaultFields: CastingCallField[] = [
@@ -46,6 +47,8 @@ export default function CastingCallSetup({ onBack, onSuccess, editingCastingCall
   const [createdLink, setCreatedLink] = useState(editingCastingCall?.shareableLink || "")
   const [copied, setCopied] = useState(false)
   const [showPreview, setShowPreview] = useState(false)
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null)
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null)
 
   // Create a preview casting call object for the modal
   const previewCastingCall: CastingCall = {
@@ -76,6 +79,42 @@ export default function CastingCallSetup({ onBack, onSuccess, editingCastingCall
 
   const removeField = (id: string) => {
     setFields(fields.filter((f) => f.id !== id))
+  }
+
+  // Drag and drop handlers
+  const handleDragStart = (index: number) => {
+    setDraggedIndex(index)
+  }
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault()
+    if (draggedIndex !== null && draggedIndex !== index) {
+      setDragOverIndex(index)
+    }
+  }
+
+  const handleDragLeave = () => {
+    setDragOverIndex(null)
+  }
+
+  const handleDrop = (index: number) => {
+    if (draggedIndex === null || draggedIndex === index) {
+      setDraggedIndex(null)
+      setDragOverIndex(null)
+      return
+    }
+
+    const newFields = [...fields]
+    const [draggedField] = newFields.splice(draggedIndex, 1)
+    newFields.splice(index, 0, draggedField)
+    setFields(newFields)
+    setDraggedIndex(null)
+    setDragOverIndex(null)
+  }
+
+  const handleDragEnd = () => {
+    setDraggedIndex(null)
+    setDragOverIndex(null)
   }
 
   const handleSave = () => {
@@ -301,10 +340,22 @@ export default function CastingCallSetup({ onBack, onSuccess, editingCastingCall
               {fields.map((field, index) => (
                 <div
                   key={field.id}
-                  className="flex items-start gap-3 p-4 bg-[#0f1f17] border border-white/5 rounded-lg"
+                  draggable
+                  onDragStart={() => handleDragStart(index)}
+                  onDragOver={(e) => handleDragOver(e, index)}
+                  onDragLeave={handleDragLeave}
+                  onDrop={() => handleDrop(index)}
+                  onDragEnd={handleDragEnd}
+                  className={`flex items-start gap-3 p-4 bg-[#0f1f17] border rounded-lg transition-all ${
+                    draggedIndex === index
+                      ? "opacity-50 border-emerald-500/50"
+                      : dragOverIndex === index
+                        ? "border-emerald-500/50 bg-emerald-500/5"
+                        : "border-white/5"
+                  }`}
                 >
                   {/* Drag Handle */}
-                  <div className="mt-3 text-white/20 cursor-move">
+                  <div className="mt-3 text-white/30 hover:text-white/60 cursor-grab active:cursor-grabbing transition-colors">
                     <GripVertical className="w-4 h-4" />
                   </div>
 
