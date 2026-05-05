@@ -1,45 +1,33 @@
 import { NextRequest, NextResponse } from "next/server"
-import { VertexAI } from "@google-cloud/vertexai"
-
-// Initialize Vertex AI with credentials from environment
-function getVertexAI() {
-  const credentialsJson = process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON
-  if (!credentialsJson) {
-    throw new Error("GOOGLE_APPLICATION_CREDENTIALS_JSON environment variable is not set")
-  }
-
-  const credentials = JSON.parse(credentialsJson)
-  
-  return new VertexAI({
-    project: credentials.project_id,
-    location: "us-central1",
-    googleAuthOptions: {
-      credentials: credentials,
-    },
-  })
-}
+import { GoogleGenerativeAI } from "@google/generative-ai"
 
 export async function POST(request: NextRequest) {
   try {
+    const apiKey = process.env.GEMINI_API_KEY_FOR_APP_EXPERIMENT
+    if (!apiKey) {
+      return NextResponse.json(
+        { error: "GEMINI_API_KEY_FOR_APP_EXPERIMENT environment variable is not set" },
+        { status: 500 }
+      )
+    }
+
     const formData = await request.formData()
     const file = formData.get("file") as File
-    
+
     if (!file) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 })
     }
 
-    // Convert file to base64 for Vertex AI
+    // Convert file to base64 for Gemini
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
     const base64Content = buffer.toString("base64")
-    
+
     // Determine mime type
     const mimeType = file.type || "application/pdf"
 
-    const vertexAI = getVertexAI()
-    const generativeModel = vertexAI.getGenerativeModel({
-      model: "gemini-1.5-pro",
-    })
+    const genAI = new GoogleGenerativeAI(apiKey)
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" })
 
     const prompt = `Analyze this screenplay/script document and extract all characters. For each character, provide:
 - name: The character's full name as it appears in the script
@@ -54,40 +42,26 @@ Return ONLY a valid JSON array of character objects. Do not include any markdown
 
 If no characters are found, return an empty array: []`
 
-    const request_content = {
-      contents: [
-        {
-          role: "user",
-          parts: [
-            {
-              inlineData: {
-                mimeType: mimeType,
-                data: base64Content,
-              },
-            },
-            {
-              text: prompt,
-            },
-          ],
+    const result = await model.generateContent([
+      {
+        inlineData: {
+          mimeType: mimeType,
+          data: base64Content,
         },
-      ],
-    }
+      },
+      { text: prompt },
+    ])
 
-    const response = await generativeModel.generateContent(request_content)
-    const result = response.response
-    
-    if (!result.candidates || result.candidates.length === 0) {
-      return NextResponse.json({ error: "No response from AI model" }, { status: 500 })
-    }
+    const response = result.response
+    const textContent = response.text()
 
-    const textContent = result.candidates[0].content?.parts?.[0]?.text
     if (!textContent) {
       return NextResponse.json({ error: "Empty response from AI model" }, { status: 500 })
     }
 
     // Parse the JSON response - clean up any markdown formatting
     let cleanedContent = textContent.trim()
-    
+
     // Remove markdown code blocks if present
     if (cleanedContent.startsWith("```json")) {
       cleanedContent = cleanedContent.slice(7)
