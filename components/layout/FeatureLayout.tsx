@@ -1,51 +1,60 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
-import { LogOut, MessageSquarePlus, BookUser, MapPin, Users, Megaphone, ArrowRight } from "lucide-react"
+import { Home, LogOut, MessageSquarePlus, BookUser, MapPin, Users, Megaphone } from "lucide-react"
 import { useCasting } from "@/components/casting/CastingContext"
 import FeedbackModal from "@/components/modals/FeedbackModal"
 
-const featureButtons = [
+type ActiveView = "character-bible" | "location-overview" | "actor-database" | "public-casting"
+
+const sidebarItems = [
   {
-    id: "character-bible",
+    id: "character-bible" as ActiveView,
     title: "Character Bible",
-    description: "Generate comprehensive lists and detailed descriptions of characters based on your script.",
     icon: BookUser,
     iconBg: "bg-emerald-500/20",
     iconColor: "text-emerald-400",
+    activeBg: "bg-emerald-500/30",
+    activeBorder: "border-emerald-400",
   },
   {
-    id: "location-overview",
-    title: "Location Overview",
-    description: "Produce lists and descriptions of locations inspired by your script for efficient scouting.",
+    id: "location-overview" as ActiveView,
+    title: "Location Scouting",
     icon: MapPin,
     iconBg: "bg-amber-500/20",
     iconColor: "text-amber-400",
+    activeBg: "bg-amber-500/30",
+    activeBorder: "border-amber-400",
   },
   {
-    id: "actor-database",
+    id: "actor-database" as ActiveView,
     title: "Actor List",
-    description: "Create and manage an easily navigable list of actors for your production.",
     icon: Users,
     iconBg: "bg-sky-500/20",
     iconColor: "text-sky-400",
+    activeBg: "bg-sky-500/30",
+    activeBorder: "border-sky-400",
   },
   {
-    id: "public-casting",
+    id: "public-casting" as ActiveView,
     title: "Public Casting",
-    description: "Share a simple casting form for actors to submit themselves for roles in your project.",
     icon: Megaphone,
     iconBg: "bg-violet-500/20",
     iconColor: "text-violet-400",
+    activeBg: "bg-violet-500/30",
+    activeBorder: "border-violet-400",
   },
 ]
 
-interface SplashScreenProps {
+interface FeatureLayoutProps {
+  children: React.ReactNode
+  onBack: () => void
   onSignOut?: () => void
-  onNavigate?: (feature: string) => void
+  activeView?: ActiveView
+  onNavigate?: (view: ActiveView) => void
 }
 
-export default function SplashScreen({ onSignOut, onNavigate }: SplashScreenProps) {
+export default function FeatureLayout({ children, onBack, onSignOut, activeView, onNavigate }: FeatureLayoutProps) {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false)
   const userButtonRef = useRef<HTMLDivElement>(null)
@@ -86,15 +95,27 @@ export default function SplashScreen({ onSignOut, onNavigate }: SplashScreenProp
           "linear-gradient(180deg, #2d6b3f 0%, #1a4a2a 30%, #0f3520 55%, #0a2618 80%, #061a10 100%)",
       }}
     >
-      {/* Top Navigation Bar - Only Logo and User Avatar */}
+      {/* Top Navigation Bar - Logo, Back Button, Feedback, and User Avatar */}
       <header className="relative flex justify-between items-center px-6 py-3 border-b border-white/10 shrink-0 z-20">
-        <div className="flex items-center">
+        {/* Left side - Logo and Home Button */}
+        <div className="flex items-center gap-3">
           <img
             src="/images/gogreenlight-logo.png"
             alt="GoGreenlight"
             className="h-9 w-auto"
           />
+          <div className="h-6 w-px bg-white/20" />
+          <button
+            onClick={onBack}
+            className="p-2 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-all"
+            title="Go to Home"
+            aria-label="Go to Home"
+          >
+            <Home className="w-5 h-5" />
+          </button>
         </div>
+
+        {/* Right side - Feedback and User Avatar */}
         <div className="flex items-center gap-2">
           {/* Feedback & Requests Button */}
           <button
@@ -158,59 +179,45 @@ export default function SplashScreen({ onSignOut, onNavigate }: SplashScreenProp
         </div>
       </header>
 
-      {/* Main Content - Hero and Feature Buttons */}
-      <main className="flex-1 flex flex-col items-center justify-center relative z-10 overflow-y-auto py-8">
-        <div className="text-center px-6 max-w-2xl mb-10">
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 text-balance leading-tight">
-            Every creative asset.{" "}
-            <span className="text-emerald-300">One platform.</span>
-          </h1>
-          <p className="text-white/50 text-base md:text-lg leading-relaxed text-pretty max-w-xl mx-auto">
-            Organize characters, actors, locations and casting calls in one streamlined and efficient workflow.
-          </p>
-        </div>
+      {/* Main Content Area with Sidebar */}
+      <div className="flex-1 flex overflow-hidden">
+        {/* Left Sidebar - Hidden on mobile */}
+        <aside className="hidden md:flex flex-col w-16 border-r border-white/10 py-4 shrink-0">
+          <nav className="flex flex-col items-center gap-2">
+            {sidebarItems.map((item) => {
+              const IconComponent = item.icon
+              const isActive = activeView === item.id
+              
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => onNavigate?.(item.id)}
+                  className={`
+                    relative w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-200
+                    ${isActive 
+                      ? `${item.activeBg} border-2 ${item.activeBorder}` 
+                      : `${item.iconBg} border border-transparent hover:border-white/20 hover:bg-white/10`
+                    }
+                  `}
+                  title={item.title}
+                  aria-label={item.title}
+                  aria-current={isActive ? "page" : undefined}
+                >
+                  <IconComponent className={`w-5 h-5 ${item.iconColor}`} />
+                  {isActive && (
+                    <span className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-[1px] w-1 h-6 bg-current rounded-r-full" style={{ color: item.iconColor.includes('emerald') ? '#34d399' : item.iconColor.includes('amber') ? '#fbbf24' : item.iconColor.includes('sky') ? '#38bdf8' : '#a78bfa' }} />
+                  )}
+                </button>
+              )
+            })}
+          </nav>
+        </aside>
 
-        {/* Feature Buttons Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 px-6 w-full max-w-3xl">
-          {featureButtons.map((feature) => {
-            const IconComponent = feature.icon
-            return (
-              <button
-                key={feature.id}
-                onClick={() => {
-                  onNavigate?.(feature.id)
-                }}
-                className="group flex items-start gap-4 p-5 bg-white/[0.03] hover:bg-white/[0.07] border border-white/10 hover:border-white/20 rounded-xl text-left transition-all duration-200"
-              >
-                {/* Icon */}
-                <div className={`shrink-0 w-12 h-12 rounded-lg ${feature.iconBg} flex items-center justify-center`}>
-                  <IconComponent className={`w-6 h-6 ${feature.iconColor}`} />
-                </div>
-
-                {/* Content */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="text-base font-semibold text-white font-sans">
-                      {feature.title}
-                    </h3>
-                    <ArrowRight className="w-4 h-4 text-white/40 group-hover:text-white/70 group-hover:translate-x-0.5 transition-all duration-200" />
-                  </div>
-                  <p className="text-sm text-white/50 leading-relaxed font-sans">
-                    {feature.description}
-                  </p>
-                </div>
-              </button>
-            )
-          })}
-        </div>
-      </main>
-
-      {/* Bottom tagline */}
-      <footer className="text-center py-6 shrink-0">
-        <p className="text-[11px] text-white/20 tracking-wide">
-          © 2026 GoGreenlight. All rights reserved.
-        </p>
-      </footer>
+        {/* Main Content */}
+        <main className="flex-1 overflow-hidden">
+          {children}
+        </main>
+      </div>
 
       {/* Feedback Modal */}
       {isFeedbackModalOpen && (

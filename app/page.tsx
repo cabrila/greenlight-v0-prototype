@@ -1,80 +1,114 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { CastingProvider, useCasting } from "@/components/casting/CastingContext"
-import { ActorGridProvider } from "@/components/actors/ActorGridContext"
-import ModalManager from "@/components/modals/ModalManager"
-import PlayerViewModal from "@/components/modals/PlayerViewModal"
-import { UploadNotificationProvider } from "@/hooks/useUploadNotifications"
-import { useSubmissionIntegration } from "@/hooks/useSubmissionIntegration"
-import { mockData } from "@/lib/mockData"
-
+import { User } from "firebase/auth"
+import { subscribeToAuthStateChanges, isMagicLinkCallback, completeMagicLinkSignIn } from "@/lib/auth"
+import LoginScreen from "@/components/auth/LoginScreen"
 import SplashScreen from "@/components/home/SplashScreen"
+import CharacterBibleScreen from "@/components/character-bible/CharacterBibleScreen"
+import LocationScoutingScreen from "@/components/location-scouting/LocationScoutingScreen"
+import ActorListScreen from "@/components/actor-list/ActorListScreen"
+import PublicCastingScreen from "@/components/public-casting/PublicCastingScreen"
+import { CastingProvider } from "@/components/casting/CastingContext"
 
-export default function CastingApp() {
-  const [isLoaded, setIsLoaded] = useState(false)
+export default function App() {
+  const [view, setView] = useState<"login" | "splash" | "character-bible" | "location-overview" | "actor-database" | "public-casting">("login")
+  const [user, setUser] = useState<User | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    setIsLoaded(true)
-  }, [])
+    let mounted = true
+    
+    // Check if this is a magic link callback
+    if (typeof window !== "undefined" && isMagicLinkCallback()) {
+      completeMagicLinkSignIn()
+        .then(() => {
+          // Auth state change handled by subscription
+        })
+        .catch((err) => {
+          if (mounted) {
+            setError(err instanceof Error ? err.message : "Failed to verify magic link")
+          }
+        })
+    }
 
-  if (!isLoaded) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-emerald-500" />
-      </div>
-    )
-  }
-
-  return (
-    <CastingProvider initialData={mockData}>
-      <UploadNotificationProvider>
-        <ActorGridProvider>
-          <CastingAppContent />
-        </ActorGridProvider>
-      </UploadNotificationProvider>
-    </CastingProvider>
-  )
-}
-
-function CastingAppContent() {
-  const { state, dispatch } = useCasting()
-
-  // Initialize submission integration
-  useSubmissionIntegration()
-
-  // One-time placeholder sanitization on first visit
-  useEffect(() => {
-    const PLACEHOLDER_SANITIZED_KEY = "gogreenlight-placeholder-sanitized-v7"
-
-    if (typeof window !== "undefined") {
-      if (!window.localStorage.getItem(PLACEHOLDER_SANITIZED_KEY)) {
-        try {
-          localStorage.clear()
-          window.localStorage.setItem(PLACEHOLDER_SANITIZED_KEY, "true")
-        } catch {
-          /* ignore errors */
-        }
+    // Subscribe to authentication state changes
+    const unsubscribe = subscribeToAuthStateChanges((authUser) => {
+      if (!mounted) return
+      setUser(authUser)
+      if (authUser) {
+        setView("splash")
       }
+    })
+
+    return () => {
+      mounted = false
+      unsubscribe()
     }
   }, [])
 
+  const handleSignOut = () => {
+    setView("login")
+  }
+
+  const handleDemoAccess = () => {
+    setView("splash")
+  }
+
+  const handleNavigate = (feature: string) => {
+    if (feature === "character-bible" || feature === "location-overview" || feature === "actor-database" || feature === "public-casting") {
+      setView(feature)
+    }
+  }
+
+  const renderView = () => {
+    switch (view) {
+      case "login":
+        return <LoginScreen onDemoAccess={handleDemoAccess} />
+      case "splash":
+        return (
+          <CastingProvider>
+            <SplashScreen onSignOut={handleSignOut} onNavigate={handleNavigate} />
+          </CastingProvider>
+        )
+      case "character-bible":
+        return (
+          <CastingProvider>
+            <CharacterBibleScreen onBack={() => setView("splash")} onSignOut={handleSignOut} activeView="character-bible" onNavigate={handleNavigate} />
+          </CastingProvider>
+        )
+      case "location-overview":
+        return (
+          <CastingProvider>
+            <LocationScoutingScreen onBack={() => setView("splash")} onSignOut={handleSignOut} activeView="location-overview" onNavigate={handleNavigate} />
+          </CastingProvider>
+        )
+      case "actor-database":
+        return (
+          <CastingProvider>
+            <ActorListScreen onBack={() => setView("splash")} onSignOut={handleSignOut} activeView="actor-database" onNavigate={handleNavigate} />
+          </CastingProvider>
+        )
+      case "public-casting":
+        return (
+          <CastingProvider>
+            <PublicCastingScreen onBack={() => setView("splash")} onSignOut={handleSignOut} activeView="public-casting" onNavigate={handleNavigate} />
+          </CastingProvider>
+        )
+      default:
+        return <LoginScreen onDemoAccess={handleDemoAccess} />
+    }
+  }
+
   return (
-    <div className="h-screen overflow-hidden antialiased text-gray-800 text-sm">
-      {/* Main Content - Splash Screen as Home */}
-      <SplashScreen />
-
-      {/* Modal Manager handles all modals including CastingModal */}
-      <ModalManager />
-
-      {/* Player View Modal */}
-      {state.currentFocus.playerView.isOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <PlayerViewModal onClose={() => dispatch({ type: "CLOSE_PLAYER_VIEW" })} />
+    <div className="h-screen">
+      {renderView()}
+      
+      {error && (
+        <div className="fixed bottom-4 right-4 px-4 py-3 bg-red-500/10 border border-red-500/30 rounded-lg">
+          <p className="text-sm text-red-300 font-sans">{error}</p>
         </div>
       )}
-
-      
     </div>
   )
 }
