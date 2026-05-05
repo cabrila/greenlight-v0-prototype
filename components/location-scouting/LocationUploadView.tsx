@@ -3,7 +3,7 @@
 import { useState, useRef } from "react"
 import { Upload, ArrowLeft, FileText, Loader2, X } from "lucide-react"
 import { useLocationScouting } from "./LocationScoutingContext"
-import { Location, LocationProject } from "@/types/location-scouting"
+import { LocationProject } from "@/types/location-scouting"
 
 export default function LocationUploadView() {
   const { setView, addProject, setCurrentProject } = useLocationScouting()
@@ -45,67 +45,63 @@ export default function LocationUploadView() {
     setIsProcessing(true)
     setProgress(0)
 
-    // Simulate AI processing with progress
+    // Simulate progress while API processes
     const progressInterval = setInterval(() => {
       setProgress((prev) => {
-        if (prev >= 90) {
+        if (prev >= 85) {
           clearInterval(progressInterval)
-          return 90
+          return 85
         }
-        return prev + Math.random() * 15
+        return prev + Math.random() * 10
       })
-    }, 500)
+    }, 800)
 
-    // Simulate processing time
-    await new Promise((resolve) => setTimeout(resolve, 3000))
+    try {
+      const formData = new FormData()
+      formData.append("file", file)
 
-    clearInterval(progressInterval)
-    setProgress(100)
+      const response = await fetch("/api/analyze-locations", {
+        method: "POST",
+        body: formData,
+      })
 
-    // Generate demo locations based on "AI analysis"
-    const demoLocations: Location[] = [
-      {
+      clearInterval(progressInterval)
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || "Failed to analyze script")
+      }
+
+      const data = await response.json()
+      setProgress(100)
+
+      if (!data.locations || !Array.isArray(data.locations)) {
+        throw new Error("Invalid response format from AI")
+      }
+
+      // Create new project with extracted locations
+      const newProject: LocationProject = {
         id: crypto.randomUUID(),
-        name: "MAIN ENTRANCE - GATES",
-        type: "EXT",
-        timeOfDay: "DAY",
-        description: "A grand entrance with massive gates that open dramatically. The surrounding area features lush vegetation and a winding road leading to the main facility.",
-        scoutingNotes: "Requires a location with impressive gate structure or ability to build one. Consider existing theme parks or estates with grand entrances.",
-      },
-      {
-        id: crypto.randomUUID(),
-        name: "CONTROL ROOM",
-        type: "INT",
-        timeOfDay: "DAY",
-        description: "A high-tech command center filled with monitors, computers, and control panels. Multiple workstations for operators with a large central display.",
-        scoutingNotes: "Can be built as a set. Reference modern data centers or mission control rooms for authenticity.",
-      },
-      {
-        id: crypto.randomUUID(),
-        name: "VISITOR CENTER - MAIN HALL",
-        type: "INT",
-        timeOfDay: "DAY",
-        description: "A cavernous main hall with high ceilings, featuring exhibits and educational displays. Natural light streams through large windows.",
-        scoutingNotes: "Look for museums, convention centers, or large atriums with high ceilings and good natural lighting.",
-      },
-    ]
+        name: file.name.replace(".pdf", "").toUpperCase(),
+        locations: data.locations,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }
 
-    // Create new project
-    const newProject: LocationProject = {
-      id: crypto.randomUUID(),
-      name: file.name.replace(".pdf", "").toUpperCase(),
-      locations: demoLocations,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      addProject(newProject)
+      setCurrentProject(newProject)
+
+      // Small delay before transitioning
+      await new Promise((resolve) => setTimeout(resolve, 500))
+      setIsProcessing(false)
+      setView("results")
+    } catch (error) {
+      clearInterval(progressInterval)
+      console.error("Error processing script:", error)
+      alert(error instanceof Error ? error.message : "Failed to process script. Please try again.")
+      setIsProcessing(false)
+      setProgress(0)
     }
-
-    addProject(newProject)
-    setCurrentProject(newProject)
-
-    // Small delay before transitioning
-    await new Promise((resolve) => setTimeout(resolve, 500))
-    setIsProcessing(false)
-    setView("results")
   }
 
   return (

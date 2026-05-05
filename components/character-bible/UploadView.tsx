@@ -45,75 +45,59 @@ export default function UploadView() {
     setIsProcessing(true)
     setProgress(0)
 
-    // Simulate AI processing with progress updates
+    // Simulate progress while API processes
     const progressInterval = setInterval(() => {
       setProgress((prev) => {
-        if (prev >= 90) {
+        if (prev >= 85) {
           clearInterval(progressInterval)
-          return 90
+          return 85
         }
-        return prev + Math.random() * 15
+        return prev + Math.random() * 10
       })
-    }, 500)
+    }, 800)
 
-    // Simulate API call delay
-    await new Promise((resolve) => setTimeout(resolve, 3000))
+    try {
+      const formData = new FormData()
+      formData.append("file", file)
 
-    clearInterval(progressInterval)
-    setProgress(100)
+      const response = await fetch("/api/analyze-characters", {
+        method: "POST",
+        body: formData,
+      })
 
-    // Generate demo characters from "script analysis"
-    const demoCharacters: Character[] = [
-      {
-        id: crypto.randomUUID(),
-        name: "Dr. Alan Grant",
-        age: "Mid-thirties",
-        gender: "Male",
-        ethnicity: "Not specified",
-        scenes: 15,
-        castingNotes: "A ragged-looking paleontologist with intense concentration and a lack of patience for technology or children. He is a dedicated scientist who undergoes a transformation into a protective father figure during the crisis.",
-      },
-      {
-        id: crypto.randomUUID(),
-        name: "Dr. Ellie Sattler",
-        age: "Late twenties",
-        gender: "Female",
-        ethnicity: "Not specified",
-        scenes: 15,
-        castingNotes: "An athletic and highly capable paleobotanist with a sharp, impatient intellect. She is brave and resourceful, willing to put herself in physical danger to restore power or help others.",
-      },
-      {
-        id: crypto.randomUUID(),
-        name: "John Hammond",
-        age: "70s",
-        gender: "Male",
-        ethnicity: "Not specified",
-        scenes: 12,
-        castingNotes: "An eccentric billionaire with childlike enthusiasm for his creations. Despite his good intentions, he is blind to the dangers of playing God with nature.",
-      },
-      {
-        id: crypto.randomUUID(),
-        name: "Ian Malcolm",
-        age: "Late thirties",
-        gender: "Male",
-        ethnicity: "Not specified",
-        scenes: 14,
-        castingNotes: "A charismatic mathematician specializing in chaos theory. Dressed all in black, he is sardonic and philosophical, serving as the voice of doom throughout the narrative.",
-      },
-    ]
+      clearInterval(progressInterval)
 
-    const scriptName = file.name.replace(".pdf", "").toUpperCase()
-    const newBible: CharacterBible = {
-      id: crypto.randomUUID(),
-      name: `${scriptName} Script`,
-      characters: demoCharacters,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || "Failed to analyze script")
+      }
+
+      const data = await response.json()
+      setProgress(100)
+
+      if (!data.characters || !Array.isArray(data.characters)) {
+        throw new Error("Invalid response format from AI")
+      }
+
+      const scriptName = file.name.replace(".pdf", "").toUpperCase()
+      const newBible: CharacterBible = {
+        id: crypto.randomUUID(),
+        name: `${scriptName} Script`,
+        characters: data.characters,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }
+
+      addBible(newBible)
+      setCurrentBible(newBible)
+      setView("results")
+    } catch (error) {
+      clearInterval(progressInterval)
+      console.error("Error processing script:", error)
+      alert(error instanceof Error ? error.message : "Failed to process script. Please try again.")
+      setIsProcessing(false)
+      setProgress(0)
     }
-
-    addBible(newBible)
-    setCurrentBible(newBible)
-    setView("results")
   }
 
   return (
