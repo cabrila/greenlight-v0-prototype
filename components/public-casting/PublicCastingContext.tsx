@@ -1,13 +1,14 @@
 "use client"
 
 import { createContext, useContext, useState, ReactNode, useCallback } from "react"
-import { CastingCall, CastingCallField, CastingSubmission, PublicCastingProject } from "@/types/public-casting"
+import { CastingCall, CastingCallField, CastingSubmission, PublicCastingProject, CastingGroup } from "@/types/public-casting"
 
 interface PublicCastingState {
   projects: PublicCastingProject[]
   currentProject: PublicCastingProject | null
   currentCastingCall: CastingCall | null
   newSubmissionsCount: number
+  castingGroups: CastingGroup[]
 }
 
 interface PublicCastingContextType {
@@ -27,6 +28,10 @@ interface PublicCastingContextType {
   getSubmissionsForProject: (projectId: string) => CastingSubmission[]
   getTotalSubmissions: () => number
   getNewSubmissionsCount: () => number
+  createCastingGroup: (name: string, projectIds: string[], imageUrl?: string) => CastingGroup
+  updateCastingGroup: (id: string, updates: Partial<CastingGroup>) => void
+  deleteCastingGroup: (id: string) => void
+  toggleCastingGroupExpanded: (id: string) => void
 }
 
 const PublicCastingContext = createContext<PublicCastingContextType | null>(null)
@@ -158,6 +163,7 @@ export function PublicCastingProvider({ children }: { children: ReactNode }) {
     currentProject: null,
     currentCastingCall: null,
     newSubmissionsCount: 2, // From demo data
+    castingGroups: [],
   })
 
   const createProject = useCallback((name: string): PublicCastingProject => {
@@ -344,6 +350,45 @@ export function PublicCastingProvider({ children }: { children: ReactNode }) {
     )
   }, [state.projects])
 
+  const createCastingGroup = useCallback((name: string, projectIds: string[], imageUrl?: string): CastingGroup => {
+    const newGroup: CastingGroup = {
+      id: `group-${Date.now()}`,
+      name,
+      imageUrl,
+      projectIds,
+      isExpanded: true,
+      createdAt: new Date(),
+    }
+    setState((prev) => ({
+      ...prev,
+      castingGroups: [...prev.castingGroups, newGroup],
+    }))
+    return newGroup
+  }, [])
+
+  const updateCastingGroup = useCallback((id: string, updates: Partial<CastingGroup>) => {
+    setState((prev) => ({
+      ...prev,
+      castingGroups: prev.castingGroups.map((g) => (g.id === id ? { ...g, ...updates } : g)),
+    }))
+  }, [])
+
+  const deleteCastingGroup = useCallback((id: string) => {
+    setState((prev) => ({
+      ...prev,
+      castingGroups: prev.castingGroups.filter((g) => g.id !== id),
+    }))
+  }, [])
+
+  const toggleCastingGroupExpanded = useCallback((id: string) => {
+    setState((prev) => ({
+      ...prev,
+      castingGroups: prev.castingGroups.map((g) =>
+        g.id === id ? { ...g, isExpanded: !g.isExpanded } : g
+      ),
+    }))
+  }, [])
+
   return (
     <PublicCastingContext.Provider
       value={{
@@ -363,6 +408,10 @@ export function PublicCastingProvider({ children }: { children: ReactNode }) {
         getSubmissionsForProject,
         getTotalSubmissions,
         getNewSubmissionsCount,
+        createCastingGroup,
+        updateCastingGroup,
+        deleteCastingGroup,
+        toggleCastingGroupExpanded,
       }}
     >
       {children}

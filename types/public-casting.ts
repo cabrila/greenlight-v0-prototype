@@ -45,3 +45,12 @@ export interface PublicCastingProject {
   createdAt: Date
   thumbnailUrl?: string
 }
+
+export interface CastingGroup {
+  id: string
+  name: string
+  imageUrl?: string
+  projectIds: string[] // IDs of projects in this group
+  isExpanded: boolean
+  createdAt: Date
+}
