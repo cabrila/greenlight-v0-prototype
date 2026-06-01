@@ -206,3 +206,8 @@ export function useActorList() {
   }
   return context
 }
+
+// Safe version that doesn't throw - returns null if not within provider
+export function useActorListSafe() {
+  return useContext(ActorListContext)
+}

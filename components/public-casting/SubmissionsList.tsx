@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect } from "react"
 import { ArrowLeft, Search, SlidersHorizontal, ChevronDown, FileJson, FileSpreadsheet, Download, Filter, X, CheckSquare, Square, UserPlus, Plus } from "lucide-react"
 import { usePublicCasting } from "./PublicCastingContext"
-import { useActorList } from "../actor-list/ActorListContext"
+import { useActorListSafe } from "../actor-list/ActorListContext"
 import SubmissionCard from "./SubmissionCard"
 import { CastingSubmission } from "@/types/public-casting"
 import { Actor } from "@/types/actor-list"
@@ -26,7 +26,10 @@ interface AdvancedFilters {
 
 export default function SubmissionsList({ onBack }: SubmissionsListProps) {
   const { state, markSubmissionsAsRead, updateSubmission, deleteSubmission } = usePublicCasting()
-  const { projects: actorProjects, createProject: createActorProject, updateProject: updateActorProject } = useActorList()
+  const actorListContext = useActorListSafe()
+  const actorProjects = actorListContext?.projects ?? []
+  const createActorProject = actorListContext?.createProject
+  const updateActorProject = actorListContext?.updateProject
   const [searchQuery, setSearchQuery] = useState("")
   const [sortBy, setSortBy] = useState<SortOption>("newest")
   const [filterByForm, setFilterByForm] = useState<string>("all")
@@ -266,6 +269,7 @@ export default function SubmissionsList({ onBack }: SubmissionsListProps) {
 
   // Add selected submissions to existing actor project
   const handleAddToExistingList = (projectId: string) => {
+    if (!updateActorProject) return
     const actors = selectedSubmissions.map(submissionToActor)
     const project = actorProjects.find((p) => p.id === projectId)
     if (project) {
@@ -279,7 +283,7 @@ export default function SubmissionsList({ onBack }: SubmissionsListProps) {
 
   // Create new actor project with selected submissions
   const handleCreateNewList = () => {
-    if (!newListName.trim()) return
+    if (!newListName.trim() || !createActorProject) return
     const actors = selectedSubmissions.map(submissionToActor)
     createActorProject(newListName.trim(), actors)
     setNewListName("")
