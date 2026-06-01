@@ -188,8 +188,8 @@ export default function CastingCallsList({
         {/* Content Section - 2/3 width */}
         <div className="flex-1 flex flex-col">
           {/* Header Row - Project Name + Actions */}
-          <div className="flex items-start justify-between gap-2 p-3 pb-0">
-            <div className="flex-1 min-w-0 pl-6">
+          <div className="flex items-start justify-between gap-2 p-4 pb-2">
+            <div className="flex-1 min-w-0 pl-4">
               {/* Project Name */}
               <h3 className="text-sm font-semibold text-white mb-0.5 font-sans line-clamp-1">
                 {project.name}
@@ -236,9 +236,9 @@ export default function CastingCallsList({
           </div>
 
           {/* Card Body */}
-          <div className="flex-1 flex flex-col px-3 pb-3 pt-2">
+          <div className="flex-1 flex flex-col px-4 pb-4 pt-1">
             {/* Meta Info */}
-            <div className="flex flex-wrap items-center gap-2 text-xs text-white/50 mb-2 pl-6">
+            <div className="flex flex-wrap items-center gap-2 text-xs text-white/50 mb-2 pl-4">
               <div className="flex items-center gap-1">
                 <Link className="w-3 h-3" />
                 <span>{project.castingCalls.length} forms</span>
@@ -251,7 +251,7 @@ export default function CastingCallsList({
 
             {/* Submissions count */}
             {project.submissions.length > 0 && (
-              <div className="mb-2 flex items-center gap-1 text-xs text-violet-300 pl-6">
+              <div className="mb-2 flex items-center gap-1 text-xs text-violet-300 pl-4">
                 <Users className="w-3 h-3" />
                 <span>{project.submissions.length} submissions</span>
                 {project.submissions.some((s) => s.isNew) && (
