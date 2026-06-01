@@ -39,6 +39,8 @@ export default function CastingCallsList({
   
   // Edit group modal state
   const [editGroupTarget, setEditGroupTarget] = useState<CastingGroup | null>(null)
+  const [isDraggingEditImage, setIsDraggingEditImage] = useState(false)
+  const editFileInputRef = useRef<HTMLInputElement>(null)
 
   const newCount = getNewSubmissionsCount()
   const totalSubmissions = getTotalSubmissions()
@@ -107,6 +109,7 @@ export default function CastingCallsList({
 
   const handleFileDrop = (e: React.DragEvent) => {
     e.preventDefault()
+    e.stopPropagation()
     setIsDraggingImage(false)
     const file = e.dataTransfer.files[0]
     if (file && file.type.startsWith("image/")) {
@@ -118,6 +121,26 @@ export default function CastingCallsList({
     const file = e.target.files?.[0]
     if (file) {
       handleImageUpload(file)
+    }
+    // Reset the input so the same file can be selected again
+    e.target.value = ""
+  }
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDraggingImage(true)
+  }
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    // Only set to false if leaving the actual drop zone (not a child element)
+    const rect = e.currentTarget.getBoundingClientRect()
+    const x = e.clientX
+    const y = e.clientY
+    if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) {
+      setIsDraggingImage(false)
     }
   }
 
@@ -131,6 +154,41 @@ export default function CastingCallsList({
       }
     }
     reader.readAsDataURL(file)
+  }
+
+  const handleEditFileDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDraggingEditImage(false)
+    const file = e.dataTransfer.files[0]
+    if (file && file.type.startsWith("image/")) {
+      handleEditGroupImageUpload(file)
+    }
+  }
+
+  const handleEditFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      handleEditGroupImageUpload(file)
+    }
+    e.target.value = ""
+  }
+
+  const handleEditDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDraggingEditImage(true)
+  }
+
+  const handleEditDragLeave = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    const rect = e.currentTarget.getBoundingClientRect()
+    const x = e.clientX
+    const y = e.clientY
+    if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) {
+      setIsDraggingEditImage(false)
+    }
   }
 
   // Render a project card
@@ -557,25 +615,22 @@ export default function CastingCallsList({
               <div>
                 <label className="block text-xs text-white/50 mb-1.5 font-sans">Group Image (Optional)</label>
                 <div
-                  onDragOver={(e) => {
-                    e.preventDefault()
-                    setIsDraggingImage(true)
-                  }}
-                  onDragLeave={() => setIsDraggingImage(false)}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
                   onDrop={handleFileDrop}
                   onClick={() => fileInputRef.current?.click()}
-                  className={`relative w-full h-32 border-2 border-dashed rounded-xl flex flex-col items-center justify-center cursor-pointer transition-colors ${
+                  className={`relative w-full h-32 border-2 border-dashed rounded-xl flex flex-col items-center justify-center cursor-pointer transition-colors overflow-hidden ${
                     isDraggingImage
                       ? "border-amber-500 bg-amber-500/10"
                       : "border-white/20 hover:border-amber-500/50 bg-white/5"
                   }`}
                 >
                   {newGroupImage ? (
-                    <div className="relative w-full h-full">
+                    <div className="absolute inset-0">
                       <img
                         src={newGroupImage}
                         alt="Group preview"
-                        className="w-full h-full object-cover rounded-xl"
+                        className="w-full h-full object-cover"
                       />
                       <button
                         onClick={(e) => {
@@ -669,41 +724,22 @@ export default function CastingCallsList({
               <div>
                 <label className="block text-xs text-white/50 mb-1.5 font-sans">Group Image</label>
                 <div
-                  onDragOver={(e) => {
-                    e.preventDefault()
-                    setIsDraggingImage(true)
-                  }}
-                  onDragLeave={() => setIsDraggingImage(false)}
-                  onDrop={(e) => {
-                    e.preventDefault()
-                    setIsDraggingImage(false)
-                    const file = e.dataTransfer.files[0]
-                    if (file && file.type.startsWith("image/")) {
-                      handleEditGroupImageUpload(file)
-                    }
-                  }}
-                  onClick={() => {
-                    const input = document.createElement("input")
-                    input.type = "file"
-                    input.accept = "image/*"
-                    input.onchange = (e) => {
-                      const file = (e.target as HTMLInputElement).files?.[0]
-                      if (file) handleEditGroupImageUpload(file)
-                    }
-                    input.click()
-                  }}
-                  className={`relative w-full h-32 border-2 border-dashed rounded-xl flex flex-col items-center justify-center cursor-pointer transition-colors ${
-                    isDraggingImage
+                  onDragOver={handleEditDragOver}
+                  onDragLeave={handleEditDragLeave}
+                  onDrop={handleEditFileDrop}
+                  onClick={() => editFileInputRef.current?.click()}
+                  className={`relative w-full h-32 border-2 border-dashed rounded-xl flex flex-col items-center justify-center cursor-pointer transition-colors overflow-hidden ${
+                    isDraggingEditImage
                       ? "border-amber-500 bg-amber-500/10"
                       : "border-white/20 hover:border-amber-500/50 bg-white/5"
                   }`}
                 >
                   {editGroupTarget.imageUrl ? (
-                    <div className="relative w-full h-full">
+                    <div className="absolute inset-0">
                       <img
                         src={editGroupTarget.imageUrl}
                         alt="Group preview"
-                        className="w-full h-full object-cover rounded-xl"
+                        className="w-full h-full object-cover"
                       />
                       <button
                         onClick={(e) => {
@@ -722,6 +758,13 @@ export default function CastingCallsList({
                       <p className="text-white/50 text-sm font-sans">Click or drag to upload</p>
                     </>
                   )}
+                  <input
+                    ref={editFileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleEditFileSelect}
+                    className="hidden"
+                  />
                 </div>
               </div>
 
