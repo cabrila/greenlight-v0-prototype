@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useMemo, useEffect } from "react"
-import { ArrowLeft, Search, SlidersHorizontal, ChevronDown, FileJson, FileSpreadsheet, Download } from "lucide-react"
+import { ArrowLeft, Search, SlidersHorizontal, ChevronDown, FileJson, FileSpreadsheet, Download, Filter, X, CheckSquare, Square } from "lucide-react"
 import { usePublicCasting } from "./PublicCastingContext"
 import SubmissionCard from "./SubmissionCard"
 import { CastingSubmission } from "@/types/public-casting"
@@ -14,6 +14,14 @@ interface SubmissionsListProps {
 type SortOption = "newest" | "oldest" | "alphabetical" | "form" | "grade-high" | "grade-low"
 type GradeFilter = "all" | "graded" | "ungraded" | "high" | "medium" | "low"
 
+interface AdvancedFilters {
+  ageMin: string
+  ageMax: string
+  gender: string
+  location: string
+  availability: string
+}
+
 export default function SubmissionsList({ onBack }: SubmissionsListProps) {
   const { state, markSubmissionsAsRead, updateSubmission, deleteSubmission } = usePublicCasting()
   const [searchQuery, setSearchQuery] = useState("")
@@ -21,6 +29,15 @@ export default function SubmissionsList({ onBack }: SubmissionsListProps) {
   const [filterByForm, setFilterByForm] = useState<string>("all")
   const [filterByGrade, setFilterByGrade] = useState<GradeFilter>("all")
   const [showSortDropdown, setShowSortDropdown] = useState(false)
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+  const [showFilterPanel, setShowFilterPanel] = useState(false)
+  const [advancedFilters, setAdvancedFilters] = useState<AdvancedFilters>({
+    ageMin: "",
+    ageMax: "",
+    gender: "",
+    location: "",
+    availability: "",
+  })
 
   // Get all submissions across all projects
   const allSubmissions = useMemo(() => {
@@ -83,6 +100,53 @@ export default function SubmissionsList({ onBack }: SubmissionsListProps) {
       }
     }
 
+    // Advanced filters - Age range
+    if (advancedFilters.ageMin) {
+      const minAge = parseInt(advancedFilters.ageMin, 10)
+      if (!isNaN(minAge)) {
+        result = result.filter((s) => {
+          const age = parseInt(s.age || s.data?.age || "0", 10)
+          return !isNaN(age) && age >= minAge
+        })
+      }
+    }
+    if (advancedFilters.ageMax) {
+      const maxAge = parseInt(advancedFilters.ageMax, 10)
+      if (!isNaN(maxAge)) {
+        result = result.filter((s) => {
+          const age = parseInt(s.age || s.data?.age || "999", 10)
+          return !isNaN(age) && age <= maxAge
+        })
+      }
+    }
+
+    // Advanced filters - Gender (from data field)
+    if (advancedFilters.gender) {
+      const genderQuery = advancedFilters.gender.toLowerCase()
+      result = result.filter((s) => {
+        const gender = (s.data?.gender || s.data?.Gender || "").toLowerCase()
+        return gender.includes(genderQuery)
+      })
+    }
+
+    // Advanced filters - Location (from data field)
+    if (advancedFilters.location) {
+      const locationQuery = advancedFilters.location.toLowerCase()
+      result = result.filter((s) => {
+        const location = (s.data?.location || s.data?.Location || s.data?.city || s.data?.City || "").toLowerCase()
+        return location.includes(locationQuery)
+      })
+    }
+
+    // Advanced filters - Availability (from data field)
+    if (advancedFilters.availability) {
+      const availQuery = advancedFilters.availability.toLowerCase()
+      result = result.filter((s) => {
+        const availability = (s.data?.availability || s.data?.Availability || "").toLowerCase()
+        return availability.includes(availQuery)
+      })
+    }
+
     // Sort
     switch (sortBy) {
       case "newest":
@@ -106,7 +170,15 @@ export default function SubmissionsList({ onBack }: SubmissionsListProps) {
     }
 
     return result
-  }, [allSubmissions, searchQuery, filterByForm, filterByGrade, sortBy])
+  }, [allSubmissions, searchQuery, filterByForm, filterByGrade, sortBy, advancedFilters])
+
+  // Get submissions for export (selected or all filtered)
+  const submissionsForExport = useMemo(() => {
+    if (selectedIds.size > 0) {
+      return filteredSubmissions.filter((s) => selectedIds.has(s.id))
+    }
+    return filteredSubmissions
+  }, [filteredSubmissions, selectedIds])
 
   const handleUpdateSubmission = (submissionId: string, updates: Partial<CastingSubmission>) => {
     updateSubmission(submissionId, updates)
@@ -115,19 +187,57 @@ export default function SubmissionsList({ onBack }: SubmissionsListProps) {
   const handleDeleteSubmission = (submissionId: string) => {
     if (confirm("Are you sure you want to delete this submission?")) {
       deleteSubmission(submissionId)
+      // Remove from selection if selected
+      setSelectedIds((prev) => {
+        const next = new Set(prev)
+        next.delete(submissionId)
+        return next
+      })
     }
   }
 
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) {
+        next.delete(id)
+      } else {
+        next.add(id)
+      }
+      return next
+    })
+  }
+
+  const selectAll = () => {
+    setSelectedIds(new Set(filteredSubmissions.map((s) => s.id)))
+  }
+
+  const clearSelection = () => {
+    setSelectedIds(new Set())
+  }
+
+  const hasActiveAdvancedFilters = advancedFilters.ageMin || advancedFilters.ageMax || advancedFilters.gender || advancedFilters.location || advancedFilters.availability
+
+  const clearAdvancedFilters = () => {
+    setAdvancedFilters({
+      ageMin: "",
+      ageMax: "",
+      gender: "",
+      location: "",
+      availability: "",
+    })
+  }
+
   const handleExportJSON = () => {
-    exportSubmissionsAsJSON(filteredSubmissions, "casting_submissions")
+    exportSubmissionsAsJSON(submissionsForExport, "casting_submissions")
   }
 
   const handleExportPDF = () => {
-    exportSubmissionsAsPDF(filteredSubmissions, "casting_submissions")
+    exportSubmissionsAsPDF(submissionsForExport, "casting_submissions")
   }
 
   const handleExportExcel = () => {
-    exportSubmissionsAsExcel(filteredSubmissions, "casting_submissions")
+    exportSubmissionsAsExcel(submissionsForExport, "casting_submissions")
   }
 
   const sortOptions: { value: SortOption; label: string }[] = [
@@ -168,34 +278,67 @@ export default function SubmissionsList({ onBack }: SubmissionsListProps) {
               <h1 className="text-2xl font-bold text-white font-sans">Submissions</h1>
               <p className="text-white/50 text-sm font-sans">
                 {filteredSubmissions.length} total submissions
+                {selectedIds.size > 0 && (
+                  <span className="text-violet-300"> ({selectedIds.size} selected)</span>
+                )}
               </p>
             </div>
 
-            {/* Export Buttons */}
+            {/* Selection Controls & Export Buttons */}
             <div className="flex items-center gap-2">
+              {/* Selection Controls */}
+              {filteredSubmissions.length > 0 && (
+                <div className="flex items-center gap-1 mr-2">
+                  <button
+                    onClick={selectedIds.size === filteredSubmissions.length ? clearSelection : selectAll}
+                    className="flex items-center gap-1.5 px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-white/70 hover:text-white transition-colors text-sm font-sans"
+                    title={selectedIds.size === filteredSubmissions.length ? "Deselect all" : "Select all"}
+                  >
+                    {selectedIds.size === filteredSubmissions.length ? (
+                      <CheckSquare className="w-4 h-4" />
+                    ) : (
+                      <Square className="w-4 h-4" />
+                    )}
+                    <span className="hidden sm:inline">
+                      {selectedIds.size === filteredSubmissions.length ? "Deselect" : "Select All"}
+                    </span>
+                  </button>
+                  {selectedIds.size > 0 && (
+                    <button
+                      onClick={clearSelection}
+                      className="flex items-center gap-1 px-2 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-white/70 hover:text-white transition-colors text-sm"
+                      title="Clear selection"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {/* Export Buttons */}
               <button
                 onClick={handleExportJSON}
-                disabled={filteredSubmissions.length === 0}
+                disabled={submissionsForExport.length === 0}
                 className="flex items-center gap-2 px-3 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                title="Export as JSON"
+                title={selectedIds.size > 0 ? `Export ${selectedIds.size} selected as JSON` : "Export as JSON"}
               >
                 <FileJson className="w-4 h-4" />
                 <span className="font-sans text-sm hidden sm:inline">JSON</span>
               </button>
               <button
                 onClick={handleExportExcel}
-                disabled={filteredSubmissions.length === 0}
+                disabled={submissionsForExport.length === 0}
                 className="flex items-center gap-2 px-3 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                title="Export as Excel"
+                title={selectedIds.size > 0 ? `Export ${selectedIds.size} selected as Excel` : "Export as Excel"}
               >
                 <FileSpreadsheet className="w-4 h-4" />
                 <span className="font-sans text-sm hidden sm:inline">Excel</span>
               </button>
               <button
                 onClick={handleExportPDF}
-                disabled={filteredSubmissions.length === 0}
+                disabled={submissionsForExport.length === 0}
                 className="flex items-center gap-2 px-3 py-2 bg-violet-500 hover:bg-violet-400 rounded-lg text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                title="Export as PDF"
+                title={selectedIds.size > 0 ? `Export ${selectedIds.size} selected as PDF` : "Export as PDF"}
               >
                 <Download className="w-4 h-4" />
                 <span className="font-sans text-sm hidden sm:inline">PDF</span>
@@ -216,6 +359,22 @@ export default function SubmissionsList({ onBack }: SubmissionsListProps) {
                 className="w-full pl-10 pr-4 py-2.5 bg-[#1a2e23] border border-white/10 rounded-lg text-white placeholder-white/30 focus:border-violet-500/50 focus:outline-none font-sans text-sm"
               />
             </div>
+
+            {/* Filter Button */}
+            <button
+              onClick={() => setShowFilterPanel(!showFilterPanel)}
+              className={`flex items-center gap-2 px-4 py-2.5 border rounded-lg text-sm transition-colors font-sans min-w-[100px] ${
+                showFilterPanel || hasActiveAdvancedFilters
+                  ? "bg-violet-500/20 border-violet-500/50 text-violet-300"
+                  : "bg-[#1a2e23] border-white/10 text-white hover:border-white/20"
+              }`}
+            >
+              <Filter className="w-4 h-4" />
+              <span>Filter</span>
+              {hasActiveAdvancedFilters && (
+                <span className="w-2 h-2 bg-violet-400 rounded-full" />
+              )}
+            </button>
 
             {/* Form Filter */}
             <select
@@ -277,6 +436,79 @@ export default function SubmissionsList({ onBack }: SubmissionsListProps) {
               )}
             </div>
           </div>
+
+          {/* Advanced Filter Panel */}
+          {showFilterPanel && (
+            <div className="mt-4 p-4 bg-[#1a2e23] border border-white/10 rounded-xl">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-semibold text-white font-sans">Advanced Filters</h3>
+                {hasActiveAdvancedFilters && (
+                  <button
+                    onClick={clearAdvancedFilters}
+                    className="text-xs text-violet-300 hover:text-violet-200 transition-colors font-sans"
+                  >
+                    Clear all
+                  </button>
+                )}
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                {/* Age Range */}
+                <div>
+                  <label className="block text-xs text-white/50 mb-1.5 font-sans">Age (Min)</label>
+                  <input
+                    type="number"
+                    value={advancedFilters.ageMin}
+                    onChange={(e) => setAdvancedFilters({ ...advancedFilters, ageMin: e.target.value })}
+                    placeholder="18"
+                    className="w-full px-3 py-2 bg-[#0f1f17] border border-white/10 rounded-lg text-white text-sm placeholder-white/30 focus:border-violet-500/50 focus:outline-none font-sans"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-white/50 mb-1.5 font-sans">Age (Max)</label>
+                  <input
+                    type="number"
+                    value={advancedFilters.ageMax}
+                    onChange={(e) => setAdvancedFilters({ ...advancedFilters, ageMax: e.target.value })}
+                    placeholder="65"
+                    className="w-full px-3 py-2 bg-[#0f1f17] border border-white/10 rounded-lg text-white text-sm placeholder-white/30 focus:border-violet-500/50 focus:outline-none font-sans"
+                  />
+                </div>
+                {/* Gender */}
+                <div>
+                  <label className="block text-xs text-white/50 mb-1.5 font-sans">Gender</label>
+                  <input
+                    type="text"
+                    value={advancedFilters.gender}
+                    onChange={(e) => setAdvancedFilters({ ...advancedFilters, gender: e.target.value })}
+                    placeholder="e.g. Male, Female"
+                    className="w-full px-3 py-2 bg-[#0f1f17] border border-white/10 rounded-lg text-white text-sm placeholder-white/30 focus:border-violet-500/50 focus:outline-none font-sans"
+                  />
+                </div>
+                {/* Location */}
+                <div>
+                  <label className="block text-xs text-white/50 mb-1.5 font-sans">Location</label>
+                  <input
+                    type="text"
+                    value={advancedFilters.location}
+                    onChange={(e) => setAdvancedFilters({ ...advancedFilters, location: e.target.value })}
+                    placeholder="e.g. Los Angeles"
+                    className="w-full px-3 py-2 bg-[#0f1f17] border border-white/10 rounded-lg text-white text-sm placeholder-white/30 focus:border-violet-500/50 focus:outline-none font-sans"
+                  />
+                </div>
+                {/* Availability */}
+                <div>
+                  <label className="block text-xs text-white/50 mb-1.5 font-sans">Availability</label>
+                  <input
+                    type="text"
+                    value={advancedFilters.availability}
+                    onChange={(e) => setAdvancedFilters({ ...advancedFilters, availability: e.target.value })}
+                    placeholder="e.g. Weekends"
+                    className="w-full px-3 py-2 bg-[#0f1f17] border border-white/10 rounded-lg text-white text-sm placeholder-white/30 focus:border-violet-500/50 focus:outline-none font-sans"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -301,6 +533,8 @@ export default function SubmissionsList({ onBack }: SubmissionsListProps) {
                 submission={submission}
                 onUpdate={(updates) => handleUpdateSubmission(submission.id, updates)}
                 onDelete={() => handleDeleteSubmission(submission.id)}
+                isSelected={selectedIds.has(submission.id)}
+                onToggleSelect={() => toggleSelect(submission.id)}
               />
             ))}
           </div>
