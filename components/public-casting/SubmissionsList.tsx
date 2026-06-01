@@ -1,10 +1,12 @@
 "use client"
 
 import { useState, useMemo, useEffect } from "react"
-import { ArrowLeft, Search, SlidersHorizontal, ChevronDown, FileJson, FileSpreadsheet, Download, Filter, X, CheckSquare, Square } from "lucide-react"
+import { ArrowLeft, Search, SlidersHorizontal, ChevronDown, FileJson, FileSpreadsheet, Download, Filter, X, CheckSquare, Square, UserPlus, Plus } from "lucide-react"
 import { usePublicCasting } from "./PublicCastingContext"
+import { useActorList } from "../actor-list/ActorListContext"
 import SubmissionCard from "./SubmissionCard"
 import { CastingSubmission } from "@/types/public-casting"
+import { Actor } from "@/types/actor-list"
 import { exportSubmissionsAsJSON, exportSubmissionsAsPDF, exportSubmissionsAsExcel } from "@/lib/submission-export"
 
 interface SubmissionsListProps {
@@ -24,6 +26,7 @@ interface AdvancedFilters {
 
 export default function SubmissionsList({ onBack }: SubmissionsListProps) {
   const { state, markSubmissionsAsRead, updateSubmission, deleteSubmission } = usePublicCasting()
+  const { projects: actorProjects, createProject: createActorProject, updateProject: updateActorProject } = useActorList()
   const [searchQuery, setSearchQuery] = useState("")
   const [sortBy, setSortBy] = useState<SortOption>("newest")
   const [filterByForm, setFilterByForm] = useState<string>("all")
@@ -31,6 +34,8 @@ export default function SubmissionsList({ onBack }: SubmissionsListProps) {
   const [showSortDropdown, setShowSortDropdown] = useState(false)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [showFilterPanel, setShowFilterPanel] = useState(false)
+  const [showAddToActorsModal, setShowAddToActorsModal] = useState(false)
+  const [newListName, setNewListName] = useState("")
   const [advancedFilters, setAdvancedFilters] = useState<AdvancedFilters>({
     ageMin: "",
     ageMax: "",
@@ -240,6 +245,48 @@ export default function SubmissionsList({ onBack }: SubmissionsListProps) {
     exportSubmissionsAsExcel(submissionsForExport, "casting_submissions")
   }
 
+  // Convert submission to actor format
+  const submissionToActor = (submission: CastingSubmission): Actor => {
+    return {
+      id: crypto.randomUUID(),
+      name: submission.name,
+      age: parseInt(submission.age || submission.data?.age || "0", 10) || 0,
+      playingAge: submission.playingAge || submission.data?.playingAge || submission.data?.["Playing Age"] || "",
+      phone: submission.phone || submission.data?.phone || submission.data?.Phone || "",
+      email: submission.email,
+      headshotUrl: submission.headshot || submission.data?.headshot || submission.data?.Headshot || "",
+      notes: submission.notes || submission.data?.notes || submission.data?.Notes || "",
+    }
+  }
+
+  // Get selected submissions
+  const selectedSubmissions = useMemo(() => {
+    return filteredSubmissions.filter((s) => selectedIds.has(s.id))
+  }, [filteredSubmissions, selectedIds])
+
+  // Add selected submissions to existing actor project
+  const handleAddToExistingList = (projectId: string) => {
+    const actors = selectedSubmissions.map(submissionToActor)
+    const project = actorProjects.find((p) => p.id === projectId)
+    if (project) {
+      updateActorProject(projectId, {
+        actors: [...project.actors, ...actors],
+      })
+    }
+    setShowAddToActorsModal(false)
+    clearSelection()
+  }
+
+  // Create new actor project with selected submissions
+  const handleCreateNewList = () => {
+    if (!newListName.trim()) return
+    const actors = selectedSubmissions.map(submissionToActor)
+    createActorProject(newListName.trim(), actors)
+    setNewListName("")
+    setShowAddToActorsModal(false)
+    clearSelection()
+  }
+
   const sortOptions: { value: SortOption; label: string }[] = [
     { value: "newest", label: "Newest First" },
     { value: "oldest", label: "Oldest First" },
@@ -286,6 +333,18 @@ export default function SubmissionsList({ onBack }: SubmissionsListProps) {
 
             {/* Selection Controls & Export Buttons */}
             <div className="flex items-center gap-2">
+              {/* Add to My Actors Button - Only shows when items are selected */}
+              {selectedIds.size > 0 && (
+                <button
+                  onClick={() => setShowAddToActorsModal(true)}
+                  className="flex items-center gap-1.5 px-3 py-2 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 rounded-lg text-emerald-300 hover:text-emerald-200 transition-colors text-sm font-sans mr-2"
+                  title={`Add ${selectedIds.size} selected to My Actors`}
+                >
+                  <UserPlus className="w-4 h-4" />
+                  <span className="hidden sm:inline">Add to Actors</span>
+                </button>
+              )}
+
               {/* Selection Controls */}
               {filteredSubmissions.length > 0 && (
                 <div className="flex items-center gap-1 mr-2">
@@ -540,6 +599,92 @@ export default function SubmissionsList({ onBack }: SubmissionsListProps) {
           </div>
         )}
       </div>
+
+      {/* Add to My Actors Modal */}
+      {showAddToActorsModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => setShowAddToActorsModal(false)}
+          />
+
+          {/* Modal */}
+          <div className="relative w-full max-w-md bg-[#1a3a25] border border-white/15 rounded-2xl shadow-2xl overflow-hidden">
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
+              <h2 className="text-lg font-semibold text-white font-sans">Add to My Actors</h2>
+              <button
+                onClick={() => setShowAddToActorsModal(false)}
+                className="p-1.5 rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="p-5">
+              <p className="text-white/60 text-sm mb-4 font-sans">
+                Add {selectedIds.size} selected actor{selectedIds.size !== 1 ? "s" : ""} to a list:
+              </p>
+
+              {/* Existing Lists */}
+              {actorProjects.length > 0 && (
+                <div className="mb-5">
+                  <h3 className="text-xs font-medium text-white/50 uppercase tracking-wider mb-2 font-sans">
+                    Existing Lists
+                  </h3>
+                  <div className="space-y-2 max-h-48 overflow-y-auto">
+                    {actorProjects.map((project) => (
+                      <button
+                        key={project.id}
+                        onClick={() => handleAddToExistingList(project.id)}
+                        className="w-full flex items-center justify-between px-4 py-3 bg-white/5 hover:bg-emerald-500/20 border border-white/10 hover:border-emerald-500/30 rounded-xl text-left transition-all group"
+                      >
+                        <div>
+                          <p className="text-white font-medium font-sans text-sm">{project.name}</p>
+                          <p className="text-white/40 text-xs font-sans">
+                            {project.actors.length} actor{project.actors.length !== 1 ? "s" : ""}
+                          </p>
+                        </div>
+                        <Plus className="w-4 h-4 text-white/30 group-hover:text-emerald-400 transition-colors" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Create New List */}
+              <div>
+                <h3 className="text-xs font-medium text-white/50 uppercase tracking-wider mb-2 font-sans">
+                  Create New List
+                </h3>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={newListName}
+                    onChange={(e) => setNewListName(e.target.value)}
+                    placeholder="Enter list name..."
+                    className="flex-1 px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/30 focus:border-emerald-500/50 focus:outline-none font-sans text-sm"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && newListName.trim()) {
+                        handleCreateNewList()
+                      }
+                    }}
+                  />
+                  <button
+                    onClick={handleCreateNewList}
+                    disabled={!newListName.trim()}
+                    className="px-4 py-2.5 bg-emerald-500 hover:bg-emerald-400 disabled:bg-emerald-500/30 disabled:cursor-not-allowed rounded-xl text-white font-medium text-sm transition-colors font-sans"
+                  >
+                    Create
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
