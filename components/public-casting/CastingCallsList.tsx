@@ -186,10 +186,26 @@ export default function CastingCallsList({
         </div>
 
         {/* Content Section - 2/3 width */}
-        <div className="flex-1 flex flex-col p-4">
-          {/* Top-right Quick Actions (always visible on hover) */}
-          {hoveredProjectId === project.id && (
-            <div className="absolute top-3 right-3 flex items-center gap-1">
+        <div className="flex-1 flex flex-col">
+          {/* Header Row - Project Name + Actions */}
+          <div className="flex items-start justify-between gap-2 p-3 pb-0">
+            <div className="flex-1 min-w-0 pl-6">
+              {/* Project Name */}
+              <h3 className="text-sm font-semibold text-white mb-0.5 font-sans line-clamp-1">
+                {project.name}
+              </h3>
+              {/* Casting Call Title (if exists) */}
+              {hasCastingCall && castingCall.title && (
+                <p className="text-xs text-white/50 font-sans truncate">
+                  {castingCall.title}
+                </p>
+              )}
+            </div>
+
+            {/* Quick Actions - Fixed slot, visible on hover */}
+            <div className={`flex items-center gap-1 flex-shrink-0 transition-opacity ${
+              hoveredProjectId === project.id ? "opacity-100" : "opacity-0"
+            }`}>
               {hasCastingCall && (
                 <button
                   onClick={(e) => {
@@ -217,71 +233,62 @@ export default function CastingCallsList({
                 <Trash2 className="w-4 h-4" />
               </button>
             </div>
-          )}
-
-          {/* Project Name */}
-          <h3 className="text-sm font-semibold text-white mb-0.5 font-sans pr-16 line-clamp-1 pl-6">
-            {project.name}
-          </h3>
-
-          {/* Casting Call Title (if exists) */}
-          {hasCastingCall && castingCall.title && (
-            <p className="text-xs text-white/50 mb-2 font-sans truncate pr-16 pl-6">
-              {castingCall.title}
-            </p>
-          )}
-
-          {/* Meta Info */}
-          <div className="flex flex-wrap items-center gap-2 text-xs text-white/50 mb-2 pl-6">
-            <div className="flex items-center gap-1">
-              <Link className="w-3 h-3" />
-              <span>{project.castingCalls.length} forms</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <Calendar className="w-3 h-3" />
-              <span>{project.createdAt.toLocaleDateString()}</span>
-            </div>
           </div>
 
-          {/* Submissions count */}
-          {project.submissions.length > 0 && (
-            <div className="mb-2 flex items-center gap-1 text-xs text-violet-300 pl-6">
-              <Users className="w-3 h-3" />
-              <span>{project.submissions.length} submissions</span>
-              {project.submissions.some((s) => s.isNew) && (
-                <span className="ml-1 px-1 py-0.5 bg-emerald-500/20 text-emerald-300 text-[10px] rounded">
-                  {project.submissions.filter((s) => s.isNew).length} new
-                </span>
-              )}
+          {/* Card Body */}
+          <div className="flex-1 flex flex-col px-3 pb-3 pt-2">
+            {/* Meta Info */}
+            <div className="flex flex-wrap items-center gap-2 text-xs text-white/50 mb-2 pl-6">
+              <div className="flex items-center gap-1">
+                <Link className="w-3 h-3" />
+                <span>{project.castingCalls.length} forms</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Calendar className="w-3 h-3" />
+                <span>{project.createdAt.toLocaleDateString()}</span>
+              </div>
             </div>
-          )}
 
-          {/* Action Buttons for Casting Call */}
-          {hasCastingCall && (
-            <div className="flex items-center gap-2 pt-2 mt-auto border-t border-white/10">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation()
-                  setPreviewCastingCall(castingCall)
-                }}
-                className="flex-1 flex items-center justify-center gap-1 px-2 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-white/70 hover:text-white text-xs transition-colors font-sans"
-              >
-                <Eye className="w-3.5 h-3.5" />
-                Preview
-              </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation()
-                  onEditCastingCall(castingCall, project)
-                }}
-                className="flex-1 flex items-center justify-center gap-1 px-2 py-1.5 bg-violet-500/20 hover:bg-violet-500/30 border border-violet-500/30 rounded-lg text-violet-300 hover:text-violet-200 text-xs transition-colors font-sans"
-                title={`Edit form: ${castingCall.title}`}
-              >
-                <FileEdit className="w-3.5 h-3.5" />
-                Edit
-              </button>
-            </div>
-          )}
+            {/* Submissions count */}
+            {project.submissions.length > 0 && (
+              <div className="mb-2 flex items-center gap-1 text-xs text-violet-300 pl-6">
+                <Users className="w-3 h-3" />
+                <span>{project.submissions.length} submissions</span>
+                {project.submissions.some((s) => s.isNew) && (
+                  <span className="ml-1 px-1 py-0.5 bg-emerald-500/20 text-emerald-300 text-[10px] rounded">
+                    {project.submissions.filter((s) => s.isNew).length} new
+                  </span>
+                )}
+              </div>
+            )}
+
+            {/* Action Buttons for Casting Call */}
+            {hasCastingCall && (
+              <div className="flex items-center gap-2 pt-2 mt-auto border-t border-white/10">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setPreviewCastingCall(castingCall)
+                  }}
+                  className="flex-1 flex items-center justify-center gap-1 px-2 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-white/70 hover:text-white text-xs transition-colors font-sans"
+                >
+                  <Eye className="w-3.5 h-3.5" />
+                  Preview
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onEditCastingCall(castingCall, project)
+                  }}
+                  className="flex-1 flex items-center justify-center gap-1 px-2 py-1.5 bg-violet-500/20 hover:bg-violet-500/30 border border-violet-500/30 rounded-lg text-violet-300 hover:text-violet-200 text-xs transition-colors font-sans"
+                  title={`Edit form: ${castingCall.title}`}
+                >
+                  <FileEdit className="w-3.5 h-3.5" />
+                  Edit
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     )
