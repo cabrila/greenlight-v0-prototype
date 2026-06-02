@@ -365,27 +365,6 @@ export default function CastingCallsList({
 
       {/* Action Bar - New Casting Call + Submissions + Create Group */}
       <div className="flex items-center gap-3 mb-6">
-        {/* Create Group Button - shows when items are selected */}
-        {selectedProjectIds.size > 0 && (
-          <button
-            onClick={() => setShowCreateGroupModal(true)}
-            className="flex items-center gap-2 px-4 py-2.5 bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 rounded-lg text-amber-300 transition-colors font-sans"
-          >
-            <FolderPlus className="w-4 h-4" />
-            Create Group ({selectedProjectIds.size})
-          </button>
-        )}
-
-        {selectedProjectIds.size > 0 && (
-          <button
-            onClick={clearSelection}
-            className="flex items-center gap-1.5 px-3 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-white/70 hover:text-white transition-colors text-sm font-sans"
-          >
-            <X className="w-4 h-4" />
-            Clear
-          </button>
-        )}
-
         <button
           onClick={onNewCastingCall}
           className="flex items-center gap-2 px-4 py-2.5 bg-emerald-500 hover:bg-emerald-600 rounded-lg text-white font-semibold transition-colors font-sans"
@@ -410,6 +389,27 @@ export default function CastingCallsList({
             <span className="absolute -top-1 -right-1 w-3 h-3 bg-emerald-400 rounded-full animate-pulse" />
           )}
         </button>
+
+        {/* Create Group Button - shows when items are selected */}
+        {selectedProjectIds.size > 0 && (
+          <button
+            onClick={() => setShowCreateGroupModal(true)}
+            className="flex items-center gap-2 px-4 py-2.5 bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 rounded-lg text-amber-300 transition-colors font-sans"
+          >
+            <FolderPlus className="w-4 h-4" />
+            Create Group ({selectedProjectIds.size})
+          </button>
+        )}
+
+        {selectedProjectIds.size > 0 && (
+          <button
+            onClick={clearSelection}
+            className="flex items-center gap-1.5 px-3 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-white/70 hover:text-white transition-colors text-sm font-sans"
+          >
+            <X className="w-4 h-4" />
+            Clear
+          </button>
+        )}
       </div>
 
       {/* Casting Groups */}
