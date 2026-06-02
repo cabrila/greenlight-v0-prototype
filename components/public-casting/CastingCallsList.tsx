@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef } from "react"
-import { Plus, Megaphone, Calendar, Users, Trash2, Link, Eye, FileEdit, FolderEdit, QrCode, ChevronDown, ChevronRight, FolderPlus, ImagePlus, X } from "lucide-react"
+import { Plus, Megaphone, Calendar, Users, Trash2, Link, Eye, FolderEdit, QrCode, ChevronDown, ChevronRight, FolderPlus, ImagePlus, X } from "lucide-react"
 import { usePublicCasting } from "./PublicCastingContext"
 import { CastingCall, PublicCastingProject, CastingGroup } from "@/types/public-casting"
 import CastingCallPreviewModal from "./CastingCallPreviewModal"
@@ -340,17 +340,6 @@ export default function CastingCallsList({
                   <Eye className="w-3.5 h-3.5" />
                   Preview
                 </button>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    onEditCastingCall(castingCall, project)
-                  }}
-                  className="flex-1 flex items-center justify-center gap-1 px-2 py-1.5 bg-violet-500/20 hover:bg-violet-500/30 border border-violet-500/30 rounded-lg text-violet-300 hover:text-violet-200 text-xs transition-colors font-sans"
-                  title={`Edit form: ${castingCall.title}`}
-                >
-                  <FileEdit className="w-3.5 h-3.5" />
-                  Edit
-                </button>
               </div>
             )}
           </div>
@@ -572,6 +561,14 @@ export default function CastingCallsList({
         isOpen={!!editTarget}
         onClose={() => setEditTarget(null)}
         onSave={handleSaveEdit}
+        onEditForm={() => {
+          if (editTarget) {
+            const castingCall = editTarget.castingCalls[0]
+            if (castingCall) {
+              onEditCastingCall(castingCall, editTarget)
+            }
+          }
+        }}
         currentName={editTarget?.name || ""}
         currentThumbnail={editTarget?.thumbnailUrl}
         title="Edit Casting Call"

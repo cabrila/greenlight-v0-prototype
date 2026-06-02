@@ -1,12 +1,13 @@
 "use client"
 
 import { useState, useEffect, useRef, useCallback } from "react"
-import { X, Check, Upload, Image as ImageIcon, Trash2 } from "lucide-react"
+import { X, Check, Upload, Image as ImageIcon, Trash2, FileEdit } from "lucide-react"
 
 interface EditProjectWithThumbnailModalProps {
   isOpen: boolean
   onClose: () => void
   onSave: (newName: string, thumbnailUrl?: string) => void
+  onEditForm?: () => void
   currentName: string
   currentThumbnail?: string
   title: string
@@ -18,6 +19,7 @@ export default function EditProjectWithThumbnailModal({
   isOpen,
   onClose,
   onSave,
+  onEditForm,
   currentName,
   currentThumbnail,
   title,
@@ -295,24 +297,40 @@ export default function EditProjectWithThumbnailModal({
           </div>
 
           {/* Actions */}
-          <div className="flex gap-3">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 py-3 bg-white/10 hover:bg-white/15 border border-white/10 rounded-xl text-white font-semibold transition-colors font-sans"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={!name.trim() || !hasChanged}
-              className={`flex-1 py-3 ${
-                !name.trim() || !hasChanged ? colors.buttonDisabled : colors.button
-              } disabled:cursor-not-allowed rounded-xl text-white font-semibold transition-colors flex items-center justify-center gap-2 font-sans`}
-            >
-              <Check className="w-4 h-4" />
-              Save Changes
-            </button>
+          <div className="flex flex-col gap-3">
+            {/* Edit Form Button - only show if onEditForm is provided */}
+            {onEditForm && (
+              <button
+                type="button"
+                onClick={() => {
+                  onEditForm()
+                  onClose()
+                }}
+                className={`w-full py-3 ${colors.bg} hover:opacity-80 border ${colors.border} rounded-xl ${colors.text} font-semibold transition-colors flex items-center justify-center gap-2 font-sans`}
+              >
+                <FileEdit className="w-4 h-4" />
+                Edit Form Fields
+              </button>
+            )}
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex-1 py-3 bg-white/10 hover:bg-white/15 border border-white/10 rounded-xl text-white font-semibold transition-colors font-sans"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={!name.trim() || !hasChanged}
+                className={`flex-1 py-3 ${
+                  !name.trim() || !hasChanged ? colors.buttonDisabled : colors.button
+                } disabled:cursor-not-allowed rounded-xl text-white font-semibold transition-colors flex items-center justify-center gap-2 font-sans`}
+              >
+                <Check className="w-4 h-4" />
+                Save Changes
+              </button>
+            </div>
           </div>
         </form>
       </div>
