@@ -198,9 +198,29 @@ export default function CastingCallSetup({ onBack, onSuccess, editingCastingCall
   }
 
   const handleCopyLink = async () => {
-    await navigator.clipboard.writeText(createdLink)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
+    try {
+      await navigator.clipboard.writeText(createdLink)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      // Fallback for environments where Clipboard API is blocked
+      const textArea = document.createElement("textarea")
+      textArea.value = createdLink
+      textArea.style.position = "fixed"
+      textArea.style.left = "-9999px"
+      document.body.appendChild(textArea)
+      textArea.select()
+      try {
+        document.execCommand("copy")
+        setCopied(true)
+        setTimeout(() => setCopied(false), 2000)
+      } catch {
+        // If both methods fail, just show the link is selected
+        setCopied(true)
+        setTimeout(() => setCopied(false), 2000)
+      }
+      document.body.removeChild(textArea)
+    }
   }
 
   if (step === "success") {
