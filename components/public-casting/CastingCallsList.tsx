@@ -248,7 +248,7 @@ export default function CastingCallsList({
         {/* Content Section - 2/3 width */}
         <div className="flex-1 flex flex-col">
           {/* Quick Actions - Above title, visible on hover */}
-          <div className={`flex items-center justify-end gap-1 px-4 pt-3 pb-1 transition-opacity ${
+          <div className={`flex items-center justify-end gap-1 px-4 pt-4 pb-1 transition-opacity ${
             hoveredProjectId === project.id ? "opacity-100" : "opacity-0"
           }`}>
             {hasCastingCall && (
