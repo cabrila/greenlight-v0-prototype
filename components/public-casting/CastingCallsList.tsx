@@ -247,25 +247,31 @@ export default function CastingCallsList({
 
         {/* Content Section - 2/3 width */}
         <div className="flex-1 flex flex-col">
-          {/* Header Row - Project Name + Actions */}
+          {/* Header Row - Casting Call Title + Actions */}
           <div className="flex items-start justify-between gap-2 p-4 pb-2">
             <div className="flex-1 min-w-0 pl-4">
-              {/* Project Name */}
-              <h3 className="text-sm font-semibold text-white mb-0.5 font-sans line-clamp-1">
-                {project.name}
-              </h3>
-              {/* Casting Call Title (if exists) */}
-              {hasCastingCall && castingCall.title && (
-                <div className="flex items-center gap-2">
-                  <p className="text-xs text-white/50 font-sans truncate">
+              {/* Casting Call Title (primary, bold) */}
+              {hasCastingCall && castingCall.title ? (
+                <div className="flex items-center gap-2 mb-0.5">
+                  <h3 className="text-sm font-semibold text-white font-sans line-clamp-1">
                     {castingCall.title}
-                  </p>
+                  </h3>
                   {castingCall.isCompleted && (
                     <span className="px-1.5 py-0.5 bg-emerald-500/20 text-emerald-400 text-[10px] font-semibold rounded uppercase tracking-wider">
                       Completed
                     </span>
                   )}
                 </div>
+              ) : (
+                <h3 className="text-sm font-semibold text-white mb-0.5 font-sans line-clamp-1">
+                  {project.name}
+                </h3>
+              )}
+              {/* Project Name (secondary, lighter) */}
+              {hasCastingCall && castingCall.title && (
+                <p className="text-xs text-white/50 font-sans truncate">
+                  {project.name}
+                </p>
               )}
             </div>
 
