@@ -286,7 +286,7 @@ export default function CastingCallsList({
               <button
                 onClick={(e) => handleEditProject(e, project)}
                 className="p-1.5 bg-white/10 hover:bg-white/20 rounded-lg text-white/70 hover:text-white transition-colors"
-                title="Edit Project"
+                title="Edit Casting Call"
               >
                 <FolderEdit className="w-4 h-4" />
               </button>
