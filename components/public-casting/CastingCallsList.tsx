@@ -12,12 +12,14 @@ import QRCodeModal from "./QRCodeModal"
 interface CastingCallsListProps {
   onNewCastingCall: () => void
   onViewSubmissions: () => void
+  onViewSubmissionsForCastingCall?: (castingCallTitle: string) => void
   onEditCastingCall: (castingCall: CastingCall, project: PublicCastingProject) => void
 }
 
 export default function CastingCallsList({
   onNewCastingCall,
   onViewSubmissions,
+  onViewSubmissionsForCastingCall,
   onEditCastingCall,
 }: CastingCallsListProps) {
   const { state, deleteProject, updateProject, getNewSubmissionsCount, getTotalSubmissions, createCastingGroup, updateCastingGroup, deleteCastingGroup, toggleCastingGroupExpanded } = usePublicCasting()
@@ -314,8 +316,30 @@ export default function CastingCallsList({
               </div>
             </div>
 
-            {/* Submissions count */}
-            {project.submissions.length > 0 && (
+            {/* Submissions count - clickable to view submissions for this casting call */}
+            {project.submissions.length > 0 && hasCastingCall && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  if (onViewSubmissionsForCastingCall) {
+                    onViewSubmissionsForCastingCall(castingCall.title)
+                  } else {
+                    onViewSubmissions()
+                  }
+                }}
+                className="mb-2 flex items-center gap-1 text-xs text-violet-300 pl-4 hover:text-violet-200 transition-colors cursor-pointer"
+              >
+                <Users className="w-3 h-3" />
+                <span className="hover:underline">{project.submissions.length} submissions</span>
+                {project.submissions.some((s) => s.isNew) && (
+                  <span className="ml-1 px-1 py-0.5 bg-emerald-500/20 text-emerald-300 text-[10px] rounded">
+                    {project.submissions.filter((s) => s.isNew).length} new
+                  </span>
+                )}
+              </button>
+            )}
+            {/* Submissions count - non-clickable if no casting call */}
+            {project.submissions.length > 0 && !hasCastingCall && (
               <div className="mb-2 flex items-center gap-1 text-xs text-violet-300 pl-4">
                 <Users className="w-3 h-3" />
                 <span>{project.submissions.length} submissions</span>

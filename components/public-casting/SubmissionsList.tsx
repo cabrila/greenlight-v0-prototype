@@ -11,6 +11,7 @@ import { exportSubmissionsAsJSON, exportSubmissionsAsPDF, exportSubmissionsAsExc
 
 interface SubmissionsListProps {
   onBack: () => void
+  initialFilterForm?: string
 }
 
 type SortOption = "newest" | "oldest" | "alphabetical" | "form" | "grade-high" | "grade-low"
@@ -24,7 +25,7 @@ interface AdvancedFilters {
   availability: string
 }
 
-export default function SubmissionsList({ onBack }: SubmissionsListProps) {
+export default function SubmissionsList({ onBack, initialFilterForm }: SubmissionsListProps) {
   const { state, markSubmissionsAsRead, updateSubmission, deleteSubmission } = usePublicCasting()
   const actorListContext = useActorListSafe()
   const actorProjects = actorListContext?.projects ?? []
@@ -32,7 +33,7 @@ export default function SubmissionsList({ onBack }: SubmissionsListProps) {
   const updateActorProject = actorListContext?.updateProject
   const [searchQuery, setSearchQuery] = useState("")
   const [sortBy, setSortBy] = useState<SortOption>("newest")
-  const [filterByForm, setFilterByForm] = useState<string>("all")
+  const [filterByForm, setFilterByForm] = useState<string>(initialFilterForm || "all")
   const [filterByGrade, setFilterByGrade] = useState<GradeFilter>("all")
   const [showSortDropdown, setShowSortDropdown] = useState(false)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
