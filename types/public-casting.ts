@@ -12,6 +12,7 @@ export interface CastingCall {
   title: string
   description: string
   projectName: string
+  headerImageUrl?: string
   fields: CastingCallField[]
   createdAt: Date
   isActive: boolean
