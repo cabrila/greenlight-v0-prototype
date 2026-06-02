@@ -448,28 +448,6 @@ export default function CastingCallSetup({ onBack, onSuccess, editingCastingCall
                   className="w-full px-4 py-3 bg-[#0f1f17] border border-white/10 rounded-lg text-white placeholder-white/30 focus:border-violet-500/50 focus:outline-none transition-colors font-sans resize-none"
                 />
               </div>
-
-              {/* Completed Checkbox - Only show in edit mode */}
-              {isEditing && (
-                <div className="pt-2">
-                  <label className="flex items-center gap-3 cursor-pointer group">
-                    <input
-                      type="checkbox"
-                      checked={isCompleted}
-                      onChange={(e) => setIsCompleted(e.target.checked)}
-                      className="w-5 h-5 rounded border-white/20 bg-[#0f1f17] text-emerald-500 focus:ring-emerald-500/50 cursor-pointer"
-                    />
-                    <span className="text-sm text-white/80 group-hover:text-white transition-colors font-sans">
-                      Completed
-                    </span>
-                    {isCompleted && (
-                      <span className="text-xs text-amber-400/80 font-sans">
-                        (No new submissions will be accepted)
-                      </span>
-                    )}
-                  </label>
-                </div>
-              )}
             </div>
           </div>
 

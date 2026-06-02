@@ -22,7 +22,7 @@ export default function CastingCallsList({
   onViewSubmissionsForCastingCall,
   onEditCastingCall,
 }: CastingCallsListProps) {
-  const { state, deleteProject, updateProject, getNewSubmissionsCount, getTotalSubmissions, createCastingGroup, updateCastingGroup, deleteCastingGroup, toggleCastingGroupExpanded } = usePublicCasting()
+  const { state, deleteProject, updateProject, updateCastingCall, getNewSubmissionsCount, getTotalSubmissions, createCastingGroup, updateCastingGroup, deleteCastingGroup, toggleCastingGroupExpanded } = usePublicCasting()
   const [hoveredProjectId, setHoveredProjectId] = useState<string | null>(null)
   const [previewCastingCall, setPreviewCastingCall] = useState<CastingCall | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<PublicCastingProject | null>(null)
@@ -63,9 +63,17 @@ export default function CastingCallsList({
     }
   }
 
-  const handleSaveEdit = (newName: string, thumbnailUrl?: string) => {
+  const handleSaveEdit = (newName: string, thumbnailUrl?: string, isCompleted?: boolean) => {
     if (editTarget) {
       updateProject(editTarget.id, { name: newName, thumbnailUrl })
+      // Update the casting call's completed status if provided
+      const castingCall = editTarget.castingCalls[0]
+      if (castingCall && isCompleted !== undefined) {
+        updateCastingCall(editTarget.id, castingCall.id, { 
+          isCompleted, 
+          isActive: !isCompleted 
+        })
+      }
     }
   }
 
@@ -601,6 +609,8 @@ export default function CastingCallsList({
         }}
         currentName={editTarget?.name || ""}
         currentThumbnail={editTarget?.thumbnailUrl}
+        currentIsCompleted={editTarget?.castingCalls[0]?.isCompleted}
+        showCompletedCheckbox={!!editTarget?.castingCalls[0]}
         title="Edit Casting Call"
         label="Casting Call"
         accentColor="violet"

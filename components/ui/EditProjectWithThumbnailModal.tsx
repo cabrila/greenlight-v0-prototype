@@ -6,10 +6,12 @@ import { X, Check, Upload, Image as ImageIcon, Trash2, FileEdit } from "lucide-r
 interface EditProjectWithThumbnailModalProps {
   isOpen: boolean
   onClose: () => void
-  onSave: (newName: string, thumbnailUrl?: string) => void
+  onSave: (newName: string, thumbnailUrl?: string, isCompleted?: boolean) => void
   onEditForm?: () => void
   currentName: string
   currentThumbnail?: string
+  currentIsCompleted?: boolean
+  showCompletedCheckbox?: boolean
   title: string
   label?: string
   accentColor?: "emerald" | "sky" | "amber" | "violet"
@@ -22,12 +24,15 @@ export default function EditProjectWithThumbnailModal({
   onEditForm,
   currentName,
   currentThumbnail,
+  currentIsCompleted,
+  showCompletedCheckbox,
   title,
   label = "Project Name",
   accentColor = "emerald",
 }: EditProjectWithThumbnailModalProps) {
   const [name, setName] = useState(currentName)
   const [thumbnail, setThumbnail] = useState<string | undefined>(currentThumbnail)
+  const [isCompleted, setIsCompleted] = useState(currentIsCompleted || false)
   const [isDragging, setIsDragging] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -76,9 +81,10 @@ export default function EditProjectWithThumbnailModal({
     if (isOpen) {
       setName(currentName)
       setThumbnail(currentThumbnail)
+      setIsCompleted(currentIsCompleted || false)
       setTimeout(() => inputRef.current?.focus(), 50)
     }
-  }, [isOpen, currentName, currentThumbnail])
+  }, [isOpen, currentName, currentThumbnail, currentIsCompleted])
 
   // Close on Escape key
   useEffect(() => {
@@ -165,12 +171,12 @@ export default function EditProjectWithThumbnailModal({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (name.trim()) {
-      onSave(name.trim(), thumbnail)
+      onSave(name.trim(), thumbnail, isCompleted)
       onClose()
     }
   }
 
-  const hasChanged = name.trim() !== currentName || thumbnail !== currentThumbnail
+  const hasChanged = name.trim() !== currentName || thumbnail !== currentThumbnail || isCompleted !== (currentIsCompleted || false)
 
   return (
     <div
@@ -295,6 +301,28 @@ export default function EditProjectWithThumbnailModal({
               placeholder="Enter name..."
             />
           </div>
+
+          {/* Completed Checkbox */}
+          {showCompletedCheckbox && (
+            <div className="pt-2">
+              <label className="flex items-center gap-3 cursor-pointer group">
+                <input
+                  type="checkbox"
+                  checked={isCompleted}
+                  onChange={(e) => setIsCompleted(e.target.checked)}
+                  className="w-5 h-5 rounded border-white/20 bg-[#0f1f17] text-emerald-500 focus:ring-emerald-500/50 cursor-pointer"
+                />
+                <span className="text-sm text-white/80 group-hover:text-white transition-colors font-sans">
+                  Completed
+                </span>
+                {isCompleted && (
+                  <span className="text-xs text-amber-400/80 font-sans">
+                    (No new submissions will be accepted)
+                  </span>
+                )}
+              </label>
+            </div>
+          )}
 
           {/* Actions */}
           <div className="flex flex-col gap-3">
