@@ -247,23 +247,55 @@ export default function CastingCallsList({
 
         {/* Content Section - 2/3 width */}
         <div className="flex-1 flex flex-col">
-          {/* Header Row - Casting Call Title + Actions */}
-          <div className="flex items-start justify-between gap-2 p-4 pb-2">
-            <div className="flex-1 min-w-0 pl-4">
-              {/* Casting Call Title (primary, bold) */}
+          {/* Quick Actions - Above title, visible on hover */}
+          <div className={`flex items-center justify-end gap-1 px-4 pt-3 pb-1 transition-opacity ${
+            hoveredProjectId === project.id ? "opacity-100" : "opacity-0"
+          }`}>
+            {hasCastingCall && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setQrCodeCastingCall(castingCall)
+                }}
+                className="p-1.5 bg-white/10 hover:bg-white/20 rounded-lg text-white/70 hover:text-white transition-colors"
+                title="Generate QR Code"
+              >
+                <QrCode className="w-4 h-4" />
+              </button>
+            )}
+            <button
+              onClick={(e) => handleEditProject(e, project)}
+              className="p-1.5 bg-white/10 hover:bg-white/20 rounded-lg text-white/70 hover:text-white transition-colors"
+              title="Edit Casting Call"
+            >
+              <FolderEdit className="w-4 h-4" />
+            </button>
+            <button
+              onClick={(e) => handleDeleteProject(e, project)}
+              className="p-1.5 bg-red-500/20 hover:bg-red-500/30 rounded-lg text-red-400 hover:text-red-300 transition-colors"
+              title="Delete"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Header Row - Casting Call Title */}
+          <div className="px-4 pb-2">
+            <div className="pl-4">
+              {/* Casting Call Title (primary, bold) - full width */}
               {hasCastingCall && castingCall.title ? (
                 <div className="flex items-center gap-2 mb-0.5">
-                  <h3 className="text-sm font-semibold text-white font-sans line-clamp-1">
+                  <h3 className="text-base font-semibold text-white font-sans line-clamp-2 flex-1">
                     {castingCall.title}
                   </h3>
                   {castingCall.isCompleted && (
-                    <span className="px-1.5 py-0.5 bg-emerald-500/20 text-emerald-400 text-[10px] font-semibold rounded uppercase tracking-wider">
+                    <span className="px-1.5 py-0.5 bg-emerald-500/20 text-emerald-400 text-[10px] font-semibold rounded uppercase tracking-wider flex-shrink-0">
                       Completed
                     </span>
                   )}
                 </div>
               ) : (
-                <h3 className="text-sm font-semibold text-white mb-0.5 font-sans line-clamp-1">
+                <h3 className="text-base font-semibold text-white mb-0.5 font-sans line-clamp-2">
                   {project.name}
                 </h3>
               )}
@@ -273,38 +305,6 @@ export default function CastingCallsList({
                   {project.name}
                 </p>
               )}
-            </div>
-
-            {/* Quick Actions - Fixed slot, visible on hover */}
-            <div className={`flex items-center gap-1 flex-shrink-0 transition-opacity ${
-              hoveredProjectId === project.id ? "opacity-100" : "opacity-0"
-            }`}>
-              {hasCastingCall && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    setQrCodeCastingCall(castingCall)
-                  }}
-                  className="p-1.5 bg-white/10 hover:bg-white/20 rounded-lg text-white/70 hover:text-white transition-colors"
-                  title="Generate QR Code"
-                >
-                  <QrCode className="w-4 h-4" />
-                </button>
-              )}
-              <button
-                onClick={(e) => handleEditProject(e, project)}
-                className="p-1.5 bg-white/10 hover:bg-white/20 rounded-lg text-white/70 hover:text-white transition-colors"
-                title="Edit Casting Call"
-              >
-                <FolderEdit className="w-4 h-4" />
-              </button>
-              <button
-                onClick={(e) => handleDeleteProject(e, project)}
-                className="p-1.5 bg-red-500/20 hover:bg-red-500/30 rounded-lg text-red-400 hover:text-red-300 transition-colors"
-                title="Delete"
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
             </div>
           </div>
 
