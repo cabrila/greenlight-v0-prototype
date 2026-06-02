@@ -248,7 +248,7 @@ export default function CastingCallsList({
         {/* Content Section - 2/3 width */}
         <div className="flex-1 flex flex-col">
           {/* Quick Actions - Above title, visible on hover */}
-          <div className={`flex items-center justify-end gap-1 px-4 pt-4 pb-1 transition-opacity ${
+          <div className={`flex items-center justify-end gap-1 px-4 pt-2 pb-0 transition-opacity ${
             hoveredProjectId === project.id ? "opacity-100" : "opacity-0"
           }`}>
             {hasCastingCall && (
@@ -280,7 +280,7 @@ export default function CastingCallsList({
           </div>
 
           {/* Header Row - Casting Call Title */}
-          <div className="px-4 pb-2">
+          <div className="px-4 pt-1 pb-2">
             <div className="pl-4">
               {/* Casting Call Title (primary, bold) - full width */}
               {hasCastingCall && castingCall.title ? (
@@ -309,7 +309,7 @@ export default function CastingCallsList({
           </div>
 
           {/* Card Body */}
-          <div className="flex-1 flex flex-col px-4 pb-4 pt-1">
+          <div className="flex-1 flex flex-col px-4 pb-3 pt-1">
             {/* Meta Info */}
             <div className="flex flex-wrap items-center gap-2 text-xs text-white/50 mb-2 pl-4">
               <div className="flex items-center gap-1">
