@@ -532,6 +532,13 @@ export default function CastingCallsList({
           castingCall={previewCastingCall}
           project={state.projects.find(p => p.castingCalls.some(cc => cc.id === previewCastingCall.id))}
           onClose={() => setPreviewCastingCall(null)}
+          onEdit={() => {
+            const project = state.projects.find(p => p.castingCalls.some(cc => cc.id === previewCastingCall.id))
+            if (project) {
+              setPreviewCastingCall(null)
+              onEditCastingCall(previewCastingCall, project)
+            }
+          }}
         />
       )}
 

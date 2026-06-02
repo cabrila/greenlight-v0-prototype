@@ -303,6 +303,7 @@ export default function CastingCallSetup({ onBack, onSuccess, editingCastingCall
               <CastingCallPreviewModal
                 castingCall={previewCastingCall}
                 onClose={() => setShowPreview(false)}
+                onEdit={() => setShowPreview(false)}
               />
             )}
           </div>
@@ -586,6 +587,10 @@ export default function CastingCallSetup({ onBack, onSuccess, editingCastingCall
         <CastingCallPreviewModal
           castingCall={previewCastingCall}
           onClose={() => setShowPreview(false)}
+          onEdit={() => {
+            setShowPreview(false)
+            setStep("setup")
+          }}
         />
       )}
     </div>

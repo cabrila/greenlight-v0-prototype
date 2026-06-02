@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { X, ExternalLink, Send, CheckCircle, ImagePlus, Plus, Trash2, Link } from "lucide-react"
+import { X, ExternalLink, Send, CheckCircle, ImagePlus, Plus, Trash2, Link, Pencil } from "lucide-react"
 import { CastingCall, PublicCastingProject } from "@/types/public-casting"
 import { usePublicCasting } from "./PublicCastingContext"
 
@@ -9,6 +9,7 @@ interface CastingCallPreviewModalProps {
   castingCall: CastingCall
   project?: PublicCastingProject
   onClose: () => void
+  onEdit?: () => void
 }
 
 // Helper to detect and parse video URLs for embedding
@@ -30,7 +31,7 @@ function getVideoEmbedUrl(url: string): { type: "youtube" | "vimeo" | null; embe
   return { type: null, embedUrl: null }
 }
 
-export default function CastingCallPreviewModal({ castingCall, project, onClose }: CastingCallPreviewModalProps) {
+export default function CastingCallPreviewModal({ castingCall, project, onClose, onEdit }: CastingCallPreviewModalProps) {
   const { addSubmission } = usePublicCasting()
   const [formData, setFormData] = useState<Record<string, string | string[]>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -171,6 +172,15 @@ export default function CastingCallPreviewModal({ castingCall, project, onClose 
             </span>
           </div>
           <div className="flex items-center gap-2">
+            {onEdit && (
+              <button
+                onClick={onEdit}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-violet-500/20 hover:bg-violet-500/30 border border-violet-500/30 rounded-xl text-violet-300 hover:text-violet-200 text-sm transition-all font-sans"
+              >
+                <Pencil className="w-4 h-4" />
+                Edit
+              </button>
+            )}
             <button
               onClick={() => window.open(castingCall.shareableLink, "_blank")}
               className="flex items-center gap-1.5 px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-white/70 hover:text-white text-sm transition-all font-sans"
