@@ -21,7 +21,7 @@ interface PublicCastingContextType {
   updateCastingCall: (projectId: string, castingCallId: string, updates: Partial<CastingCall>) => void
   deleteCastingCall: (projectId: string, castingCallId: string) => void
   selectCastingCall: (id: string) => void
-  addSubmission: (castingCallId: string, data: Record<string, string>) => void
+  addSubmission: (castingCallId: string, data: Record<string, string | string[]>) => void
   updateSubmission: (submissionId: string, updates: Partial<CastingSubmission>) => void
   deleteSubmission: (submissionId: string) => void
   markSubmissionsAsRead: (projectId: string) => void
@@ -264,13 +264,33 @@ export function PublicCastingProvider({ children }: { children: ReactNode }) {
     })
   }, [])
 
-  const addSubmission = useCallback((castingCallId: string, data: Record<string, string>) => {
+  const addSubmission = useCallback((castingCallId: string, data: Record<string, string | string[]>) => {
     setState((prev) => {
       const project = prev.projects.find((p) => p.castingCalls.some((cc) => cc.id === castingCallId))
       if (!project) return prev
 
       const castingCall = project.castingCalls.find((cc) => cc.id === castingCallId)
       if (!castingCall) return prev
+
+      // Helper to get string value from data
+      const getString = (key: string, altKey?: string): string | undefined => {
+        const val = data[key] || (altKey ? data[altKey] : undefined)
+        return typeof val === "string" ? val : undefined
+      }
+
+      // Helper to get array value from data
+      const getArray = (key: string, altKey?: string): string[] | undefined => {
+        const val = data[key] || (altKey ? data[altKey] : undefined)
+        return Array.isArray(val) ? val : undefined
+      }
+
+      // Extract images - could be in headshot field or image fields
+      const headshotImages = getArray("Headshot") || getArray("headshot") || getArray("Photos") || getArray("photos")
+      const singleHeadshot = getString("Headshot") || getString("headshot") || getString("Headshot URL")
+
+      // Extract video URLs
+      const videoUrls = getArray("Video URL") || getArray("video_url") || getArray("Videos") || getArray("videos") || 
+                        getArray("Demo Reel") || getArray("demo_reel")
 
       const newSubmission: CastingSubmission = {
         id: `sub-${Date.now()}`,
@@ -279,13 +299,15 @@ export function PublicCastingProvider({ children }: { children: ReactNode }) {
         data,
         submittedAt: new Date(),
         isNew: true,
-        name: data.name || data["Full Name"] || "Unknown",
-        email: data.email || data["Email"] || "",
-        phone: data.phone || data["Phone"],
-        age: data.age || data["Age"],
-        playingAge: data.playingAge || data["Playing Age Range"],
-        headshot: data.headshot || data["Headshot URL"],
-        notes: data.notes || data["Additional Notes"],
+        name: getString("name") || getString("Full Name") || "Unknown",
+        email: getString("email") || getString("Email") || "",
+        phone: getString("phone") || getString("Phone"),
+        age: getString("age") || getString("Age"),
+        playingAge: getString("playingAge") || getString("Playing Age Range"),
+        headshot: singleHeadshot || (headshotImages && headshotImages[0]),
+        headshots: headshotImages,
+        videoUrls: videoUrls,
+        notes: getString("notes") || getString("Additional Notes"),
       }
 
       return {

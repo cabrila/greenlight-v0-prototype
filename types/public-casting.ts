@@ -23,7 +23,7 @@ export interface CastingSubmission {
   id: string
   castingCallId: string
   castingCallTitle: string
-  data: Record<string, string>
+  data: Record<string, string | string[]>
   submittedAt: Date
   isNew: boolean
   // Standard actor fields extracted from data
@@ -33,6 +33,8 @@ export interface CastingSubmission {
   age?: string
   playingAge?: string
   headshot?: string
+  headshots?: string[] // Multiple images support
+  videoUrls?: string[] // Multiple video URLs support
   notes?: string
   // Grading (1-10 scale)
   grade?: number

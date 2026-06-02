@@ -1,10 +1,29 @@
 "use client"
 
 import { useState } from "react"
-import { Phone, Mail, Pencil, Trash2, X, Save, Tag, Star } from "lucide-react"
+import { Phone, Mail, Pencil, Trash2, X, Save, Tag, Star, Play } from "lucide-react"
 import { CastingSubmission } from "@/types/public-casting"
 import Image from "next/image"
 import ImageModal from "@/components/ui/ImageModal"
+
+// Helper to detect and parse video URLs for embedding
+function getVideoEmbedUrl(url: string): { type: "youtube" | "vimeo" | null; embedUrl: string | null } {
+  if (!url) return { type: null, embedUrl: null }
+  
+  // YouTube patterns
+  const youtubeMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|v\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/)
+  if (youtubeMatch) {
+    return { type: "youtube", embedUrl: `https://www.youtube.com/embed/${youtubeMatch[1]}` }
+  }
+  
+  // Vimeo patterns
+  const vimeoMatch = url.match(/(?:vimeo\.com\/)(\d+)/)
+  if (vimeoMatch) {
+    return { type: "vimeo", embedUrl: `https://player.vimeo.com/video/${vimeoMatch[1]}` }
+  }
+  
+  return { type: null, embedUrl: null }
+}
 
 interface SubmissionCardProps {
   submission: CastingSubmission
@@ -18,6 +37,7 @@ export default function SubmissionCard({ submission, onUpdate, onDelete, isSelec
   const [isEditing, setIsEditing] = useState(false)
   const [focusGrade, setFocusGrade] = useState(false)
   const [showImageModal, setShowImageModal] = useState(false)
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0)
   const [editData, setEditData] = useState({
     name: submission.name,
     email: submission.email,
@@ -27,6 +47,20 @@ export default function SubmissionCard({ submission, onUpdate, onDelete, isSelec
     notes: submission.notes || "",
     grade: submission.grade || 0,
   })
+
+  // Get all images (headshot + headshots array)
+  const allImages = [
+    ...(submission.headshot ? [submission.headshot] : []),
+    ...(submission.headshots || [])
+  ].filter((img, index, arr) => arr.indexOf(img) === index) // Remove duplicates
+
+  // Get video URLs from submission
+  const videoUrls = submission.videoUrls || []
+
+  const handleOpenImage = (index: number) => {
+    setSelectedImageIndex(index)
+    setShowImageModal(true)
+  }
 
   const handleSave = () => {
     onUpdate({
@@ -297,18 +331,18 @@ export default function SubmissionCard({ submission, onUpdate, onDelete, isSelec
 
         {/* Avatar - Clickable to open modal */}
         <button
-          onClick={() => submission.headshot && setShowImageModal(true)}
+          onClick={() => allImages.length > 0 && handleOpenImage(0)}
           className={`w-14 h-14 rounded-full overflow-hidden bg-violet-500/20 flex-shrink-0 transition-all ${
-            submission.headshot 
+            allImages.length > 0 
               ? "cursor-pointer hover:ring-2 hover:ring-violet-500/50 hover:ring-offset-2 hover:ring-offset-[#1a2e23]" 
               : "cursor-default"
           }`}
-          disabled={!submission.headshot}
-          title={submission.headshot ? "Click to view full image" : undefined}
+          disabled={allImages.length === 0}
+          title={allImages.length > 0 ? "Click to view full image" : undefined}
         >
-          {submission.headshot ? (
+          {allImages.length > 0 ? (
             <Image
-              src={submission.headshot}
+              src={allImages[0]}
               alt={submission.name}
               width={56}
               height={56}
@@ -378,6 +412,72 @@ export default function SubmissionCard({ submission, onUpdate, onDelete, isSelec
         </div>
       )}
 
+      {/* Additional Images Gallery */}
+      {allImages.length > 1 && (
+        <div className="p-3 bg-[#0f1f17] rounded-lg mt-4">
+          <p className="text-xs font-semibold text-white/40 uppercase tracking-wider mb-2">
+            Photos ({allImages.length})
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {allImages.map((img, index) => (
+              <button
+                key={index}
+                onClick={() => handleOpenImage(index)}
+                className="w-16 h-16 rounded-lg overflow-hidden hover:ring-2 hover:ring-violet-500/50 transition-all"
+              >
+                <Image
+                  src={img}
+                  alt={`${submission.name} photo ${index + 1}`}
+                  width={64}
+                  height={64}
+                  className="w-full h-full object-cover"
+                />
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Video Embeds */}
+      {videoUrls.length > 0 && (
+        <div className="p-3 bg-[#0f1f17] rounded-lg mt-4">
+          <p className="text-xs font-semibold text-white/40 uppercase tracking-wider mb-2">
+            Videos ({videoUrls.length})
+          </p>
+          <div className="space-y-3">
+            {videoUrls.map((url, index) => {
+              const videoEmbed = getVideoEmbedUrl(url)
+              if (videoEmbed.embedUrl) {
+                return (
+                  <div key={index} className="relative aspect-video rounded-lg overflow-hidden bg-black/20">
+                    <iframe
+                      src={videoEmbed.embedUrl}
+                      title={`${submission.name} video ${index + 1}`}
+                      className="absolute inset-0 w-full h-full"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  </div>
+                )
+              }
+              // Fallback for non-embeddable URLs
+              return (
+                <a
+                  key={index}
+                  href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 p-3 bg-white/5 rounded-lg text-violet-300 hover:bg-white/10 transition-colors"
+                >
+                  <Play className="w-4 h-4" />
+                  <span className="text-sm truncate">{url}</span>
+                </a>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Submission Time */}
       <div className="mt-3 text-xs text-white/40 font-sans">
         Submitted {submission.submittedAt.toLocaleDateString()} at{" "}
@@ -388,7 +488,7 @@ export default function SubmissionCard({ submission, onUpdate, onDelete, isSelec
       <ImageModal
         isOpen={showImageModal}
         onClose={() => setShowImageModal(false)}
-        src={submission.headshot}
+        src={allImages[selectedImageIndex]}
         alt={submission.name}
       />
     </div>

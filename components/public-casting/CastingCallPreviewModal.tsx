@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { X, ExternalLink, Send, CheckCircle, ImagePlus } from "lucide-react"
+import { X, ExternalLink, Send, CheckCircle, ImagePlus, Plus, Trash2, Link } from "lucide-react"
 import { CastingCall, PublicCastingProject } from "@/types/public-casting"
 import { usePublicCasting } from "./PublicCastingContext"
 
@@ -11,18 +11,42 @@ interface CastingCallPreviewModalProps {
   onClose: () => void
 }
 
+// Helper to detect and parse video URLs for embedding
+function getVideoEmbedUrl(url: string): { type: "youtube" | "vimeo" | null; embedUrl: string | null } {
+  if (!url) return { type: null, embedUrl: null }
+  
+  // YouTube patterns
+  const youtubeMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|v\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/)
+  if (youtubeMatch) {
+    return { type: "youtube", embedUrl: `https://www.youtube.com/embed/${youtubeMatch[1]}` }
+  }
+  
+  // Vimeo patterns
+  const vimeoMatch = url.match(/(?:vimeo\.com\/)(\d+)/)
+  if (vimeoMatch) {
+    return { type: "vimeo", embedUrl: `https://player.vimeo.com/video/${vimeoMatch[1]}` }
+  }
+  
+  return { type: null, embedUrl: null }
+}
+
 export default function CastingCallPreviewModal({ castingCall, project, onClose }: CastingCallPreviewModalProps) {
   const { addSubmission } = usePublicCasting()
-  const [formData, setFormData] = useState<Record<string, string>>({})
+  const [formData, setFormData] = useState<Record<string, string | string[]>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [errors, setErrors] = useState<Record<string, boolean>>({})
 
   // Initialize form data
   useEffect(() => {
-    const initialData: Record<string, string> = {}
+    const initialData: Record<string, string | string[]> = {}
     castingCall.fields.forEach(field => {
-      initialData[field.label] = ""
+      // Initialize URL and image fields as arrays for multiple entries
+      if (field.type === "url" || field.type === "image") {
+        initialData[field.label] = []
+      } else {
+        initialData[field.label] = ""
+      }
     })
     setFormData(initialData)
   }, [castingCall.fields])
@@ -44,12 +68,38 @@ export default function CastingCallPreviewModal({ castingCall, project, onClose 
     }
   }, [handleEscape])
 
-  const handleInputChange = (fieldLabel: string, value: string) => {
+  const handleInputChange = (fieldLabel: string, value: string | string[]) => {
     setFormData(prev => ({ ...prev, [fieldLabel]: value }))
     // Clear error when user starts typing
     if (errors[fieldLabel]) {
       setErrors(prev => ({ ...prev, [fieldLabel]: false }))
     }
+  }
+
+  // Add item to array field (URL or image)
+  const handleAddArrayItem = (fieldLabel: string, value: string) => {
+    const currentArray = (formData[fieldLabel] as string[]) || []
+    setFormData(prev => ({ ...prev, [fieldLabel]: [...currentArray, value] }))
+    if (errors[fieldLabel]) {
+      setErrors(prev => ({ ...prev, [fieldLabel]: false }))
+    }
+  }
+
+  // Remove item from array field
+  const handleRemoveArrayItem = (fieldLabel: string, index: number) => {
+    const currentArray = (formData[fieldLabel] as string[]) || []
+    setFormData(prev => ({ 
+      ...prev, 
+      [fieldLabel]: currentArray.filter((_, i) => i !== index) 
+    }))
+  }
+
+  // Update item in array field
+  const handleUpdateArrayItem = (fieldLabel: string, index: number, value: string) => {
+    const currentArray = (formData[fieldLabel] as string[]) || []
+    const updated = [...currentArray]
+    updated[index] = value
+    setFormData(prev => ({ ...prev, [fieldLabel]: updated }))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -60,9 +110,14 @@ export default function CastingCallPreviewModal({ castingCall, project, onClose 
     let hasErrors = false
     
     castingCall.fields.forEach(field => {
-      if (field.required && !formData[field.label]?.trim()) {
-        newErrors[field.label] = true
-        hasErrors = true
+      if (field.required) {
+        const value = formData[field.label]
+        // Check if array field has at least one item, or string field is not empty
+        const isEmpty = Array.isArray(value) ? value.length === 0 : !value?.toString().trim()
+        if (isEmpty) {
+          newErrors[field.label] = true
+          hasErrors = true
+        }
       }
     })
 
@@ -84,9 +139,13 @@ export default function CastingCallPreviewModal({ castingCall, project, onClose 
   }
 
   const handleReset = () => {
-    const initialData: Record<string, string> = {}
+    const initialData: Record<string, string | string[]> = {}
     castingCall.fields.forEach(field => {
-      initialData[field.label] = ""
+      if (field.type === "url" || field.type === "image") {
+        initialData[field.label] = []
+      } else {
+        initialData[field.label] = ""
+      }
     })
     setFormData(initialData)
     setIsSubmitted(false)
@@ -217,32 +276,93 @@ export default function CastingCallPreviewModal({ castingCall, project, onClose 
                           <option key={opt} value={opt}>{opt}</option>
                         ))}
                       </select>
+                    ) : field.type === "url" ? (
+                      // Multiple URL field with video embed support
+                      <div className="space-y-2">
+                        {((formData[field.label] as string[]) || []).map((url, index) => {
+                          const videoEmbed = getVideoEmbedUrl(url)
+                          return (
+                            <div key={index} className="space-y-2">
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="url"
+                                  placeholder={field.placeholder || "https://youtube.com/watch?v=... or https://vimeo.com/..."}
+                                  value={url}
+                                  onChange={(e) => handleUpdateArrayItem(field.label, index, e.target.value)}
+                                  className={`flex-1 px-4 py-2.5 bg-white/5 border rounded-xl text-white placeholder-white/30 font-sans focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 transition-all ${
+                                    errors[field.label] ? "border-red-500/50" : "border-white/10"
+                                  }`}
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveArrayItem(field.label, index)}
+                                  className="p-2 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </div>
+                              {/* Video preview if valid embed URL */}
+                              {videoEmbed.embedUrl && (
+                                <div className="relative aspect-video rounded-lg overflow-hidden bg-black/20">
+                                  <iframe
+                                    src={videoEmbed.embedUrl}
+                                    title={`Video ${index + 1}`}
+                                    className="absolute inset-0 w-full h-full"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    allowFullScreen
+                                  />
+                                </div>
+                              )}
+                            </div>
+                          )
+                        })}
+                        <button
+                          type="button"
+                          onClick={() => handleAddArrayItem(field.label, "")}
+                          className="flex items-center gap-2 w-full px-4 py-2.5 bg-white/5 border border-dashed border-white/20 rounded-xl text-white/50 hover:bg-white/10 hover:border-white/30 transition-all font-sans text-sm"
+                        >
+                          <Plus className="w-4 h-4" />
+                          Add {((formData[field.label] as string[]) || []).length === 0 ? "Video URL" : "Another URL"}
+                        </button>
+                      </div>
                     ) : field.type === "image" ? (
-                      <div
-                        className={`w-full flex flex-col items-center justify-center gap-2 px-4 py-6 bg-white/5 border border-dashed rounded-xl text-white/50 cursor-pointer hover:bg-white/10 hover:border-white/30 transition-all font-sans text-sm ${
-                          errors[field.label] ? "border-red-500/50" : "border-white/20"
-                        }`}
-                        onClick={() => {
-                          // Simulate image upload
-                          const fakeImageUrl = `https://picsum.photos/seed/${Date.now()}/200/200`
-                          handleInputChange(field.label, fakeImageUrl)
-                        }}
-                      >
-                        {formData[field.label] ? (
-                          <div className="flex items-center gap-3">
-                            <img 
-                              src={formData[field.label]} 
-                              alt="Uploaded" 
-                              className="w-16 h-16 rounded-lg object-cover"
-                            />
-                            <span className="text-emerald-400">Image uploaded</span>
+                      // Multiple image upload field
+                      <div className="space-y-2">
+                        {/* Existing images */}
+                        {((formData[field.label] as string[]) || []).length > 0 && (
+                          <div className="flex flex-wrap gap-2">
+                            {((formData[field.label] as string[]) || []).map((imgUrl, index) => (
+                              <div key={index} className="relative group">
+                                <img 
+                                  src={imgUrl} 
+                                  alt={`Upload ${index + 1}`} 
+                                  className="w-20 h-20 rounded-lg object-cover"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveArrayItem(field.label, index)}
+                                  className="absolute -top-2 -right-2 p-1 bg-red-500 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                                >
+                                  <X className="w-3 h-3" />
+                                </button>
+                              </div>
+                            ))}
                           </div>
-                        ) : (
-                          <>
-                            <ImagePlus className="w-6 h-6" />
-                            <span>{field.placeholder || "Click to upload an image"}</span>
-                          </>
                         )}
+                        {/* Add image button */}
+                        <div
+                          className={`w-full flex flex-col items-center justify-center gap-2 px-4 py-6 bg-white/5 border border-dashed rounded-xl text-white/50 cursor-pointer hover:bg-white/10 hover:border-white/30 transition-all font-sans text-sm ${
+                            errors[field.label] ? "border-red-500/50" : "border-white/20"
+                          }`}
+                          onClick={() => {
+                            // Simulate image upload
+                            const fakeImageUrl = `https://picsum.photos/seed/${Date.now()}/200/200`
+                            handleAddArrayItem(field.label, fakeImageUrl)
+                          }}
+                        >
+                          <ImagePlus className="w-6 h-6" />
+                          <span>{field.placeholder || "Click to add an image"}</span>
+                        </div>
                       </div>
                     ) : (
                       <input
