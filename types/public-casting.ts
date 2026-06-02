@@ -16,6 +16,7 @@ export interface CastingCall {
   fields: CastingCallField[]
   createdAt: Date
   isActive: boolean
+  isCompleted?: boolean
   shareableLink: string
 }
 

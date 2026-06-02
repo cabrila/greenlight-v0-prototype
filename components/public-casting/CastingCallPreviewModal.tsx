@@ -127,6 +127,11 @@ export default function CastingCallPreviewModal({ castingCall, project, onClose,
       return
     }
 
+    // Prevent submission if casting call is completed
+    if (castingCall.isCompleted) {
+      return
+    }
+
     setIsSubmitting(true)
     
     // Simulate network delay for realism
@@ -391,10 +396,19 @@ export default function CastingCallPreviewModal({ castingCall, project, onClose,
                   </div>
                 ))}
 
+                {/* Completed Notice */}
+                {castingCall.isCompleted && (
+                  <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl mt-6">
+                    <p className="text-amber-400 text-sm text-center font-sans">
+                      This casting call is completed and no longer accepting submissions.
+                    </p>
+                  </div>
+                )}
+
                 {/* Submit Button */}
                 <button
                   type="submit"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || castingCall.isCompleted}
                   className="w-full flex items-center justify-center gap-2 py-3 bg-emerald-500 hover:bg-emerald-600 disabled:bg-emerald-500/50 disabled:cursor-not-allowed rounded-xl text-white font-medium text-sm transition-colors font-sans mt-6"
                 >
                   {isSubmitting ? (
@@ -402,6 +416,8 @@ export default function CastingCallPreviewModal({ castingCall, project, onClose,
                       <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                       Submitting...
                     </>
+                  ) : castingCall.isCompleted ? (
+                    <>Submissions Closed</>
                   ) : (
                     <>
                       <Send className="w-4 h-4" />

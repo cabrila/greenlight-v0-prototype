@@ -254,9 +254,16 @@ export default function CastingCallsList({
               </h3>
               {/* Casting Call Title (if exists) */}
               {hasCastingCall && castingCall.title && (
-                <p className="text-xs text-white/50 font-sans truncate">
-                  {castingCall.title}
-                </p>
+                <div className="flex items-center gap-2">
+                  <p className="text-xs text-white/50 font-sans truncate">
+                    {castingCall.title}
+                  </p>
+                  {castingCall.isCompleted && (
+                    <span className="px-1.5 py-0.5 bg-emerald-500/20 text-emerald-400 text-[10px] font-semibold rounded uppercase tracking-wider">
+                      Completed
+                    </span>
+                  )}
+                </div>
               )}
             </div>
 
