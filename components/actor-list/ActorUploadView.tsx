@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef } from "react"
-import { Upload, ArrowLeft, FileText, X, Loader2 } from "lucide-react"
+import { Upload, ArrowLeft, FileText, X, Loader2, PenLine } from "lucide-react"
 import { useActorList } from "./ActorListContext"
 import { Actor } from "@/types/actor-list"
 
@@ -128,6 +128,10 @@ export default function ActorUploadView() {
     }
   }
 
+  const handleCreateManually = () => {
+    createProject("New Actor List", [])
+  }
+
   return (
     <div className="flex-1 flex flex-col overflow-y-auto">
       {/* Back Button */}
@@ -235,6 +239,19 @@ export default function ActorUploadView() {
                 onChange={handleFileSelect}
                 className="hidden"
               />
+            </div>
+          )}
+
+          {/* Manual Create Option */}
+          {!isProcessing && (
+            <div className="mt-8 pt-6 border-t border-white/10">
+              <button
+                onClick={handleCreateManually}
+                className="w-full flex items-center justify-center gap-2 py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-white/80 hover:text-white rounded-xl transition-colors font-sans"
+              >
+                <PenLine className="w-4 h-4" />
+                Create Actor manually
+              </button>
             </div>
           )}
         </div>

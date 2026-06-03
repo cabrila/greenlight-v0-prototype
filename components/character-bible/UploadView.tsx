@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef } from "react"
-import { Upload, ArrowLeft, Loader2, FileText, X } from "lucide-react"
+import { Upload, ArrowLeft, Loader2, FileText, X, PenLine } from "lucide-react"
 import { useCharacterBible } from "./CharacterBibleContext"
 import { Character, CharacterBible } from "@/types/character-bible"
 
@@ -100,6 +100,19 @@ export default function UploadView() {
     }
   }
 
+  const handleCreateManually = () => {
+    const newBible: CharacterBible = {
+      id: crypto.randomUUID(),
+      name: "New Character Bible",
+      characters: [],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }
+    addBible(newBible)
+    setCurrentBible(newBible)
+    setView("results")
+  }
+
   return (
     <div className="flex flex-col h-full">
       {/* Back Button */}
@@ -194,6 +207,17 @@ export default function UploadView() {
                   Extract Characters
                 </button>
               )}
+
+              {/* Manual Create Option */}
+              <div className="mt-8 pt-6 border-t border-white/10">
+                <button
+                  onClick={handleCreateManually}
+                  className="w-full flex items-center justify-center gap-2 py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-white/80 hover:text-white rounded-xl transition-colors font-sans"
+                >
+                  <PenLine className="w-4 h-4" />
+                  Create Character Bible manually
+                </button>
+              </div>
             </>
           ) : (
             /* Processing State */
