@@ -200,28 +200,13 @@ export default function EditProjectWithThumbnailModal({
 
         {/* Content */}
         <form onSubmit={handleSubmit} className="p-6">
-          {/* Title Row with Completed Checkbox */}
-          <div className="flex items-center justify-between mb-6">
-            <h2
-              id="edit-modal-title"
-              className="text-xl font-bold text-white font-sans"
-            >
-              {title}
-            </h2>
-            {showCompletedCheckbox && (
-              <label className="flex items-center gap-2 cursor-pointer group">
-                <input
-                  type="checkbox"
-                  checked={isCompleted}
-                  onChange={(e) => setIsCompleted(e.target.checked)}
-                  className="w-4 h-4 rounded border-white/20 bg-[#0f1f17] text-emerald-500 focus:ring-emerald-500/50 cursor-pointer"
-                />
-                <span className="text-sm text-white/80 group-hover:text-white transition-colors font-sans">
-                  Completed
-                </span>
-              </label>
-            )}
-          </div>
+          {/* Title */}
+          <h2
+            id="edit-modal-title"
+            className="text-xl font-bold text-white mb-6 font-sans"
+          >
+            {title}
+          </h2>
 
           {/* Thumbnail Upload */}
           <div className="mb-5">
@@ -304,9 +289,24 @@ export default function EditProjectWithThumbnailModal({
 
           {/* Name Input */}
           <div className="mb-6">
-            <label className="block text-sm text-white/60 mb-2 font-sans">
-              {label}
-            </label>
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-sm text-white/60 font-sans">
+                {label}
+              </label>
+              {showCompletedCheckbox && (
+                <label className="flex items-center gap-2 cursor-pointer group">
+                  <input
+                    type="checkbox"
+                    checked={isCompleted}
+                    onChange={(e) => setIsCompleted(e.target.checked)}
+                    className="w-4 h-4 rounded border-white/20 bg-[#0f1f17] text-emerald-500 focus:ring-emerald-500/50 cursor-pointer"
+                  />
+                  <span className="text-sm text-white/80 group-hover:text-white transition-colors font-sans">
+                    Completed
+                  </span>
+                </label>
+              )}
+            </div>
             <input
               ref={inputRef}
               type="text"
