@@ -1,7 +1,7 @@
 export interface CastingCallField {
   id: string
   label: string
-  type: "text" | "email" | "phone" | "textarea" | "select" | "file" | "url" | "number" | "image"
+  type: "text" | "email" | "phone" | "textarea" | "select" | "file" | "url" | "number" | "image" | "gender"
   required: boolean
   placeholder?: string
   options?: string[] // For select fields
@@ -35,6 +35,7 @@ export interface CastingSubmission {
   email: string
   phone?: string
   age?: string
+  gender?: "Male" | "Female" | "Other" | "Not-specified"
   playingAge?: string
   headshot?: string
   headshots?: string[] // Multiple images support

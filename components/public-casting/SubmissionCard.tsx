@@ -360,10 +360,15 @@ export default function SubmissionCard({ submission, onUpdate, onDelete, isSelec
           <h3 className="text-lg font-bold text-white font-sans uppercase tracking-wide truncate pr-20">
             {submission.name}
           </h3>
-          <div className="flex items-center gap-2 text-sm">
+          <div className="flex items-center gap-2 text-sm flex-wrap">
             {submission.age && (
               <span className="text-white/60">
                 AGE <span className="text-white">{submission.age}</span>
+              </span>
+            )}
+            {submission.gender && (
+              <span className="text-white/60">
+                <span className="text-white">{submission.gender}</span>
               </span>
             )}
             {submission.playingAge && (

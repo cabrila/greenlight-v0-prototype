@@ -19,6 +19,7 @@ const fieldTypeOptions = [
   { value: "phone", label: "Phone" },
   { value: "number", label: "Number" },
   { value: "textarea", label: "Long Text" },
+  { value: "gender", label: "Gender" },
   { value: "url", label: "URL" },
   { value: "select", label: "Dropdown" },
   { value: "image", label: "Image" },

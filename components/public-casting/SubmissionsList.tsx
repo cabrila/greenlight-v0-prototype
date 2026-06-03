@@ -129,12 +129,11 @@ export default function SubmissionsList({ onBack, initialFilterForm }: Submissio
       }
     }
 
-    // Advanced filters - Gender (from data field)
-    if (advancedFilters.gender) {
-      const genderQuery = advancedFilters.gender.toLowerCase()
+    // Advanced filters - Gender (dropdown filter)
+    if (advancedFilters.gender && advancedFilters.gender !== "all") {
       result = result.filter((s) => {
-        const gender = (s.data?.gender || s.data?.Gender || "").toLowerCase()
-        return gender.includes(genderQuery)
+        const gender = s.gender || (s.data?.gender as string) || (s.data?.Gender as string) || ""
+        return gender === advancedFilters.gender
       })
     }
 
@@ -225,7 +224,7 @@ export default function SubmissionsList({ onBack, initialFilterForm }: Submissio
     setSelectedIds(new Set())
   }
 
-  const hasActiveAdvancedFilters = advancedFilters.ageMin || advancedFilters.ageMax || advancedFilters.gender || advancedFilters.location || advancedFilters.availability
+  const hasActiveAdvancedFilters = advancedFilters.ageMin || advancedFilters.ageMax || (advancedFilters.gender && advancedFilters.gender !== "all") || advancedFilters.location || advancedFilters.availability
 
   const clearAdvancedFilters = () => {
     setAdvancedFilters({
@@ -255,6 +254,7 @@ export default function SubmissionsList({ onBack, initialFilterForm }: Submissio
       id: crypto.randomUUID(),
       name: submission.name,
       age: parseInt(submission.age || submission.data?.age || "0", 10) || 0,
+      gender: submission.gender || (submission.data?.gender as Actor["gender"]) || (submission.data?.Gender as Actor["gender"]) || undefined,
       playingAge: submission.playingAge || submission.data?.playingAge || submission.data?.["Playing Age"] || "",
       phone: submission.phone || submission.data?.phone || submission.data?.Phone || "",
       email: submission.email,
@@ -540,13 +540,17 @@ export default function SubmissionsList({ onBack, initialFilterForm }: Submissio
                 {/* Gender */}
                 <div>
                   <label className="block text-xs text-white/50 mb-1.5 font-sans">Gender</label>
-                  <input
-                    type="text"
+                  <select
                     value={advancedFilters.gender}
                     onChange={(e) => setAdvancedFilters({ ...advancedFilters, gender: e.target.value })}
-                    placeholder="e.g. Male, Female"
-                    className="w-full px-3 py-2 bg-[#0f1f17] border border-white/10 rounded-lg text-white text-sm placeholder-white/30 focus:border-violet-500/50 focus:outline-none font-sans"
-                  />
+                    className="w-full px-3 py-2 bg-[#0f1f17] border border-white/10 rounded-lg text-white text-sm focus:border-violet-500/50 focus:outline-none font-sans"
+                  >
+                    <option value="all">All Genders</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                    <option value="Not-specified">Not-specified</option>
+                  </select>
                 </div>
                 {/* Location */}
                 <div>

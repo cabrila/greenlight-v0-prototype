@@ -293,6 +293,20 @@ export default function CastingCallPreviewModal({ castingCall, project, onClose,
                           <option key={opt} value={opt}>{opt}</option>
                         ))}
                       </select>
+                    ) : field.type === "gender" ? (
+                      <select
+                        value={formData[field.label] || ""}
+                        onChange={(e) => handleInputChange(field.label, e.target.value)}
+                        className={`w-full px-4 py-2.5 bg-white/5 border rounded-xl text-white font-sans focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 transition-all ${
+                          errors[field.label] ? "border-red-500/50" : "border-white/10"
+                        }`}
+                      >
+                        <option value="">Select gender</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                        <option value="Not-specified">Not-specified</option>
+                      </select>
                     ) : field.type === "url" ? (
                       // Multiple URL field with video embed support
                       <div className="space-y-2">
