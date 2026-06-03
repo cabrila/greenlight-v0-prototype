@@ -46,6 +46,8 @@ export default function CastingCallSetup({ onBack, onSuccess, editingCastingCall
   const [headerImageUrl, setHeaderImageUrl] = useState(editingCastingCall?.headerImageUrl || "")
   const [fields, setFields] = useState<CastingCallField[]>(editingCastingCall?.fields || defaultFields)
   const [isCompleted, setIsCompleted] = useState(editingCastingCall?.isCompleted || false)
+  const [talentPoolConsentEnabled, setTalentPoolConsentEnabled] = useState(editingCastingCall?.talentPoolConsentEnabled ?? true)
+  const [talentPoolConsentText, setTalentPoolConsentText] = useState(editingCastingCall?.talentPoolConsentText || "I consent to being added to the talent pool to be considered for future projects.")
   const [createdLink, setCreatedLink] = useState(editingCastingCall?.shareableLink || "")
   const [copied, setCopied] = useState(false)
   const [showPreview, setShowPreview] = useState(false)
@@ -69,6 +71,8 @@ export default function CastingCallSetup({ onBack, onSuccess, editingCastingCall
     isActive: !isCompleted,
     isCompleted,
     shareableLink: createdLink || "https://gogreenlight.ai/cast/preview",
+    talentPoolConsentEnabled,
+    talentPoolConsentText,
   }
 
   // Header image upload handlers
@@ -185,6 +189,8 @@ export default function CastingCallSetup({ onBack, onSuccess, editingCastingCall
         fields,
         isCompleted,
         isActive: !isCompleted,
+        talentPoolConsentEnabled,
+        talentPoolConsentText,
       })
       setCreatedLink(editingCastingCall.shareableLink)
       setStep("success")
@@ -195,7 +201,7 @@ export default function CastingCallSetup({ onBack, onSuccess, editingCastingCall
         project = createProject(projectName)
       }
 
-      const castingCall = createCastingCall(project.id, title, description, projectName, fields, headerImageUrl || undefined)
+      const castingCall = createCastingCall(project.id, title, description, projectName, fields, headerImageUrl || undefined, talentPoolConsentEnabled, talentPoolConsentText)
       setCreatedLink(castingCall.shareableLink)
       setStep("success")
     }
@@ -447,6 +453,47 @@ export default function CastingCallSetup({ onBack, onSuccess, editingCastingCall
                   rows={3}
                   className="w-full px-4 py-3 bg-[#0f1f17] border border-white/10 rounded-lg text-white placeholder-white/30 focus:border-violet-500/50 focus:outline-none transition-colors font-sans resize-none"
                 />
+              </div>
+
+              {/* Talent Pool Consent Configuration */}
+              <div className="pt-4 border-t border-white/10">
+                <div className="flex items-center justify-between mb-3">
+                  <label className="block text-xs font-semibold text-violet-400 uppercase tracking-wider">
+                    Talent Pool Consent
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer group">
+                    <span className="text-xs text-white/60 group-hover:text-white/80 transition-colors font-sans">
+                      {talentPoolConsentEnabled ? "Enabled" : "Disabled"}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setTalentPoolConsentEnabled(!talentPoolConsentEnabled)}
+                      className={`relative w-10 h-5 rounded-full transition-colors ${
+                        talentPoolConsentEnabled ? "bg-emerald-500" : "bg-white/20"
+                      }`}
+                    >
+                      <span
+                        className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform ${
+                          talentPoolConsentEnabled ? "translate-x-5" : "translate-x-0"
+                        }`}
+                      />
+                    </button>
+                  </label>
+                </div>
+                {talentPoolConsentEnabled && (
+                  <div>
+                    <label className="block text-xs text-white/50 mb-2 font-sans">
+                      Consent checkbox text (shown at end of form)
+                    </label>
+                    <textarea
+                      value={talentPoolConsentText}
+                      onChange={(e) => setTalentPoolConsentText(e.target.value)}
+                      placeholder="I consent to being added to the talent pool..."
+                      rows={2}
+                      className="w-full px-4 py-3 bg-[#0f1f17] border border-white/10 rounded-lg text-white placeholder-white/30 focus:border-violet-500/50 focus:outline-none transition-colors font-sans resize-none text-sm"
+                    />
+                  </div>
+                )}
               </div>
             </div>
           </div>

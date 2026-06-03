@@ -37,6 +37,7 @@ export default function CastingCallPreviewModal({ castingCall, project, onClose,
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [errors, setErrors] = useState<Record<string, boolean>>({})
+  const [talentPoolConsent, setTalentPoolConsent] = useState(false)
 
   // Initialize form data
   useEffect(() => {
@@ -156,6 +157,7 @@ export default function CastingCallPreviewModal({ castingCall, project, onClose,
     setFormData(initialData)
     setIsSubmitted(false)
     setErrors({})
+    setTalentPoolConsent(false)
   }
 
   return (
@@ -395,6 +397,23 @@ export default function CastingCallPreviewModal({ castingCall, project, onClose,
                     )}
                   </div>
                 ))}
+
+                {/* Talent Pool Consent Checkbox */}
+                {castingCall.talentPoolConsentEnabled && castingCall.talentPoolConsentText && (
+                  <div className="mt-6 p-4 bg-white/5 border border-white/10 rounded-xl">
+                    <label className="flex items-start gap-3 cursor-pointer group">
+                      <input
+                        type="checkbox"
+                        checked={talentPoolConsent}
+                        onChange={(e) => setTalentPoolConsent(e.target.checked)}
+                        className="mt-0.5 w-5 h-5 rounded border-white/20 bg-white/5 text-emerald-500 focus:ring-emerald-500/50 cursor-pointer flex-shrink-0"
+                      />
+                      <span className="text-sm text-white/80 group-hover:text-white transition-colors font-sans leading-relaxed">
+                        {castingCall.talentPoolConsentText}
+                      </span>
+                    </label>
+                  </div>
+                )}
 
                 {/* Completed Notice */}
                 {castingCall.isCompleted && (

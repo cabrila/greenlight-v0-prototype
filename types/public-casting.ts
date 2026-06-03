@@ -18,6 +18,9 @@ export interface CastingCall {
   isActive: boolean
   isCompleted?: boolean
   shareableLink: string
+  // Talent pool consent configuration
+  talentPoolConsentEnabled?: boolean
+  talentPoolConsentText?: string
 }
 
 export interface CastingSubmission {
