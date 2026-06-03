@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { Pencil, Trash2, Phone, Mail, X, Save, Plus, Video, ExternalLink } from "lucide-react"
-import { Actor, CustomField } from "@/types/actor-list"
+import { Actor, CustomField, ActorGender } from "@/types/actor-list"
 import ImageModal from "@/components/ui/ImageModal"
 import MediaModal from "@/components/ui/MediaModal"
 
@@ -119,6 +119,23 @@ export default function ActorCard({ actor, onUpdate, onDelete }: ActorCardProps)
               className="w-full px-4 py-2.5 bg-[#0f1f17] border border-white/10 rounded-lg text-white font-sans focus:outline-none focus:border-emerald-500/50"
             />
           </div>
+        </div>
+
+        {/* Gender */}
+        <div className="mb-4">
+          <label className="block text-xs font-semibold text-emerald-400 uppercase tracking-wider mb-2">
+            Gender
+          </label>
+          <select
+            value={editedActor.gender || "Not-specified"}
+            onChange={(e) => setEditedActor({ ...editedActor, gender: e.target.value as ActorGender })}
+            className="w-full px-4 py-2.5 bg-[#0f1f17] border border-white/10 rounded-lg text-white font-sans focus:outline-none focus:border-emerald-500/50"
+          >
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+            <option value="Not-specified">Not-specified</option>
+          </select>
         </div>
 
         {/* Phone */}
@@ -329,6 +346,12 @@ export default function ActorCard({ actor, onUpdate, onDelete }: ActorCardProps)
             <span className="text-white">{actor.age}</span>{" "}
             <span className="text-white/60 ml-2">PLAYS</span>{" "}
             <span className="text-emerald-400">{actor.playingAge}</span>
+            {actor.gender && (
+              <>
+                <span className="text-white/60 ml-2">GENDER</span>{" "}
+                <span className="text-sky-400">{actor.gender}</span>
+              </>
+            )}
           </p>
         </div>
       </div>

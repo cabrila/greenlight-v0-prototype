@@ -4,10 +4,13 @@ export interface CustomField {
   value: string
 }
 
+export type ActorGender = "Male" | "Female" | "Other" | "Not-specified"
+
 export interface Actor {
   id: string
   name: string
   age: number
+  gender?: ActorGender
   playingAge: string
   phone: string
   email: string
