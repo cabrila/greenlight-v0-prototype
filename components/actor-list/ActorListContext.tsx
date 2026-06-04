@@ -32,6 +32,8 @@ interface ActorListContextType {
   // Global actor operations (updates/deletes across all lists)
   updateActorGlobally: (actor: Actor) => void
   deleteActorGlobally: (actorId: string) => void
+  // Add new actor to specific project (for All Actors view)
+  addNewActorToProject: (actor: Actor, projectId: string) => void
 }
 
 const ActorListContext = createContext<ActorListContextType | null>(null)
@@ -360,6 +362,17 @@ export function ActorListProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  // Add a new actor to a specific project (from All Actors view)
+  const addNewActorToProject = (actor: Actor, projectId: string) => {
+    setProjects((prevProjects) =>
+      prevProjects.map((project) =>
+        project.id === projectId
+          ? { ...project, actors: [...project.actors, actor], updatedAt: new Date() }
+          : project
+      )
+    )
+  }
+
   return (
     <ActorListContext.Provider
       value={{
@@ -381,6 +394,7 @@ export function ActorListProvider({ children }: { children: ReactNode }) {
         dismissedDuplicates,
         updateActorGlobally,
         deleteActorGlobally,
+        addNewActorToProject,
       }}
     >
       {children}
