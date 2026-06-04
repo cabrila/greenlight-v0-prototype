@@ -1,10 +1,9 @@
 "use client"
 
 import { useState, useMemo } from "react"
-import { ArrowLeft, Search, SlidersHorizontal, ChevronDown, Filter, X, CheckSquare, Square, Plus, AlertTriangle } from "lucide-react"
-import { useActorList, AggregatedActor } from "./ActorListContext"
-import ActorCard from "./ActorCard"
-import { Actor } from "@/types/actor-list"
+import { ArrowLeft, Search, SlidersHorizontal, ChevronDown, Filter, X, CheckSquare, Square, Plus, AlertTriangle, Phone, Mail, Pencil, Trash2 } from "lucide-react"
+import { useActorList } from "./ActorListContext"
+import Image from "next/image"
 
 type SortOption = "newest" | "oldest" | "alphabetical" | "age-high" | "age-low"
 type GenderFilter = "all" | "Male" | "Female" | "Other" | "Not-specified"
@@ -17,7 +16,7 @@ interface AdvancedFilters {
 }
 
 export default function AllActorsView() {
-  const { allActors, projects, goBack, addActorToList, dismissDuplicate, updateActor, deleteActor } = useActorList()
+  const { allActors, projects, goBack, addActorToList, dismissDuplicate, deleteActor } = useActorList()
   const [searchQuery, setSearchQuery] = useState("")
   const [sortBy, setSortBy] = useState<SortOption>("alphabetical")
   const [showSortDropdown, setShowSortDropdown] = useState(false)
@@ -137,21 +136,6 @@ export default function AllActorsView() {
     { value: "age-high", label: "Oldest Age" },
     { value: "age-low", label: "Youngest Age" },
   ]
-
-  // Convert AggregatedActor to Actor for ActorCard
-  const toActor = (a: AggregatedActor): Actor => ({
-    id: a.id,
-    name: a.name,
-    age: a.age,
-    gender: a.gender,
-    playingAge: a.playingAge,
-    phone: a.phone,
-    email: a.email,
-    headshotUrl: a.headshotUrl,
-    notes: a.notes,
-    mediaMaterial: a.mediaMaterial,
-    customFields: a.customFields,
-  })
 
   return (
     <div className="h-full overflow-y-auto">
@@ -372,58 +356,156 @@ export default function AllActorsView() {
             {filteredActors.map((actor) => (
               <div
                 key={actor.id}
-                className={`relative transition-all duration-200 rounded-xl ${
-                  selectedIds.has(actor.id) ? "ring-2 ring-sky-500 ring-offset-2 ring-offset-[#0f1f17]" : ""
+                className={`group relative p-5 rounded-xl border bg-[#1a2e23] transition-colors ${
+                  selectedIds.has(actor.id) 
+                    ? "border-sky-500/50 ring-2 ring-sky-500/20" 
+                    : "border-white/10 hover:border-white/20"
                 }`}
               >
-                {/* Selection Checkbox */}
-                <button
-                  onClick={() => toggleSelect(actor.id)}
-                  className="absolute top-3 left-3 z-10 p-1.5 bg-black/40 hover:bg-black/60 rounded-lg transition-colors"
-                >
-                  {selectedIds.has(actor.id) ? (
-                    <CheckSquare className="w-4 h-4 text-sky-400" />
-                  ) : (
-                    <Square className="w-4 h-4 text-white/60" />
-                  )}
-                </button>
-
-                {/* Duplicate Badge */}
-                {actor.isDuplicate && (
-                  <div className="absolute top-3 right-14 z-10 flex items-center gap-1 px-2 py-1 bg-amber-500/20 border border-amber-500/30 rounded-lg">
-                    <AlertTriangle className="w-3 h-3 text-amber-400" />
-                    <span className="text-xs text-amber-300 font-sans">Duplicate</span>
+                {/* Action Icons - Upper Right Corner */}
+                <div className="absolute top-4 right-4 flex items-center gap-1">
+                  {/* Edit & Delete - Show on hover */}
+                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        dismissDuplicate(actor.name)
-                      }}
-                      className="ml-1 text-amber-400 hover:text-amber-200"
-                      title="Dismiss duplicate flag"
+                      onClick={() => {/* Edit functionality handled by ActorCard if needed */}}
+                      className="p-2 bg-white/10 hover:bg-white/20 rounded-lg text-white/70 hover:text-white transition-colors"
+                      title="Edit actor"
                     >
-                      <X className="w-3 h-3" />
+                      <Pencil className="w-4 h-4" />
                     </button>
+                    <button
+                      onClick={() => deleteActor(actor.id)}
+                      className="p-2 bg-red-500/20 hover:bg-red-500/30 rounded-lg text-red-400 hover:text-red-300 transition-colors"
+                      title="Delete actor"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                  {/* Duplicate Badge */}
+                  {actor.isDuplicate && (
+                    <div className="flex items-center gap-1 px-2 py-1.5 bg-amber-500/20 border border-amber-500/30 rounded-lg">
+                      <AlertTriangle className="w-3 h-3 text-amber-400" />
+                      <span className="text-xs text-amber-300 font-sans">Duplicate</span>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          dismissDuplicate(actor.name)
+                        }}
+                        className="ml-1 text-amber-400 hover:text-amber-200"
+                        title="Dismiss duplicate flag"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Header with Avatar */}
+                <div className="flex items-start gap-4 mb-4">
+                  {/* Selection Checkbox - Before Avatar */}
+                  <button
+                    onClick={() => toggleSelect(actor.id)}
+                    className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all flex-shrink-0 mt-1 ${
+                      selectedIds.has(actor.id) 
+                        ? "bg-sky-500 border-sky-500 text-white" 
+                        : "border-white/30 hover:border-sky-400 bg-transparent"
+                    }`}
+                    title={selectedIds.has(actor.id) ? "Deselect" : "Select"}
+                  >
+                    {selectedIds.has(actor.id) && (
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                      </svg>
+                    )}
+                  </button>
+
+                  {/* Avatar */}
+                  <div className="w-14 h-14 rounded-full overflow-hidden bg-sky-500/20 flex-shrink-0">
+                    {actor.headshotUrl ? (
+                      <Image
+                        src={actor.headshotUrl}
+                        alt={actor.name}
+                        width={56}
+                        height={56}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-sky-400 text-xl font-bold">
+                        {actor.name.charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Name & Age */}
+                  <div className="flex-1 min-w-0 pt-1">
+                    <h3 className="text-lg font-bold text-white font-sans uppercase tracking-wide truncate pr-20">
+                      {actor.name}
+                    </h3>
+                    <div className="flex items-center gap-2 text-sm flex-wrap">
+                      {actor.age && (
+                        <span className="text-white/60">
+                          AGE <span className="text-white">{actor.age}</span>
+                        </span>
+                      )}
+                      {actor.gender && (
+                        <span className="text-white/60">
+                          <span className="text-white">{actor.gender}</span>
+                        </span>
+                      )}
+                      {actor.playingAge && (
+                        <span className="text-white/60">
+                          PLAYS <span className="text-emerald-400">{actor.playingAge}</span>
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* List Tags - Between Name/Age and Contact Details */}
+                {actor.sourceListNames.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 mb-4 px-3 py-2 bg-sky-500/10 rounded-lg">
+                    {actor.sourceListNames.map((listName, idx) => (
+                      <span
+                        key={idx}
+                        className="px-2 py-0.5 bg-sky-500/20 border border-sky-500/30 rounded text-xs text-sky-300 font-sans truncate max-w-[120px]"
+                        title={listName}
+                      >
+                        {listName}
+                      </span>
+                    ))}
                   </div>
                 )}
 
-                {/* List Tags */}
-                <div className="absolute bottom-3 left-3 right-3 z-10 flex flex-wrap gap-1.5">
-                  {actor.sourceListNames.map((listName, idx) => (
-                    <span
-                      key={idx}
-                      className="px-2 py-0.5 bg-sky-500/20 border border-sky-500/30 rounded text-xs text-sky-300 font-sans truncate max-w-[120px]"
-                      title={listName}
-                    >
-                      {listName}
-                    </span>
-                  ))}
+                {/* Contact Details */}
+                <div className="p-3 bg-[#0f1f17] rounded-lg mb-4">
+                  <p className="text-xs font-semibold text-white/40 uppercase tracking-wider mb-2">
+                    Contact Details
+                  </p>
+                  <div className="space-y-2">
+                    {actor.phone && (
+                      <div className="flex items-center gap-2 text-sm text-white/80">
+                        <Phone className="w-4 h-4 text-white/40" />
+                        <span>{actor.phone}</span>
+                      </div>
+                    )}
+                    <div className="flex items-center gap-2 text-sm text-white/80">
+                      <Mail className="w-4 h-4 text-white/40" />
+                      <span className="truncate">{actor.email}</span>
+                    </div>
+                  </div>
                 </div>
 
-                <ActorCard
-                  actor={toActor(actor)}
-                  onUpdate={updateActor}
-                  onDelete={() => deleteActor(actor.id)}
-                />
+                {/* Notes */}
+                {actor.notes && (
+                  <div className="p-3 bg-[#0f1f17] rounded-lg">
+                    <p className="text-xs font-semibold text-white/40 uppercase tracking-wider mb-2">
+                      Notes
+                    </p>
+                    <p className="text-sm text-white/80 font-sans leading-relaxed line-clamp-3">
+                      {actor.notes}
+                    </p>
+                  </div>
+                )}
               </div>
             ))}
           </div>
