@@ -1,12 +1,13 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
-import { ArrowLeft, Plus, FileJson, Download, Trash2, FileSpreadsheet } from "lucide-react"
+import { ArrowLeft, Plus, FileJson, Download, Trash2, FileSpreadsheet, MapPin } from "lucide-react"
 import { useLocationScouting } from "./LocationScoutingContext"
 import LocationCard from "./LocationCard"
 import { Location } from "@/types/location-scouting"
 import { exportLocationsAsJSON, exportLocationsAsPDF, exportLocationsAsExcel } from "@/lib/location-export"
 import SearchBar from "@/components/ui/SearchBar"
+import ViewModeToggle, { ViewMode } from "@/components/ui/ViewModeToggle"
 
 export default function LocationResultsView() {
   const {
@@ -19,6 +20,7 @@ export default function LocationResultsView() {
   } = useLocationScouting()
   const [searchQuery, setSearchQuery] = useState("")
   const [newItemId, setNewItemId] = useState<string | null>(null)
+  const [viewMode, setViewMode] = useState<ViewMode>("full")
   const gridRef = useRef<HTMLDivElement>(null)
 
   // Scroll to newly added item
@@ -149,6 +151,9 @@ export default function LocationResultsView() {
               <Trash2 className="w-4 h-4" />
               <span className="hidden sm:inline">Delete</span>
             </button>
+
+            {/* View Mode Toggle */}
+            <ViewModeToggle viewMode={viewMode} onChange={setViewMode} />
           </div>
         </div>
 
@@ -164,17 +169,120 @@ export default function LocationResultsView() {
 
       {/* Locations Grid */}
       <div className="flex-1 overflow-y-auto p-6">
-        <div ref={gridRef} className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
-          {filteredLocations.map((location) => (
-            <div key={location.id} data-location-id={location.id} className="transition-all duration-300 rounded-xl">
-              <LocationCard
-                location={location}
-                onUpdate={(updated) => updateLocation(currentProject.id, updated)}
-                onDelete={() => deleteLocation(currentProject.id, location.id)}
-              />
-            </div>
-          ))}
-        </div>
+        {/* Full View */}
+        {viewMode === "full" && (
+          <div ref={gridRef} className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
+            {filteredLocations.map((location) => (
+              <div key={location.id} data-location-id={location.id} className="transition-all duration-300 rounded-xl">
+                <LocationCard
+                  location={location}
+                  onUpdate={(updated) => updateLocation(currentProject.id, updated)}
+                  onDelete={() => deleteLocation(currentProject.id, location.id)}
+                />
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Minimal View - Condensed cards */}
+        {viewMode === "minimal" && (
+          <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3">
+            {filteredLocations.map((location) => (
+              <div
+                key={location.id}
+                data-location-id={location.id}
+                className="group relative p-3 rounded-lg border border-white/10 bg-[#1a2e23] hover:border-white/20 transition-colors"
+              >
+                {/* Actions */}
+                <div className="absolute top-2 right-2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button
+                    onClick={() => deleteLocation(currentProject.id, location.id)}
+                    className="p-1 bg-red-500/20 hover:bg-red-500/30 rounded text-red-400 hover:text-red-300 transition-colors"
+                    title="Delete"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-2.5">
+                  {/* Icon */}
+                  <div className="w-10 h-10 rounded-full bg-amber-500/20 flex-shrink-0 flex items-center justify-center">
+                    <MapPin className="w-5 h-5 text-amber-400" />
+                  </div>
+
+                  {/* Info */}
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-sm font-semibold text-white truncate">{location.name}</h3>
+                    <p className="text-xs text-white/50 truncate">
+                      {location.type} • {location.timeOfDay}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* List View - Grouped by type */}
+        {viewMode === "list" && (
+          <div ref={gridRef} className="space-y-6">
+            {["INT", "EXT", "INT/EXT"].map((type) => {
+              const typeLocations = filteredLocations.filter((l) => l.type === type)
+              if (typeLocations.length === 0) return null
+
+              return (
+                <div key={type} className="border border-white/10 rounded-xl overflow-hidden">
+                  {/* Category Header */}
+                  <div className="px-4 py-3 bg-white/5 border-b border-white/10">
+                    <h3 className="text-sm font-semibold text-white/80 uppercase tracking-wider">
+                      {type === "INT" ? "Interior" : type === "EXT" ? "Exterior" : "Int/Ext"} ({typeLocations.length})
+                    </h3>
+                  </div>
+
+                  {/* List Items */}
+                  <div className="divide-y divide-white/5">
+                    {typeLocations.map((location) => (
+                      <div
+                        key={location.id}
+                        data-location-id={location.id}
+                        className="flex items-center gap-4 px-4 py-3 hover:bg-white/5 transition-colors"
+                      >
+                        {/* Icon */}
+                        <div className="w-10 h-10 rounded-full bg-amber-500/20 flex-shrink-0 flex items-center justify-center">
+                          <MapPin className="w-5 h-5 text-amber-400" />
+                        </div>
+
+                        {/* Name & Details */}
+                        <div className="flex-1 min-w-0">
+                          <h4 className="text-sm font-semibold text-white">{location.name}</h4>
+                          <p className="text-xs text-white/50">
+                            {location.timeOfDay}
+                          </p>
+                        </div>
+
+                        {/* Description */}
+                        {location.description && (
+                          <div className="hidden lg:block max-w-[250px] text-xs text-white/40 truncate">
+                            {location.description}
+                          </div>
+                        )}
+
+                        {/* Actions */}
+                        <button
+                          onClick={() => deleteLocation(currentProject.id, location.id)}
+                          className="p-1.5 bg-red-500/10 hover:bg-red-500/20 rounded text-red-400 hover:text-red-300 transition-colors"
+                          title="Delete"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
 
         {filteredLocations.length === 0 && (
           <div className="flex flex-col items-center justify-center py-16">

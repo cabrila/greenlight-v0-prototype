@@ -1,18 +1,20 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
-import { ArrowLeft, Plus, FileJson, Download, Trash2, FileSpreadsheet } from "lucide-react"
+import { ArrowLeft, Plus, FileJson, Download, Trash2, FileSpreadsheet, User } from "lucide-react"
 import { useCharacterBible } from "./CharacterBibleContext"
 import CharacterCard from "./CharacterCard"
 import { Character } from "@/types/character-bible"
 import { exportCharactersAsJSON, exportCharactersAsPDF, exportCharactersAsExcel } from "@/lib/character-export"
 import SearchBar from "@/components/ui/SearchBar"
+import ViewModeToggle, { ViewMode } from "@/components/ui/ViewModeToggle"
 
 export default function ResultsView() {
   const { currentBible, setView, setCurrentBible, updateCharacter, deleteCharacter, addCharacter, deleteBible } = useCharacterBible()
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [newItemId, setNewItemId] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
+  const [viewMode, setViewMode] = useState<ViewMode>("full")
   const gridRef = useRef<HTMLDivElement>(null)
 
   // Scroll to newly added item
@@ -154,6 +156,9 @@ export default function ResultsView() {
               <Trash2 className="w-4 h-4" />
               <span className="text-sm font-sans hidden sm:inline">Delete</span>
             </button>
+
+            {/* View Mode Toggle */}
+            <ViewModeToggle viewMode={viewMode} onChange={setViewMode} />
           </div>
         </div>
 
@@ -169,17 +174,137 @@ export default function ResultsView() {
 
       {/* Characters Grid */}
       <div className="flex-1 overflow-y-auto p-6">
-        <div ref={gridRef} className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
-          {filteredCharacters.map((character) => (
-            <div key={character.id} data-character-id={character.id} className="transition-all duration-300 rounded-xl">
-              <CharacterCard
-                character={character}
-                onUpdate={(updates) => updateCharacter(currentBible.id, character.id, updates)}
-                onDelete={() => deleteCharacter(currentBible.id, character.id)}
-              />
-            </div>
-          ))}
-        </div>
+        {/* Full View */}
+        {viewMode === "full" && (
+          <div ref={gridRef} className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
+            {filteredCharacters.map((character) => (
+              <div key={character.id} data-character-id={character.id} className="transition-all duration-300 rounded-xl">
+                <CharacterCard
+                  character={character}
+                  onUpdate={(updates) => updateCharacter(currentBible.id, character.id, updates)}
+                  onDelete={() => deleteCharacter(currentBible.id, character.id)}
+                />
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Minimal View - Condensed cards */}
+        {viewMode === "minimal" && (
+          <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3">
+            {filteredCharacters.map((character) => (
+              <div
+                key={character.id}
+                data-character-id={character.id}
+                className="group relative p-3 rounded-lg border border-white/10 bg-[#1a2e23] hover:border-white/20 transition-colors"
+              >
+                {/* Actions */}
+                <div className="absolute top-2 right-2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button
+                    onClick={() => deleteCharacter(currentBible.id, character.id)}
+                    className="p-1 bg-red-500/20 hover:bg-red-500/30 rounded text-red-400 hover:text-red-300 transition-colors"
+                    title="Delete"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-2.5">
+                  {/* Icon */}
+                  <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex-shrink-0 flex items-center justify-center">
+                    <User className="w-5 h-5 text-emerald-400" />
+                  </div>
+
+                  {/* Info */}
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-sm font-semibold text-white truncate">{character.name}</h3>
+                    <p className="text-xs text-white/50 truncate">
+                      {character.age && `${character.age}`}
+                      {character.gender && ` • ${character.gender}`}
+                    </p>
+                  </div>
+                </div>
+
+                {character.scenes > 0 && (
+                  <div className="mt-2 text-xs text-white/40">
+                    {character.scenes} scene{character.scenes !== 1 ? "s" : ""}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* List View - Grouped by gender */}
+        {viewMode === "list" && (
+          <div ref={gridRef} className="space-y-6">
+            {["Male", "Female", "Non-binary", "Other", ""].map((gender) => {
+              const genderCharacters = filteredCharacters.filter((c) => (c.gender || "") === gender)
+              if (genderCharacters.length === 0) return null
+
+              const genderLabel = gender || "Unspecified"
+
+              return (
+                <div key={gender || "unspecified"} className="border border-white/10 rounded-xl overflow-hidden">
+                  {/* Category Header */}
+                  <div className="px-4 py-3 bg-white/5 border-b border-white/10">
+                    <h3 className="text-sm font-semibold text-white/80 uppercase tracking-wider">
+                      {genderLabel} ({genderCharacters.length})
+                    </h3>
+                  </div>
+
+                  {/* List Items */}
+                  <div className="divide-y divide-white/5">
+                    {genderCharacters.map((character) => (
+                      <div
+                        key={character.id}
+                        data-character-id={character.id}
+                        className="flex items-center gap-4 px-4 py-3 hover:bg-white/5 transition-colors"
+                      >
+                        {/* Icon */}
+                        <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex-shrink-0 flex items-center justify-center">
+                          <User className="w-5 h-5 text-emerald-400" />
+                        </div>
+
+                        {/* Name & Details */}
+                        <div className="flex-1 min-w-0">
+                          <h4 className="text-sm font-semibold text-white">{character.name}</h4>
+                          <p className="text-xs text-white/50">
+                            {character.age && `Age: ${character.age}`}
+                            {character.ethnicity && ` • ${character.ethnicity}`}
+                          </p>
+                        </div>
+
+                        {/* Scenes */}
+                        {character.scenes > 0 && (
+                          <div className="hidden md:block text-xs text-white/60">
+                            {character.scenes} scene{character.scenes !== 1 ? "s" : ""}
+                          </div>
+                        )}
+
+                        {/* Casting Notes */}
+                        {character.castingNotes && (
+                          <div className="hidden lg:block max-w-[200px] text-xs text-white/40 truncate">
+                            {character.castingNotes}
+                          </div>
+                        )}
+
+                        {/* Actions */}
+                        <button
+                          onClick={() => deleteCharacter(currentBible.id, character.id)}
+                          className="p-1.5 bg-red-500/10 hover:bg-red-500/20 rounded text-red-400 hover:text-red-300 transition-colors"
+                          title="Delete"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
 
         {filteredCharacters.length === 0 && (
           <div className="flex flex-col items-center justify-center py-16 text-center">

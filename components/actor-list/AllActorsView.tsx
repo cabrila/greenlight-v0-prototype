@@ -8,6 +8,7 @@ import Image from "next/image"
 import ImageModal from "@/components/ui/ImageModal"
 import DeleteConfirmationModal from "@/components/ui/DeleteConfirmationModal"
 import MediaModal from "@/components/ui/MediaModal"
+import ViewModeToggle, { ViewMode } from "@/components/ui/ViewModeToggle"
 
 type SortOption = "newest" | "oldest" | "alphabetical" | "age-high" | "age-low"
 type GenderFilter = "all" | "Male" | "Female" | "Other" | "Not-specified"
@@ -52,6 +53,9 @@ export default function AllActorsView() {
   const [mediaModalOpen, setMediaModalOpen] = useState(false)
   const [mediaModalUrl, setMediaModalUrl] = useState("")
   const [mediaModalTitle, setMediaModalTitle] = useState("")
+
+  // View mode state
+  const [viewMode, setViewMode] = useState<ViewMode>("full")
 
   // Filter and sort actors
   const filteredActors = useMemo(() => {
@@ -375,6 +379,9 @@ export default function AllActorsView() {
                 <Plus className="w-4 h-4" />
                 <span className="font-sans text-sm hidden sm:inline">Add Actor</span>
               </button>
+
+              {/* View Mode Toggle */}
+              <ViewModeToggle viewMode={viewMode} onChange={setViewMode} />
             </div>
           </div>
 
@@ -522,7 +529,10 @@ export default function AllActorsView() {
       {/* Actor Cards */}
       <div className="p-6">
         {filteredActors.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
+          <>
+            {/* Full View - Grid of detailed cards */}
+            {viewMode === "full" && (
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
             {filteredActors.map((actor) => {
               const isEditing = editingActorId === actor.id
               const mediaPlatform = getMediaPlatform(actor.mediaMaterial || "")
@@ -943,6 +953,213 @@ export default function AllActorsView() {
               )
             })}
           </div>
+            )}
+
+            {/* Minimal View - Condensed cards */}
+            {viewMode === "minimal" && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3">
+                {filteredActors.map((actor) => (
+                  <div
+                    key={actor.id}
+                    className={`group relative p-3 rounded-lg border bg-[#1a2e23] transition-colors ${
+                      selectedIds.has(actor.id)
+                        ? "border-sky-500/50 ring-1 ring-sky-500/20"
+                        : "border-white/10 hover:border-white/20"
+                    }`}
+                  >
+                    {/* Selection & Actions */}
+                    <div className="absolute top-2 right-2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button
+                        onClick={() => startEditing(actor)}
+                        className="p-1 bg-white/10 hover:bg-white/20 rounded text-white/70 hover:text-white transition-colors"
+                        title="Edit"
+                      >
+                        <Pencil className="w-3 h-3" />
+                      </button>
+                      <button
+                        onClick={() => openDeleteModal(actor)}
+                        className="p-1 bg-red-500/20 hover:bg-red-500/30 rounded text-red-400 hover:text-red-300 transition-colors"
+                        title="Delete"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                    </div>
+
+                    <div className="flex items-center gap-2.5">
+                      {/* Checkbox */}
+                      <button
+                        onClick={() => toggleSelect(actor.id)}
+                        className={`w-4 h-4 rounded border flex-shrink-0 flex items-center justify-center transition-all ${
+                          selectedIds.has(actor.id)
+                            ? "bg-sky-500 border-sky-500 text-white"
+                            : "border-white/30 hover:border-sky-400"
+                        }`}
+                      >
+                        {selectedIds.has(actor.id) && (
+                          <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                          </svg>
+                        )}
+                      </button>
+
+                      {/* Avatar */}
+                      <button
+                        onClick={() => actor.headshotUrl && openImageModal(actor.headshotUrl, actor.name)}
+                        className={`w-10 h-10 rounded-full overflow-hidden bg-sky-500/20 flex-shrink-0 ${
+                          actor.headshotUrl ? "cursor-pointer hover:ring-2 hover:ring-sky-500/50" : ""
+                        }`}
+                      >
+                        {actor.headshotUrl ? (
+                          <Image src={actor.headshotUrl} alt={actor.name} width={40} height={40} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-sky-400 text-sm font-bold">
+                            {actor.name.charAt(0).toUpperCase()}
+                          </div>
+                        )}
+                      </button>
+
+                      {/* Info */}
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-sm font-semibold text-white truncate">{actor.name}</h3>
+                        <p className="text-xs text-white/50 truncate">
+                          {actor.age && `${actor.age}yo`}
+                          {actor.gender && actor.gender !== "Not-specified" && ` • ${actor.gender}`}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Duplicate Badge */}
+                    {actor.isDuplicate && (
+                      <div className="mt-2 flex items-center gap-1 text-xs text-amber-400">
+                        <AlertTriangle className="w-3 h-3" />
+                        <span>Duplicate</span>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* List View - Grouped by gender with details */}
+            {viewMode === "list" && (
+              <div className="space-y-6">
+                {["Male", "Female", "Other", "Not-specified"].map((gender) => {
+                  const genderActors = filteredActors.filter((a) => (a.gender || "Not-specified") === gender)
+                  if (genderActors.length === 0) return null
+
+                  return (
+                    <div key={gender} className="border border-white/10 rounded-xl overflow-hidden">
+                      {/* Category Header */}
+                      <div className="px-4 py-3 bg-white/5 border-b border-white/10">
+                        <h3 className="text-sm font-semibold text-white/80 uppercase tracking-wider">
+                          {gender} ({genderActors.length})
+                        </h3>
+                      </div>
+
+                      {/* List Items */}
+                      <div className="divide-y divide-white/5">
+                        {genderActors.map((actor) => (
+                          <div
+                            key={actor.id}
+                            className={`flex items-center gap-4 px-4 py-3 hover:bg-white/5 transition-colors ${
+                              selectedIds.has(actor.id) ? "bg-sky-500/10" : ""
+                            }`}
+                          >
+                            {/* Checkbox */}
+                            <button
+                              onClick={() => toggleSelect(actor.id)}
+                              className={`w-5 h-5 rounded border-2 flex-shrink-0 flex items-center justify-center transition-all ${
+                                selectedIds.has(actor.id)
+                                  ? "bg-sky-500 border-sky-500 text-white"
+                                  : "border-white/30 hover:border-sky-400"
+                              }`}
+                            >
+                              {selectedIds.has(actor.id) && (
+                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                </svg>
+                              )}
+                            </button>
+
+                            {/* Avatar */}
+                            <button
+                              onClick={() => actor.headshotUrl && openImageModal(actor.headshotUrl, actor.name)}
+                              className={`w-10 h-10 rounded-full overflow-hidden bg-sky-500/20 flex-shrink-0 ${
+                                actor.headshotUrl ? "cursor-pointer hover:ring-2 hover:ring-sky-500/50" : ""
+                              }`}
+                            >
+                              {actor.headshotUrl ? (
+                                <Image src={actor.headshotUrl} alt={actor.name} width={40} height={40} className="w-full h-full object-cover" />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center text-sky-400 text-sm font-bold">
+                                  {actor.name.charAt(0).toUpperCase()}
+                                </div>
+                              )}
+                            </button>
+
+                            {/* Name & Details */}
+                            <div className="flex-1 min-w-0">
+                              <h4 className="text-sm font-semibold text-white">{actor.name}</h4>
+                              <p className="text-xs text-white/50">
+                                {actor.age && `Age: ${actor.age}`}
+                                {actor.playingAge && ` • Plays: ${actor.playingAge}`}
+                              </p>
+                            </div>
+
+                            {/* Contact */}
+                            <div className="hidden md:flex items-center gap-4 text-xs text-white/60">
+                              {actor.phone && (
+                                <span className="flex items-center gap-1">
+                                  <Phone className="w-3 h-3" />
+                                  {actor.phone}
+                                </span>
+                              )}
+                              <span className="flex items-center gap-1">
+                                <Mail className="w-3 h-3" />
+                                {actor.email}
+                              </span>
+                            </div>
+
+                            {/* Lists */}
+                            {actor.sourceListNames.length > 0 && (
+                              <div className="hidden lg:flex items-center gap-1">
+                                {actor.sourceListNames.slice(0, 2).map((name, idx) => (
+                                  <span key={idx} className="px-2 py-0.5 bg-sky-500/20 rounded text-xs text-sky-300 truncate max-w-[100px]">
+                                    {name}
+                                  </span>
+                                ))}
+                                {actor.sourceListNames.length > 2 && (
+                                  <span className="text-xs text-white/40">+{actor.sourceListNames.length - 2}</span>
+                                )}
+                              </div>
+                            )}
+
+                            {/* Actions */}
+                            <div className="flex items-center gap-1">
+                              <button
+                                onClick={() => startEditing(actor)}
+                                className="p-1.5 bg-white/5 hover:bg-white/10 rounded text-white/60 hover:text-white transition-colors"
+                                title="Edit"
+                              >
+                                <Pencil className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => openDeleteModal(actor)}
+                                className="p-1.5 bg-red-500/10 hover:bg-red-500/20 rounded text-red-400 hover:text-red-300 transition-colors"
+                                title="Delete"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </>
         ) : (
           <div className="text-center py-12">
             <p className="text-white/40 font-sans">

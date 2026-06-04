@@ -1,13 +1,15 @@
 "use client"
 
 import { useState, useMemo, useEffect } from "react"
-import { ArrowLeft, Search, SlidersHorizontal, ChevronDown, FileJson, FileSpreadsheet, Download, Filter, X, CheckSquare, Square, UserPlus, Plus } from "lucide-react"
+import { ArrowLeft, Search, SlidersHorizontal, ChevronDown, FileJson, FileSpreadsheet, Download, Filter, X, CheckSquare, Square, UserPlus, Plus, Mail, Phone, Star } from "lucide-react"
 import { usePublicCasting } from "./PublicCastingContext"
 import { useActorListSafe } from "../actor-list/ActorListContext"
 import SubmissionCard from "./SubmissionCard"
 import { CastingSubmission } from "@/types/public-casting"
 import { Actor } from "@/types/actor-list"
 import { exportSubmissionsAsJSON, exportSubmissionsAsPDF, exportSubmissionsAsExcel } from "@/lib/submission-export"
+import ViewModeToggle, { ViewMode } from "@/components/ui/ViewModeToggle"
+import Image from "next/image"
 
 interface SubmissionsListProps {
   onBack: () => void
@@ -47,6 +49,7 @@ export default function SubmissionsList({ onBack, initialFilterForm }: Submissio
     location: "",
     availability: "",
   })
+  const [viewMode, setViewMode] = useState<ViewMode>("full")
 
   // Get all submissions across all projects
   const allSubmissions = useMemo(() => {
@@ -407,6 +410,9 @@ export default function SubmissionsList({ onBack, initialFilterForm }: Submissio
                 <Download className="w-4 h-4" />
                 <span className="font-sans text-sm hidden sm:inline">PDF</span>
               </button>
+
+              {/* View Mode Toggle */}
+              <ViewModeToggle viewMode={viewMode} onChange={setViewMode} />
             </div>
           </div>
 
@@ -594,18 +600,175 @@ export default function SubmissionsList({ onBack, initialFilterForm }: Submissio
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
-            {filteredSubmissions.map((submission) => (
-              <SubmissionCard
-                key={submission.id}
-                submission={submission}
-                onUpdate={(updates) => handleUpdateSubmission(submission.id, updates)}
-                onDelete={() => handleDeleteSubmission(submission.id)}
-                isSelected={selectedIds.has(submission.id)}
-                onToggleSelect={() => toggleSelect(submission.id)}
-              />
-            ))}
-          </div>
+          <>
+            {/* Full View */}
+            {viewMode === "full" && (
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
+                {filteredSubmissions.map((submission) => (
+                  <SubmissionCard
+                    key={submission.id}
+                    submission={submission}
+                    onUpdate={(updates) => handleUpdateSubmission(submission.id, updates)}
+                    onDelete={() => handleDeleteSubmission(submission.id)}
+                    isSelected={selectedIds.has(submission.id)}
+                    onToggleSelect={() => toggleSelect(submission.id)}
+                  />
+                ))}
+              </div>
+            )}
+
+            {/* Minimal View - Condensed cards */}
+            {viewMode === "minimal" && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3">
+                {filteredSubmissions.map((submission) => (
+                  <div
+                    key={submission.id}
+                    className={`group relative p-3 rounded-lg border bg-[#1a2e23] transition-colors ${
+                      selectedIds.has(submission.id)
+                        ? "border-violet-500/50 ring-1 ring-violet-500/20"
+                        : "border-white/10 hover:border-white/20"
+                    }`}
+                  >
+                    {/* Grade Badge */}
+                    {submission.grade && submission.grade > 0 && (
+                      <div className="absolute top-2 right-2 flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400 text-xs">
+                        <Star className="w-3 h-3 fill-current" />
+                        {submission.grade}
+                      </div>
+                    )}
+
+                    <div className="flex items-center gap-2.5">
+                      {/* Checkbox */}
+                      <button
+                        onClick={() => toggleSelect(submission.id)}
+                        className={`w-4 h-4 rounded border flex-shrink-0 flex items-center justify-center transition-all ${
+                          selectedIds.has(submission.id)
+                            ? "bg-violet-500 border-violet-500 text-white"
+                            : "border-white/30 hover:border-violet-400"
+                        }`}
+                      >
+                        {selectedIds.has(submission.id) && (
+                          <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                          </svg>
+                        )}
+                      </button>
+
+                      {/* Avatar */}
+                      <div className="w-10 h-10 rounded-full overflow-hidden bg-violet-500/20 flex-shrink-0">
+                        {submission.headshot ? (
+                          <Image src={submission.headshot} alt={submission.name} width={40} height={40} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-violet-400 text-sm font-bold">
+                            {submission.name.charAt(0).toUpperCase()}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Info */}
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-sm font-semibold text-white truncate">{submission.name}</h3>
+                        <p className="text-xs text-white/50 truncate">
+                          {submission.castingCallTitle}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* List View - Grouped by form/casting call */}
+            {viewMode === "list" && (
+              <div className="space-y-6">
+                {formNames.map((formName) => {
+                  const formSubmissions = filteredSubmissions.filter((s) => s.castingCallTitle === formName)
+                  if (formSubmissions.length === 0) return null
+
+                  return (
+                    <div key={formName} className="border border-white/10 rounded-xl overflow-hidden">
+                      {/* Category Header */}
+                      <div className="px-4 py-3 bg-white/5 border-b border-white/10">
+                        <h3 className="text-sm font-semibold text-white/80 uppercase tracking-wider">
+                          {formName} ({formSubmissions.length})
+                        </h3>
+                      </div>
+
+                      {/* List Items */}
+                      <div className="divide-y divide-white/5">
+                        {formSubmissions.map((submission) => (
+                          <div
+                            key={submission.id}
+                            className={`flex items-center gap-4 px-4 py-3 hover:bg-white/5 transition-colors ${
+                              selectedIds.has(submission.id) ? "bg-violet-500/10" : ""
+                            }`}
+                          >
+                            {/* Checkbox */}
+                            <button
+                              onClick={() => toggleSelect(submission.id)}
+                              className={`w-5 h-5 rounded border-2 flex-shrink-0 flex items-center justify-center transition-all ${
+                                selectedIds.has(submission.id)
+                                  ? "bg-violet-500 border-violet-500 text-white"
+                                  : "border-white/30 hover:border-violet-400"
+                              }`}
+                            >
+                              {selectedIds.has(submission.id) && (
+                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                </svg>
+                              )}
+                            </button>
+
+                            {/* Avatar */}
+                            <div className="w-10 h-10 rounded-full overflow-hidden bg-violet-500/20 flex-shrink-0">
+                              {submission.headshot ? (
+                                <Image src={submission.headshot} alt={submission.name} width={40} height={40} className="w-full h-full object-cover" />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center text-violet-400 text-sm font-bold">
+                                  {submission.name.charAt(0).toUpperCase()}
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Name & Details */}
+                            <div className="flex-1 min-w-0">
+                              <h4 className="text-sm font-semibold text-white">{submission.name}</h4>
+                              <p className="text-xs text-white/50">
+                                {submission.age && `Age: ${submission.age}`}
+                                {submission.gender && ` • ${submission.gender}`}
+                              </p>
+                            </div>
+
+                            {/* Contact */}
+                            <div className="hidden md:flex items-center gap-4 text-xs text-white/60">
+                              {submission.phone && (
+                                <span className="flex items-center gap-1">
+                                  <Phone className="w-3 h-3" />
+                                  {submission.phone}
+                                </span>
+                              )}
+                              <span className="flex items-center gap-1">
+                                <Mail className="w-3 h-3" />
+                                {submission.email}
+                              </span>
+                            </div>
+
+                            {/* Grade */}
+                            {submission.grade && submission.grade > 0 && (
+                              <div className="flex items-center gap-1 px-2 py-1 rounded bg-amber-500/20 text-amber-400 text-xs">
+                                <Star className="w-3 h-3 fill-current" />
+                                {submission.grade}/10
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </>
         )}
       </div>
 
