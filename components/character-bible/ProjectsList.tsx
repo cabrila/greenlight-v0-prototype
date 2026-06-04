@@ -58,7 +58,7 @@ export default function ProjectsList() {
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl md:text-4xl font-bold text-white mb-2 font-sans">
-          My Characters
+          My Character Bibles
         </h1>
         <p className="text-white/60 text-base font-sans">
           Create and manage character bibles extracted from your scripts.
