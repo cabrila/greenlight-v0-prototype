@@ -24,8 +24,8 @@ const featureButtons = [
   },
   {
     id: "actor-database",
-    title: "Actor List",
-    description: "Create and manage an easily navigable list of actors for your production.",
+    title: "Actor Management",
+    description: "Create and manage easily navigable lists and databases of actors for your productions.",
     icon: Users,
     iconBg: "bg-sky-500/20",
     iconColor: "text-sky-400",
