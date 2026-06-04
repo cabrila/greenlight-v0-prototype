@@ -731,23 +731,23 @@ export default function SubmissionsList({ onBack, initialFilterForm }: Submissio
                             </div>
 
                             {/* Name & Details */}
-                            <div className="flex-1 min-w-0">
-                              <h4 className="text-sm font-semibold text-white">{submission.name}</h4>
-                              <p className="text-xs text-white/50">
+                            <div className="w-40 sm:w-48 md:w-56 min-w-0 flex-shrink-0">
+                              <h4 className="text-sm font-semibold text-white truncate">{submission.name}</h4>
+                              <p className="text-xs text-white/50 truncate">
                                 {submission.age && `Age: ${submission.age}`}
                                 {submission.gender && ` • ${submission.gender}`}
                               </p>
                             </div>
 
                             {/* Contact */}
-                            <div className="hidden md:flex items-center gap-4 text-xs text-white/60">
+                            <div className="hidden md:flex flex-1 items-center gap-6 text-xs text-white/60 justify-start">
                               {submission.phone && (
-                                <span className="flex items-center gap-1">
+                                <span className="flex items-center gap-1.5">
                                   <Phone className="w-3 h-3" />
                                   {submission.phone}
                                 </span>
                               )}
-                              <span className="flex items-center gap-1">
+                              <span className="flex items-center gap-1.5">
                                 <Mail className="w-3 h-3" />
                                 {submission.email}
                               </span>
@@ -755,7 +755,7 @@ export default function SubmissionsList({ onBack, initialFilterForm }: Submissio
 
                             {/* Grade */}
                             {submission.grade && submission.grade > 0 && (
-                              <div className="flex items-center gap-1 px-2 py-1 rounded bg-amber-500/20 text-amber-400 text-xs">
+                              <div className="flex items-center gap-1.5 px-3 py-1 rounded bg-amber-500/20 text-amber-400 text-xs flex-shrink-0">
                                 <Star className="w-3 h-3 fill-current" />
                                 {submission.grade}/10
                               </div>

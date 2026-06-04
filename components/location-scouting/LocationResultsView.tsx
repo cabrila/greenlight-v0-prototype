@@ -253,16 +253,16 @@ export default function LocationResultsView() {
                         </div>
 
                         {/* Name & Details */}
-                        <div className="flex-1 min-w-0">
-                          <h4 className="text-sm font-semibold text-white">{location.name}</h4>
-                          <p className="text-xs text-white/50">
+                        <div className="w-40 sm:w-48 md:w-56 min-w-0 flex-shrink-0">
+                          <h4 className="text-sm font-semibold text-white truncate">{location.name}</h4>
+                          <p className="text-xs text-white/50 truncate">
                             {location.timeOfDay}
                           </p>
                         </div>
 
                         {/* Description */}
                         {location.description && (
-                          <div className="hidden lg:block max-w-[250px] text-xs text-white/40 truncate">
+                          <div className="hidden lg:block flex-1 text-xs text-white/40 truncate">
                             {location.description}
                           </div>
                         )}

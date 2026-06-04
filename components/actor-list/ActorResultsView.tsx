@@ -258,23 +258,23 @@ export default function ActorResultsView() {
                         </div>
 
                         {/* Name & Details */}
-                        <div className="flex-1 min-w-0">
-                          <h4 className="text-sm font-semibold text-white">{actor.name}</h4>
-                          <p className="text-xs text-white/50">
+                        <div className="w-40 sm:w-48 md:w-56 min-w-0 flex-shrink-0">
+                          <h4 className="text-sm font-semibold text-white truncate">{actor.name}</h4>
+                          <p className="text-xs text-white/50 truncate">
                             {actor.age && `Age: ${actor.age}`}
                             {actor.playingAge && ` • Plays: ${actor.playingAge}`}
                           </p>
                         </div>
 
                         {/* Contact */}
-                        <div className="hidden md:flex items-center gap-4 text-xs text-white/60">
+                        <div className="hidden md:flex flex-1 items-center gap-6 text-xs text-white/60 justify-start">
                           {actor.phone && (
-                            <span className="flex items-center gap-1">
+                            <span className="flex items-center gap-1.5">
                               <Phone className="w-3 h-3" />
                               {actor.phone}
                             </span>
                           )}
-                          <span className="flex items-center gap-1">
+                          <span className="flex items-center gap-1.5">
                             <Mail className="w-3 h-3" />
                             {actor.email}
                           </span>

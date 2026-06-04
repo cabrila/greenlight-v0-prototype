@@ -267,9 +267,9 @@ export default function ResultsView() {
                         </div>
 
                         {/* Name & Details */}
-                        <div className="flex-1 min-w-0">
-                          <h4 className="text-sm font-semibold text-white">{character.name}</h4>
-                          <p className="text-xs text-white/50">
+                        <div className="w-40 sm:w-48 md:w-56 min-w-0 flex-shrink-0">
+                          <h4 className="text-sm font-semibold text-white truncate">{character.name}</h4>
+                          <p className="text-xs text-white/50 truncate">
                             {character.age && `Age: ${character.age}`}
                             {character.ethnicity && ` • ${character.ethnicity}`}
                           </p>
@@ -277,14 +277,14 @@ export default function ResultsView() {
 
                         {/* Scenes */}
                         {character.scenes > 0 && (
-                          <div className="hidden md:block text-xs text-white/60">
+                          <div className="hidden md:block flex-shrink-0 text-xs text-white/60 min-w-[80px]">
                             {character.scenes} scene{character.scenes !== 1 ? "s" : ""}
                           </div>
                         )}
 
                         {/* Casting Notes */}
                         {character.castingNotes && (
-                          <div className="hidden lg:block max-w-[200px] text-xs text-white/40 truncate">
+                          <div className="hidden lg:block flex-1 text-xs text-white/40 truncate">
                             {character.castingNotes}
                           </div>
                         )}
