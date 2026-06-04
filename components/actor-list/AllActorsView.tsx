@@ -113,8 +113,17 @@ export default function AllActorsView() {
         break
     }
 
+    // Place currently editing actor at the front (for newly created actors)
+    if (editingActorId) {
+      const editingIndex = result.findIndex((a) => a.id === editingActorId)
+      if (editingIndex > 0) {
+        const [editingActor] = result.splice(editingIndex, 1)
+        result.unshift(editingActor)
+      }
+    }
+
     return result
-  }, [allActors, searchQuery, sortBy, advancedFilters])
+  }, [allActors, searchQuery, sortBy, advancedFilters, editingActorId])
 
   // Selection handlers
   const toggleSelect = (id: string) => {
