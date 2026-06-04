@@ -1,13 +1,21 @@
 "use client"
 
-import { createContext, useContext, useState, ReactNode } from "react"
+import { createContext, useContext, useState, ReactNode, useMemo } from "react"
 import { Actor, ActorListProject } from "@/types/actor-list"
+
+// Extended actor type with list membership and duplicate info
+export interface AggregatedActor extends Actor {
+  sourceListIds: string[]
+  sourceListNames: string[]
+  isDuplicate: boolean
+  duplicateDismissed: boolean
+}
 
 interface ActorListContextType {
   projects: ActorListProject[]
   currentProject: ActorListProject | null
-  view: "list" | "upload" | "results"
-  setView: (view: "list" | "upload" | "results") => void
+  view: "list" | "upload" | "results" | "all-actors"
+  setView: (view: "list" | "upload" | "results" | "all-actors") => void
   createProject: (name: string, actors: Actor[]) => void
   selectProject: (id: string) => void
   updateProject: (id: string, updates: Partial<ActorListProject>) => void
@@ -16,6 +24,11 @@ interface ActorListContextType {
   updateActor: (actor: Actor) => void
   deleteActor: (id: string) => void
   goBack: () => void
+  // All Actors specific
+  allActors: AggregatedActor[]
+  addActorToList: (actorId: string, projectId: string) => void
+  dismissDuplicate: (actorName: string) => void
+  dismissedDuplicates: Set<string>
 }
 
 const ActorListContext = createContext<ActorListContextType | null>(null)
@@ -136,7 +149,51 @@ const initialProjects: ActorListProject[] = [
 export function ActorListProvider({ children }: { children: ReactNode }) {
   const [projects, setProjects] = useState<ActorListProject[]>(initialProjects)
   const [currentProject, setCurrentProject] = useState<ActorListProject | null>(null)
-  const [view, setView] = useState<"list" | "upload" | "results">("list")
+  const [view, setView] = useState<"list" | "upload" | "results" | "all-actors">("list")
+  const [dismissedDuplicates, setDismissedDuplicates] = useState<Set<string>>(new Set())
+
+  // Aggregate all actors from all projects with duplicate detection
+  const allActors = useMemo(() => {
+    const actorMap = new Map<string, AggregatedActor>()
+    const nameCounts = new Map<string, number>()
+
+    // First pass: count names for duplicate detection
+    projects.forEach((project) => {
+      project.actors.forEach((actor) => {
+        const normalizedName = actor.name.toLowerCase().trim()
+        nameCounts.set(normalizedName, (nameCounts.get(normalizedName) || 0) + 1)
+      })
+    })
+
+    // Second pass: create aggregated actors
+    projects.forEach((project) => {
+      project.actors.forEach((actor) => {
+        const key = `${actor.name.toLowerCase().trim()}-${actor.email.toLowerCase().trim()}`
+        const normalizedName = actor.name.toLowerCase().trim()
+        const isDuplicate = (nameCounts.get(normalizedName) || 0) > 1
+
+        if (actorMap.has(key)) {
+          // Actor exists, add this list to their sources
+          const existing = actorMap.get(key)!
+          if (!existing.sourceListIds.includes(project.id)) {
+            existing.sourceListIds.push(project.id)
+            existing.sourceListNames.push(project.name)
+          }
+        } else {
+          // New actor
+          actorMap.set(key, {
+            ...actor,
+            sourceListIds: [project.id],
+            sourceListNames: [project.name],
+            isDuplicate: isDuplicate && !dismissedDuplicates.has(normalizedName),
+            duplicateDismissed: dismissedDuplicates.has(normalizedName),
+          })
+        }
+      })
+    })
+
+    return Array.from(actorMap.values())
+  }, [projects, dismissedDuplicates])
 
   const createProject = (name: string, actors: Actor[]) => {
     const newProject: ActorListProject = {
@@ -208,12 +265,52 @@ export function ActorListProvider({ children }: { children: ReactNode }) {
   }
 
   const goBack = () => {
-    if (view === "results") {
+    if (view === "results" || view === "all-actors") {
       setCurrentProject(null)
       setView("list")
     } else if (view === "upload") {
       setView("list")
     }
+  }
+
+  // Add actor to a specific list (from All Actors view)
+  const addActorToList = (actorId: string, projectId: string) => {
+    // Find the actor from allActors
+    const actor = allActors.find((a) => a.id === actorId)
+    if (!actor) return
+
+    const project = projects.find((p) => p.id === projectId)
+    if (!project) return
+
+    // Check if actor already in this list
+    if (project.actors.some((a) => a.id === actorId)) return
+
+    // Create a clean actor object without the aggregated fields
+    const cleanActor: Actor = {
+      id: actor.id,
+      name: actor.name,
+      age: actor.age,
+      gender: actor.gender,
+      playingAge: actor.playingAge,
+      phone: actor.phone,
+      email: actor.email,
+      headshotUrl: actor.headshotUrl,
+      notes: actor.notes,
+      mediaMaterial: actor.mediaMaterial,
+      customFields: actor.customFields,
+    }
+
+    setProjects(projects.map((p) =>
+      p.id === projectId
+        ? { ...p, actors: [...p.actors, cleanActor], updatedAt: new Date() }
+        : p
+    ))
+  }
+
+  // Dismiss duplicate flag for an actor name
+  const dismissDuplicate = (actorName: string) => {
+    const normalizedName = actorName.toLowerCase().trim()
+    setDismissedDuplicates((prev) => new Set([...prev, normalizedName]))
   }
 
   return (
@@ -231,6 +328,10 @@ export function ActorListProvider({ children }: { children: ReactNode }) {
         updateActor,
         deleteActor,
         goBack,
+        allActors,
+        addActorToList,
+        dismissDuplicate,
+        dismissedDuplicates,
       }}
     >
       {children}
