@@ -34,6 +34,9 @@ interface ActorListContextType {
   deleteActorGlobally: (actorId: string) => void
   // Add new actor to specific project (for All Actors view)
   addNewActorToProject: (actor: Actor, projectId: string) => void
+  // Standalone actors (not attached to any list)
+  standaloneActors: Actor[]
+  addStandaloneActor: (actor: Actor) => void
 }
 
 const ActorListContext = createContext<ActorListContextType | null>(null)
@@ -156,21 +159,26 @@ export function ActorListProvider({ children }: { children: ReactNode }) {
   const [currentProject, setCurrentProject] = useState<ActorListProject | null>(null)
   const [view, setView] = useState<"list" | "upload" | "results" | "all-actors">("list")
   const [dismissedDuplicates, setDismissedDuplicates] = useState<Set<string>>(new Set())
+  const [standaloneActors, setStandaloneActors] = useState<Actor[]>([])
 
   // Aggregate all actors from all projects with duplicate detection
   const allActors = useMemo(() => {
     const actorMap = new Map<string, AggregatedActor>()
     const nameCounts = new Map<string, number>()
 
-    // First pass: count names for duplicate detection
+    // First pass: count names for duplicate detection (including standalone)
     projects.forEach((project) => {
       project.actors.forEach((actor) => {
         const normalizedName = actor.name.toLowerCase().trim()
         nameCounts.set(normalizedName, (nameCounts.get(normalizedName) || 0) + 1)
       })
     })
+    standaloneActors.forEach((actor) => {
+      const normalizedName = actor.name.toLowerCase().trim()
+      nameCounts.set(normalizedName, (nameCounts.get(normalizedName) || 0) + 1)
+    })
 
-    // Second pass: create aggregated actors
+    // Second pass: create aggregated actors from projects
     projects.forEach((project) => {
       project.actors.forEach((actor) => {
         const key = `${actor.name.toLowerCase().trim()}-${actor.email.toLowerCase().trim()}`
@@ -197,8 +205,25 @@ export function ActorListProvider({ children }: { children: ReactNode }) {
       })
     })
 
+    // Third pass: add standalone actors (not in any list)
+    standaloneActors.forEach((actor) => {
+      const key = `${actor.name.toLowerCase().trim()}-${actor.email.toLowerCase().trim()}`
+      const normalizedName = actor.name.toLowerCase().trim()
+      const isDuplicate = (nameCounts.get(normalizedName) || 0) > 1
+
+      if (!actorMap.has(key)) {
+        actorMap.set(key, {
+          ...actor,
+          sourceListIds: [],
+          sourceListNames: [],
+          isDuplicate: isDuplicate && !dismissedDuplicates.has(normalizedName),
+          duplicateDismissed: dismissedDuplicates.has(normalizedName),
+        })
+      }
+    })
+
     return Array.from(actorMap.values())
-  }, [projects, dismissedDuplicates])
+  }, [projects, standaloneActors, dismissedDuplicates])
 
   const createProject = (name: string, actors: Actor[]) => {
     const newProject: ActorListProject = {
@@ -318,7 +343,7 @@ export function ActorListProvider({ children }: { children: ReactNode }) {
     setDismissedDuplicates((prev) => new Set([...prev, normalizedName]))
   }
 
-  // Update actor globally across all lists
+  // Update actor globally across all lists and standalone
   const updateActorGlobally = (updatedActor: Actor) => {
     setProjects((prevProjects) =>
       prevProjects.map((project) => ({
@@ -326,6 +351,10 @@ export function ActorListProvider({ children }: { children: ReactNode }) {
         actors: project.actors.map((a) => (a.id === updatedActor.id ? updatedActor : a)),
         updatedAt: new Date(),
       }))
+    )
+    // Also update standalone actors
+    setStandaloneActors((prev) =>
+      prev.map((a) => (a.id === updatedActor.id ? updatedActor : a))
     )
     // Also update currentProject if it contains this actor
     if (currentProject) {
@@ -340,7 +369,7 @@ export function ActorListProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  // Delete actor globally from all lists
+  // Delete actor globally from all lists and standalone
   const deleteActorGlobally = (actorId: string) => {
     setProjects((prevProjects) =>
       prevProjects.map((project) => ({
@@ -349,6 +378,8 @@ export function ActorListProvider({ children }: { children: ReactNode }) {
         updatedAt: new Date(),
       }))
     )
+    // Also remove from standalone actors
+    setStandaloneActors((prev) => prev.filter((a) => a.id !== actorId))
     // Also update currentProject if it contains this actor
     if (currentProject) {
       const hasActor = currentProject.actors.some((a) => a.id === actorId)
@@ -373,6 +404,11 @@ export function ActorListProvider({ children }: { children: ReactNode }) {
     )
   }
 
+  // Add a standalone actor (not attached to any list)
+  const addStandaloneActor = (actor: Actor) => {
+    setStandaloneActors((prev) => [...prev, actor])
+  }
+
   return (
     <ActorListContext.Provider
       value={{
@@ -395,6 +431,8 @@ export function ActorListProvider({ children }: { children: ReactNode }) {
         updateActorGlobally,
         deleteActorGlobally,
         addNewActorToProject,
+        standaloneActors,
+        addStandaloneActor,
       }}
     >
       {children}

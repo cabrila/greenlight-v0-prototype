@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useMemo } from "react"
-import { ArrowLeft, Search, SlidersHorizontal, ChevronDown, Filter, X, CheckSquare, Square, Plus, AlertTriangle, Phone, Mail, Pencil, Trash2, Save, Video, ExternalLink, UserPlus } from "lucide-react"
+import { ArrowLeft, Search, SlidersHorizontal, ChevronDown, Filter, X, CheckSquare, Square, Plus, AlertTriangle, Phone, Mail, Pencil, Trash2, Save, Video, ExternalLink } from "lucide-react"
 import { useActorList, AggregatedActor } from "./ActorListContext"
 import { Actor, ActorGender, CustomField } from "@/types/actor-list"
 import Image from "next/image"
@@ -20,7 +20,7 @@ interface AdvancedFilters {
 }
 
 export default function AllActorsView() {
-  const { allActors, projects, goBack, addActorToList, dismissDuplicate, updateActorGlobally, deleteActorGlobally, addNewActorToProject } = useActorList()
+  const { allActors, projects, goBack, addActorToList, dismissDuplicate, updateActorGlobally, deleteActorGlobally, addStandaloneActor } = useActorList()
   const [searchQuery, setSearchQuery] = useState("")
   const [sortBy, setSortBy] = useState<SortOption>("alphabetical")
   const [showSortDropdown, setShowSortDropdown] = useState(false)
@@ -52,9 +52,6 @@ export default function AllActorsView() {
   const [mediaModalOpen, setMediaModalOpen] = useState(false)
   const [mediaModalUrl, setMediaModalUrl] = useState("")
   const [mediaModalTitle, setMediaModalTitle] = useState("")
-
-  // Add new actor modal state
-  const [showAddActorModal, setShowAddActorModal] = useState(false)
 
   // Filter and sort actors
   const filteredActors = useMemo(() => {
@@ -256,8 +253,8 @@ export default function AllActorsView() {
     return { name: "Media Link" }
   }
 
-  // Handle adding a new actor to a selected list
-  const handleAddNewActor = (projectId: string) => {
+  // Handle adding a new standalone actor (not attached to any list)
+  const handleAddNewActor = () => {
     const newActor: Actor = {
       id: crypto.randomUUID(),
       name: "New Actor",
@@ -271,8 +268,7 @@ export default function AllActorsView() {
       mediaMaterial: "",
       customFields: [],
     }
-    addNewActorToProject(newActor, projectId)
-    setShowAddActorModal(false)
+    addStandaloneActor(newActor)
     // Start editing the new actor
     setEditingActorId(newActor.id)
     setEditedActor(newActor)
@@ -363,7 +359,7 @@ export default function AllActorsView() {
 
               {/* Add Actor Button */}
               <button
-                onClick={() => setShowAddActorModal(true)}
+                onClick={handleAddNewActor}
                 className="flex items-center gap-2 px-3 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg text-white transition-colors"
                 title="Add Actor"
               >
@@ -1031,49 +1027,6 @@ export default function AllActorsView() {
         url={mediaModalUrl}
         title={mediaModalTitle}
       />
-
-      {/* Add Actor Modal - Select List */}
-      {showAddActorModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#1a2e23] border border-white/10 rounded-xl w-full max-w-md overflow-hidden">
-            <div className="p-4 border-b border-white/10 flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-white font-sans">Add Actor to List</h3>
-              <button
-                onClick={() => setShowAddActorModal(false)}
-                className="p-1 hover:bg-white/10 rounded-lg transition-colors"
-              >
-                <X className="w-5 h-5 text-white/60" />
-              </button>
-            </div>
-            <div className="p-4">
-              <p className="text-white/60 text-sm mb-4 font-sans">
-                Select which list to add the new actor to:
-              </p>
-              {projects.length > 0 ? (
-                <div className="space-y-2 max-h-64 overflow-y-auto">
-                  {projects.map((project) => (
-                    <button
-                      key={project.id}
-                      onClick={() => handleAddNewActor(project.id)}
-                      className="w-full flex items-center gap-3 p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-left transition-colors"
-                    >
-                      <UserPlus className="w-5 h-5 text-sky-400" />
-                      <div>
-                        <p className="text-white font-medium font-sans">{project.name}</p>
-                        <p className="text-white/50 text-xs font-sans">{project.actors.length} actors</p>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-white/40 text-sm font-sans text-center py-4">
-                  No lists available. Create a list first.
-                </p>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }
