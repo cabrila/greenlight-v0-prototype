@@ -29,6 +29,9 @@ interface ActorListContextType {
   addActorToList: (actorId: string, projectId: string) => void
   dismissDuplicate: (actorName: string) => void
   dismissedDuplicates: Set<string>
+  // Global actor operations (updates/deletes across all lists)
+  updateActorGlobally: (actor: Actor) => void
+  deleteActorGlobally: (actorId: string) => void
 }
 
 const ActorListContext = createContext<ActorListContextType | null>(null)
@@ -313,6 +316,50 @@ export function ActorListProvider({ children }: { children: ReactNode }) {
     setDismissedDuplicates((prev) => new Set([...prev, normalizedName]))
   }
 
+  // Update actor globally across all lists
+  const updateActorGlobally = (updatedActor: Actor) => {
+    setProjects((prevProjects) =>
+      prevProjects.map((project) => ({
+        ...project,
+        actors: project.actors.map((a) => (a.id === updatedActor.id ? updatedActor : a)),
+        updatedAt: new Date(),
+      }))
+    )
+    // Also update currentProject if it contains this actor
+    if (currentProject) {
+      const hasActor = currentProject.actors.some((a) => a.id === updatedActor.id)
+      if (hasActor) {
+        setCurrentProject({
+          ...currentProject,
+          actors: currentProject.actors.map((a) => (a.id === updatedActor.id ? updatedActor : a)),
+          updatedAt: new Date(),
+        })
+      }
+    }
+  }
+
+  // Delete actor globally from all lists
+  const deleteActorGlobally = (actorId: string) => {
+    setProjects((prevProjects) =>
+      prevProjects.map((project) => ({
+        ...project,
+        actors: project.actors.filter((a) => a.id !== actorId),
+        updatedAt: new Date(),
+      }))
+    )
+    // Also update currentProject if it contains this actor
+    if (currentProject) {
+      const hasActor = currentProject.actors.some((a) => a.id === actorId)
+      if (hasActor) {
+        setCurrentProject({
+          ...currentProject,
+          actors: currentProject.actors.filter((a) => a.id !== actorId),
+          updatedAt: new Date(),
+        })
+      }
+    }
+  }
+
   return (
     <ActorListContext.Provider
       value={{
@@ -332,6 +379,8 @@ export function ActorListProvider({ children }: { children: ReactNode }) {
         addActorToList,
         dismissDuplicate,
         dismissedDuplicates,
+        updateActorGlobally,
+        deleteActorGlobally,
       }}
     >
       {children}

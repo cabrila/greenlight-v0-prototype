@@ -1,9 +1,13 @@
 "use client"
 
 import { useState, useMemo } from "react"
-import { ArrowLeft, Search, SlidersHorizontal, ChevronDown, Filter, X, CheckSquare, Square, Plus, AlertTriangle, Phone, Mail, Pencil, Trash2 } from "lucide-react"
-import { useActorList } from "./ActorListContext"
+import { ArrowLeft, Search, SlidersHorizontal, ChevronDown, Filter, X, CheckSquare, Square, Plus, AlertTriangle, Phone, Mail, Pencil, Trash2, Save, Video, ExternalLink } from "lucide-react"
+import { useActorList, AggregatedActor } from "./ActorListContext"
+import { Actor, ActorGender, CustomField } from "@/types/actor-list"
 import Image from "next/image"
+import ImageModal from "@/components/ui/ImageModal"
+import DeleteConfirmationModal from "@/components/ui/DeleteConfirmationModal"
+import MediaModal from "@/components/ui/MediaModal"
 
 type SortOption = "newest" | "oldest" | "alphabetical" | "age-high" | "age-low"
 type GenderFilter = "all" | "Male" | "Female" | "Other" | "Not-specified"
@@ -16,7 +20,7 @@ interface AdvancedFilters {
 }
 
 export default function AllActorsView() {
-  const { allActors, projects, goBack, addActorToList, dismissDuplicate, deleteActor } = useActorList()
+  const { allActors, projects, goBack, addActorToList, dismissDuplicate, updateActorGlobally, deleteActorGlobally } = useActorList()
   const [searchQuery, setSearchQuery] = useState("")
   const [sortBy, setSortBy] = useState<SortOption>("alphabetical")
   const [showSortDropdown, setShowSortDropdown] = useState(false)
@@ -29,6 +33,25 @@ export default function AllActorsView() {
     gender: "all",
     duplicatesOnly: false,
   })
+
+  // Edit mode state
+  const [editingActorId, setEditingActorId] = useState<string | null>(null)
+  const [editedActor, setEditedActor] = useState<Actor | null>(null)
+  const [newFieldName, setNewFieldName] = useState("")
+
+  // Delete confirmation modal state
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+  const [actorToDelete, setActorToDelete] = useState<AggregatedActor | null>(null)
+
+  // Image modal state
+  const [imageModalOpen, setImageModalOpen] = useState(false)
+  const [imageModalSrc, setImageModalSrc] = useState("")
+  const [imageModalAlt, setImageModalAlt] = useState("")
+
+  // Media modal state
+  const [mediaModalOpen, setMediaModalOpen] = useState(false)
+  const [mediaModalUrl, setMediaModalUrl] = useState("")
+  const [mediaModalTitle, setMediaModalTitle] = useState("")
 
   // Filter and sort actors
   const filteredActors = useMemo(() => {
@@ -121,6 +144,113 @@ export default function AllActorsView() {
     })
     setShowAddToListModal(false)
     clearSelection()
+  }
+
+  // Edit handlers
+  const startEditing = (actor: AggregatedActor) => {
+    setEditingActorId(actor.id)
+    // Convert AggregatedActor to Actor for editing
+    setEditedActor({
+      id: actor.id,
+      name: actor.name,
+      age: actor.age,
+      gender: actor.gender,
+      playingAge: actor.playingAge,
+      phone: actor.phone,
+      email: actor.email,
+      headshotUrl: actor.headshotUrl,
+      notes: actor.notes,
+      mediaMaterial: actor.mediaMaterial,
+      customFields: actor.customFields,
+    })
+  }
+
+  const cancelEditing = () => {
+    setEditingActorId(null)
+    setEditedActor(null)
+    setNewFieldName("")
+  }
+
+  const saveEditing = () => {
+    if (editedActor) {
+      updateActorGlobally(editedActor)
+    }
+    cancelEditing()
+  }
+
+  const handleAddCustomField = () => {
+    if (!newFieldName.trim() || !editedActor) return
+    const newField: CustomField = {
+      id: crypto.randomUUID(),
+      name: newFieldName.trim(),
+      value: "",
+    }
+    setEditedActor({
+      ...editedActor,
+      customFields: [...(editedActor.customFields || []), newField],
+    })
+    setNewFieldName("")
+  }
+
+  const handleUpdateCustomField = (fieldId: string, value: string) => {
+    if (!editedActor) return
+    setEditedActor({
+      ...editedActor,
+      customFields: (editedActor.customFields || []).map((f) =>
+        f.id === fieldId ? { ...f, value } : f
+      ),
+    })
+  }
+
+  const handleRemoveCustomField = (fieldId: string) => {
+    if (!editedActor) return
+    setEditedActor({
+      ...editedActor,
+      customFields: (editedActor.customFields || []).filter((f) => f.id !== fieldId),
+    })
+  }
+
+  // Delete handlers
+  const openDeleteModal = (actor: AggregatedActor) => {
+    setActorToDelete(actor)
+    setDeleteModalOpen(true)
+  }
+
+  const confirmDelete = () => {
+    if (actorToDelete) {
+      deleteActorGlobally(actorToDelete.id)
+      setActorToDelete(null)
+    }
+  }
+
+  // Image modal handlers
+  const openImageModal = (src: string, alt: string) => {
+    setImageModalSrc(src)
+    setImageModalAlt(alt)
+    setImageModalOpen(true)
+  }
+
+  // Media modal handlers
+  const openMediaModal = (url: string, title: string) => {
+    setMediaModalUrl(url)
+    setMediaModalTitle(title)
+    setMediaModalOpen(true)
+  }
+
+  // Helper to detect media platform from URL
+  const getMediaPlatform = (url: string): { name: string } | null => {
+    if (!url) return null
+    const lowerUrl = url.toLowerCase()
+    if (lowerUrl.includes("youtube.com") || lowerUrl.includes("youtu.be")) {
+      return { name: "YouTube" }
+    }
+    if (lowerUrl.includes("vimeo.com")) {
+      return { name: "Vimeo" }
+    }
+    if (lowerUrl.includes("drive.google.com")) {
+      return { name: "Google Drive" }
+    }
+    return { name: "Media Link" }
   }
 
   const hasActiveAdvancedFilters =
@@ -353,161 +483,425 @@ export default function AllActorsView() {
       <div className="p-6">
         {filteredActors.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
-            {filteredActors.map((actor) => (
-              <div
-                key={actor.id}
-                className={`group relative p-5 rounded-xl border bg-[#1a2e23] transition-colors ${
-                  selectedIds.has(actor.id) 
-                    ? "border-sky-500/50 ring-2 ring-sky-500/20" 
-                    : "border-white/10 hover:border-white/20"
-                }`}
-              >
-                {/* Action Icons - Upper Right Corner */}
-                <div className="absolute top-4 right-4 flex items-center gap-1">
-                  {/* Edit & Delete - Show on hover */}
-                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button
-                      onClick={() => {/* Edit functionality handled by ActorCard if needed */}}
-                      className="p-2 bg-white/10 hover:bg-white/20 rounded-lg text-white/70 hover:text-white transition-colors"
-                      title="Edit actor"
-                    >
-                      <Pencil className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => deleteActor(actor.id)}
-                      className="p-2 bg-red-500/20 hover:bg-red-500/30 rounded-lg text-red-400 hover:text-red-300 transition-colors"
-                      title="Delete actor"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                  {/* Duplicate Badge */}
-                  {actor.isDuplicate && (
-                    <div className="flex items-center gap-1 px-2 py-1.5 bg-amber-500/20 border border-amber-500/30 rounded-lg">
-                      <AlertTriangle className="w-3 h-3 text-amber-400" />
-                      <span className="text-xs text-amber-300 font-sans">Duplicate</span>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          dismissDuplicate(actor.name)
-                        }}
-                        className="ml-1 text-amber-400 hover:text-amber-200"
-                        title="Dismiss duplicate flag"
+            {filteredActors.map((actor) => {
+              const isEditing = editingActorId === actor.id
+              const mediaPlatform = getMediaPlatform(actor.mediaMaterial || "")
+
+              // Edit Mode
+              if (isEditing && editedActor) {
+                return (
+                  <div key={actor.id} className="p-5 rounded-xl border border-sky-500/50 bg-[#1a2e23]">
+                    {/* Actor Name */}
+                    <div className="mb-4">
+                      <label className="block text-xs font-semibold text-sky-400 uppercase tracking-wider mb-2">
+                        Actor Name
+                      </label>
+                      <input
+                        type="text"
+                        value={editedActor.name}
+                        onChange={(e) => setEditedActor({ ...editedActor, name: e.target.value })}
+                        className="w-full px-4 py-2.5 bg-[#0f1f17] border border-white/10 rounded-lg text-white font-sans focus:outline-none focus:border-sky-500/50"
+                      />
+                    </div>
+
+                    {/* Age and Playing Age */}
+                    <div className="grid grid-cols-2 gap-3 mb-4">
+                      <div>
+                        <label className="block text-xs font-semibold text-sky-400 uppercase tracking-wider mb-2">
+                          Age
+                        </label>
+                        <input
+                          type="number"
+                          value={editedActor.age}
+                          onChange={(e) => setEditedActor({ ...editedActor, age: parseInt(e.target.value) || 0 })}
+                          className="w-full px-4 py-2.5 bg-[#0f1f17] border border-white/10 rounded-lg text-white font-sans focus:outline-none focus:border-sky-500/50"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold text-sky-400 uppercase tracking-wider mb-2">
+                          Playing Age
+                        </label>
+                        <input
+                          type="text"
+                          value={editedActor.playingAge}
+                          onChange={(e) => setEditedActor({ ...editedActor, playingAge: e.target.value })}
+                          className="w-full px-4 py-2.5 bg-[#0f1f17] border border-white/10 rounded-lg text-white font-sans focus:outline-none focus:border-sky-500/50"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Gender */}
+                    <div className="mb-4">
+                      <label className="block text-xs font-semibold text-sky-400 uppercase tracking-wider mb-2">
+                        Gender
+                      </label>
+                      <select
+                        value={editedActor.gender || "Not-specified"}
+                        onChange={(e) => setEditedActor({ ...editedActor, gender: e.target.value as ActorGender })}
+                        className="w-full px-4 py-2.5 bg-[#0f1f17] border border-white/10 rounded-lg text-white font-sans focus:outline-none focus:border-sky-500/50"
                       >
-                        <X className="w-3 h-3" />
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                        <option value="Not-specified">Not-specified</option>
+                      </select>
+                    </div>
+
+                    {/* Phone */}
+                    <div className="mb-4">
+                      <label className="block text-xs font-semibold text-sky-400 uppercase tracking-wider mb-2">
+                        Phone
+                      </label>
+                      <input
+                        type="tel"
+                        value={editedActor.phone}
+                        onChange={(e) => setEditedActor({ ...editedActor, phone: e.target.value })}
+                        className="w-full px-4 py-2.5 bg-[#0f1f17] border border-white/10 rounded-lg text-white font-sans focus:outline-none focus:border-sky-500/50"
+                      />
+                    </div>
+
+                    {/* Email */}
+                    <div className="mb-4">
+                      <label className="block text-xs font-semibold text-sky-400 uppercase tracking-wider mb-2">
+                        Email
+                      </label>
+                      <input
+                        type="email"
+                        value={editedActor.email}
+                        onChange={(e) => setEditedActor({ ...editedActor, email: e.target.value })}
+                        className="w-full px-4 py-2.5 bg-[#0f1f17] border border-white/10 rounded-lg text-white font-sans focus:outline-none focus:border-sky-500/50"
+                      />
+                    </div>
+
+                    {/* Headshot URL */}
+                    <div className="mb-4">
+                      <label className="block text-xs font-semibold text-sky-400 uppercase tracking-wider mb-2">
+                        Headshot (URL)
+                      </label>
+                      <input
+                        type="url"
+                        value={editedActor.headshotUrl}
+                        onChange={(e) => setEditedActor({ ...editedActor, headshotUrl: e.target.value })}
+                        className="w-full px-4 py-2.5 bg-[#0f1f17] border border-white/10 rounded-lg text-white font-sans focus:outline-none focus:border-sky-500/50 text-sm"
+                      />
+                    </div>
+
+                    {/* Media Material URL */}
+                    <div className="mb-4">
+                      <label className="block text-xs font-semibold text-sky-400 uppercase tracking-wider mb-2">
+                        Media Material (YouTube, Vimeo, Google Drive)
+                      </label>
+                      <div className="relative">
+                        <Video className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                        <input
+                          type="url"
+                          value={editedActor.mediaMaterial || ""}
+                          onChange={(e) => setEditedActor({ ...editedActor, mediaMaterial: e.target.value })}
+                          placeholder="https://youtube.com/watch?v=..."
+                          className="w-full pl-10 pr-4 py-2.5 bg-[#0f1f17] border border-white/10 rounded-lg text-white font-sans focus:outline-none focus:border-sky-500/50 text-sm"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Notes */}
+                    <div className="mb-4">
+                      <label className="block text-xs font-semibold text-sky-400 uppercase tracking-wider mb-2">
+                        Notes
+                      </label>
+                      <textarea
+                        value={editedActor.notes}
+                        onChange={(e) => setEditedActor({ ...editedActor, notes: e.target.value })}
+                        rows={3}
+                        className="w-full px-4 py-2.5 bg-[#0f1f17] border border-white/10 rounded-lg text-white font-sans focus:outline-none focus:border-sky-500/50 resize-none"
+                      />
+                    </div>
+
+                    {/* Custom Fields */}
+                    <div className="mb-4">
+                      <label className="block text-xs font-semibold text-sky-400 uppercase tracking-wider mb-2">
+                        Custom Fields
+                      </label>
+                      
+                      {/* Existing Custom Fields */}
+                      {(editedActor.customFields || []).map((field) => (
+                        <div key={field.id} className="flex items-center gap-2 mb-2">
+                          <div className="flex-1 grid grid-cols-2 gap-2">
+                            <div className="px-3 py-2 bg-[#0f1f17] border border-white/10 rounded-lg text-white/60 text-sm truncate">
+                              {field.name}
+                            </div>
+                            <input
+                              type="text"
+                              value={field.value}
+                              onChange={(e) => handleUpdateCustomField(field.id, e.target.value)}
+                              placeholder="Enter value..."
+                              className="px-3 py-2 bg-[#0f1f17] border border-white/10 rounded-lg text-white font-sans focus:outline-none focus:border-sky-500/50 text-sm"
+                            />
+                          </div>
+                          <button
+                            onClick={() => handleRemoveCustomField(field.id)}
+                            className="p-2 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-colors"
+                            title="Remove field"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ))}
+
+                      {/* Add New Custom Field */}
+                      <div className="flex items-center gap-2 mt-3">
+                        <input
+                          type="text"
+                          value={newFieldName}
+                          onChange={(e) => setNewFieldName(e.target.value)}
+                          placeholder="Field name..."
+                          className="flex-1 px-3 py-2 bg-[#0f1f17] border border-white/10 rounded-lg text-white font-sans focus:outline-none focus:border-sky-500/50 text-sm"
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              e.preventDefault()
+                              handleAddCustomField()
+                            }
+                          }}
+                        />
+                        <button
+                          onClick={handleAddCustomField}
+                          disabled={!newFieldName.trim()}
+                          className="flex items-center gap-1.5 px-3 py-2 bg-sky-500/20 hover:bg-sky-500/30 border border-sky-500/30 rounded-lg text-sky-400 text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          <Plus className="w-4 h-4" />
+                          Add Field
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex items-center justify-between pt-2">
+                      <button
+                        onClick={() => openDeleteModal(actor)}
+                        className="flex items-center gap-2 text-red-400 hover:text-red-300 transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                        <span className="text-sm font-sans">Delete</span>
+                      </button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={cancelEditing}
+                          className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-colors"
+                        >
+                          <X className="w-4 h-4" />
+                          <span className="text-sm font-sans">Cancel</span>
+                        </button>
+                        <button
+                          onClick={saveEditing}
+                          className="flex items-center gap-2 px-4 py-2 bg-sky-600 hover:bg-sky-500 rounded-lg text-white transition-colors"
+                        >
+                          <Save className="w-4 h-4" />
+                          <span className="text-sm font-sans">Save</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )
+              }
+
+              // View Mode
+              return (
+                <div
+                  key={actor.id}
+                  className={`group relative p-5 rounded-xl border bg-[#1a2e23] transition-colors ${
+                    selectedIds.has(actor.id) 
+                      ? "border-sky-500/50 ring-2 ring-sky-500/20" 
+                      : "border-white/10 hover:border-white/20"
+                  }`}
+                >
+                  {/* Action Icons - Upper Right Corner */}
+                  <div className="absolute top-4 right-4 flex items-center gap-1">
+                    {/* Edit & Delete - Show on hover */}
+                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button
+                        onClick={() => startEditing(actor)}
+                        className="p-2 bg-white/10 hover:bg-white/20 rounded-lg text-white/70 hover:text-white transition-colors"
+                        title="Edit actor"
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => openDeleteModal(actor)}
+                        className="p-2 bg-red-500/20 hover:bg-red-500/30 rounded-lg text-red-400 hover:text-red-300 transition-colors"
+                        title="Delete actor"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                    {/* Duplicate Badge */}
+                    {actor.isDuplicate && (
+                      <div className="flex items-center gap-1 px-2 py-1.5 bg-amber-500/20 border border-amber-500/30 rounded-lg">
+                        <AlertTriangle className="w-3 h-3 text-amber-400" />
+                        <span className="text-xs text-amber-300 font-sans">Duplicate</span>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            dismissDuplicate(actor.name)
+                          }}
+                          className="ml-1 text-amber-400 hover:text-amber-200"
+                          title="Dismiss duplicate flag"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Header with Avatar */}
+                  <div className="flex items-start gap-4 mb-4">
+                    {/* Selection Checkbox - Before Avatar */}
+                    <button
+                      onClick={() => toggleSelect(actor.id)}
+                      className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all flex-shrink-0 mt-1 ${
+                        selectedIds.has(actor.id) 
+                          ? "bg-sky-500 border-sky-500 text-white" 
+                          : "border-white/30 hover:border-sky-400 bg-transparent"
+                      }`}
+                      title={selectedIds.has(actor.id) ? "Deselect" : "Select"}
+                    >
+                      {selectedIds.has(actor.id) && (
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                        </svg>
+                      )}
+                    </button>
+
+                    {/* Avatar - Clickable for fullscreen */}
+                    <button
+                      onClick={() => actor.headshotUrl && openImageModal(actor.headshotUrl, actor.name)}
+                      className={`w-14 h-14 rounded-full overflow-hidden bg-sky-500/20 flex-shrink-0 transition-all ${
+                        actor.headshotUrl ? "cursor-pointer hover:ring-2 hover:ring-sky-500/50 hover:ring-offset-2 hover:ring-offset-[#1a2e23]" : "cursor-default"
+                      }`}
+                      disabled={!actor.headshotUrl}
+                      title={actor.headshotUrl ? "Click to view full image" : undefined}
+                    >
+                      {actor.headshotUrl ? (
+                        <Image
+                          src={actor.headshotUrl}
+                          alt={actor.name}
+                          width={56}
+                          height={56}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-sky-400 text-xl font-bold">
+                          {actor.name.charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                    </button>
+
+                    {/* Name & Age */}
+                    <div className="flex-1 min-w-0 pt-1">
+                      <h3 className="text-lg font-bold text-white font-sans uppercase tracking-wide truncate pr-20">
+                        {actor.name}
+                      </h3>
+                      <div className="flex items-center gap-2 text-sm flex-wrap">
+                        {actor.age && (
+                          <span className="text-white/60">
+                            AGE <span className="text-white">{actor.age}</span>
+                          </span>
+                        )}
+                        {actor.gender && (
+                          <span className="text-white/60">
+                            <span className="text-white">{actor.gender}</span>
+                          </span>
+                        )}
+                        {actor.playingAge && (
+                          <span className="text-white/60">
+                            PLAYS <span className="text-emerald-400">{actor.playingAge}</span>
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* List Tags - Between Name/Age and Contact Details */}
+                  {actor.sourceListNames.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 mb-4 px-3 py-2 bg-sky-500/10 rounded-lg">
+                      {actor.sourceListNames.map((listName, idx) => (
+                        <span
+                          key={idx}
+                          className="px-2 py-0.5 bg-sky-500/20 border border-sky-500/30 rounded text-xs text-sky-300 font-sans truncate max-w-[120px]"
+                          title={listName}
+                        >
+                          {listName}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Contact Details */}
+                  <div className="p-3 bg-[#0f1f17] rounded-lg mb-4">
+                    <p className="text-xs font-semibold text-white/40 uppercase tracking-wider mb-2">
+                      Contact Details
+                    </p>
+                    <div className="space-y-2">
+                      {actor.phone && (
+                        <div className="flex items-center gap-2 text-sm text-white/80">
+                          <Phone className="w-4 h-4 text-white/40" />
+                          <span>{actor.phone}</span>
+                        </div>
+                      )}
+                      <div className="flex items-center gap-2 text-sm text-white/80">
+                        <Mail className="w-4 h-4 text-white/40" />
+                        <span className="truncate">{actor.email}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Media Material */}
+                  {actor.mediaMaterial && mediaPlatform && (
+                    <div className="mb-4">
+                      <p className="text-xs font-semibold text-white/40 uppercase tracking-wider mb-2">
+                        Media Material
+                      </p>
+                      <button
+                        onClick={() => openMediaModal(actor.mediaMaterial!, `${actor.name} - Media Material`)}
+                        className="inline-flex items-center gap-2 px-3 py-2 bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/20 rounded-lg text-sky-400 hover:text-sky-300 text-sm transition-colors group/link"
+                        title="Click to play video"
+                      >
+                        <Video className="w-4 h-4" />
+                        <span className="font-sans">{mediaPlatform.name}</span>
+                        <ExternalLink className="w-3 h-3 opacity-60 group-hover/link:opacity-100 transition-opacity" />
                       </button>
                     </div>
                   )}
-                </div>
 
-                {/* Header with Avatar */}
-                <div className="flex items-start gap-4 mb-4">
-                  {/* Selection Checkbox - Before Avatar */}
-                  <button
-                    onClick={() => toggleSelect(actor.id)}
-                    className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all flex-shrink-0 mt-1 ${
-                      selectedIds.has(actor.id) 
-                        ? "bg-sky-500 border-sky-500 text-white" 
-                        : "border-white/30 hover:border-sky-400 bg-transparent"
-                    }`}
-                    title={selectedIds.has(actor.id) ? "Deselect" : "Select"}
-                  >
-                    {selectedIds.has(actor.id) && (
-                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                      </svg>
-                    )}
-                  </button>
-
-                  {/* Avatar */}
-                  <div className="w-14 h-14 rounded-full overflow-hidden bg-sky-500/20 flex-shrink-0">
-                    {actor.headshotUrl ? (
-                      <Image
-                        src={actor.headshotUrl}
-                        alt={actor.name}
-                        width={56}
-                        height={56}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-sky-400 text-xl font-bold">
-                        {actor.name.charAt(0).toUpperCase()}
+                  {/* Custom Fields */}
+                  {actor.customFields && actor.customFields.length > 0 && (
+                    <div className="mb-4">
+                      <p className="text-xs font-semibold text-white/40 uppercase tracking-wider mb-2">
+                        Additional Info
+                      </p>
+                      <div className="space-y-1.5">
+                        {actor.customFields.map((field) => (
+                          <div key={field.id} className="flex items-start gap-2 text-sm">
+                            <span className="text-white/50 font-sans shrink-0">{field.name}:</span>
+                            <span className="text-white/80 font-sans">{field.value || "-"}</span>
+                          </div>
+                        ))}
                       </div>
-                    )}
-                  </div>
-
-                  {/* Name & Age */}
-                  <div className="flex-1 min-w-0 pt-1">
-                    <h3 className="text-lg font-bold text-white font-sans uppercase tracking-wide truncate pr-20">
-                      {actor.name}
-                    </h3>
-                    <div className="flex items-center gap-2 text-sm flex-wrap">
-                      {actor.age && (
-                        <span className="text-white/60">
-                          AGE <span className="text-white">{actor.age}</span>
-                        </span>
-                      )}
-                      {actor.gender && (
-                        <span className="text-white/60">
-                          <span className="text-white">{actor.gender}</span>
-                        </span>
-                      )}
-                      {actor.playingAge && (
-                        <span className="text-white/60">
-                          PLAYS <span className="text-emerald-400">{actor.playingAge}</span>
-                        </span>
-                      )}
                     </div>
-                  </div>
-                </div>
+                  )}
 
-                {/* List Tags - Between Name/Age and Contact Details */}
-                {actor.sourceListNames.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5 mb-4 px-3 py-2 bg-sky-500/10 rounded-lg">
-                    {actor.sourceListNames.map((listName, idx) => (
-                      <span
-                        key={idx}
-                        className="px-2 py-0.5 bg-sky-500/20 border border-sky-500/30 rounded text-xs text-sky-300 font-sans truncate max-w-[120px]"
-                        title={listName}
-                      >
-                        {listName}
-                      </span>
-                    ))}
-                  </div>
-                )}
-
-                {/* Contact Details */}
-                <div className="p-3 bg-[#0f1f17] rounded-lg mb-4">
-                  <p className="text-xs font-semibold text-white/40 uppercase tracking-wider mb-2">
-                    Contact Details
-                  </p>
-                  <div className="space-y-2">
-                    {actor.phone && (
-                      <div className="flex items-center gap-2 text-sm text-white/80">
-                        <Phone className="w-4 h-4 text-white/40" />
-                        <span>{actor.phone}</span>
-                      </div>
-                    )}
-                    <div className="flex items-center gap-2 text-sm text-white/80">
-                      <Mail className="w-4 h-4 text-white/40" />
-                      <span className="truncate">{actor.email}</span>
+                  {/* Notes */}
+                  {actor.notes && (
+                    <div className="p-3 bg-[#0f1f17] rounded-lg">
+                      <p className="text-xs font-semibold text-white/40 uppercase tracking-wider mb-2">
+                        Notes
+                      </p>
+                      <p className="text-sm text-white/80 font-sans leading-relaxed line-clamp-3">
+                        {actor.notes}
+                      </p>
                     </div>
-                  </div>
+                  )}
                 </div>
-
-                {/* Notes */}
-                {actor.notes && (
-                  <div className="p-3 bg-[#0f1f17] rounded-lg">
-                    <p className="text-xs font-semibold text-white/40 uppercase tracking-wider mb-2">
-                      Notes
-                    </p>
-                    <p className="text-sm text-white/80 font-sans leading-relaxed line-clamp-3">
-                      {actor.notes}
-                    </p>
-                  </div>
-                )}
-              </div>
-            ))}
+              )
+            })}
           </div>
         ) : (
           <div className="text-center py-12">
@@ -573,6 +967,35 @@ export default function AllActorsView() {
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal
+        isOpen={deleteModalOpen}
+        onClose={() => {
+          setDeleteModalOpen(false)
+          setActorToDelete(null)
+        }}
+        onConfirm={confirmDelete}
+        title="Delete Actor"
+        itemName={actorToDelete?.name || ""}
+        description="This will permanently delete this actor from ALL lists they appear in. This action cannot be undone."
+      />
+
+      {/* Image Modal */}
+      <ImageModal
+        isOpen={imageModalOpen}
+        onClose={() => setImageModalOpen(false)}
+        src={imageModalSrc}
+        alt={imageModalAlt}
+      />
+
+      {/* Media Modal */}
+      <MediaModal
+        isOpen={mediaModalOpen}
+        onClose={() => setMediaModalOpen(false)}
+        url={mediaModalUrl}
+        title={mediaModalTitle}
+      />
     </div>
   )
 }
