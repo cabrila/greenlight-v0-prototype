@@ -1,0 +1,64 @@
+export interface CastingCallField {
+  id: string
+  label: string
+  type: "text" | "email" | "phone" | "textarea" | "select" | "file" | "url" | "number" | "image" | "gender"
+  required: boolean
+  placeholder?: string
+  options?: string[] // For select fields
+}
+
+export interface CastingCall {
+  id: string
+  title: string
+  description: string
+  projectName: string
+  headerImageUrl?: string
+  fields: CastingCallField[]
+  createdAt: Date
+  isActive: boolean
+  isCompleted?: boolean
+  shareableLink: string
+  // Talent pool consent configuration
+  talentPoolConsentEnabled?: boolean
+  talentPoolConsentText?: string
+}
+
+export interface CastingSubmission {
+  id: string
+  castingCallId: string
+  castingCallTitle: string
+  data: Record<string, string | string[]>
+  submittedAt: Date
+  isNew: boolean
+  // Standard actor fields extracted from data
+  name: string
+  email: string
+  phone?: string
+  age?: string
+  gender?: "Male" | "Female" | "Other" | "Not-specified"
+  playingAge?: string
+  headshot?: string
+  headshots?: string[] // Multiple images support
+  videoUrls?: string[] // Multiple video URLs support
+  notes?: string
+  // Grading (1-10 scale)
+  grade?: number
+}
+
+export interface PublicCastingProject {
+  id: string
+  name: string
+  castingCalls: CastingCall[]
+  submissions: CastingSubmission[]
+  createdAt: Date
+  thumbnailUrl?: string
+}
+
+export interface CastingGroup {
+  id: string
+  name: string
+  imageUrl?: string
+  projectIds: string[] // IDs of projects in this group
+  isExpanded: boolean
+  createdAt: Date
+}

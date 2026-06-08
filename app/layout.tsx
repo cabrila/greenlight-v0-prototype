@@ -11,8 +11,8 @@ const gabarito = Gabarito({
 })
 
 export const metadata: Metadata = {
-  title: "GoGreenlight Casting",
-  description: "Casting application prototype",
+  title: "GoGreenlight",
+  description: "Every creative asset. One platform.",
   generator: 'v0.app'
 }
 
@@ -22,7 +22,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={`${gabarito.variable} antialiased`}>
+    <html lang="en" className={`${gabarito.variable} antialiased bg-[#0a2618]`}>
       <body className="font-sans">
         {children}
       </body>
