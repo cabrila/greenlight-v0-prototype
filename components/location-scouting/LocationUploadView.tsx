@@ -223,7 +223,7 @@ export default function LocationUploadView() {
                 className="w-full flex items-center justify-center gap-2 py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-white/80 hover:text-white rounded-xl transition-colors font-sans"
               >
                 <PenLine className="w-4 h-4" />
-                Create Location manually
+                Create Location List Manually
               </button>
             </div>
           )}
