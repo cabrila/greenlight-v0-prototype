@@ -21,13 +21,14 @@ interface AdvancedFilters {
 }
 
 export default function AllActorsView() {
-  const { allActors, projects, goBack, addActorToList, dismissDuplicate, updateActorGlobally, deleteActorGlobally, addStandaloneActor } = useActorList()
+  const { allActors, projects, goBack, addActorToList, dismissDuplicate, updateActorGlobally, deleteActorGlobally, addStandaloneActor, createProject } = useActorList()
   const [searchQuery, setSearchQuery] = useState("")
   const [sortBy, setSortBy] = useState<SortOption>("alphabetical")
   const [showSortDropdown, setShowSortDropdown] = useState(false)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [showFilterPanel, setShowFilterPanel] = useState(false)
   const [showAddToListModal, setShowAddToListModal] = useState(false)
+  const [newListName, setNewListName] = useState("")
   const [advancedFilters, setAdvancedFilters] = useState<AdvancedFilters>({
     ageMin: "",
     ageMax: "",
@@ -155,6 +156,30 @@ export default function AllActorsView() {
     selectedIds.forEach((actorId) => {
       addActorToList(actorId, projectId)
     })
+    setShowAddToListModal(false)
+    clearSelection()
+  }
+
+  // Create a new list using the selected actors
+  const handleCreateNewList = () => {
+    if (!newListName.trim()) return
+    const selectedActors: Actor[] = allActors
+      .filter((a) => selectedIds.has(a.id))
+      .map((actor) => ({
+        id: actor.id,
+        name: actor.name,
+        age: actor.age,
+        gender: actor.gender,
+        playingAge: actor.playingAge,
+        phone: actor.phone,
+        email: actor.email,
+        headshotUrl: actor.headshotUrl,
+        notes: actor.notes,
+        mediaMaterial: actor.mediaMaterial,
+        customFields: actor.customFields,
+      }))
+    createProject(newListName.trim(), selectedActors)
+    setNewListName("")
     setShowAddToListModal(false)
     clearSelection()
   }
@@ -1197,29 +1222,58 @@ export default function AllActorsView() {
               </p>
 
               {/* Existing Lists */}
-              {projects.length > 0 ? (
-                <div className="space-y-2 max-h-64 overflow-y-auto">
-                  {projects.map((project) => (
-                    <button
-                      key={project.id}
-                      onClick={() => handleAddToList(project.id)}
-                      className="w-full flex items-center justify-between px-4 py-3 bg-white/5 hover:bg-sky-500/20 border border-white/10 hover:border-sky-500/30 rounded-xl text-left transition-all group"
-                    >
-                      <div>
-                        <p className="text-white font-medium font-sans text-sm">{project.name}</p>
-                        <p className="text-white/40 text-xs font-sans">
-                          {project.actors.length} actor{project.actors.length !== 1 ? "s" : ""}
-                        </p>
-                      </div>
-                      <Plus className="w-4 h-4 text-white/30 group-hover:text-sky-400 transition-colors" />
-                    </button>
-                  ))}
+              {projects.length > 0 && (
+                <div className="mb-5">
+                  <h3 className="text-xs font-medium text-white/50 uppercase tracking-wider mb-2 font-sans">
+                    Existing Lists
+                  </h3>
+                  <div className="space-y-2 max-h-48 overflow-y-auto">
+                    {projects.map((project) => (
+                      <button
+                        key={project.id}
+                        onClick={() => handleAddToList(project.id)}
+                        className="w-full flex items-center justify-between px-4 py-3 bg-white/5 hover:bg-sky-500/20 border border-white/10 hover:border-sky-500/30 rounded-xl text-left transition-all group"
+                      >
+                        <div>
+                          <p className="text-white font-medium font-sans text-sm">{project.name}</p>
+                          <p className="text-white/40 text-xs font-sans">
+                            {project.actors.length} actor{project.actors.length !== 1 ? "s" : ""}
+                          </p>
+                        </div>
+                        <Plus className="w-4 h-4 text-white/30 group-hover:text-sky-400 transition-colors" />
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              ) : (
-                <p className="text-white/40 text-sm font-sans text-center py-4">
-                  No lists available. Create a list first.
-                </p>
               )}
+
+              {/* Create New List */}
+              <div>
+                <h3 className="text-xs font-medium text-white/50 uppercase tracking-wider mb-2 font-sans">
+                  Create New List
+                </h3>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={newListName}
+                    onChange={(e) => setNewListName(e.target.value)}
+                    placeholder="Enter list name..."
+                    className="flex-1 px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/30 focus:border-sky-500/50 focus:outline-none font-sans text-sm"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && newListName.trim()) {
+                        handleCreateNewList()
+                      }
+                    }}
+                  />
+                  <button
+                    onClick={handleCreateNewList}
+                    disabled={!newListName.trim()}
+                    className="px-4 py-2.5 bg-sky-500 hover:bg-sky-400 disabled:bg-sky-500/30 disabled:cursor-not-allowed rounded-xl text-white font-medium text-sm transition-colors font-sans"
+                  >
+                    Create
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
