@@ -18,6 +18,7 @@ export interface Clip {
   image?: string
   kind: string // source type: actor/prop/location/image...
   duration: number // seconds
+  start?: number // offset in seconds from the timeline start (undefined = auto-packed)
 }
 
 export interface Track {
@@ -55,6 +56,23 @@ export function createTimelineClip(p: any): Clip | null {
     kind: p.type || p.kind || "image",
     duration: isAudio ? 6 : 4,
   }
+}
+
+/** Resolve each clip's start offset, packing any clip without an explicit start
+ * directly after the previous clip. Keeps existing (start-less) clips contiguous
+ * while honoring explicit positions set by dragging. */
+function layoutClips(clips: Clip[]): { clip: Clip; start: number }[] {
+  let cursor = 0
+  return clips.map((c) => {
+    const start = typeof c.start === "number" ? Math.max(0, c.start) : cursor
+    cursor = start + c.duration
+    return { clip: c, start }
+  })
+}
+
+/** End time (seconds) of the last clip on a track. */
+function trackEnd(clips: Clip[]): number {
+  return layoutClips(clips).reduce((max, { clip, start }) => Math.max(max, start + clip.duration), 0)
 }
 
 const VISUAL_STYLES = ["Cinematic", "Film Noir", "Vibrant Pop", "Vintage Film", "Documentary", "Anime", "Dreamlike", "High Contrast"]
@@ -211,6 +229,87 @@ export default function CanvasTimeline({ data, onChange }: CanvasTimelineProps) 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  /* ----------------------- Move / drag clips ----------------------- */
+  // Lane DOM refs so we can detect which track the pointer is over while dragging.
+  const laneRefs = useRef<Record<string, HTMLDivElement | null>>({})
+  const contentRef = useRef<HTMLDivElement | null>(null)
+  const [dragInfo, setDragInfo] = useState<{ clipId: string; trackId: string } | null>(null)
+  const dragRef = useRef<{
+    clipId: string
+    fromTrackId: string
+    grabOffsetSec: number // distance from clip start to the pointer, in seconds
+  } | null>(null)
+
+  const secondsFromClientX = (clientX: number) => {
+    const rect = contentRef.current?.getBoundingClientRect()
+    const scrollLeft = contentRef.current?.parentElement?.scrollLeft ?? 0
+    const left = rect ? rect.left : 0
+    return Math.max(0, (clientX - left + scrollLeft) / PX_PER_SEC)
+  }
+
+  const trackAtClientY = (clientY: number): string | null => {
+    for (const t of tracksRef.current) {
+      const el = laneRefs.current[t.id]
+      if (!el) continue
+      const r = el.getBoundingClientRect()
+      if (clientY >= r.top && clientY <= r.bottom) return t.id
+    }
+    return null
+  }
+
+  const onClipDragMove = (e: MouseEvent) => {
+    const d = dragRef.current
+    if (!d) return
+    // New start position, snapped to half-second steps.
+    const rawStart = secondsFromClientX(e.clientX) - d.grabOffsetSec
+    const newStart = Math.max(0, Math.round(rawStart * 2) / 2)
+    const targetTrackId = trackAtClientY(e.clientY) || d.fromTrackId
+
+    let movingClip: Clip | undefined
+    const stripped = tracksRef.current.map((t) => {
+      const found = t.clips.find((c) => c.id === d.clipId)
+      if (found) movingClip = found
+      return { ...t, clips: t.clips.filter((c) => c.id !== d.clipId) }
+    })
+    if (!movingClip) return
+    const updatedClip = { ...movingClip, start: newStart }
+    const next = stripped.map((t) =>
+      t.id === targetTrackId ? { ...t, clips: [...t.clips, updatedClip] } : t,
+    )
+    if (targetTrackId !== d.fromTrackId) d.fromTrackId = targetTrackId
+    setDragInfo({ clipId: d.clipId, trackId: targetTrackId })
+    onChange({ ...dataRef.current, tracks: next })
+  }
+
+  const onClipDragEnd = () => {
+    dragRef.current = null
+    setDragInfo(null)
+    window.removeEventListener("mousemove", onClipDragMove)
+    window.removeEventListener("mouseup", onClipDragEnd)
+    document.body.style.cursor = ""
+  }
+
+  const startClipDrag = (e: React.MouseEvent, trackId: string, clip: Clip, resolvedStart: number) => {
+    // Ignore right/middle clicks and let the resize handle take precedence.
+    if (e.button !== 0) return
+    e.preventDefault()
+    e.stopPropagation()
+    const grabOffsetSec = secondsFromClientX(e.clientX) - resolvedStart
+    dragRef.current = { clipId: clip.id, fromTrackId: trackId, grabOffsetSec }
+    setDragInfo({ clipId: clip.id, trackId })
+    window.addEventListener("mousemove", onClipDragMove)
+    window.addEventListener("mouseup", onClipDragEnd)
+    document.body.style.cursor = "grabbing"
+  }
+
+  useEffect(() => {
+    return () => {
+      window.removeEventListener("mousemove", onClipDragMove)
+      window.removeEventListener("mouseup", onClipDragEnd)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   /* --------------------------- Visualize --------------------------- */
   // Anchor the panel with fixed positioning so it is never clipped by the
   // dock's overflow-hidden container and always renders front-most.
@@ -227,10 +326,7 @@ export default function CanvasTimeline({ data, onChange }: CanvasTimelineProps) 
 
   /* ----------------------------- Sizing ---------------------------- */
   const trackHeight = (t: Track) => (t.collapsed ? COLLAPSED_H : EXPANDED_H)
-  const maxTrackSeconds = tracks.reduce((max, t) => {
-    const total = t.clips.reduce((sum, c) => sum + c.duration, 0)
-    return Math.max(max, total)
-  }, 0)
+  const maxTrackSeconds = tracks.reduce((max, t) => Math.max(max, trackEnd(t.clips)), 0)
   const totalSeconds = Math.max(MIN_TIMELINE_SECONDS, Math.ceil((maxTrackSeconds + 8) / RULER_TICK) * RULER_TICK)
   const contentWidth = totalSeconds * PX_PER_SEC
   const clipCount = tracks.reduce((sum, t) => sum + t.clips.length, 0)
@@ -399,7 +495,7 @@ export default function CanvasTimeline({ data, onChange }: CanvasTimelineProps) 
 
         {/* Scrollable timeline */}
         <div className="flex-1 overflow-auto widget-control">
-          <div className="relative" style={{ width: contentWidth }}>
+          <div ref={contentRef} className="relative" style={{ width: contentWidth }}>
             {/* Ruler */}
             <div className="h-7 border-b border-slate-700/60 relative">
               {ticks.map((sec) => (
@@ -413,15 +509,18 @@ export default function CanvasTimeline({ data, onChange }: CanvasTimelineProps) 
             {/* Track lanes */}
             {tracks.map((t) => {
               const over = dragOverTrack === t.id
+              const dropTarget = dragInfo?.trackId === t.id
               const collapsed = !!t.collapsed
+              const laid = layoutClips(t.clips)
               return (
                 <div
                   key={t.id}
+                  ref={(el) => { laneRefs.current[t.id] = el }}
                   onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); setDragOverTrack(t.id) }}
                   onDragLeave={() => setDragOverTrack((c) => (c === t.id ? null : c))}
                   onDrop={(e) => handleTrackDrop(t.id, e)}
                   className={`border-b border-slate-700/40 relative transition-colors ${
-                    over ? "bg-emerald-500/10" : "bg-slate-900"
+                    over || dropTarget ? "bg-emerald-500/10" : "bg-slate-900"
                   } ${t.type === "audio" ? "bg-slate-900/60" : ""}`}
                   style={{ height: trackHeight(t) }}
                 >
@@ -432,75 +531,78 @@ export default function CanvasTimeline({ data, onChange }: CanvasTimelineProps) 
                     ))}
                   </div>
 
-                  {/* clips laid out contiguously */}
-                  <div className={`absolute left-0 flex gap-0.5 ${collapsed ? "inset-y-1" : "inset-y-2"}`}>
-                    {t.clips.map((clip) => {
-                      const w = Math.max(36, clip.duration * PX_PER_SEC)
-                      const hasImg = clip.image && isValidImageUrl(clip.image)
-                      return (
-                        <div
-                          key={clip.id}
-                          className={`group/clip relative h-full rounded-md overflow-hidden border shrink-0 ${
-                            t.type === "audio"
-                              ? "bg-sky-900/70 border-sky-500/50"
-                              : "bg-emerald-900/40 border-emerald-500/50"
-                          }`}
-                          style={{ width: w }}
-                          title={`${clip.title} · ${fmtTime(clip.duration)}`}
-                        >
-                          {t.type !== "audio" && hasImg && (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img
-                              src={clip.image || "/placeholder.svg"}
-                              alt={clip.title}
-                              crossOrigin="anonymous"
-                              className="absolute inset-0 w-full h-full object-cover opacity-70"
-                              draggable={false}
-                            />
-                          )}
-                          {t.type === "audio" && (
-                            <div className="absolute inset-0 flex items-center gap-px px-1.5 opacity-60">
-                              {Array.from({ length: Math.max(4, Math.floor(w / 5)) }, (_, i) => (
-                                <span key={i} className="flex-1 bg-sky-300 rounded-full" style={{ height: `${20 + ((i * 37) % 60)}%` }} />
-                              ))}
-                            </div>
-                          )}
-                          {!collapsed && (
-                            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent px-1.5 py-1">
-                              <span className="block text-[10px] font-medium text-white truncate">{clip.title}</span>
-                            </div>
-                          )}
-                          {!collapsed && (
-                            <button
-                              onClick={() => removeClip(t.id, clip.id)}
-                              className="absolute top-1 right-1 w-5 h-5 rounded bg-black/50 text-white/80 hover:bg-red-500 hover:text-white flex items-center justify-center opacity-0 group-hover/clip:opacity-100 transition-opacity"
-                              aria-label={`Remove ${clip.title}`}
-                            >
-                              <Trash2 className="w-3 h-3" />
-                            </button>
-                          )}
-                          {/* Drag-to-resize handle (right edge) */}
-                          <div
-                            onMouseDown={(e) => startResize(e, t.id, clip)}
-                            className="absolute inset-y-0 right-0 w-2 cursor-ew-resize flex items-center justify-center bg-black/0 hover:bg-emerald-400/40 group-hover/clip:bg-emerald-400/20 transition-colors"
-                            title="Drag to change duration"
-                            role="separator"
-                            aria-label={`Resize ${clip.title}`}
-                          >
-                            <span className="h-1/2 w-0.5 rounded-full bg-white/70" />
+                  {/* clips positioned by their start offset */}
+                  {laid.map(({ clip, start }) => {
+                    const w = Math.max(36, clip.duration * PX_PER_SEC)
+                    const hasImg = clip.image && isValidImageUrl(clip.image)
+                    const dragging = dragInfo?.clipId === clip.id
+                    return (
+                      <div
+                        key={clip.id}
+                        onMouseDown={(e) => startClipDrag(e, t.id, clip, start)}
+                        className={`group/clip absolute rounded-md overflow-hidden border cursor-grab active:cursor-grabbing ${
+                          collapsed ? "top-1 bottom-1" : "top-2 bottom-2"
+                        } ${
+                          t.type === "audio"
+                            ? "bg-sky-900/70 border-sky-500/50"
+                            : "bg-emerald-900/40 border-emerald-500/50"
+                        } ${dragging ? "ring-2 ring-emerald-300 shadow-lg shadow-black/40 z-10 opacity-90" : ""}`}
+                        style={{ width: w, left: start * PX_PER_SEC }}
+                        title={`${clip.title} · ${fmtTime(clip.duration)} — drag to move`}
+                      >
+                        {t.type !== "audio" && hasImg && (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={clip.image || "/placeholder.svg"}
+                            alt={clip.title}
+                            crossOrigin="anonymous"
+                            className="absolute inset-0 w-full h-full object-cover opacity-70 pointer-events-none"
+                            draggable={false}
+                          />
+                        )}
+                        {t.type === "audio" && (
+                          <div className="absolute inset-0 flex items-center gap-px px-1.5 opacity-60 pointer-events-none">
+                            {Array.from({ length: Math.max(4, Math.floor(w / 5)) }, (_, i) => (
+                              <span key={i} className="flex-1 bg-sky-300 rounded-full" style={{ height: `${20 + ((i * 37) % 60)}%` }} />
+                            ))}
                           </div>
+                        )}
+                        {!collapsed && (
+                          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent px-1.5 py-1 pointer-events-none">
+                            <span className="block text-[10px] font-medium text-white truncate">{clip.title}</span>
+                          </div>
+                        )}
+                        {!collapsed && (
+                          <button
+                            onClick={() => removeClip(t.id, clip.id)}
+                            onMouseDown={(e) => e.stopPropagation()}
+                            className="absolute top-1 right-1 w-5 h-5 rounded bg-black/50 text-white/80 hover:bg-red-500 hover:text-white flex items-center justify-center opacity-0 group-hover/clip:opacity-100 transition-opacity"
+                            aria-label={`Remove ${clip.title}`}
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </button>
+                        )}
+                        {/* Drag-to-resize handle (right edge) */}
+                        <div
+                          onMouseDown={(e) => startResize(e, t.id, clip)}
+                          className="absolute inset-y-0 right-0 w-2 cursor-ew-resize flex items-center justify-center bg-black/0 hover:bg-emerald-400/40 group-hover/clip:bg-emerald-400/20 transition-colors"
+                          title="Drag to change duration"
+                          role="separator"
+                          aria-label={`Resize ${clip.title}`}
+                        >
+                          <span className="h-1/2 w-0.5 rounded-full bg-white/70" />
                         </div>
-                      )
-                    })}
-
-                    {/* empty-state hint on the main scenes track */}
-                    {t.clips.length === 0 && t.id === "v1" && !collapsed && (
-                      <div className="flex items-center gap-2 h-full pl-3 text-slate-500 pointer-events-none">
-                        <Layers className="w-4 h-4" />
-                        <span className="text-xs italic">Drop images or scenes here to build your timeline</span>
                       </div>
-                    )}
-                  </div>
+                    )
+                  })}
+
+                  {/* empty-state hint on the main scenes track */}
+                  {t.clips.length === 0 && t.id === "v1" && !collapsed && (
+                    <div className="absolute inset-y-2 left-0 flex items-center gap-2 pl-3 text-slate-500 pointer-events-none">
+                      <Layers className="w-4 h-4" />
+                      <span className="text-xs italic">Drop images or scenes here to build your timeline</span>
+                    </div>
+                  )}
                 </div>
               )
             })}
