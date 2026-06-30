@@ -5,12 +5,14 @@ import { useEffect, useRef, useState } from "react"
 import {
   User, Package, Shirt, MapPin, StickyNote, X, Check, Trash2,
   Type, Square, Squircle, Circle, Frame, Image as ImageIcon,
+  Clapperboard, Film,
 } from "lucide-react"
 import { isValidImageUrl } from "@/lib/utils"
 
 export type CanvasItemType =
   | "actor" | "prop" | "costume" | "location" | "note"
   | "text" | "rectangle" | "rounded" | "ellipse" | "frame" | "image"
+  | "scene-generator" | "casting-board"
 
 export type ViewSize = "full" | "medium" | "small"
 
@@ -31,6 +33,8 @@ export interface CanvasItem {
   height?: number
   text?: string
   groupId?: string
+  /* widget-only state (scene generator / casting board) */
+  widgetData?: Record<string, any>
 }
 
 interface TypeConfig {
@@ -53,6 +57,8 @@ export const TYPE_CONFIG: Record<CanvasItemType, TypeConfig> = {
   ellipse: { label: "Ellipse", icon: Circle, chip: "bg-slate-100 text-slate-700", bar: "bg-slate-500", ring: "ring-slate-500" },
   frame: { label: "Frame", icon: Frame, chip: "bg-slate-100 text-slate-700", bar: "bg-slate-500", ring: "ring-slate-500" },
   image: { label: "Image", icon: ImageIcon, chip: "bg-slate-100 text-slate-700", bar: "bg-slate-500", ring: "ring-slate-500" },
+  "scene-generator": { label: "Scene Generator", icon: Film, chip: "bg-emerald-100 text-emerald-700", bar: "bg-emerald-500", ring: "ring-emerald-500" },
+  "casting-board": { label: "Character Casting", icon: Clapperboard, chip: "bg-emerald-100 text-emerald-700", bar: "bg-emerald-500", ring: "ring-emerald-500" },
 }
 
 /* card dimensions per view size (width, approx height for fit calc) */

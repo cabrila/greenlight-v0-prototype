@@ -6,13 +6,14 @@ import {
   X, ZoomIn, ZoomOut, RotateCcw, Maximize2, Search, Trash2,
   User, Package, Shirt, MapPin, PanelLeftClose, PanelLeftOpen,
   Plus, Trash, LayoutGrid, Rows3, Grid2x2, Grid3x3,
-  SlidersHorizontal, ArrowUpDown,
+  SlidersHorizontal, ArrowUpDown, Wand2, ChevronDown, Film, Clapperboard,
 } from "lucide-react"
 import { useCasting } from "@/components/casting/CastingContext"
 import { isValidImageUrl } from "@/lib/utils"
 import { closeAllModals } from "../modals/ModalManager"
 import CanvasItemCard, { type CanvasItem, type CanvasItemType, type ViewSize, TYPE_CONFIG, CARD_DIMENSIONS } from "./CanvasItemCard"
 import CanvasElement from "./CanvasElement"
+import CanvasWidget from "./CanvasWidget"
 import CanvasToolbar, { type CanvasTool } from "./CanvasToolbar"
 import CanvasChatbot from "./CanvasChatbot"
 
@@ -47,6 +48,19 @@ const VIEW_OPTIONS: { key: ViewSize; label: string; icon: typeof Rows3 }[] = [
 
 const ELEMENT_TYPES: CanvasItemType[] = ["text", "rectangle", "rounded", "ellipse", "frame", "image"]
 const isElement = (t: CanvasItemType) => ELEMENT_TYPES.includes(t)
+
+const WIDGET_TYPES: CanvasItemType[] = ["scene-generator", "casting-board"]
+const isWidget = (t: CanvasItemType) => WIDGET_TYPES.includes(t)
+
+const WIDGET_SIZES: Record<string, { width: number; height: number }> = {
+  "scene-generator": { width: 460, height: 620 },
+  "casting-board": { width: 900, height: 560 },
+}
+
+const CANVAS_TOOLS: { type: CanvasItemType; label: string; description: string; icon: typeof Film }[] = [
+  { type: "scene-generator", label: "Scene Generator", description: "Compose a scene from cast, location & mood", icon: Film },
+  { type: "casting-board", label: "Character Casting", description: "Snap actors onto project characters", icon: Clapperboard },
+]
 
 const DEFAULT_SIZES: Record<string, { width: number; height: number }> = {
   frame: { width: 320, height: 240 },
@@ -160,6 +174,8 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
   const [viewSize, setViewSize] = useState<ViewSize>("full")
   const [activeTool, setActiveTool] = useState<CanvasTool>("select")
   const [newNoteId, setNewNoteId] = useState<string | null>(null)
+  const [toolsMenuOpen, setToolsMenuOpen] = useState(false)
+  const toolsMenuRef = useRef<HTMLDivElement>(null)
 
   const currentProject = state.projects.find((p) => p.id === state.currentFocus.currentProjectId)
   const storageKey = `canvas-v2-${state.currentFocus.currentProjectId}`
@@ -245,6 +261,25 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
     location: locationItems,
   }
 
+  /* Data passed to canvas tool widgets */
+  const widgetActors = useMemo(
+    () => actorItems.map((a) => ({ refId: a.refId, name: a.title, image: a.image })),
+    [actorItems],
+  )
+  const widgetCharacters = useMemo(
+    () =>
+      (currentProject?.characters || []).map((c) => ({
+        id: c.id,
+        name: c.name,
+        image: isValidImageUrl(c.conceptArt) ? c.conceptArt : undefined,
+      })),
+    [currentProject],
+  )
+  const widgetLocations = useMemo(
+    () => locationItems.map((l) => ({ id: l.refId, name: l.title })),
+    [locationItems],
+  )
+
   const activeControls = PALETTE_CONTROLS[activeTab]
   const activeFilter = filterValues[activeTab]
   const activeSort = sortKeys[activeTab]
@@ -312,6 +347,18 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
       /* ignore */
     }
   }, [items, zoom, pan, viewSize, groupNames, storageKey])
+
+  /* Close the Canvas Tools dropdown on outside click */
+  useEffect(() => {
+    if (!toolsMenuOpen) return
+    const onDown = (e: MouseEvent) => {
+      if (toolsMenuRef.current && !toolsMenuRef.current.contains(e.target as Node)) {
+        setToolsMenuOpen(false)
+      }
+    }
+    document.addEventListener("mousedown", onDown)
+    return () => document.removeEventListener("mousedown", onDown)
+  }, [toolsMenuOpen])
 
   /* ---------------------------------------------------------------- */
   /*  Coordinate helpers                                               */
@@ -397,6 +444,31 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
       setTimeout(() => triggerImageUpload(id), 50)
     }
   }
+
+  const createWidget = (type: CanvasItemType) => {
+    const size = WIDGET_SIZES[type] || { width: 460, height: 600 }
+    const center = viewportCenterToCanvas()
+    const id = `wg-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
+    const newItem: CanvasItem = {
+      id,
+      type,
+      refId: type,
+      x: center.x + cardWidth / 2 - size.width / 2,
+      y: center.y,
+      title: TYPE_CONFIG[type].label,
+      width: size.width,
+      height: size.height,
+      widgetData: {},
+    }
+    setItems((prev) => [...prev, newItem])
+    setSelectedIds([id])
+    setActiveTool("select")
+    setToolsMenuOpen(false)
+  }
+
+  const handleWidgetDataChange = useCallback((id: string, widgetData: Record<string, any>) => {
+    setItems((prev) => prev.map((it) => (it.id === id ? { ...it, widgetData } : it)))
+  }, [])
 
   const triggerImageUpload = (id: string) => {
     pendingImageIdRef.current = id
@@ -770,6 +842,49 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
         </div>
 
         <div className="flex items-center gap-2">
+          {/* Canvas Tools dropdown */}
+          <div className="relative" ref={toolsMenuRef}>
+            <button
+              onClick={() => setToolsMenuOpen((o) => !o)}
+              aria-haspopup="menu"
+              aria-expanded={toolsMenuOpen}
+              className={`flex items-center gap-1.5 px-2.5 py-2 rounded-lg text-sm font-medium transition-colors ${
+                toolsMenuOpen ? "bg-emerald-50 text-emerald-700" : "text-slate-600 hover:bg-slate-100"
+              }`}
+            >
+              <Wand2 className="w-4 h-4" />
+              <span className="hidden md:inline">Canvas Tools</span>
+              <ChevronDown className={`w-3.5 h-3.5 transition-transform ${toolsMenuOpen ? "rotate-180" : ""}`} />
+            </button>
+            {toolsMenuOpen && (
+              <div
+                role="menu"
+                className="absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-xl border border-slate-200 p-1.5 z-50"
+              >
+                <p className="px-3 pt-2 pb-1 text-[11px] font-semibold uppercase tracking-wide text-slate-400">Insert into canvas</p>
+                {CANVAS_TOOLS.map((tool) => {
+                  const Icon = tool.icon
+                  return (
+                    <button
+                      key={tool.type}
+                      role="menuitem"
+                      onClick={() => createWidget(tool.type)}
+                      className="w-full flex items-start gap-3 px-3 py-2.5 rounded-lg text-left hover:bg-slate-50 transition-colors"
+                    >
+                      <span className="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+                        <Icon className="w-4 h-4" />
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block text-sm font-semibold text-slate-800">{tool.label}</span>
+                        <span className="block text-xs text-slate-500 text-pretty">{tool.description}</span>
+                      </span>
+                    </button>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+
           {/* View size control */}
           <div className="hidden sm:flex items-center bg-slate-100 rounded-lg p-1" role="group" aria-label="Card view size">
             {VIEW_OPTIONS.map((v) => {
@@ -980,7 +1095,22 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
             ))}
 
             {items.map((item) =>
-              isElement(item.type) ? (
+              isWidget(item.type) ? (
+                <CanvasWidget
+                  key={item.id}
+                  item={item}
+                  isSelected={selectedIds.includes(item.id)}
+                  interactive={interactive}
+                  zoom={zoom}
+                  actors={widgetActors}
+                  characters={widgetCharacters}
+                  locations={widgetLocations}
+                  onSelect={handleSelect}
+                  onDrag={handleItemDrag}
+                  onRemove={handleRemove}
+                  onDataChange={handleWidgetDataChange}
+                />
+              ) : isElement(item.type) ? (
                 <CanvasElement
                   key={item.id}
                   item={item}
