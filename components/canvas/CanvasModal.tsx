@@ -945,12 +945,12 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
                   onClick={() => setViewSize(v.key)}
                   title={`${v.label} view`}
                   aria-pressed={active}
-                  className={`flex items-center gap-1 px-2 py-1.5 rounded text-xs font-medium transition-colors ${
+                  className={`flex items-center justify-center px-2 py-1.5 rounded text-xs font-medium transition-colors ${
                     active ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"
                   }`}
                 >
                   <Icon className="w-3.5 h-3.5" />
-                  <span className="hidden xl:inline">{v.label}</span>
+                  <span className="sr-only">{`${v.label} view`}</span>
                 </button>
               )
             })}
