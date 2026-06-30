@@ -851,8 +851,8 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
               onClick={() => setToolsMenuOpen((o) => !o)}
               aria-haspopup="menu"
               aria-expanded={toolsMenuOpen}
-              className={`flex items-center gap-1.5 px-2.5 py-2 rounded-lg text-sm font-medium transition-colors ${
-                toolsMenuOpen ? "bg-emerald-50 text-emerald-700" : "text-slate-600 hover:bg-slate-100"
+              className={`flex items-center gap-1.5 px-2.5 py-2 rounded-lg text-sm font-medium text-white transition-colors ${
+                toolsMenuOpen ? "bg-emerald-600" : "bg-emerald-500 hover:bg-emerald-600"
               }`}
             >
               <Wand2 className="w-4 h-4" />
