@@ -3,7 +3,7 @@
 import type React from "react"
 import { useEffect, useRef, useState } from "react"
 import {
-  User, Package, Shirt, MapPin, StickyNote, X, Check,
+  User, Package, Shirt, MapPin, StickyNote, X, Check, Trash2,
   Type, Square, Squircle, Circle, Frame, Image as ImageIcon,
 } from "lucide-react"
 import { isValidImageUrl } from "@/lib/utils"
@@ -67,6 +67,7 @@ interface CanvasItemCardProps {
   isSelected: boolean
   viewSize: ViewSize
   interactive: boolean
+  autoOpenNote?: boolean
   onSelect: (id: string, isMultiSelect: boolean) => void
   onDrag: (id: string, deltaX: number, deltaY: number) => void
   onRemove: (id: string) => void
@@ -74,10 +75,13 @@ interface CanvasItemCardProps {
 }
 
 export default function CanvasItemCard({
-  item, isSelected, viewSize, interactive, onSelect, onDrag, onRemove, onNoteChange,
+  item, isSelected, viewSize, interactive, autoOpenNote, onSelect, onDrag, onRemove, onNoteChange,
 }: CanvasItemCardProps) {
   const [isDragging, setIsDragging] = useState(false)
+  const [noteOpen, setNoteOpen] = useState(false)
+  const [noteDraft, setNoteDraft] = useState("")
   const dragStartRef = useRef({ x: 0, y: 0 })
+  const hasMovedRef = useRef(false)
   const config = TYPE_CONFIG[item.type]
   const Icon = config.icon
   const hasImage = isValidImageUrl(item.image)
@@ -88,6 +92,7 @@ export default function CanvasItemCard({
     if ((e.target as HTMLElement).closest(".card-control")) return
     onSelect(item.id, e.ctrlKey || e.metaKey || e.shiftKey)
     setIsDragging(true)
+    hasMovedRef.current = false
     dragStartRef.current = { x: e.clientX, y: e.clientY }
     e.preventDefault()
     e.stopPropagation()
@@ -99,6 +104,7 @@ export default function CanvasItemCard({
       const dx = e.clientX - dragStartRef.current.x
       const dy = e.clientY - dragStartRef.current.y
       if (Math.abs(dx) > 1 || Math.abs(dy) > 1) {
+        hasMovedRef.current = true
         onDrag(item.id, dx, dy)
         dragStartRef.current = { x: e.clientX, y: e.clientY }
       }
@@ -114,35 +120,121 @@ export default function CanvasItemCard({
     }
   }, [isDragging, item.id, onDrag])
 
-  /* ----------------------------- Note ----------------------------- */
+  /* Auto-open the comment bubble for a freshly created pin */
+  useEffect(() => {
+    if (autoOpenNote && item.type === "note") {
+      setNoteDraft(item.noteText || "")
+      setNoteOpen(true)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoOpenNote])
+
+  /* -------------------------- Comment pin -------------------------- */
   if (item.type === "note") {
+    const openBubble = () => {
+      setNoteDraft(item.noteText || "")
+      setNoteOpen(true)
+    }
+    const handlePinClick = (e: React.MouseEvent) => {
+      e.stopPropagation()
+      if (hasMovedRef.current) return // was a drag, not a click
+      if (noteOpen) setNoteOpen(false)
+      else openBubble()
+    }
+    const handleSave = () => {
+      onNoteChange?.(item.id, noteDraft.trim())
+      setNoteOpen(false)
+    }
+    const handleCancel = () => {
+      setNoteOpen(false)
+      if (!(item.noteText || "").trim()) onRemove(item.id) // discard empty/never-saved pin
+    }
+    const hasContent = !!(item.noteText || "").trim()
+
     return (
       <div
         data-canvas-card="true"
-        className={`absolute rounded-lg shadow-md bg-yellow-100 border border-yellow-300 select-none ${isSelected ? `ring-2 ${config.ring} ring-offset-2` : ""}`}
-        style={{ left: item.x, top: item.y, width: 200, cursor: !interactive ? "inherit" : isDragging ? "grabbing" : "grab", zIndex: isSelected || isDragging ? 30 : 2 }}
-        onMouseDown={handleMouseDown}
+        className="absolute select-none"
+        style={{ left: item.x, top: item.y, zIndex: noteOpen ? 60 : isSelected || isDragging ? 50 : 20 }}
       >
-        <div className="flex items-center justify-between px-2 py-1 bg-yellow-200/70 rounded-t-lg">
-          <div className="flex items-center gap-1 text-yellow-800">
-            <StickyNote className="w-3.5 h-3.5" />
-            <span className="text-[11px] font-semibold">Note</span>
-          </div>
-          <button
-            className="card-control text-yellow-700 hover:text-red-600 transition-colors"
-            onClick={(e) => { e.stopPropagation(); onRemove(item.id) }}
-            aria-label="Remove note"
+        {/* Comment bubble popover */}
+        {noteOpen && (
+          <div
+            className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-72"
+            onMouseDown={(e) => e.stopPropagation()}
           >
-            <X className="w-3.5 h-3.5" />
-          </button>
-        </div>
-        <textarea
-          className="card-control w-full h-28 resize-none bg-transparent px-3 py-2 text-sm text-yellow-900 placeholder-yellow-600/50 focus:outline-none leading-relaxed"
-          value={item.noteText || ""}
-          placeholder="Type a note..."
-          onChange={(e) => onNoteChange?.(item.id, e.target.value)}
-          onMouseDown={(e) => e.stopPropagation()}
-        />
+            <div className="bg-white rounded-2xl shadow-xl border border-slate-200">
+              {/* Header */}
+              <div className="flex items-center gap-2 px-4 pt-3">
+                <span className="w-7 h-7 rounded-full bg-sky-400 text-white text-xs font-semibold flex items-center justify-center shrink-0">Y</span>
+                <span className="text-sm font-semibold text-slate-800">You</span>
+                <span className="ml-auto text-xs text-slate-400">just now</span>
+                <button
+                  className="card-control text-slate-400 hover:text-slate-600 transition-colors"
+                  onClick={(e) => { e.stopPropagation(); handleCancel() }}
+                  aria-label="Close comment"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              {/* Editor */}
+              <div className="px-4 py-3">
+                <textarea
+                  autoFocus
+                  className="w-full h-24 resize-none rounded-xl border-2 border-emerald-400/70 px-3 py-2 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-emerald-500 leading-relaxed"
+                  value={noteDraft}
+                  placeholder="Add a comment..."
+                  onChange={(e) => setNoteDraft(e.target.value)}
+                />
+              </div>
+              {/* Footer */}
+              <div className="flex items-center gap-3 px-4 pb-3">
+                <button
+                  onClick={(e) => { e.stopPropagation(); handleSave() }}
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600 transition-colors"
+                >
+                  <Check className="w-4 h-4" />
+                  Save
+                </button>
+                <button
+                  onClick={(e) => { e.stopPropagation(); handleCancel() }}
+                  className="text-sm text-slate-500 hover:text-slate-700 font-medium"
+                >
+                  Cancel
+                </button>
+                {hasContent && (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); onRemove(item.id) }}
+                    className="ml-auto text-slate-300 hover:text-red-500 transition-colors"
+                    aria-label="Delete comment"
+                    title="Delete comment"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+            </div>
+            {/* Pointer tail */}
+            <div className="absolute left-1/2 -translate-x-1/2 top-full -mt-1.5 w-3 h-3 bg-white border-r border-b border-slate-200 rotate-45" />
+          </div>
+        )}
+
+        {/* Avatar pin */}
+        <button
+          className={`card-control w-9 h-9 rounded-full bg-sky-400 text-white text-sm font-semibold flex items-center justify-center shadow-md border-2 border-white transition-all ${
+            noteOpen ? "ring-4 ring-sky-200" : "hover:scale-105"
+          }`}
+          style={{ cursor: !interactive ? "pointer" : isDragging ? "grabbing" : "grab" }}
+          onMouseDown={handleMouseDown}
+          onClick={handlePinClick}
+          aria-label={hasContent ? `Comment: ${item.noteText}` : "Add a comment"}
+          title={hasContent ? item.noteText : "Add a comment"}
+        >
+          Y
+          {hasContent && !noteOpen && (
+            <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 border border-white" />
+          )}
+        </button>
       </div>
     )
   }

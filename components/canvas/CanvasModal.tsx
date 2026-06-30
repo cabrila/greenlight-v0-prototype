@@ -4,7 +4,7 @@ import type React from "react"
 import { useState, useRef, useCallback, useEffect, useMemo } from "react"
 import {
   X, ZoomIn, ZoomOut, RotateCcw, Maximize2, Search, Trash2,
-  User, Package, Shirt, MapPin, StickyNote, PanelLeftClose, PanelLeftOpen,
+  User, Package, Shirt, MapPin, PanelLeftClose, PanelLeftOpen,
   Plus, Save, Trash, LayoutGrid, Rows3, Grid2x2, Grid3x3,
   SlidersHorizontal, ArrowUpDown,
 } from "lucide-react"
@@ -154,6 +154,7 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
 
   const [viewSize, setViewSize] = useState<ViewSize>("full")
   const [activeTool, setActiveTool] = useState<CanvasTool>("select")
+  const [newNoteId, setNewNoteId] = useState<string | null>(null)
 
   const currentProject = state.projects.find((p) => p.id === state.currentFocus.currentProjectId)
   const storageKey = `canvas-v2-${state.currentFocus.currentProjectId}`
@@ -356,12 +357,15 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
     setItems((prev) => [...prev, makeItem(p, base.x + offset * 24, base.y + offset * 24)])
   }
 
-  const addNote = () => {
-    const base = viewportCenterToCanvas()
+  const createNoteAt = (canvasX: number, canvasY: number) => {
+    const id = `ci-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
     setItems((prev) => [
       ...prev,
-      { id: `ci-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, type: "note", refId: "note", x: base.x, y: base.y, title: "Note", noteText: "" },
+      { id, type: "note", refId: "note", x: canvasX - 18, y: canvasY - 18, title: "Note", noteText: "" },
     ])
+    setNewNoteId(id)
+    setSelectedIds([id])
+    setActiveTool("select")
   }
 
   /* ---------------------------------------------------------------- */
@@ -573,6 +577,14 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
     const target = e.target as HTMLElement
     const onCard = !!target.closest("[data-canvas-card]")
 
+    // Comment tool: drop a comment pin where the user clicks.
+    if (activeTool === "note") {
+      if (onCard) return
+      const c = clientToCanvas(e.clientX, e.clientY)
+      createNoteAt(c.x, c.y)
+      return
+    }
+
     // Creation tools: place a new element where the user clicks.
     if (isElement(activeTool as CanvasItemType)) {
       if (onCard) return
@@ -683,6 +695,7 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
       switch (e.key.toLowerCase()) {
         case "v": setActiveTool("select"); break
         case "t": setActiveTool("text"); break
+        case "c": setActiveTool("note"); break
         case "escape": setActiveTool("select"); setSelectedIds([]); break
         case "delete":
         case "backspace":
@@ -707,7 +720,7 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
   }, [items])
 
   const cursorForTool =
-    isElement(activeTool as CanvasItemType) ? "crosshair"
+    activeTool === "note" || isElement(activeTool as CanvasItemType) ? "crosshair"
       : isPanning ? "grabbing" : "default"
 
   const interactive = activeTool === "select"
@@ -785,11 +798,6 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
               {selectedIds.length}
             </button>
           )}
-
-          <button onClick={addNote} className="hidden sm:flex items-center gap-1.5 px-2.5 py-2 rounded-lg bg-yellow-50 text-yellow-700 hover:bg-yellow-100 transition-colors text-sm font-medium" title="Add a sticky note">
-            <StickyNote className="w-4 h-4" />
-            Note
-          </button>
 
           <div className="flex items-center bg-slate-100 rounded-lg p-1">
             <button onClick={() => zoomBy(0.9)} className="p-1.5 rounded hover:bg-white transition-colors" title="Zoom out"><ZoomOut className="w-4 h-4 text-slate-600" /></button>
@@ -995,6 +1003,7 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
                   isSelected={selectedIds.includes(item.id)}
                   viewSize={viewSize}
                   interactive={interactive}
+                  autoOpenNote={item.id === newNoteId}
                   onSelect={handleSelect}
                   onDrag={handleItemDrag}
                   onRemove={handleRemove}
@@ -1013,7 +1022,7 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
                 </div>
                 <h3 className="text-lg font-semibold text-slate-700">Build your production board</h3>
                 <p className="text-sm text-slate-500 mt-1 text-pretty">
-                  Add cast, props, costume &amp; makeup, and locations from the library. Use the tool rail to add text and uploaded images, then group and rename your arrangements.
+                  Add cast, props, costume &amp; makeup, and locations from the library. Use the tool rail to add text, images, and comment pins, then group and rename your arrangements.
                 </p>
               </div>
             </div>
