@@ -1,9 +1,9 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import {
-  X, Wand2, Sparkles, Trash2, Plus, Film, Music, Layers,
+  X, Wand2, Sparkles, Trash2, Plus, Film, Music, Layers, ChevronDown, ChevronRight, Pencil, Check,
 } from "lucide-react"
 import { isValidImageUrl } from "@/lib/utils"
 
@@ -25,11 +25,15 @@ export interface Track {
   name: string
   type: "video" | "audio"
   clips: Clip[]
+  collapsed?: boolean
 }
 
 const PX_PER_SEC = 16
 const MIN_TIMELINE_SECONDS = 36
 const RULER_TICK = 4 // seconds between ruler ticks
+const MIN_CLIP_SECONDS = 1
+const EXPANDED_H = 80
+const COLLAPSED_H = 28
 
 export const DEFAULT_TRACKS: Track[] = [
   { id: "v2", name: "Overlay", type: "video", clips: [] },
@@ -97,11 +101,21 @@ function PillRow({
 export default function CanvasTimeline({ data, onChange }: CanvasTimelineProps) {
   const [dragOverTrack, setDragOverTrack] = useState<string | null>(null)
   const [visualizeOpen, setVisualizeOpen] = useState(false)
+  const [vizPos, setVizPos] = useState<{ left: number; bottom: number } | null>(null)
+  const [editingTrackId, setEditingTrackId] = useState<string | null>(null)
+  const [editingName, setEditingName] = useState("")
+  const visualizeBtnRef = useRef<HTMLButtonElement>(null)
 
   const tracks: Track[] = data.tracks || DEFAULT_TRACKS
   const previz = data.previz as { style?: string; genre?: string; cutting?: string } | undefined
 
-  const patch = (next: Record<string, any>) => onChange({ ...data, ...next })
+  // Refs to avoid stale closures inside window-level drag listeners.
+  const dataRef = useRef(data)
+  dataRef.current = data
+  const tracksRef = useRef(tracks)
+  tracksRef.current = tracks
+
+  const patch = (next: Record<string, any>) => onChange({ ...dataRef.current, ...next })
   const setTracks = (next: Track[]) => patch({ tracks: next })
 
   /* ----------------------------- Clips ----------------------------- */
@@ -129,13 +143,90 @@ export default function CanvasTimeline({ data, onChange }: CanvasTimelineProps) 
     setTracks(tracks.map((t) => (t.id === trackId ? { ...t, clips: t.clips.filter((c) => c.id !== clipId) } : t)))
   }
 
+  /* ----------------------------- Tracks ---------------------------- */
   const addTrack = () => {
     const videoCount = tracks.filter((t) => t.type === "video").length
     const newTrack: Track = { id: `v-${Date.now().toString(36)}`, name: `Track ${videoCount + 1}`, type: "video", clips: [] }
     setTracks([newTrack, ...tracks])
   }
 
+  const removeTrack = (trackId: string) => {
+    setTracks(tracks.filter((t) => t.id !== trackId))
+  }
+
+  const toggleCollapse = (trackId: string) => {
+    setTracks(tracks.map((t) => (t.id === trackId ? { ...t, collapsed: !t.collapsed } : t)))
+  }
+
+  const startRename = (t: Track) => {
+    setEditingTrackId(t.id)
+    setEditingName(t.name)
+  }
+
+  const commitRename = () => {
+    if (!editingTrackId) return
+    const name = editingName.trim() || "Untitled"
+    setTracks(tracks.map((t) => (t.id === editingTrackId ? { ...t, name } : t)))
+    setEditingTrackId(null)
+  }
+
+  /* --------------------------- Resize clips ------------------------ */
+  const resizeRef = useRef<{ trackId: string; clipId: string; startX: number; startDuration: number } | null>(null)
+
+  const onResizeMove = (e: MouseEvent) => {
+    const r = resizeRef.current
+    if (!r) return
+    const deltaSec = (e.clientX - r.startX) / PX_PER_SEC
+    // Snap to half-second increments for a clean feel.
+    const newDur = Math.max(MIN_CLIP_SECONDS, Math.round((r.startDuration + deltaSec) * 2) / 2)
+    const next = tracksRef.current.map((t) =>
+      t.id === r.trackId
+        ? { ...t, clips: t.clips.map((c) => (c.id === r.clipId ? { ...c, duration: newDur } : c)) }
+        : t,
+    )
+    onChange({ ...dataRef.current, tracks: next })
+  }
+
+  const onResizeEnd = () => {
+    resizeRef.current = null
+    window.removeEventListener("mousemove", onResizeMove)
+    window.removeEventListener("mouseup", onResizeEnd)
+    document.body.style.cursor = ""
+  }
+
+  const startResize = (e: React.MouseEvent, trackId: string, clip: Clip) => {
+    e.preventDefault()
+    e.stopPropagation()
+    resizeRef.current = { trackId, clipId: clip.id, startX: e.clientX, startDuration: clip.duration }
+    window.addEventListener("mousemove", onResizeMove)
+    window.addEventListener("mouseup", onResizeEnd)
+    document.body.style.cursor = "ew-resize"
+  }
+
+  useEffect(() => {
+    return () => {
+      window.removeEventListener("mousemove", onResizeMove)
+      window.removeEventListener("mouseup", onResizeEnd)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  /* --------------------------- Visualize --------------------------- */
+  // Anchor the panel with fixed positioning so it is never clipped by the
+  // dock's overflow-hidden container and always renders front-most.
+  const toggleVisualize = () => {
+    setVisualizeOpen((o) => {
+      const next = !o
+      if (next && visualizeBtnRef.current) {
+        const rect = visualizeBtnRef.current.getBoundingClientRect()
+        setVizPos({ left: rect.left, bottom: window.innerHeight - rect.top + 8 })
+      }
+      return next
+    })
+  }
+
   /* ----------------------------- Sizing ---------------------------- */
+  const trackHeight = (t: Track) => (t.collapsed ? COLLAPSED_H : EXPANDED_H)
   const maxTrackSeconds = tracks.reduce((max, t) => {
     const total = t.clips.reduce((sum, c) => sum + c.duration, 0)
     return Math.max(max, total)
@@ -151,8 +242,9 @@ export default function CanvasTimeline({ data, onChange }: CanvasTimelineProps) 
       {/* Toolbar */}
       <div className="relative shrink-0 flex items-center gap-3 px-4 py-2.5 border-b border-slate-100 bg-white">
         <button
+          ref={visualizeBtnRef}
           type="button"
-          onClick={() => setVisualizeOpen((o) => !o)}
+          onClick={toggleVisualize}
           className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-semibold transition-colors ${
             visualizeOpen ? "bg-emerald-600 text-white" : "bg-emerald-500 text-white hover:bg-emerald-600"
           }`}
@@ -180,10 +272,16 @@ export default function CanvasTimeline({ data, onChange }: CanvasTimelineProps) 
         <span className="ml-auto text-xs text-slate-400">
           {clipCount} clip{clipCount === 1 ? "" : "s"} · {fmtTime(maxTrackSeconds)}
         </span>
+      </div>
 
-        {/* Visualize panel */}
-        {visualizeOpen && (
-          <div className="absolute left-4 bottom-full mb-2 w-[22rem] max-w-[calc(100%-2rem)] bg-white rounded-xl shadow-2xl border border-slate-200 p-4 z-50 space-y-4">
+      {/* Visualize panel — fixed so it is never clipped and stays front-most */}
+      {visualizeOpen && vizPos && (
+        <>
+          <div className="fixed inset-0 z-[90]" onClick={() => setVisualizeOpen(false)} aria-hidden="true" />
+          <div
+            className="fixed w-[22rem] max-w-[calc(100vw-2rem)] bg-white rounded-xl shadow-2xl border border-slate-200 p-4 z-[100] space-y-4"
+            style={{ left: vizPos.left, bottom: vizPos.bottom }}
+          >
             <div className="flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-emerald-500" />
               <h4 className="text-sm font-bold text-slate-800">Pre-visualize your edit</h4>
@@ -211,22 +309,92 @@ export default function CanvasTimeline({ data, onChange }: CanvasTimelineProps) 
               Generate Pre-visualization
             </button>
           </div>
-        )}
-      </div>
+        </>
+      )}
 
       {/* Editor: track gutter + scrollable lanes */}
       <div className="flex-1 flex min-h-0 bg-slate-900 overflow-hidden">
         {/* Track label gutter */}
-        <div className="shrink-0 w-28 bg-slate-950/60 border-r border-slate-700/60">
+        <div className="shrink-0 w-44 bg-slate-950/60 border-r border-slate-700/60">
           <div className="h-7 border-b border-slate-700/60" />
-          {tracks.map((t) => (
-            <div key={t.id} className="h-20 flex items-center gap-2 px-3 border-b border-slate-700/40">
-              <span className="text-slate-400">
-                {t.type === "audio" ? <Music className="w-3.5 h-3.5" /> : <Film className="w-3.5 h-3.5" />}
-              </span>
-              <span className="text-xs font-semibold text-slate-300 truncate">{t.name}</span>
-            </div>
-          ))}
+          {tracks.map((t) => {
+            const editing = editingTrackId === t.id
+            return (
+              <div
+                key={t.id}
+                className="group/track flex items-center gap-1.5 px-2 border-b border-slate-700/40"
+                style={{ height: trackHeight(t) }}
+              >
+                <button
+                  type="button"
+                  onClick={() => toggleCollapse(t.id)}
+                  className="shrink-0 text-slate-400 hover:text-slate-200 transition-colors"
+                  aria-label={t.collapsed ? `Expand ${t.name}` : `Collapse ${t.name}`}
+                  title={t.collapsed ? "Expand track" : "Collapse track"}
+                >
+                  {t.collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                </button>
+                <span className="shrink-0 text-slate-400">
+                  {t.type === "audio" ? <Music className="w-3.5 h-3.5" /> : <Film className="w-3.5 h-3.5" />}
+                </span>
+
+                {editing ? (
+                  <input
+                    autoFocus
+                    value={editingName}
+                    onChange={(e) => setEditingName(e.target.value)}
+                    onBlur={commitRename}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") commitRename()
+                      if (e.key === "Escape") setEditingTrackId(null)
+                    }}
+                    className="flex-1 min-w-0 bg-slate-800 text-xs font-semibold text-slate-100 rounded px-1.5 py-1 border border-emerald-500/60 focus:outline-none"
+                  />
+                ) : (
+                  <button
+                    type="button"
+                    onDoubleClick={() => startRename(t)}
+                    className="flex-1 min-w-0 text-left text-xs font-semibold text-slate-300 truncate hover:text-white transition-colors"
+                    title={`${t.name} (double-click to rename)`}
+                  >
+                    {t.name}
+                  </button>
+                )}
+
+                {editing ? (
+                  <button
+                    type="button"
+                    onMouseDown={(e) => { e.preventDefault(); commitRename() }}
+                    className="shrink-0 text-emerald-400 hover:text-emerald-300"
+                    aria-label="Save track name"
+                  >
+                    <Check className="w-3.5 h-3.5" />
+                  </button>
+                ) : (
+                  <div className="shrink-0 flex items-center gap-0.5 opacity-0 group-hover/track:opacity-100 transition-opacity">
+                    <button
+                      type="button"
+                      onClick={() => startRename(t)}
+                      className="text-slate-400 hover:text-slate-200 p-0.5"
+                      aria-label={`Rename ${t.name}`}
+                      title="Rename track"
+                    >
+                      <Pencil className="w-3 h-3" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => removeTrack(t.id)}
+                      className="text-slate-400 hover:text-red-400 p-0.5"
+                      aria-label={`Delete ${t.name}`}
+                      title="Delete track"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </button>
+                  </div>
+                )}
+              </div>
+            )
+          })}
         </div>
 
         {/* Scrollable timeline */}
@@ -245,15 +413,17 @@ export default function CanvasTimeline({ data, onChange }: CanvasTimelineProps) 
             {/* Track lanes */}
             {tracks.map((t) => {
               const over = dragOverTrack === t.id
+              const collapsed = !!t.collapsed
               return (
                 <div
                   key={t.id}
                   onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); setDragOverTrack(t.id) }}
                   onDragLeave={() => setDragOverTrack((c) => (c === t.id ? null : c))}
                   onDrop={(e) => handleTrackDrop(t.id, e)}
-                  className={`h-20 border-b border-slate-700/40 relative transition-colors ${
+                  className={`border-b border-slate-700/40 relative transition-colors ${
                     over ? "bg-emerald-500/10" : "bg-slate-900"
                   } ${t.type === "audio" ? "bg-slate-900/60" : ""}`}
+                  style={{ height: trackHeight(t) }}
                 >
                   {/* striped guide grid */}
                   <div className="absolute inset-0 flex pointer-events-none">
@@ -263,20 +433,20 @@ export default function CanvasTimeline({ data, onChange }: CanvasTimelineProps) 
                   </div>
 
                   {/* clips laid out contiguously */}
-                  <div className="absolute inset-y-2 left-0 flex gap-0.5">
+                  <div className={`absolute left-0 flex gap-0.5 ${collapsed ? "inset-y-1" : "inset-y-2"}`}>
                     {t.clips.map((clip) => {
                       const w = Math.max(36, clip.duration * PX_PER_SEC)
                       const hasImg = clip.image && isValidImageUrl(clip.image)
                       return (
                         <div
                           key={clip.id}
-                          className={`group relative h-full rounded-md overflow-hidden border shrink-0 ${
+                          className={`group/clip relative h-full rounded-md overflow-hidden border shrink-0 ${
                             t.type === "audio"
                               ? "bg-sky-900/70 border-sky-500/50"
                               : "bg-emerald-900/40 border-emerald-500/50"
                           }`}
                           style={{ width: w }}
-                          title={clip.title}
+                          title={`${clip.title} · ${fmtTime(clip.duration)}`}
                         >
                           {t.type !== "audio" && hasImg && (
                             // eslint-disable-next-line @next/next/no-img-element
@@ -295,22 +465,36 @@ export default function CanvasTimeline({ data, onChange }: CanvasTimelineProps) 
                               ))}
                             </div>
                           )}
-                          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent px-1.5 py-1">
-                            <span className="block text-[10px] font-medium text-white truncate">{clip.title}</span>
-                          </div>
-                          <button
-                            onClick={() => removeClip(t.id, clip.id)}
-                            className="absolute top-1 right-1 w-5 h-5 rounded bg-black/50 text-white/80 hover:bg-red-500 hover:text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                            aria-label={`Remove ${clip.title}`}
+                          {!collapsed && (
+                            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent px-1.5 py-1">
+                              <span className="block text-[10px] font-medium text-white truncate">{clip.title}</span>
+                            </div>
+                          )}
+                          {!collapsed && (
+                            <button
+                              onClick={() => removeClip(t.id, clip.id)}
+                              className="absolute top-1 right-1 w-5 h-5 rounded bg-black/50 text-white/80 hover:bg-red-500 hover:text-white flex items-center justify-center opacity-0 group-hover/clip:opacity-100 transition-opacity"
+                              aria-label={`Remove ${clip.title}`}
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </button>
+                          )}
+                          {/* Drag-to-resize handle (right edge) */}
+                          <div
+                            onMouseDown={(e) => startResize(e, t.id, clip)}
+                            className="absolute inset-y-0 right-0 w-2 cursor-ew-resize flex items-center justify-center bg-black/0 hover:bg-emerald-400/40 group-hover/clip:bg-emerald-400/20 transition-colors"
+                            title="Drag to change duration"
+                            role="separator"
+                            aria-label={`Resize ${clip.title}`}
                           >
-                            <Trash2 className="w-3 h-3" />
-                          </button>
+                            <span className="h-1/2 w-0.5 rounded-full bg-white/70" />
+                          </div>
                         </div>
                       )
                     })}
 
                     {/* empty-state hint on the main scenes track */}
-                    {t.clips.length === 0 && t.id === "v1" && (
+                    {t.clips.length === 0 && t.id === "v1" && !collapsed && (
                       <div className="flex items-center gap-2 h-full pl-3 text-slate-500 pointer-events-none">
                         <Layers className="w-4 h-4" />
                         <span className="text-xs italic">Drop images or scenes here to build your timeline</span>
