@@ -1122,6 +1122,7 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
                   locations={widgetLocations}
                   onSelect={handleSelect}
                   onDrag={handleItemDrag}
+                  onResize={handleResize}
                   onRemove={handleRemove}
                   onDataChange={handleWidgetDataChange}
                 />

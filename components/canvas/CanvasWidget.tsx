@@ -30,9 +30,13 @@ interface CanvasWidgetProps {
   locations: { id: string; name: string }[]
   onSelect: (id: string, isMultiSelect: boolean) => void
   onDrag: (id: string, dx: number, dy: number) => void
+  onResize: (id: string, width: number, height: number) => void
   onRemove: (id: string) => void
   onDataChange: (id: string, data: Record<string, any>) => void
 }
+
+const MIN_W = 360
+const MIN_H = 280
 
 const TIME_OPTIONS = ["Dawn", "Morning", "Midday", "Afternoon", "Dusk", "Night"]
 const WEATHER_OPTIONS = ["Clear", "Overcast", "Rain", "Storm", "Fog", "Snow"]
@@ -80,10 +84,12 @@ function Section({
 
 export default function CanvasWidget({
   item, isSelected, interactive, zoom, actors, characters, locations,
-  onSelect, onDrag, onRemove, onDataChange,
+  onSelect, onDrag, onResize, onRemove, onDataChange,
 }: CanvasWidgetProps) {
   const [isDragging, setIsDragging] = useState(false)
+  const [isResizing, setIsResizing] = useState(false)
   const dragStartRef = useRef({ x: 0, y: 0 })
+  const resizeStartRef = useRef({ x: 0, y: 0, w: 0, h: 0 })
 
   const data = item.widgetData || {}
   const width = item.width ?? 460
@@ -119,6 +125,34 @@ export default function CanvasWidget({
       document.body.style.userSelect = ""
     }
   }, [isDragging, item.id, onDrag])
+
+  /* --------------------------- Resize ------------------------------ */
+  const startResize = (e: React.MouseEvent) => {
+    if (!interactive) return
+    e.preventDefault()
+    e.stopPropagation()
+    onSelect(item.id, false)
+    setIsResizing(true)
+    resizeStartRef.current = { x: e.clientX, y: e.clientY, w: width, h: height }
+  }
+
+  useEffect(() => {
+    if (!isResizing) return
+    const move = (e: MouseEvent) => {
+      const dx = (e.clientX - resizeStartRef.current.x) / zoom
+      const dy = (e.clientY - resizeStartRef.current.y) / zoom
+      onResize(item.id, Math.max(MIN_W, resizeStartRef.current.w + dx), Math.max(MIN_H, resizeStartRef.current.h + dy))
+    }
+    const up = () => setIsResizing(false)
+    document.addEventListener("mousemove", move)
+    document.addEventListener("mouseup", up)
+    document.body.style.userSelect = "none"
+    return () => {
+      document.removeEventListener("mousemove", move)
+      document.removeEventListener("mouseup", up)
+      document.body.style.userSelect = ""
+    }
+  }, [isResizing, item.id, onResize, zoom])
 
   const patch = (next: Record<string, any>) => onDataChange(item.id, { ...data, ...next })
 
@@ -430,7 +464,7 @@ export default function CanvasWidget({
         top: item.y,
         width,
         height,
-        zIndex: isSelected || isDragging ? 40 : 10,
+        zIndex: isSelected || isDragging || isResizing ? 40 : 10,
       }}
       onMouseDown={(e) => e.stopPropagation()}
       {...(!isScene
@@ -448,6 +482,13 @@ export default function CanvasWidget({
       {header}
       {isScene ? sceneBody : castingBody}
       {isScene && sceneFooter}
+      {isSelected && interactive && (
+        <span
+          className="widget-control absolute -bottom-1.5 -right-1.5 z-20 w-4 h-4 rounded-sm bg-white border-2 border-emerald-500 cursor-se-resize"
+          onMouseDown={startResize}
+          aria-label="Resize"
+        />
+      )}
     </div>
   )
 }
