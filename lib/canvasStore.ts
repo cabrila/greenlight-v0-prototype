@@ -15,6 +15,7 @@ export interface CanvasAssetInput {
   title: string
   subtitle?: string
   image?: string
+  images?: string[]
   meta?: string
   tags?: string[]
 }
@@ -83,6 +84,7 @@ export function addAssetsToCanvas(
       title: asset.title,
       subtitle: asset.subtitle,
       image: asset.image,
+      images: asset.images,
       meta: asset.meta,
       tags: asset.tags,
     })

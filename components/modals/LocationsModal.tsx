@@ -1772,12 +1772,14 @@ export default function LocationsModal({ onClose }: LocationsModalProps) {
   }
 
   const handleAddToCanvas = (loc: ProjectLocation) => {
+    const photos = (loc.media || []).filter((m) => m.type === "photo").map((m) => m.url)
     addAssetToCanvas(projectId, {
       refId: loc.id,
       type: "location",
       title: loc.name,
       subtitle: loc.address,
-      image: loc.media?.find((m) => m.type === "photo")?.url,
+      image: photos[0],
+      images: photos,
       meta: loc.status?.replace(/-/g, " "),
       tags: loc.vibeTags,
     })

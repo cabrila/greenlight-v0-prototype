@@ -1,11 +1,11 @@
 "use client"
 
 import type React from "react"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import {
   User, Package, Shirt, MapPin, StickyNote, X, Check, Trash2,
   Type, Square, Squircle, Circle, Frame, Image as ImageIcon,
-  Clapperboard, Film, GalleryHorizontalEnd,
+  Clapperboard, Film, GalleryHorizontalEnd, ChevronLeft, ChevronRight,
 } from "lucide-react"
 import { isValidImageUrl } from "@/lib/utils"
 
@@ -25,6 +25,7 @@ export interface CanvasItem {
   title: string
   subtitle?: string
   image?: string
+  images?: string[]
   meta?: string
   tags?: string[]
   noteText?: string
@@ -91,8 +92,56 @@ export default function CanvasItemCard({
   const hasMovedRef = useRef(false)
   const config = TYPE_CONFIG[item.type]
   const Icon = config.icon
-  const hasImage = isValidImageUrl(item.image)
   const width = CARD_DIMENSIONS[viewSize].width
+
+  /* Image gallery: browse all available images for this asset directly on the card */
+  const galleryImages = useMemo(() => {
+    const list = item.images && item.images.length ? item.images : item.image ? [item.image] : []
+    return Array.from(new Set(list.filter((u) => isValidImageUrl(u))))
+  }, [item.images, item.image])
+  const [imgIndex, setImgIndex] = useState(0)
+  const safeIndex = galleryImages.length ? Math.min(imgIndex, galleryImages.length - 1) : 0
+  const currentImage = galleryImages[safeIndex]
+  const hasImage = !!currentImage
+  const hasMultiple = galleryImages.length > 1
+  const showPrev = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setImgIndex((i) => {
+      const cur = Math.min(i, galleryImages.length - 1)
+      return (cur - 1 + galleryImages.length) % galleryImages.length
+    })
+  }
+  const showNext = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setImgIndex((i) => {
+      const cur = Math.min(i, galleryImages.length - 1)
+      return (cur + 1) % galleryImages.length
+    })
+  }
+
+  const galleryNav = hasMultiple ? (
+    <>
+      <button
+        className="card-control absolute left-1.5 top-1/2 -translate-y-1/2 z-10 w-6 h-6 rounded-full bg-black/40 hover:bg-black/65 text-white flex items-center justify-center transition-colors"
+        onClick={showPrev}
+        onMouseDown={(e) => e.stopPropagation()}
+        aria-label="Previous image"
+      >
+        <ChevronLeft className="w-4 h-4" />
+      </button>
+      <button
+        className="card-control absolute right-1.5 top-1/2 -translate-y-1/2 z-10 w-6 h-6 rounded-full bg-black/40 hover:bg-black/65 text-white flex items-center justify-center transition-colors"
+        onClick={showNext}
+        onMouseDown={(e) => e.stopPropagation()}
+        aria-label="Next image"
+      >
+        <ChevronRight className="w-4 h-4" />
+      </button>
+      <span className="absolute bottom-1.5 left-1/2 -translate-x-1/2 z-10 px-1.5 py-0.5 rounded-full bg-black/55 text-white text-[10px] font-medium tabular-nums pointer-events-none">
+        {safeIndex + 1}/{galleryImages.length}
+      </span>
+    </>
+  ) : null
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if (!interactive) return
@@ -279,9 +328,20 @@ export default function CanvasItemCard({
         <div className={`w-1 self-stretch ${config.bar}`} />
         <div className="relative w-9 h-9 my-1.5 rounded-md bg-slate-100 overflow-hidden shrink-0 flex items-center justify-center">
           {hasImage ? (
-            <img src={item.image || "/placeholder.svg"} alt={item.title} className="w-full h-full object-cover" draggable={false} />
+            <img src={currentImage || "/placeholder.svg"} alt={item.title} className="w-full h-full object-cover" draggable={false} />
           ) : (
             <Icon className="w-4 h-4 text-slate-300" />
+          )}
+          {hasMultiple && (
+            <button
+              className="card-control absolute inset-0 flex items-center justify-end bg-black/0 hover:bg-black/30 transition-colors"
+              onClick={showNext}
+              onMouseDown={(e) => e.stopPropagation()}
+              aria-label={`Next image (${safeIndex + 1} of ${galleryImages.length})`}
+              title={`Image ${safeIndex + 1} of ${galleryImages.length} — click to browse`}
+            >
+              <ChevronRight className="w-3 h-3 text-white drop-shadow mr-0.5 opacity-0 group-hover:opacity-100" />
+            </button>
           )}
         </div>
         <div className="min-w-0 flex-1 pr-2">
@@ -313,10 +373,11 @@ export default function CanvasItemCard({
 
       <div className="relative w-full aspect-[4/3] bg-slate-100 flex items-center justify-center overflow-hidden">
         {hasImage ? (
-          <img src={item.image || "/placeholder.svg"} alt={item.title} className="w-full h-full object-cover" draggable={false} />
+          <img src={currentImage || "/placeholder.svg"} alt={item.title} className="w-full h-full object-cover" draggable={false} />
         ) : (
           <Icon className={compact ? "w-8 h-8 text-slate-300" : "w-10 h-10 text-slate-300"} strokeWidth={1.5} />
         )}
+        {galleryNav}
       </div>
 
       <div className={compact ? "p-2" : "p-3"}>

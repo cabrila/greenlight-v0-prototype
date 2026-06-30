@@ -28,6 +28,7 @@ interface PaletteItem {
   title: string
   subtitle?: string
   image?: string
+  images?: string[]
   meta?: string
   tags?: string[]
 }
@@ -205,12 +206,14 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
       lists.forEach((actor: any) => {
         if (seen.has(actor.id)) return
         seen.add(actor.id)
+        const headshots = (actor.headshots || []).filter((h: string) => isValidImageUrl(h))
         out.push({
           refId: actor.id,
           type: "actor",
           title: actor.name,
           subtitle: char.name,
-          image: actor.headshots?.find((h: string) => isValidImageUrl(h)),
+          image: headshots[0],
+          images: headshots,
           meta: actor.age ? `Age ${actor.age}` : actor.location,
         })
       })
@@ -246,15 +249,21 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
 
   const locationItems = useMemo<PaletteItem[]>(() => {
     const source = (currentProject?.locationInventory?.length ? currentProject?.locationInventory : currentProject?.locations) || []
-    return source.map((l) => ({
-      refId: l.id,
-      type: "location" as const,
-      title: l.name,
-      subtitle: l.address,
-      image: l.media?.find((m) => m.type === "photo")?.url,
-      meta: l.status?.replace(/-/g, " "),
-      tags: l.vibeTags,
-    }))
+    return source.map((l) => {
+      const photos = (l.media || [])
+        .filter((m) => m.type === "photo" && isValidImageUrl(m.url))
+        .map((m) => m.url)
+      return {
+        refId: l.id,
+        type: "location" as const,
+        title: l.name,
+        subtitle: l.address,
+        image: photos[0],
+        images: photos,
+        meta: l.status?.replace(/-/g, " "),
+        tags: l.vibeTags,
+      }
+    })
   }, [currentProject])
 
   const paletteByTab: Record<PaletteTab, PaletteItem[]> = {
@@ -400,6 +409,7 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
     title: p.title,
     subtitle: p.subtitle,
     image: p.image,
+    images: p.images,
     meta: p.meta,
     tags: p.tags,
   })
