@@ -17,6 +17,7 @@ import CanvasWidget from "./CanvasWidget"
 import CanvasToolbar, { type CanvasTool } from "./CanvasToolbar"
 import CanvasDock from "./CanvasDock"
 import CanvasSceneCards, { type WidgetScene, type SceneTimelineClip } from "./CanvasSceneCards"
+import CanvasBoardSwitcher, { type CanvasBoard } from "./CanvasBoardSwitcher"
 import { DEFAULT_TRACKS, SCENES_TRACK_ID, createTimelineClip, type Track } from "./CanvasTimeline"
 
 interface CanvasModalProps {
@@ -190,8 +191,19 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
   // Right-click context menu for canvas items/groups.
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; itemId: string } | null>(null)
 
+  // Multiple canvas boards ("pages") per project.
+  const [boards, setBoards] = useState<CanvasBoard[]>([{ id: "default", name: "Board 1" }])
+  const [activeBoardId, setActiveBoardId] = useState("default")
+  // Prevent the boards-index save effect from clobbering stored boards with
+  // initial state before the load effect's state update commits.
+  const skipBoardsSaveRef = useRef(true)
+
   const currentProject = state.projects.find((p) => p.id === state.currentFocus.currentProjectId)
-  const storageKey = `canvas-v2-${state.currentFocus.currentProjectId}`
+  const projectId = state.currentFocus.currentProjectId
+  const boardsIndexKey = `canvas-boards-${projectId}`
+  // The first/default board reuses the original key so existing canvases are preserved.
+  const storageKey =
+    activeBoardId === "default" ? `canvas-v2-${projectId}` : `canvas-v2-${projectId}::${activeBoardId}`
 
   const cardWidth = CARD_DIMENSIONS[viewSize].width
 
@@ -378,6 +390,65 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
   })()
 
   const placedRefIds = useMemo(() => new Set(items.map((i) => `${i.type}:${i.refId}`)), [items])
+
+  /* ---------------------------------------------------------------- */
+  /*  Boards ("pages") index                                           */
+  /* ---------------------------------------------------------------- */
+
+  // Load the boards index when the project changes (with legacy migration).
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(boardsIndexKey)
+      if (raw) {
+        const idx = JSON.parse(raw)
+        if (Array.isArray(idx.boards) && idx.boards.length) {
+          setBoards(idx.boards)
+          const valid = idx.boards.some((b: CanvasBoard) => b.id === idx.activeBoardId)
+          setActiveBoardId(valid ? idx.activeBoardId : idx.boards[0].id)
+          skipBoardsSaveRef.current = true
+          return
+        }
+      }
+    } catch {
+      /* ignore */
+    }
+    // No index yet: start with a single default board (maps to the legacy key).
+    setBoards([{ id: "default", name: "Board 1" }])
+    setActiveBoardId("default")
+    skipBoardsSaveRef.current = true
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [boardsIndexKey])
+
+  // Persist the boards index whenever it changes (skipping the load-induced run).
+  useEffect(() => {
+    if (skipBoardsSaveRef.current) {
+      skipBoardsSaveRef.current = false
+      return
+    }
+    try {
+      localStorage.setItem(boardsIndexKey, JSON.stringify({ activeBoardId, boards }))
+    } catch {
+      /* ignore */
+    }
+  }, [boards, activeBoardId, boardsIndexKey])
+
+  const switchBoard = (id: string) => {
+    if (id === activeBoardId) return
+    setSelectedIds([])
+    setActiveBoardId(id)
+  }
+
+  const addBoard = () => {
+    const id = `board-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`
+    const name = `Board ${boards.length + 1}`
+    setBoards((prev) => [...prev, { id, name }])
+    setSelectedIds([])
+    setActiveBoardId(id)
+  }
+
+  const renameBoard = (id: string, name: string) => {
+    setBoards((prev) => prev.map((b) => (b.id === id ? { ...b, name } : b)))
+  }
 
   /* ---------------------------------------------------------------- */
   /*  Persistence                                                      */
@@ -976,7 +1047,17 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
             <img src="/images/gogreenlight-logo.png" alt="GoGreenlight" className="h-7 w-auto shrink-0" />
             <div className="w-px h-5 bg-slate-200 shrink-0" />
             <h1 className="text-base font-semibold text-slate-900 leading-tight shrink-0">Canvas</h1>
-            <span className="text-sm text-slate-500 font-medium truncate">{currentProject?.name || "No project"}</span>
+            <span className="text-sm text-slate-500 font-medium truncate hidden sm:inline">
+              {currentProject?.name || "No project"}
+            </span>
+            <div className="w-px h-5 bg-slate-200 shrink-0" />
+            <CanvasBoardSwitcher
+              boards={boards}
+              activeBoardId={activeBoardId}
+              onSwitch={switchBoard}
+              onAdd={addBoard}
+              onRename={renameBoard}
+            />
           </div>
         </div>
 
