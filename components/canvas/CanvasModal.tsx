@@ -5,12 +5,14 @@ import { useState, useRef, useCallback, useEffect, useMemo } from "react"
 import {
   X, ZoomIn, ZoomOut, RotateCcw, Maximize2, Search, Trash2,
   User, Package, Shirt, MapPin, StickyNote, PanelLeftClose, PanelLeftOpen,
-  Plus, Save, Trash, LayoutGrid,
+  Plus, Save, Trash, LayoutGrid, Rows3, Grid2x2, Grid3x3,
 } from "lucide-react"
 import { useCasting } from "@/components/casting/CastingContext"
 import { isValidImageUrl } from "@/lib/utils"
 import { closeAllModals } from "../modals/ModalManager"
-import CanvasItemCard, { type CanvasItem, type CanvasItemType, TYPE_CONFIG } from "./CanvasItemCard"
+import CanvasItemCard, { type CanvasItem, type CanvasItemType, type ViewSize, TYPE_CONFIG, CARD_DIMENSIONS } from "./CanvasItemCard"
+import CanvasElement from "./CanvasElement"
+import CanvasToolbar, { type CanvasTool } from "./CanvasToolbar"
 
 interface CanvasModalProps {
   onClose: () => void
@@ -35,8 +37,32 @@ const PALETTE_TABS: { key: PaletteTab; label: string; icon: typeof User }[] = [
   { key: "location", label: "Locations", icon: MapPin },
 ]
 
-const CARD_WIDTH = 220
-const CARD_HEIGHT = 230
+const VIEW_OPTIONS: { key: ViewSize; label: string; icon: typeof Rows3 }[] = [
+  { key: "full", label: "Full", icon: Grid2x2 },
+  { key: "medium", label: "Medium", icon: Grid3x3 },
+  { key: "small", label: "Small", icon: Rows3 },
+]
+
+const ELEMENT_TYPES: CanvasItemType[] = ["text", "rectangle", "rounded", "ellipse", "frame", "image"]
+const isElement = (t: CanvasItemType) => ELEMENT_TYPES.includes(t)
+
+const DEFAULT_SIZES: Record<string, { width: number; height: number }> = {
+  frame: { width: 320, height: 240 },
+  text: { width: 200, height: 44 },
+  rectangle: { width: 180, height: 120 },
+  rounded: { width: 180, height: 120 },
+  ellipse: { width: 150, height: 150 },
+  image: { width: 220, height: 160 },
+}
+
+const CREATION_LABEL: Record<string, string> = {
+  frame: "Frame",
+  text: "Text",
+  rectangle: "Rectangle",
+  rounded: "Rounded",
+  ellipse: "Ellipse",
+  image: "Image",
+}
 
 export default function CanvasModal({ onClose }: CanvasModalProps) {
   const { state, dispatch } = useCasting()
@@ -54,8 +80,13 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
   const [activeTab, setActiveTab] = useState<PaletteTab>("actor")
   const [search, setSearch] = useState("")
 
+  const [viewSize, setViewSize] = useState<ViewSize>("full")
+  const [activeTool, setActiveTool] = useState<CanvasTool>("select")
+
   const currentProject = state.projects.find((p) => p.id === state.currentFocus.currentProjectId)
   const storageKey = `canvas-v2-${state.currentFocus.currentProjectId}`
+
+  const cardWidth = CARD_DIMENSIONS[viewSize].width
 
   /* ---------------------------------------------------------------- */
   /*  Build palette data from project                                  */
@@ -156,6 +187,7 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
         setItems(Array.isArray(data.items) ? data.items : [])
         if (data.zoom) setZoom(data.zoom)
         if (data.pan) setPan(data.pan)
+        if (data.viewSize) setViewSize(data.viewSize)
       }
     } catch {
       /* ignore */
@@ -165,7 +197,7 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
 
   const handleSave = () => {
     try {
-      localStorage.setItem(storageKey, JSON.stringify({ items, zoom, pan, savedAt: Date.now() }))
+      localStorage.setItem(storageKey, JSON.stringify({ items, zoom, pan, viewSize, savedAt: Date.now() }))
       dispatch({
         type: "ADD_NOTIFICATION",
         payload: {
@@ -184,18 +216,32 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
   }
 
   /* ---------------------------------------------------------------- */
-  /*  Adding items                                                     */
+  /*  Coordinate helpers                                               */
   /* ---------------------------------------------------------------- */
+
+  const clientToCanvas = (clientX: number, clientY: number) => {
+    const rect = canvasRef.current?.getBoundingClientRect()
+    const left = rect?.left ?? 0
+    const top = rect?.top ?? 0
+    return {
+      x: (clientX - left - pan.x) / zoom,
+      y: (clientY - top - pan.y) / zoom,
+    }
+  }
 
   const viewportCenterToCanvas = () => {
     const rect = canvasRef.current?.getBoundingClientRect()
     const w = rect?.width ?? window.innerWidth
     const h = rect?.height ?? window.innerHeight
     return {
-      x: (w / 2 - pan.x) / zoom - CARD_WIDTH / 2,
-      y: (h / 2 - pan.y) / zoom - CARD_HEIGHT / 2,
+      x: (w / 2 - pan.x) / zoom - cardWidth / 2,
+      y: (h / 2 - pan.y) / zoom - CARD_DIMENSIONS[viewSize].height / 2,
     }
   }
+
+  /* ---------------------------------------------------------------- */
+  /*  Adding palette items                                             */
+  /* ---------------------------------------------------------------- */
 
   const makeItem = (p: PaletteItem, x: number, y: number): CanvasItem => ({
     id: `ci-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
@@ -212,7 +258,6 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
 
   const addPaletteItem = (p: PaletteItem) => {
     const base = viewportCenterToCanvas()
-    // stagger so multiple adds don't perfectly overlap
     const offset = items.length % 6
     setItems((prev) => [...prev, makeItem(p, base.x + offset * 24, base.y + offset * 24)])
   }
@@ -221,16 +266,42 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
     const base = viewportCenterToCanvas()
     setItems((prev) => [
       ...prev,
-      {
-        id: `ci-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-        type: "note",
-        refId: "note",
-        x: base.x,
-        y: base.y,
-        title: "Note",
-        noteText: "",
-      },
+      { id: `ci-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, type: "note", refId: "note", x: base.x, y: base.y, title: "Note", noteText: "" },
     ])
+  }
+
+  /* ---------------------------------------------------------------- */
+  /*  Creating tool elements                                           */
+  /* ---------------------------------------------------------------- */
+
+  const createElementAt = (type: CanvasItemType, canvasX: number, canvasY: number) => {
+    const size = DEFAULT_SIZES[type] || { width: 160, height: 120 }
+    const id = `el-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
+    const newItem: CanvasItem = {
+      id,
+      type,
+      refId: type,
+      x: canvasX - size.width / 2,
+      y: canvasY - size.height / 2,
+      title: CREATION_LABEL[type] || "Element",
+      width: size.width,
+      height: size.height,
+      text: type === "frame" ? "Frame" : "",
+    }
+    setItems((prev) => [...prev, newItem])
+    setSelectedIds([id])
+    setActiveTool("select")
+    if (type === "image") {
+      // defer prompt so the element renders first
+      setTimeout(() => promptImage(id), 50)
+    }
+  }
+
+  const promptImage = (id: string) => {
+    const url = window.prompt("Paste an image URL:")
+    if (url && isValidImageUrl(url)) {
+      setItems((prev) => prev.map((it) => (it.id === id ? { ...it, image: url } : it)))
+    }
   }
 
   /* ---------------------------------------------------------------- */
@@ -245,26 +316,37 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault()
     const raw = e.dataTransfer.getData("application/json")
-    if (!raw || !canvasRef.current) return
+    if (!raw) return
     try {
       const p: PaletteItem = JSON.parse(raw)
-      const rect = canvasRef.current.getBoundingClientRect()
-      const x = (e.clientX - rect.left - pan.x) / zoom - CARD_WIDTH / 2
-      const y = (e.clientY - rect.top - pan.y) / zoom - CARD_HEIGHT / 2
-      setItems((prev) => [...prev, makeItem(p, x, y)])
+      const c = clientToCanvas(e.clientX, e.clientY)
+      setItems((prev) => [...prev, makeItem(p, c.x - cardWidth / 2, c.y - CARD_DIMENSIONS[viewSize].height / 2)])
     } catch {
       /* ignore */
     }
   }
 
   /* ---------------------------------------------------------------- */
-  /*  Card interactions                                                */
+  /*  Selection & item interactions                                    */
   /* ---------------------------------------------------------------- */
 
-  const handleSelect = (id: string, isMulti: boolean) => {
-    setSelectedIds((prev) => {
-      if (isMulti) return prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+  const groupMembers = useCallback(
+    (id: string) => {
+      const it = items.find((i) => i.id === id)
+      if (it?.groupId) return items.filter((i) => i.groupId === it.groupId).map((i) => i.id)
       return [id]
+    },
+    [items],
+  )
+
+  const handleSelect = (id: string, isMulti: boolean) => {
+    const members = groupMembers(id)
+    setSelectedIds((prev) => {
+      if (isMulti) {
+        const allIn = members.every((m) => prev.includes(m))
+        return allIn ? prev.filter((p) => !members.includes(p)) : Array.from(new Set([...prev, ...members]))
+      }
+      return members
     })
   }
 
@@ -281,6 +363,10 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
     [zoom],
   )
 
+  const handleResize = useCallback((id: string, width: number, height: number) => {
+    setItems((prev) => prev.map((it) => (it.id === id ? { ...it, width, height } : it)))
+  }, [])
+
   const handleRemove = (id: string) => {
     setItems((prev) => prev.filter((it) => it.id !== id))
     setSelectedIds((prev) => prev.filter((i) => i !== id))
@@ -288,6 +374,10 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
 
   const handleNoteChange = (id: string, text: string) => {
     setItems((prev) => prev.map((it) => (it.id === id ? { ...it, noteText: text } : it)))
+  }
+
+  const handleTextChange = (id: string, text: string) => {
+    setItems((prev) => prev.map((it) => (it.id === id ? { ...it, text } : it)))
   }
 
   const removeSelected = () => {
@@ -304,13 +394,47 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
   }
 
   /* ---------------------------------------------------------------- */
-  /*  Pan & zoom                                                       */
+  /*  Grouping                                                         */
+  /* ---------------------------------------------------------------- */
+
+  const selectionIsGrouped = useMemo(() => {
+    if (selectedIds.length < 2) return false
+    const ids = new Set(selectedIds)
+    const groups = items.filter((i) => ids.has(i.id)).map((i) => i.groupId)
+    return groups.every((g) => g && g === groups[0])
+  }, [selectedIds, items])
+
+  const groupSelected = () => {
+    if (selectedIds.length < 2) return
+    const gid = `grp-${Date.now()}`
+    setItems((prev) => prev.map((it) => (selectedIds.includes(it.id) ? { ...it, groupId: gid } : it)))
+  }
+
+  const ungroupSelected = () => {
+    setItems((prev) => prev.map((it) => (selectedIds.includes(it.id) ? { ...it, groupId: undefined } : it)))
+  }
+
+  /* ---------------------------------------------------------------- */
+  /*  Pan, zoom & tool interactions                                    */
   /* ---------------------------------------------------------------- */
 
   const handleCanvasMouseDown = (e: React.MouseEvent) => {
     const target = e.target as HTMLElement
-    if (target.closest("[data-canvas-card]")) return
-    if (!e.ctrlKey && !e.metaKey) setSelectedIds([])
+    const onCard = !!target.closest("[data-canvas-card]")
+
+    // Creation tools: place a new element where the user clicks.
+    if (isElement(activeTool as CanvasItemType)) {
+      if (onCard) return
+      const c = clientToCanvas(e.clientX, e.clientY)
+      createElementAt(activeTool as CanvasItemType, c.x, c.y)
+      return
+    }
+
+    // Select tool: let cards handle their own drag; clicking empty clears.
+    if (activeTool === "select" && onCard) return
+    if (activeTool === "select" && !e.ctrlKey && !e.metaKey && !e.shiftKey) setSelectedIds([])
+
+    // Pan (pan tool, or empty-canvas drag in select mode)
     setIsPanning(true)
     panStartRef.current = { x: e.clientX - pan.x, y: e.clientY - pan.y }
   }
@@ -367,6 +491,11 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
     setPan({ x: 0, y: 0 })
   }
 
+  const itemDims = (it: CanvasItem) => ({
+    w: it.width ?? cardWidth,
+    h: it.height ?? CARD_DIMENSIONS[viewSize].height,
+  })
+
   const fitToContent = () => {
     if (items.length === 0) return resetView()
     const rect = canvasRef.current?.getBoundingClientRect()
@@ -374,8 +503,8 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
     const availH = rect?.height ?? window.innerHeight
     const minX = Math.min(...items.map((i) => i.x))
     const minY = Math.min(...items.map((i) => i.y))
-    const maxX = Math.max(...items.map((i) => i.x + CARD_WIDTH))
-    const maxY = Math.max(...items.map((i) => i.y + CARD_HEIGHT))
+    const maxX = Math.max(...items.map((i) => i.x + itemDims(i).w))
+    const maxY = Math.max(...items.map((i) => i.y + itemDims(i).h))
     const w = maxX - minX
     const h = maxY - minY
     const pad = 80
@@ -384,17 +513,58 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
     setPan({ x: availW / 2 - ((minX + maxX) / 2) * newZoom, y: availH / 2 - ((minY + maxY) / 2) * newZoom })
   }
 
+  /* ---------------------------------------------------------------- */
+  /*  Keyboard shortcuts                                               */
+  /* ---------------------------------------------------------------- */
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement
+      if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable)) return
+      if (e.metaKey || e.ctrlKey) {
+        if (e.key.toLowerCase() === "g") {
+          e.preventDefault()
+          if (selectionIsGrouped) ungroupSelected()
+          else groupSelected()
+        }
+        return
+      }
+      switch (e.key.toLowerCase()) {
+        case "v": setActiveTool("select"); break
+        case "h": setActiveTool("pan"); break
+        case "f": setActiveTool("frame"); break
+        case "t": setActiveTool("text"); break
+        case "r": setActiveTool("rectangle"); break
+        case "o": setActiveTool("ellipse"); break
+        case "escape": setActiveTool("select"); setSelectedIds([]); break
+        case "delete":
+        case "backspace":
+          if (selectedIds.length) { e.preventDefault(); removeSelected() }
+          break
+      }
+    }
+    document.addEventListener("keydown", onKey)
+    return () => document.removeEventListener("keydown", onKey)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedIds, selectionIsGrouped, items])
+
   const handleClose = () => {
     closeAllModals()
     onClose()
   }
 
-  // counts per type currently on canvas
   const counts = useMemo(() => {
     const c: Record<string, number> = {}
     items.forEach((i) => (c[i.type] = (c[i.type] || 0) + 1))
     return c
   }, [items])
+
+  const cursorForTool =
+    activeTool === "pan" ? (isPanning ? "grabbing" : "grab")
+      : isElement(activeTool as CanvasItemType) ? "crosshair"
+        : isPanning ? "grabbing" : "default"
+
+  const interactive = activeTool === "select"
 
   /* ---------------------------------------------------------------- */
   /*  Render                                                           */
@@ -424,7 +594,7 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
         </div>
 
         {/* Type counts */}
-        <div className="hidden md:flex items-center gap-1.5">
+        <div className="hidden lg:flex items-center gap-1.5">
           {(["actor", "prop", "costume", "location"] as CanvasItemType[]).map((t) => {
             const cfg = TYPE_CONFIG[t]
             const Icon = cfg.icon
@@ -438,6 +608,28 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
         </div>
 
         <div className="flex items-center gap-2">
+          {/* View size control */}
+          <div className="hidden sm:flex items-center bg-slate-100 rounded-lg p-1" role="group" aria-label="Card view size">
+            {VIEW_OPTIONS.map((v) => {
+              const Icon = v.icon
+              const active = viewSize === v.key
+              return (
+                <button
+                  key={v.key}
+                  onClick={() => setViewSize(v.key)}
+                  title={`${v.label} view`}
+                  aria-pressed={active}
+                  className={`flex items-center gap-1 px-2 py-1.5 rounded text-xs font-medium transition-colors ${
+                    active ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"
+                  }`}
+                >
+                  <Icon className="w-3.5 h-3.5" />
+                  <span className="hidden xl:inline">{v.label}</span>
+                </button>
+              )
+            })}
+          </div>
+
           {selectedIds.length > 0 && (
             <button
               onClick={removeSelected}
@@ -514,9 +706,7 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
             <div className="flex-1 overflow-y-auto p-3 space-y-2">
               <p className="text-xs text-slate-400 px-0.5">Drag onto the canvas or click to add</p>
               {currentPalette.length === 0 && (
-                <div className="text-center py-10 text-sm text-slate-400">
-                  No items found.
-                </div>
+                <div className="text-center py-10 text-sm text-slate-400">No items found.</div>
               )}
               {currentPalette.map((p) => {
                 const cfg = TYPE_CONFIG[p.type]
@@ -537,7 +727,7 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
                       ) : (
                         <Icon className="w-5 h-5 text-slate-300" />
                       )}
-                      <span className={`absolute -top-0 -left-0 w-2 h-full ${cfg.bar}`} style={{ width: 3 }} />
+                      <span className={`absolute top-0 left-0 h-full ${cfg.bar}`} style={{ width: 3 }} />
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-medium text-slate-800 truncate">{p.title}</p>
@@ -560,7 +750,7 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
           ref={canvasRef}
           className="relative flex-1 overflow-hidden bg-slate-100"
           style={{
-            cursor: isPanning ? "grabbing" : "default",
+            cursor: cursorForTool,
             backgroundImage: "radial-gradient(circle, rgb(203 213 225) 1px, transparent 1px)",
             backgroundSize: `${24 * zoom}px ${24 * zoom}px`,
             backgroundPosition: `${pan.x}px ${pan.y}px`,
@@ -569,21 +759,49 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
           onDragOver={(e) => e.preventDefault()}
           onDrop={handleDrop}
         >
+          {/* Tool rail */}
+          <CanvasToolbar
+            activeTool={activeTool}
+            onToolChange={setActiveTool}
+            canGroup={selectedIds.length >= 2}
+            isGrouped={selectionIsGrouped}
+            onGroup={groupSelected}
+            onUngroup={ungroupSelected}
+          />
+
           <div
             className="absolute top-0 left-0 origin-top-left"
             style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})` }}
           >
-            {items.map((item) => (
-              <CanvasItemCard
-                key={item.id}
-                item={item}
-                isSelected={selectedIds.includes(item.id)}
-                onSelect={handleSelect}
-                onDrag={handleItemDrag}
-                onRemove={handleRemove}
-                onNoteChange={handleNoteChange}
-              />
-            ))}
+            {items.map((item) =>
+              isElement(item.type) ? (
+                <CanvasElement
+                  key={item.id}
+                  item={item}
+                  isSelected={selectedIds.includes(item.id)}
+                  interactive={interactive}
+                  zoom={zoom}
+                  onSelect={handleSelect}
+                  onDrag={handleItemDrag}
+                  onResize={handleResize}
+                  onRemove={handleRemove}
+                  onTextChange={handleTextChange}
+                  onSetImage={promptImage}
+                />
+              ) : (
+                <CanvasItemCard
+                  key={item.id}
+                  item={item}
+                  isSelected={selectedIds.includes(item.id)}
+                  viewSize={viewSize}
+                  interactive={interactive}
+                  onSelect={handleSelect}
+                  onDrag={handleItemDrag}
+                  onRemove={handleRemove}
+                  onNoteChange={handleNoteChange}
+                />
+              ),
+            )}
           </div>
 
           {/* Empty state */}
@@ -595,7 +813,7 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
                 </div>
                 <h3 className="text-lg font-semibold text-slate-700">Build your production board</h3>
                 <p className="text-sm text-slate-500 mt-1 text-pretty">
-                  Add cast, props, costume &amp; makeup, and locations from the library on the left. Drag cards to arrange, scroll to zoom, and drag the background to pan.
+                  Add cast, props, costume &amp; makeup, and locations from the library. Use the tool rail to add frames, text, shapes, and images, then group and arrange them.
                 </p>
               </div>
             </div>
