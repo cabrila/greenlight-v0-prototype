@@ -175,6 +175,40 @@ function TagInput({
   )
 }
 
+/** Inline single-line input to add a custom named asset to a section. */
+function AddAssetInline({ onAdd, placeholder }: { onAdd: (name: string) => void; placeholder: string }) {
+  const [value, setValue] = useState("")
+  const add = () => {
+    const t = value.trim()
+    if (!t) return
+    onAdd(t)
+    setValue("")
+  }
+  return (
+    <div className="flex items-center gap-1.5 mt-3">
+      <input
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && !e.nativeEvent.isComposing && e.keyCode !== 229) {
+            e.preventDefault()
+            add()
+          }
+        }}
+        placeholder={placeholder}
+        className="flex-1 text-xs rounded-lg bg-white border border-dashed border-slate-300 px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-500 placeholder:text-slate-400"
+      />
+      <button
+        type="button"
+        onClick={add}
+        className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 text-xs font-medium hover:bg-emerald-100 transition-colors"
+      >
+        <Plus className="w-3.5 h-3.5" /> Add
+      </button>
+    </div>
+  )
+}
+
 export default function CanvasDesigner({
   item, isSelected, interactive, zoom, mode,
   subjects, actors, costumes, makeup, props, locationAssets,
@@ -193,7 +227,6 @@ export default function CanvasDesigner({
   const isChar = mode === "character"
 
   const subjectId: string = data.subjectId || ""
-  const subject = subjects.find((s) => s.id === subjectId)
   const actorId: string = data.actorId || ""
   const costumeIds: string[] = data.costumeIds || []
   const makeupIds: string[] = data.makeupIds || []
@@ -207,7 +240,44 @@ export default function CanvasDesigner({
     | { title: string; prompt: string; baseImage?: string; assets: { name: string; image?: string }[]; createdAt: number }
     | undefined
 
+  // Custom (user-added) entries persisted alongside project data, so the tool
+  // stays fully usable even when the project has no cast/inventory yet.
+  const customSubjects: DesignerSubject[] = data.customSubjects || []
+  const customActors: DesignerAsset[] = data.customActors || []
+  const customCostumes: DesignerAsset[] = data.customCostumes || []
+  const customMakeup: DesignerAsset[] = data.customMakeup || []
+  const customProps: DesignerAsset[] = data.customProps || []
+  const customLocations: DesignerAsset[] = data.customLocations || []
+
   const patch = (next: Record<string, any>) => onDataChange(item.id, { ...data, ...next })
+
+  // Merge project pools with custom additions.
+  const allSubjects = [...subjects, ...customSubjects]
+  const allActors = [...actors, ...customActors]
+  const allCostumes = [...costumes, ...customCostumes]
+  const allMakeup = [...makeup, ...customMakeup]
+  const allProps = [...props, ...customProps]
+  const allLocations = [...locationAssets, ...customLocations]
+  const subject = allSubjects.find((s) => s.id === subjectId)
+
+  const newId = () => `custom-${Date.now()}-${Math.random().toString(36).slice(2, 5)}`
+
+  // Add a custom asset to a pool and immediately select it.
+  const addCustomAsset = (poolKey: string, selKey: string, name: string, single: boolean) => {
+    const id = newId()
+    const pool = (data[poolKey] || []) as DesignerAsset[]
+    if (single) {
+      patch({ [poolKey]: [...pool, { id, name }], [selKey]: id })
+    } else {
+      const sel = (data[selKey] || []) as string[]
+      patch({ [poolKey]: [...pool, { id, name }], [selKey]: [...sel, id] })
+    }
+  }
+
+  const addCustomSubject = (name: string) => {
+    const id = newId()
+    patch({ customSubjects: [...customSubjects, { id, name, description: "" }], subjectId: id, promptEdited: false })
+  }
 
   /* Pre-fill the prompt from the subject's script description (until the user edits it). */
   useEffect(() => {
@@ -291,16 +361,18 @@ export default function CanvasDesigner({
   }
 
   /* -------------------------- Generate ----------------------------- */
-  const chosenActor = actors.find((a) => a.id === actorId)
+  const chosenActor = allActors.find((a) => a.id === actorId)
   const selectedAssets: DesignerAsset[] = isChar
     ? [
-        ...costumes.filter((c) => costumeIds.includes(c.id)),
-        ...makeup.filter((m) => makeupIds.includes(m.id)),
-        ...props.filter((p) => propIds.includes(p.id)),
+        ...allCostumes.filter((c) => costumeIds.includes(c.id)),
+        ...allMakeup.filter((m) => makeupIds.includes(m.id)),
+        ...allProps.filter((p) => propIds.includes(p.id)),
+        ...makeupTags.map((t) => ({ id: `tag-${t}`, name: t })),
       ]
     : [
-        ...locationAssets.filter((l) => locationIds.includes(l.id)),
-        ...props.filter((p) => propIds.includes(p.id)),
+        ...allLocations.filter((l) => locationIds.includes(l.id)),
+        ...allProps.filter((p) => propIds.includes(p.id)),
+        ...elementTags.map((t) => ({ id: `tag-${t}`, name: t })),
       ]
 
   const canGenerate = !!subject && !generating
@@ -420,49 +492,64 @@ export default function CanvasDesigner({
             onChange={(e) => patch({ subjectId: e.target.value, promptEdited: false })}
             className="w-full appearance-none rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 pr-9 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500"
           >
-            <option value="">Select a {subjectLabel.toLowerCase()} from your script…</option>
-            {subjects.map((s) => (
-              <option key={s.id} value={s.id}>{s.name}</option>
-            ))}
+            <option value="">Select a {subjectLabel.toLowerCase()}…</option>
+            {subjects.length > 0 && (
+              <optgroup label="From script">
+                {subjects.map((s) => (
+                  <option key={s.id} value={s.id}>{s.name}</option>
+                ))}
+              </optgroup>
+            )}
+            {customSubjects.length > 0 && (
+              <optgroup label="Custom">
+                {customSubjects.map((s) => (
+                  <option key={s.id} value={s.id}>{s.name}</option>
+                ))}
+              </optgroup>
+            )}
           </select>
           <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
         </div>
-        {subjects.length === 0 && (
-          <p className="text-xs text-slate-400 mt-1.5">No {subjectLabel.toLowerCase()}s found in this project&apos;s script yet.</p>
-        )}
+        <AddAssetInline onAdd={addCustomSubject} placeholder={`Add a custom ${subjectLabel.toLowerCase()}…`} />
       </div>
 
       {isChar ? (
         <>
           <Section title="Actor" count={actorId ? 1 : 0}>
             <AssetGrid
-              assets={actors}
+              assets={allActors}
               selectedIds={actorId ? [actorId] : []}
               onToggle={(id) => patch({ actorId: actorId === id ? "" : id })}
-              emptyHint="No cast in this project yet."
+              emptyHint="No cast yet — add one below to cast this role."
               single
             />
+            <AddAssetInline onAdd={(name) => addCustomAsset("customActors", "actorId", name, true)} placeholder="Add an actor by name…" />
           </Section>
           <Section title="Costumes" count={costumeIds.length} defaultOpen={false}>
-            <AssetGrid assets={costumes} selectedIds={costumeIds} onToggle={(id) => toggleIn("costumeIds", costumeIds, id)} emptyHint="No costumes in the wardrobe inventory yet." />
+            <AssetGrid assets={allCostumes} selectedIds={costumeIds} onToggle={(id) => toggleIn("costumeIds", costumeIds, id)} emptyHint="No costumes yet — add one below." />
+            <AddAssetInline onAdd={(name) => addCustomAsset("customCostumes", "costumeIds", name, false)} placeholder="Add a costume…" />
           </Section>
           <Section title="Makeup & HMU" count={makeupIds.length + makeupTags.length} defaultOpen={false}>
-            <div className="space-y-3">
-              <AssetGrid assets={makeup} selectedIds={makeupIds} onToggle={(id) => toggleIn("makeupIds", makeupIds, id)} emptyHint="No HMU consumables in inventory — add notes below." />
-              <TagInput tags={makeupTags} onChange={(next) => patch({ makeupTags: next })} placeholder="Add makeup note" />
+            <AssetGrid assets={allMakeup} selectedIds={makeupIds} onToggle={(id) => toggleIn("makeupIds", makeupIds, id)} emptyHint="No HMU items yet — add notes or items below." />
+            <AddAssetInline onAdd={(name) => addCustomAsset("customMakeup", "makeupIds", name, false)} placeholder="Add a makeup / HMU item…" />
+            <div className="mt-3">
+              <TagInput tags={makeupTags} onChange={(next) => patch({ makeupTags: next })} placeholder="Quick note" />
             </div>
           </Section>
           <Section title="Props" count={propIds.length} defaultOpen={false}>
-            <AssetGrid assets={props} selectedIds={propIds} onToggle={(id) => toggleIn("propIds", propIds, id)} emptyHint="No props in this project yet." />
+            <AssetGrid assets={allProps} selectedIds={propIds} onToggle={(id) => toggleIn("propIds", propIds, id)} emptyHint="No props yet — add one below." />
+            <AddAssetInline onAdd={(name) => addCustomAsset("customProps", "propIds", name, false)} placeholder="Add a prop…" />
           </Section>
         </>
       ) : (
         <>
           <Section title="Reference Locations" count={locationIds.length}>
-            <AssetGrid assets={locationAssets} selectedIds={locationIds} onToggle={(id) => toggleIn("locationIds", locationIds, id)} emptyHint="No locations in the database yet." />
+            <AssetGrid assets={allLocations} selectedIds={locationIds} onToggle={(id) => toggleIn("locationIds", locationIds, id)} emptyHint="No locations yet — add one below." />
+            <AddAssetInline onAdd={(name) => addCustomAsset("customLocations", "locationIds", name, false)} placeholder="Add a reference location…" />
           </Section>
           <Section title="Props" count={propIds.length} defaultOpen={false}>
-            <AssetGrid assets={props} selectedIds={propIds} onToggle={(id) => toggleIn("propIds", propIds, id)} emptyHint="No props in this project yet." />
+            <AssetGrid assets={allProps} selectedIds={propIds} onToggle={(id) => toggleIn("propIds", propIds, id)} emptyHint="No props yet — add one below." />
+            <AddAssetInline onAdd={(name) => addCustomAsset("customProps", "propIds", name, false)} placeholder="Add a prop…" />
           </Section>
           <Section title="Set Elements" count={elementTags.length} defaultOpen={false}>
             <TagInput tags={elementTags} onChange={(next) => patch({ elementTags: next })} placeholder="Add element" />
