@@ -302,11 +302,14 @@ export default function CanvasWidget({
   }
 
   const [dragOverCol, setDragOverCol] = useState<string | null>(null)
+  // True while an actor is being dragged anywhere over the board.
+  const [boardDragActive, setBoardDragActive] = useState(false)
 
   const handleColDrop = (charId: string, e: React.DragEvent) => {
     e.preventDefault()
     e.stopPropagation()
     setDragOverCol(null)
+    setBoardDragActive(false)
     const raw = e.dataTransfer.getData("application/json")
     if (!raw) return
     try {
@@ -318,8 +321,36 @@ export default function CanvasWidget({
     }
   }
 
+  // Board-level catch-all: swallow any drop that lands on the board but not on a
+  // specific column (e.g. the header or gaps) so the canvas never creates a loose
+  // actor card on top of the casting board.
+  const handleBoardDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setDragOverCol(null)
+    setBoardDragActive(false)
+  }
+
   const castingBody = (
-    <div className="flex-1 overflow-auto p-4 widget-control">
+    <div
+      className={`flex-1 overflow-auto p-4 widget-control transition-colors ${
+        boardDragActive ? "bg-emerald-50/40" : ""
+      }`}
+      onDragOver={(e) => {
+        if (e.dataTransfer.types.includes("application/json")) {
+          e.preventDefault()
+          e.dataTransfer.dropEffect = "copy"
+          setBoardDragActive(true)
+        }
+      }}
+      onDragLeave={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+          setBoardDragActive(false)
+          setDragOverCol(null)
+        }
+      }}
+      onDrop={handleBoardDrop}
+    >
       {characters.length === 0 ? (
         <p className="text-sm text-slate-400">No characters in this project yet.</p>
       ) : (
@@ -328,23 +359,40 @@ export default function CanvasWidget({
             const assigned = assignments[char.id] || []
             const over = dragOverCol === char.id
             return (
-              <div key={char.id} className="flex flex-col w-48 shrink-0 rounded-xl border border-slate-200 bg-slate-50/60 overflow-hidden">
+              <div
+                key={char.id}
+                onDragOver={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  e.dataTransfer.dropEffect = "copy"
+                  setDragOverCol(char.id)
+                  setBoardDragActive(true)
+                }}
+                onDragLeave={(e) => {
+                  if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                    setDragOverCol((c) => (c === char.id ? null : c))
+                  }
+                }}
+                onDrop={(e) => handleColDrop(char.id, e)}
+                className={`flex flex-col w-48 shrink-0 rounded-xl border overflow-hidden transition-all ${
+                  over
+                    ? "border-emerald-400 bg-emerald-50/70 ring-2 ring-emerald-500 ring-offset-1"
+                    : "border-slate-200 bg-slate-50/60"
+                }`}
+              >
                 {/* Column header */}
                 <div className="flex flex-col items-center gap-2 px-3 pt-4 pb-3 bg-white border-b-2 border-slate-300">
                   <Avatar src={char.image} name={char.name} size={56} />
                   <span className="text-sm font-bold text-slate-800 text-center text-pretty">{char.name}</span>
                 </div>
-                {/* Drop zone */}
+                {/* Drop hint */}
                 <div
-                  onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); setDragOverCol(char.id) }}
-                  onDragLeave={() => setDragOverCol((c) => (c === char.id ? null : c))}
-                  onDrop={(e) => handleColDrop(char.id, e)}
-                  className={`m-3 mb-2 rounded-lg border-2 border-dashed flex items-center justify-center gap-2 px-3 py-3 text-sm transition-colors ${
+                  className={`m-3 mb-2 rounded-lg border-2 border-dashed flex items-center justify-center gap-2 px-3 py-3 text-sm transition-colors pointer-events-none ${
                     over ? "border-emerald-500 bg-emerald-50 text-emerald-600" : "border-slate-300 text-slate-400"
                   }`}
                 >
                   <UserPlus className="w-4 h-4" />
-                  <span className="italic">Drop actor here</span>
+                  <span className="italic">{over ? "Release to cast" : "Drop actor here"}</span>
                 </div>
                 {/* Assigned actors */}
                 <div className="flex-1 overflow-y-auto px-3 pb-3 space-y-2">
@@ -385,6 +433,17 @@ export default function CanvasWidget({
         zIndex: isSelected || isDragging ? 40 : 10,
       }}
       onMouseDown={(e) => e.stopPropagation()}
+      {...(!isScene
+        ? {
+            onDragOver: (e: React.DragEvent) => {
+              if (e.dataTransfer.types.includes("application/json")) {
+                e.preventDefault()
+                e.dataTransfer.dropEffect = "copy"
+              }
+            },
+            onDrop: handleBoardDrop,
+          }
+        : {})}
     >
       {header}
       {isScene ? sceneBody : castingBody}
