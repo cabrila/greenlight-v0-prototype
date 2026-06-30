@@ -3,13 +3,28 @@
 import type React from "react"
 
 import { useState, useRef, useEffect } from "react"
-import { Send, ImagePlus, Loader2 } from "lucide-react"
+import { Send, ImagePlus, Loader2, Sparkles, User, Package, Shirt, MapPin, Image as ImageIcon } from "lucide-react"
 
 interface Message {
   id: string
   type: "user" | "assistant"
   content: string
   timestamp: number
+}
+
+export interface ChatContextItem {
+  id: string
+  type: string
+  title: string
+  image?: string
+}
+
+const CONTEXT_ICONS: Record<string, typeof User> = {
+  actor: User,
+  prop: Package,
+  costume: Shirt,
+  location: MapPin,
+  image: ImageIcon,
 }
 
 const GREETING =
@@ -36,7 +51,7 @@ function generateResponse(userMessage: string): string {
  * Body-only Creative Go-Pilot chat. Positioning, accent, header and collapse are
  * owned by the parent dock (CanvasDock) so the chat can live inside a tab.
  */
-export default function CanvasChatbot() {
+export default function CanvasChatbot({ contextItems = [] }: { contextItems?: ChatContextItem[] }) {
   const [messages, setMessages] = useState<Message[]>([])
   const [inputValue, setInputValue] = useState("")
   const [isProcessing, setIsProcessing] = useState(false)
@@ -118,6 +133,40 @@ export default function CanvasChatbot() {
         )}
         <div ref={messagesEndRef} />
       </div>
+
+      {/* Selected canvas assets used as AI context */}
+      {contextItems.length > 0 && (
+        <div className="px-4 pt-2.5 pb-1 border-t border-slate-100">
+          <div className="flex items-center gap-1.5 mb-2">
+            <Sparkles className="w-3.5 h-3.5 text-emerald-500" />
+            <span className="text-xs font-medium text-slate-500">
+              {contextItems.length} {contextItems.length === 1 ? "item" : "items"} added as context
+            </span>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {contextItems.map((c) => {
+              const Icon = CONTEXT_ICONS[c.type] || ImageIcon
+              return (
+                <div
+                  key={c.id}
+                  className="flex items-center gap-1.5 pl-1 pr-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200"
+                  title={c.title}
+                >
+                  <span className="w-6 h-6 rounded-full overflow-hidden bg-white border border-emerald-200 flex items-center justify-center shrink-0">
+                    {c.image ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={c.image || "/placeholder.svg"} alt={c.title} className="w-full h-full object-cover" />
+                    ) : (
+                      <Icon className="w-3.5 h-3.5 text-emerald-600" />
+                    )}
+                  </span>
+                  <span className="text-xs font-medium text-emerald-800 max-w-[120px] truncate">{c.title}</span>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Input row */}
       <div className="flex items-center gap-3 px-4 py-3 border-t border-slate-100">

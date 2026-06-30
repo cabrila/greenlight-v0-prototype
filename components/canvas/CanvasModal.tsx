@@ -294,6 +294,21 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
     [locationItems],
   )
 
+  /* Selected assets/images surfaced as AI context in the Creative Go-Pilot chat. */
+  const CONTEXT_TYPES: CanvasItemType[] = ["actor", "prop", "costume", "location", "image"]
+  const selectedContext = useMemo(
+    () =>
+      items
+        .filter((it) => selectedIds.includes(it.id) && CONTEXT_TYPES.includes(it.type))
+        .map((it) => ({
+          id: it.id,
+          type: it.type,
+          title: it.title || TYPE_CONFIG[it.type]?.label || "Item",
+          image: (it.images && it.images.length ? it.images[0] : it.image) || undefined,
+        })),
+    [items, selectedIds],
+  )
+
   const activeControls = PALETTE_CONTROLS[activeTab]
   const activeFilter = filterValues[activeTab]
   const activeSort = sortKeys[activeTab]
@@ -1197,6 +1212,7 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
             timelineData={timelineData}
             onTimelineDataChange={setTimelineData}
             onCloseTimeline={() => setTimelineEnabled(false)}
+            selectedContext={selectedContext}
           />
         </div>
       </div>

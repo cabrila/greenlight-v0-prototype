@@ -5,11 +5,19 @@ import { ChevronDown, ChevronUp, GalleryHorizontalEnd, X } from "lucide-react"
 import CanvasChatbot from "./CanvasChatbot"
 import CanvasTimeline from "./CanvasTimeline"
 
+export interface ChatContextItem {
+  id: string
+  type: string
+  title: string
+  image?: string
+}
+
 interface CanvasDockProps {
   timelineEnabled: boolean
   timelineData: Record<string, any>
   onTimelineDataChange: (data: Record<string, any>) => void
   onCloseTimeline: () => void
+  selectedContext: ChatContextItem[]
 }
 
 type DockTab = "timeline" | "chat"
@@ -35,6 +43,7 @@ export default function CanvasDock({
   timelineData,
   onTimelineDataChange,
   onCloseTimeline,
+  selectedContext,
 }: CanvasDockProps) {
   const [activeTab, setActiveTab] = useState<DockTab>("timeline")
   const [collapsed, setCollapsed] = useState(false)
@@ -68,7 +77,7 @@ export default function CanvasDock({
             </div>
             {collapsed ? <ChevronUp className="w-5 h-5 text-slate-400" /> : <ChevronDown className="w-5 h-5 text-slate-400" />}
           </button>
-          {!collapsed && <CanvasChatbot />}
+          {!collapsed && <CanvasChatbot contextItems={selectedContext} />}
         </div>
       </div>
     )
@@ -123,7 +132,7 @@ export default function CanvasDock({
             {activeTab === "timeline" ? (
               <CanvasTimeline data={timelineData} onChange={onTimelineDataChange} />
             ) : (
-              <CanvasChatbot />
+              <CanvasChatbot contextItems={selectedContext} />
             )}
           </div>
         )}
