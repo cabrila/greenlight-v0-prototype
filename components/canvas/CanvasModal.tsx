@@ -16,6 +16,7 @@ import CanvasElement from "./CanvasElement"
 import CanvasWidget from "./CanvasWidget"
 import CanvasToolbar, { type CanvasTool } from "./CanvasToolbar"
 import CanvasDock from "./CanvasDock"
+import { DEFAULT_TRACKS, SCENES_TRACK_ID, createTimelineClip, type Track } from "./CanvasTimeline"
 
 interface CanvasModalProps {
   onClose: () => void
@@ -182,6 +183,9 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
   // Editing Timeline now lives in the bottom dock (not as a canvas item).
   const [timelineEnabled, setTimelineEnabled] = useState(false)
   const [timelineData, setTimelineData] = useState<Record<string, any>>({})
+
+  // Right-click context menu for canvas items/groups.
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; itemId: string } | null>(null)
 
   const currentProject = state.projects.find((p) => p.id === state.currentFocus.currentProjectId)
   const storageKey = `canvas-v2-${state.currentFocus.currentProjectId}`
@@ -632,6 +636,62 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
       setSelectedIds([])
     }
   }
+
+  /* ---------------------------------------------------------------- */
+  /*  Add to Editing Timeline (right-click)                            */
+  /* ---------------------------------------------------------------- */
+
+  // Asset/image items that can become timeline clips.
+  const TIMELINE_TYPES: CanvasItemType[] = ["actor", "prop", "costume", "location", "image"]
+
+  const addItemsToTimeline = (itemIds: string[]) => {
+    const targets = items.filter((it) => itemIds.includes(it.id) && TIMELINE_TYPES.includes(it.type))
+    const newClips = targets
+      .map((it) =>
+        createTimelineClip({
+          title: it.title || TYPE_CONFIG[it.type]?.label || "Clip",
+          image: (it.images && it.images.length ? it.images[0] : it.image) || undefined,
+          type: it.type,
+        }),
+      )
+      .filter(Boolean) as ReturnType<typeof createTimelineClip>[]
+    if (!newClips.length) return
+
+    // Open the timeline dock and append the clips to the Scenes track.
+    setTimelineEnabled(true)
+    setTimelineData((prev) => {
+      const tracks: Track[] = prev.tracks || DEFAULT_TRACKS
+      const nextTracks = tracks.map((t) =>
+        t.id === SCENES_TRACK_ID ? { ...t, clips: [...t.clips, ...(newClips as any)] } : t,
+      )
+      return { ...prev, tracks: nextTracks }
+    })
+  }
+
+  const handleItemContextMenu = (e: React.MouseEvent, id: string) => {
+    if (!interactive) return
+    e.preventDefault()
+    e.stopPropagation()
+    setSelectedIds(groupMembers(id))
+    setContextMenu({ x: e.clientX, y: e.clientY, itemId: id })
+  }
+
+  // Dismiss the context menu on any outside interaction.
+  useEffect(() => {
+    if (!contextMenu) return
+    const close = () => setContextMenu(null)
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setContextMenu(null)
+    window.addEventListener("mousedown", close)
+    window.addEventListener("scroll", close, true)
+    window.addEventListener("resize", close)
+    window.addEventListener("keydown", onKey)
+    return () => {
+      window.removeEventListener("mousedown", close)
+      window.removeEventListener("scroll", close, true)
+      window.removeEventListener("resize", close)
+      window.removeEventListener("keydown", onKey)
+    }
+  }, [contextMenu])
 
   /* ---------------------------------------------------------------- */
   /*  Grouping                                                         */
@@ -1143,10 +1203,14 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
               </div>
             ))}
 
-            {items.map((item) =>
-              isWidget(item.type) ? (
+            {items.map((item) => (
+              <div
+                key={item.id}
+                style={{ display: "contents" }}
+                onContextMenu={(e) => handleItemContextMenu(e, item.id)}
+              >
+                {isWidget(item.type) ? (
                 <CanvasWidget
-                  key={item.id}
                   item={item}
                   isSelected={selectedIds.includes(item.id)}
                   interactive={interactive}
@@ -1187,8 +1251,9 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
                   onRemove={handleRemove}
                   onNoteChange={handleNoteChange}
                 />
-              ),
-            )}
+              )}
+              </div>
+            ))}
           </div>
 
           {/* Empty state */}
@@ -1225,6 +1290,40 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
         className="hidden"
         onChange={handleFileSelected}
       />
+
+      {/* Right-click context menu */}
+      {contextMenu &&
+        (() => {
+          const memberIds = groupMembers(contextMenu.itemId)
+          const ctxItem = items.find((i) => i.id === contextMenu.itemId)
+          const isGroup = !!ctxItem?.groupId && memberIds.length > 1
+          const eligible = items.filter((it) => memberIds.includes(it.id) && TIMELINE_TYPES.includes(it.type))
+          return (
+            <div
+              className="fixed z-[100] min-w-[190px] bg-white rounded-lg shadow-xl border border-slate-200 py-1"
+              style={{ top: contextMenu.y, left: contextMenu.x }}
+              onMouseDown={(e) => e.stopPropagation()}
+              role="menu"
+            >
+              <button
+                type="button"
+                role="menuitem"
+                disabled={eligible.length === 0}
+                onClick={() => {
+                  addItemsToTimeline(memberIds)
+                  setContextMenu(null)
+                }}
+                className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-slate-700"
+              >
+                <GalleryHorizontalEnd className="w-4 h-4 shrink-0" />
+                <span className="flex-1 text-left">
+                  {isGroup ? "Add group to timeline" : "Add to timeline"}
+                  {eligible.length > 1 ? ` (${eligible.length})` : ""}
+                </span>
+              </button>
+            </div>
+          )
+        })()}
     </div>
   )
 }

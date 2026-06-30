@@ -12,7 +12,7 @@ interface CanvasTimelineProps {
   onChange: (data: Record<string, any>) => void
 }
 
-interface Clip {
+export interface Clip {
   id: string
   title: string
   image?: string
@@ -20,7 +20,7 @@ interface Clip {
   duration: number // seconds
 }
 
-interface Track {
+export interface Track {
   id: string
   name: string
   type: "video" | "audio"
@@ -31,11 +31,27 @@ const PX_PER_SEC = 16
 const MIN_TIMELINE_SECONDS = 36
 const RULER_TICK = 4 // seconds between ruler ticks
 
-const DEFAULT_TRACKS: Track[] = [
+export const DEFAULT_TRACKS: Track[] = [
   { id: "v2", name: "Overlay", type: "video", clips: [] },
   { id: "v1", name: "Scenes", type: "video", clips: [] },
   { id: "a1", name: "Audio", type: "audio", clips: [] },
 ]
+
+/** The track that newly added scenes/assets are appended to. */
+export const SCENES_TRACK_ID = "v1"
+
+/** Build a timeline clip from an asset-like payload. Returns null if invalid. */
+export function createTimelineClip(p: any): Clip | null {
+  if (!p || !p.title) return null
+  const isAudio = p.type === "audio" || p.kind === "audio"
+  return {
+    id: `clip-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+    title: p.title,
+    image: p.image,
+    kind: p.type || p.kind || "image",
+    duration: isAudio ? 6 : 4,
+  }
+}
 
 const VISUAL_STYLES = ["Cinematic", "Film Noir", "Vibrant Pop", "Vintage Film", "Documentary", "Anime", "Dreamlike", "High Contrast"]
 const GENRES = ["Drama", "Thriller", "Comedy", "Sci-Fi", "Horror", "Romance", "Action", "Fantasy"]
@@ -89,17 +105,7 @@ export default function CanvasTimeline({ data, onChange }: CanvasTimelineProps) 
   const setTracks = (next: Track[]) => patch({ tracks: next })
 
   /* ----------------------------- Clips ----------------------------- */
-  const makeClip = (p: any): Clip | null => {
-    if (!p || !p.title) return null
-    const isAudio = p.type === "audio"
-    return {
-      id: `clip-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-      title: p.title,
-      image: p.image,
-      kind: p.type || "image",
-      duration: isAudio ? 6 : 4,
-    }
-  }
+  const makeClip = createTimelineClip
 
   const handleTrackDrop = (trackId: string, e: React.DragEvent) => {
     e.preventDefault()
