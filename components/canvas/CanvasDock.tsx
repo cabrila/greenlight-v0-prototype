@@ -46,7 +46,8 @@ export default function CanvasDock({
   selectedContext,
 }: CanvasDockProps) {
   const [activeTab, setActiveTab] = useState<DockTab>("timeline")
-  const [collapsed, setCollapsed] = useState(false)
+  // The bottom menu opens collapsed by default; the user expands it when needed.
+  const [collapsed, setCollapsed] = useState(true)
 
   // When the timeline is turned on, surface it and make sure the dock is open.
   useEffect(() => {

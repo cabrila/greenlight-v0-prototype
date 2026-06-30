@@ -23,6 +23,7 @@ import {
   Trash2,
   Film,
   Home,
+  Layout,
 } from "lucide-react"
 import { useCasting } from "@/components/casting/CastingContext"
 import { openModal, closeModal, navigateToModal } from "@/components/modals/ModalManager"
@@ -104,6 +105,7 @@ export default function FloatingSidebar({ isOpen, onClose, onToggle, currentModa
     { icon: Paintbrush, label: "Production", modal: "productionDesign", color: "hover:text-slate-700 hover:bg-slate-100" },
     { icon: Calendar, label: "Schedule", modal: "schedule", color: "hover:text-blue-600 hover:bg-blue-50" },
     { icon: Tv, label: "Casting Tools", modal: "castingForTV", color: "hover:text-indigo-600 hover:bg-indigo-50" },
+    { icon: Layout, label: "Canvas", modal: "canvas", color: "hover:text-emerald-600 hover:bg-emerald-50" },
   ]
 
   return (
@@ -374,6 +376,19 @@ export default function FloatingSidebar({ isOpen, onClose, onToggle, currentModa
             >
               <Tv className="w-4 h-4" />
               <span>Casting for TV</span>
+            </button>
+
+            {/* Canvas */}
+            <button
+              onClick={() => handleNavigation("canvas")}
+              className={`w-full flex items-center space-x-3 px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border ${
+                currentModal === "canvas"
+                  ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                  : "text-slate-700 hover:text-emerald-600 bg-white/60 hover:bg-white border-slate-200/50"
+              }`}
+            >
+              <Layout className="w-4 h-4" />
+              <span>Canvas</span>
             </button>
 
             {/* Permissions */}
