@@ -294,7 +294,7 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
     [locationItems],
   )
 
-  /* Selected assets/images surfaced as AI context in the Creative Go-Pilot chat. */
+  /* Selected assets/images surfaced as AI context in the Canvas AI chat. */
   const CONTEXT_TYPES: CanvasItemType[] = ["actor", "prop", "costume", "location", "image"]
   const selectedContext = useMemo(
     () =>
@@ -1206,7 +1206,7 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
             </div>
           )}
 
-          {/* Bottom dock: Editing Timeline + Creative Go-Pilot */}
+          {/* Bottom dock: Editing Timeline + Canvas AI */}
           <CanvasDock
             timelineEnabled={timelineEnabled}
             timelineData={timelineData}

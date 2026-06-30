@@ -28,7 +28,7 @@ const CONTEXT_ICONS: Record<string, typeof User> = {
 }
 
 const GREETING =
-  "Hi there! I'm your Creative Go-Pilot.\nShare an idea, and I'll help you visualize it and explore where it could go."
+  "Hi there! I'm Canvas AI.\nShare an idea, and I'll help you visualize it and explore where it could go."
 
 function generateResponse(userMessage: string): string {
   const m = userMessage.toLowerCase()
@@ -48,7 +48,7 @@ function generateResponse(userMessage: string): string {
 }
 
 /**
- * Body-only Creative Go-Pilot chat. Positioning, accent, header and collapse are
+ * Body-only Canvas AI chat. Positioning, accent, header and collapse are
  * owned by the parent dock (CanvasDock) so the chat can live inside a tab.
  */
 export default function CanvasChatbot({ contextItems = [] }: { contextItems?: ChatContextItem[] }) {

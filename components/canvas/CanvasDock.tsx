@@ -22,7 +22,7 @@ interface CanvasDockProps {
 
 type DockTab = "timeline" | "chat"
 
-/** Brand mark used for the Creative Go-Pilot tab/title. */
+/** Brand mark used for the Canvas AI tab/title. */
 function GoPilotMark() {
   return (
     <span className="relative inline-flex w-5 h-5 shrink-0" aria-hidden="true">
@@ -34,8 +34,8 @@ function GoPilotMark() {
 
 /**
  * Bottom-docked panel for the canvas. When the Editing Timeline is enabled it
- * becomes a full-width bar with two tabs (Editing Timeline + Creative Go-Pilot);
- * otherwise it shows the Creative Go-Pilot chat as a compact centered panel.
+ * becomes a full-width bar with two tabs (Editing Timeline + Canvas AI);
+ * otherwise it shows the Canvas AI chat as a compact centered panel.
  * Collapsible in both modes.
  */
 export default function CanvasDock({
@@ -69,11 +69,11 @@ export default function CanvasDock({
             onClick={() => setCollapsed((v) => !v)}
             className="w-full flex items-center justify-between px-4 py-3 hover:bg-slate-50 transition-colors"
             aria-expanded={!collapsed}
-            aria-label={collapsed ? "Expand Creative Go-Pilot" : "Collapse Creative Go-Pilot"}
+            aria-label={collapsed ? "Expand Canvas AI" : "Collapse Canvas AI"}
           >
             <div className="flex items-center gap-2.5">
               <GoPilotMark />
-              <span className="text-base font-bold text-slate-800">Creative Go-Pilot</span>
+              <span className="text-base font-bold text-slate-800">Canvas AI</span>
             </div>
             {collapsed ? <ChevronUp className="w-5 h-5 text-slate-400" /> : <ChevronDown className="w-5 h-5 text-slate-400" />}
           </button>
@@ -101,7 +101,7 @@ export default function CanvasDock({
             active={activeTab === "chat"}
             onClick={() => { setActiveTab("chat"); setCollapsed(false) }}
             icon={<GoPilotMark />}
-            label="Creative Go-Pilot"
+            label="Canvas AI"
           />
 
           <div className="ml-auto flex items-center gap-1">
