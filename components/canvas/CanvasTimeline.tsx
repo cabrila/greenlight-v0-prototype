@@ -1,22 +1,15 @@
 "use client"
 
 import type React from "react"
-import { useEffect, useRef, useState } from "react"
+import { useState } from "react"
 import {
-  X, Wand2, Sparkles, GalleryHorizontalEnd, Trash2, Plus, Film, Music, Layers,
+  X, Wand2, Sparkles, Trash2, Plus, Film, Music, Layers,
 } from "lucide-react"
 import { isValidImageUrl } from "@/lib/utils"
-import type { CanvasItem } from "./CanvasItemCard"
 
 interface CanvasTimelineProps {
-  item: CanvasItem
-  isSelected: boolean
-  interactive: boolean
-  zoom: number
-  onSelect: (id: string, isMultiSelect: boolean) => void
-  onDrag: (id: string, dx: number, dy: number) => void
-  onRemove: (id: string) => void
-  onDataChange: (id: string, data: Record<string, any>) => void
+  data: Record<string, any>
+  onChange: (data: Record<string, any>) => void
 }
 
 interface Clip {
@@ -81,53 +74,19 @@ function PillRow({
   )
 }
 
-export default function CanvasTimeline({
-  item, isSelected, interactive, zoom, onSelect, onDrag, onRemove, onDataChange,
-}: CanvasTimelineProps) {
-  const [isDragging, setIsDragging] = useState(false)
+/**
+ * Docked multi-track editing timeline. Lives inside CanvasDock (no canvas drag /
+ * positioning). Accepts persisted `data` and reports edits via `onChange`.
+ */
+export default function CanvasTimeline({ data, onChange }: CanvasTimelineProps) {
   const [dragOverTrack, setDragOverTrack] = useState<string | null>(null)
   const [visualizeOpen, setVisualizeOpen] = useState(false)
-  const dragStartRef = useRef({ x: 0, y: 0 })
 
-  const data = item.widgetData || {}
-  const width = item.width ?? 980
-  const height = item.height ?? 480
   const tracks: Track[] = data.tracks || DEFAULT_TRACKS
   const previz = data.previz as { style?: string; genre?: string; cutting?: string } | undefined
 
-  const patch = (next: Record<string, any>) => onDataChange(item.id, { ...data, ...next })
+  const patch = (next: Record<string, any>) => onChange({ ...data, ...next })
   const setTracks = (next: Track[]) => patch({ tracks: next })
-
-  /* -------------------------- Header drag -------------------------- */
-  const handleHeaderMouseDown = (e: React.MouseEvent) => {
-    if (!interactive) return
-    onSelect(item.id, e.ctrlKey || e.metaKey || e.shiftKey)
-    setIsDragging(true)
-    dragStartRef.current = { x: e.clientX, y: e.clientY }
-    e.preventDefault()
-    e.stopPropagation()
-  }
-
-  useEffect(() => {
-    if (!isDragging) return
-    const move = (e: MouseEvent) => {
-      const dx = e.clientX - dragStartRef.current.x
-      const dy = e.clientY - dragStartRef.current.y
-      if (dx !== 0 || dy !== 0) {
-        onDrag(item.id, dx, dy)
-        dragStartRef.current = { x: e.clientX, y: e.clientY }
-      }
-    }
-    const up = () => setIsDragging(false)
-    document.addEventListener("mousemove", move)
-    document.addEventListener("mouseup", up)
-    document.body.style.userSelect = "none"
-    return () => {
-      document.removeEventListener("mousemove", move)
-      document.removeEventListener("mouseup", up)
-      document.body.style.userSelect = ""
-    }
-  }, [isDragging, item.id, onDrag])
 
   /* ----------------------------- Clips ----------------------------- */
   const makeClip = (p: any): Clip | null => {
@@ -182,36 +141,7 @@ export default function CanvasTimeline({
 
   /* ============================ Render ============================ */
   return (
-    <div
-      data-canvas-card="true"
-      className={`absolute flex flex-col rounded-2xl bg-white shadow-xl border border-slate-200 select-none ${
-        isSelected ? "ring-2 ring-emerald-500 ring-offset-2" : ""
-      }`}
-      style={{ left: item.x, top: item.y, width, height, zIndex: isSelected || isDragging ? 40 : 10 }}
-      onMouseDown={(e) => e.stopPropagation()}
-    >
-      {/* Header */}
-      <div className="shrink-0">
-        <div className="h-1.5 bg-emerald-500 rounded-t-2xl" />
-        <div
-          className="flex items-center gap-3 px-5 py-3.5 border-b border-slate-100 cursor-grab active:cursor-grabbing"
-          onMouseDown={handleHeaderMouseDown}
-        >
-          <span className="w-9 h-9 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
-            <GalleryHorizontalEnd className="w-5 h-5" />
-          </span>
-          <h3 className="text-lg font-bold text-slate-800">Editing Timeline</h3>
-          <span className="hidden md:block ml-auto text-sm text-slate-400">Drag images &amp; scenes onto a track</span>
-          <button
-            className="text-slate-400 hover:text-slate-600 transition-colors ml-auto md:ml-3"
-            onClick={(e) => { e.stopPropagation(); onRemove(item.id) }}
-            aria-label="Remove Editing Timeline"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-      </div>
-
+    <div className="flex flex-col h-full min-h-0">
       {/* Toolbar */}
       <div className="relative shrink-0 flex items-center gap-3 px-4 py-2.5 border-b border-slate-100 bg-white">
         <button
@@ -247,7 +177,7 @@ export default function CanvasTimeline({
 
         {/* Visualize panel */}
         {visualizeOpen && (
-          <div className="absolute left-4 top-full mt-2 w-[22rem] max-w-[calc(100%-2rem)] bg-white rounded-xl shadow-2xl border border-slate-200 p-4 z-50 space-y-4">
+          <div className="absolute left-4 bottom-full mb-2 w-[22rem] max-w-[calc(100%-2rem)] bg-white rounded-xl shadow-2xl border border-slate-200 p-4 z-50 space-y-4">
             <div className="flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-emerald-500" />
               <h4 className="text-sm font-bold text-slate-800">Pre-visualize your edit</h4>
@@ -279,7 +209,7 @@ export default function CanvasTimeline({
       </div>
 
       {/* Editor: track gutter + scrollable lanes */}
-      <div className="flex-1 flex min-h-0 bg-slate-900 rounded-b-2xl overflow-hidden">
+      <div className="flex-1 flex min-h-0 bg-slate-900 overflow-hidden">
         {/* Track label gutter */}
         <div className="shrink-0 w-28 bg-slate-950/60 border-r border-slate-700/60">
           <div className="h-7 border-b border-slate-700/60" />

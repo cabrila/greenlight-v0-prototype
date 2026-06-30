@@ -14,9 +14,8 @@ import { closeAllModals } from "../modals/ModalManager"
 import CanvasItemCard, { type CanvasItem, type CanvasItemType, type ViewSize, TYPE_CONFIG, CARD_DIMENSIONS } from "./CanvasItemCard"
 import CanvasElement from "./CanvasElement"
 import CanvasWidget from "./CanvasWidget"
-import CanvasTimeline from "./CanvasTimeline"
 import CanvasToolbar, { type CanvasTool } from "./CanvasToolbar"
-import CanvasChatbot from "./CanvasChatbot"
+import CanvasDock from "./CanvasDock"
 
 interface CanvasModalProps {
   onClose: () => void
@@ -51,13 +50,12 @@ const VIEW_OPTIONS: { key: ViewSize; label: string; icon: typeof Rows3 }[] = [
 const ELEMENT_TYPES: CanvasItemType[] = ["text", "rectangle", "rounded", "ellipse", "frame", "image"]
 const isElement = (t: CanvasItemType) => ELEMENT_TYPES.includes(t)
 
-const WIDGET_TYPES: CanvasItemType[] = ["scene-generator", "casting-board", "timeline"]
+const WIDGET_TYPES: CanvasItemType[] = ["scene-generator", "casting-board"]
 const isWidget = (t: CanvasItemType) => WIDGET_TYPES.includes(t)
 
 const WIDGET_SIZES: Record<string, { width: number; height: number }> = {
   "scene-generator": { width: 460, height: 620 },
   "casting-board": { width: 900, height: 560 },
-  timeline: { width: 980, height: 480 },
 }
 
 const CANVAS_TOOLS: { type: CanvasItemType; label: string; description: string; icon: typeof Film }[] = [
@@ -180,6 +178,10 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
   const [newNoteId, setNewNoteId] = useState<string | null>(null)
   const [toolsMenuOpen, setToolsMenuOpen] = useState(false)
   const toolsMenuRef = useRef<HTMLDivElement>(null)
+
+  // Editing Timeline now lives in the bottom dock (not as a canvas item).
+  const [timelineEnabled, setTimelineEnabled] = useState(false)
+  const [timelineData, setTimelineData] = useState<Record<string, any>>({})
 
   const currentProject = state.projects.find((p) => p.id === state.currentFocus.currentProjectId)
   const storageKey = `canvas-v2-${state.currentFocus.currentProjectId}`
@@ -330,13 +332,22 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
       const saved = localStorage.getItem(storageKey)
       if (saved) {
         const data = JSON.parse(saved)
-        setItems(Array.isArray(data.items) ? data.items : [])
+        const rawItems = Array.isArray(data.items) ? data.items : []
+        // Migrate any legacy on-canvas timeline widget into the bottom dock.
+        const legacyTimeline = rawItems.find((i: CanvasItem) => i.type === "timeline")
+        const cleanItems = rawItems.filter((i: CanvasItem) => i.type !== "timeline")
+        setItems(cleanItems)
         if (data.zoom) setZoom(data.zoom)
         if (data.pan) setPan(data.pan)
         if (data.viewSize) setViewSize(data.viewSize)
         if (data.groupNames && typeof data.groupNames === "object") setGroupNames(data.groupNames)
+        const enabled = !!data.timelineEnabled || !!legacyTimeline
+        setTimelineEnabled(enabled)
+        setTimelineData(data.timelineData || legacyTimeline?.widgetData || {})
       } else {
         setItems([])
+        setTimelineEnabled(false)
+        setTimelineData({})
       }
     } catch {
       /* ignore */
@@ -354,11 +365,14 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
       return
     }
     try {
-      localStorage.setItem(storageKey, JSON.stringify({ items, zoom, pan, viewSize, groupNames, savedAt: Date.now() }))
+      localStorage.setItem(
+        storageKey,
+        JSON.stringify({ items, zoom, pan, viewSize, groupNames, timelineEnabled, timelineData, savedAt: Date.now() }),
+      )
     } catch {
       /* ignore */
     }
-  }, [items, zoom, pan, viewSize, groupNames, storageKey])
+  }, [items, zoom, pan, viewSize, groupNames, timelineEnabled, timelineData, storageKey])
 
   /* Close the Canvas Tools dropdown on outside click */
   useEffect(() => {
@@ -477,6 +491,16 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
     setSelectedIds([id])
     setActiveTool("select")
     setToolsMenuOpen(false)
+  }
+
+  // The Editing Timeline opens in the bottom dock; other tools drop onto the canvas.
+  const handleToolSelect = (type: CanvasItemType) => {
+    if (type === "timeline") {
+      setTimelineEnabled(true)
+      setToolsMenuOpen(false)
+      return
+    }
+    createWidget(type)
   }
 
   const handleWidgetDataChange = useCallback((id: string, widgetData: Record<string, any>) => {
@@ -878,7 +902,7 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
                     <button
                       key={tool.type}
                       role="menuitem"
-                      onClick={() => createWidget(tool.type)}
+                      onClick={() => handleToolSelect(tool.type)}
                       className="w-full flex items-start gap-3 px-3 py-2.5 rounded-lg text-left hover:bg-slate-50 transition-colors"
                     >
                       <span className="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
@@ -1105,19 +1129,7 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
             ))}
 
             {items.map((item) =>
-              item.type === "timeline" ? (
-                <CanvasTimeline
-                  key={item.id}
-                  item={item}
-                  isSelected={selectedIds.includes(item.id)}
-                  interactive={interactive}
-                  zoom={zoom}
-                  onSelect={handleSelect}
-                  onDrag={handleItemDrag}
-                  onRemove={handleRemove}
-                  onDataChange={handleWidgetDataChange}
-                />
-              ) : isWidget(item.type) ? (
+              isWidget(item.type) ? (
                 <CanvasWidget
                   key={item.id}
                   item={item}
@@ -1179,8 +1191,13 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
             </div>
           )}
 
-          {/* Creative Go-Pilot AI chat */}
-          <CanvasChatbot />
+          {/* Bottom dock: Editing Timeline + Creative Go-Pilot */}
+          <CanvasDock
+            timelineEnabled={timelineEnabled}
+            timelineData={timelineData}
+            onTimelineDataChange={setTimelineData}
+            onCloseTimeline={() => setTimelineEnabled(false)}
+          />
         </div>
       </div>
 
