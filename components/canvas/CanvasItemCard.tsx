@@ -12,7 +12,7 @@ import { isValidImageUrl } from "@/lib/utils"
 export type CanvasItemType =
   | "actor" | "prop" | "costume" | "location" | "note"
   | "text" | "rectangle" | "rounded" | "ellipse" | "frame" | "image"
-  | "scene-generator" | "casting-board" | "timeline"
+  | "scene-generator" | "casting-board" | "timeline" | "scene-cards"
 
 export type ViewSize = "full" | "medium" | "small"
 
@@ -61,6 +61,7 @@ export const TYPE_CONFIG: Record<CanvasItemType, TypeConfig> = {
   "scene-generator": { label: "Scene Generator", icon: Film, chip: "bg-emerald-100 text-emerald-700", bar: "bg-emerald-500", ring: "ring-emerald-500" },
   "casting-board": { label: "Character Casting", icon: Clapperboard, chip: "bg-emerald-100 text-emerald-700", bar: "bg-emerald-500", ring: "ring-emerald-500" },
   timeline: { label: "Editing Timeline", icon: GalleryHorizontalEnd, chip: "bg-emerald-100 text-emerald-700", bar: "bg-emerald-500", ring: "ring-emerald-500" },
+  "scene-cards": { label: "Scene Cards", icon: Clapperboard, chip: "bg-emerald-100 text-emerald-700", bar: "bg-emerald-500", ring: "ring-emerald-500" },
 }
 
 /* card dimensions per view size (width, approx height for fit calc) */

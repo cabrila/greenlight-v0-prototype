@@ -16,6 +16,7 @@ import CanvasElement from "./CanvasElement"
 import CanvasWidget from "./CanvasWidget"
 import CanvasToolbar, { type CanvasTool } from "./CanvasToolbar"
 import CanvasDock from "./CanvasDock"
+import CanvasSceneCards, { type WidgetScene, type SceneTimelineClip } from "./CanvasSceneCards"
 import { DEFAULT_TRACKS, SCENES_TRACK_ID, createTimelineClip, type Track } from "./CanvasTimeline"
 
 interface CanvasModalProps {
@@ -57,11 +58,13 @@ const isWidget = (t: CanvasItemType) => WIDGET_TYPES.includes(t)
 const WIDGET_SIZES: Record<string, { width: number; height: number }> = {
   "scene-generator": { width: 460, height: 620 },
   "casting-board": { width: 900, height: 560 },
+  "scene-cards": { width: 940, height: 600 },
 }
 
 const CANVAS_TOOLS: { type: CanvasItemType; label: string; description: string; icon: typeof Film }[] = [
   { type: "scene-generator", label: "Scene Generator", description: "Compose a scene from cast, location & mood", icon: Film },
   { type: "casting-board", label: "Character Casting", description: "Snap actors onto project characters", icon: Clapperboard },
+  { type: "scene-cards", label: "Scene Cards", description: "Pre-filled, editable scene cards from your script", icon: Clapperboard },
   { type: "timeline", label: "Editing Timeline", description: "Build a multi-track edit & pre-visualize it", icon: GalleryHorizontalEnd },
 ]
 
@@ -297,6 +300,40 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
     () => locationItems.map((l) => ({ id: l.refId, name: l.title })),
     [locationItems],
   )
+
+  /* Pre-filled, editable scene cards resolved from the project's script & schedule. */
+  const widgetScenes = useMemo<WidgetScene[]>(() => {
+    const scenes = state.scenes || []
+    if (!scenes.length) return []
+
+    // Map character names -> a representative image (concept art or first headshot).
+    const imageByName = new Map<string, string | undefined>()
+    ;(currentProject?.characters || []).forEach((char) => {
+      let img = isValidImageUrl(char.conceptArt) ? char.conceptArt : undefined
+      if (!img) {
+        const fromActor = actorItems.find((a) => a.subtitle?.toUpperCase() === char.name.toUpperCase())
+        img = fromActor?.image
+      }
+      imageByName.set(char.name.toUpperCase(), img)
+    })
+
+    return scenes.map((s) => {
+      const sched = (state.scheduleEntries || []).find((e) => e.id === s.shootDayId)
+      const summary =
+        s.description?.trim() ||
+        `${s.intExt} ${s.location} — ${s.dayNight}. Featuring ${s.cast.join(", ") || "the principal cast"}.`
+      return {
+        id: s.id,
+        sceneNumber: s.sceneNumber,
+        intExt: s.intExt,
+        dayNight: s.dayNight,
+        location: s.location,
+        cast: s.cast.map((name) => ({ name, image: imageByName.get(name.toUpperCase()) })),
+        props: sched?.props ? [...sched.props] : [],
+        summary,
+      }
+    })
+  }, [state.scenes, state.scheduleEntries, currentProject, actorItems])
 
   /* Selected assets/images surfaced as AI context in the Canvas AI chat. */
   const CONTEXT_TYPES: CanvasItemType[] = ["actor", "prop", "costume", "location", "image"]
@@ -646,18 +683,21 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
 
   const addItemsToTimeline = (itemIds: string[]) => {
     const targets = items.filter((it) => itemIds.includes(it.id) && TIMELINE_TYPES.includes(it.type))
-    const newClips = targets
-      .map((it) =>
-        createTimelineClip({
-          title: it.title || TYPE_CONFIG[it.type]?.label || "Clip",
-          image: (it.images && it.images.length ? it.images[0] : it.image) || undefined,
-          type: it.type,
-        }),
-      )
+    const payloads = targets.map((it) => ({
+      title: it.title || TYPE_CONFIG[it.type]?.label || "Clip",
+      image: (it.images && it.images.length ? it.images[0] : it.image) || undefined,
+      type: it.type,
+    }))
+    addClipsToTimeline(payloads)
+  }
+
+  // Open the Editing Timeline dock and append clips to the Scenes track.
+  const addClipsToTimeline = (payloads: { title: string; image?: string; type?: string; kind?: string }[]) => {
+    const newClips = payloads
+      .map((p) => createTimelineClip(p))
       .filter(Boolean) as ReturnType<typeof createTimelineClip>[]
     if (!newClips.length) return
 
-    // Open the timeline dock and append the clips to the Scenes track.
     setTimelineEnabled(true)
     setTimelineData((prev) => {
       const tracks: Track[] = prev.tracks || DEFAULT_TRACKS
@@ -667,6 +707,10 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
       return { ...prev, tracks: nextTracks }
     })
   }
+
+  // Scene Cards widget -> timeline. Each scene becomes a single clip.
+  const handleAddScenesToTimeline = (clips: SceneTimelineClip[]) =>
+    addClipsToTimeline(clips.map((c) => ({ title: c.title, image: c.image, kind: c.kind })))
 
   const handleItemContextMenu = (e: React.MouseEvent, id: string) => {
     if (!interactive) return
@@ -1209,7 +1253,21 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
                 style={{ display: "contents" }}
                 onContextMenu={(e) => handleItemContextMenu(e, item.id)}
               >
-                {isWidget(item.type) ? (
+                {item.type === "scene-cards" ? (
+                <CanvasSceneCards
+                  item={item}
+                  isSelected={selectedIds.includes(item.id)}
+                  interactive={interactive}
+                  zoom={zoom}
+                  scenes={widgetScenes}
+                  onSelect={handleSelect}
+                  onDrag={handleItemDrag}
+                  onResize={handleResize}
+                  onRemove={handleRemove}
+                  onDataChange={handleWidgetDataChange}
+                  onAddToTimeline={handleAddScenesToTimeline}
+                />
+              ) : isWidget(item.type) ? (
                 <CanvasWidget
                   item={item}
                   isSelected={selectedIds.includes(item.id)}
