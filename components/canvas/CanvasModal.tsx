@@ -6,6 +6,7 @@ import {
   X, ZoomIn, ZoomOut, RotateCcw, Maximize2, Search, Trash2,
   User, Package, Shirt, MapPin, StickyNote, PanelLeftClose, PanelLeftOpen,
   Plus, Save, Trash, LayoutGrid, Rows3, Grid2x2, Grid3x3,
+  SlidersHorizontal, ArrowUpDown,
 } from "lucide-react"
 import { useCasting } from "@/components/casting/CastingContext"
 import { isValidImageUrl } from "@/lib/utils"
@@ -64,6 +65,68 @@ const CREATION_LABEL: Record<string, string> = {
   image: "Image",
 }
 
+const cmpStr = (a?: string, b?: string) =>
+  (a || "").localeCompare(b || "", undefined, { sensitivity: "base", numeric: true })
+
+interface SortOption {
+  key: string
+  label: string
+  compare: (a: PaletteItem, b: PaletteItem) => number
+}
+
+interface PaletteControls {
+  filterLabel: string
+  filterAllLabel: string
+  filterAccessor: (it: PaletteItem) => string | undefined
+  sorts: SortOption[]
+}
+
+const NAME_SORTS: SortOption[] = [
+  { key: "name-asc", label: "Name (A–Z)", compare: (a, b) => cmpStr(a.title, b.title) },
+  { key: "name-desc", label: "Name (Z–A)", compare: (a, b) => cmpStr(b.title, a.title) },
+]
+
+const PALETTE_CONTROLS: Record<PaletteTab, PaletteControls> = {
+  actor: {
+    filterLabel: "Character",
+    filterAllLabel: "All characters",
+    filterAccessor: (it) => it.subtitle,
+    sorts: [
+      ...NAME_SORTS,
+      { key: "character", label: "Character", compare: (a, b) => cmpStr(a.subtitle, b.subtitle) || cmpStr(a.title, b.title) },
+    ],
+  },
+  prop: {
+    filterLabel: "Category",
+    filterAllLabel: "All categories",
+    filterAccessor: (it) => it.subtitle,
+    sorts: [
+      ...NAME_SORTS,
+      { key: "category", label: "Category", compare: (a, b) => cmpStr(a.subtitle, b.subtitle) || cmpStr(a.title, b.title) },
+      { key: "status", label: "Status", compare: (a, b) => cmpStr(a.meta, b.meta) || cmpStr(a.title, b.title) },
+    ],
+  },
+  costume: {
+    filterLabel: "Type",
+    filterAllLabel: "All types",
+    filterAccessor: (it) => it.subtitle,
+    sorts: [
+      ...NAME_SORTS,
+      { key: "type", label: "Type", compare: (a, b) => cmpStr(a.subtitle, b.subtitle) || cmpStr(a.title, b.title) },
+      { key: "status", label: "Status", compare: (a, b) => cmpStr(a.meta, b.meta) || cmpStr(a.title, b.title) },
+    ],
+  },
+  location: {
+    filterLabel: "Status",
+    filterAllLabel: "All statuses",
+    filterAccessor: (it) => it.meta,
+    sorts: [
+      ...NAME_SORTS,
+      { key: "status", label: "Status", compare: (a, b) => cmpStr(a.meta, b.meta) || cmpStr(a.title, b.title) },
+    ],
+  },
+}
+
 export default function CanvasModal({ onClose }: CanvasModalProps) {
   const { state, dispatch } = useCasting()
   const canvasRef = useRef<HTMLDivElement>(null)
@@ -82,6 +145,12 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [activeTab, setActiveTab] = useState<PaletteTab>("actor")
   const [search, setSearch] = useState("")
+  const [filterValues, setFilterValues] = useState<Record<PaletteTab, string>>({
+    actor: "all", prop: "all", costume: "all", location: "all",
+  })
+  const [sortKeys, setSortKeys] = useState<Record<PaletteTab, string>>({
+    actor: "name-asc", prop: "name-asc", costume: "name-asc", location: "name-asc",
+  })
 
   const [viewSize, setViewSize] = useState<ViewSize>("full")
   const [activeTool, setActiveTool] = useState<CanvasTool>("select")
@@ -170,11 +239,32 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
     location: locationItems,
   }
 
-  const currentPalette = paletteByTab[activeTab].filter((it) => {
-    if (!search.trim()) return true
-    const q = search.toLowerCase()
-    return it.title.toLowerCase().includes(q) || (it.subtitle || "").toLowerCase().includes(q)
-  })
+  const activeControls = PALETTE_CONTROLS[activeTab]
+  const activeFilter = filterValues[activeTab]
+  const activeSort = sortKeys[activeTab]
+
+  /* Distinct filter values derived from the full (unfiltered) palette */
+  const filterOptions = (() => {
+    const vals = new Set<string>()
+    paletteByTab[activeTab].forEach((it) => {
+      const v = activeControls.filterAccessor(it)?.trim()
+      if (v) vals.add(v)
+    })
+    return Array.from(vals).sort((a, b) => cmpStr(a, b))
+  })()
+
+  const currentPalette = (() => {
+    const q = search.trim().toLowerCase()
+    const sortOpt = activeControls.sorts.find((s) => s.key === activeSort) || activeControls.sorts[0]
+    const applyFilter = activeFilter !== "all" && filterOptions.includes(activeFilter)
+    return paletteByTab[activeTab]
+      .filter((it) => {
+        if (q && !(it.title.toLowerCase().includes(q) || (it.subtitle || "").toLowerCase().includes(q))) return false
+        if (applyFilter && (activeControls.filterAccessor(it) || "").trim() !== activeFilter) return false
+        return true
+      })
+      .sort(sortOpt.compare)
+  })()
 
   const placedRefIds = useMemo(() => new Set(items.map((i) => `${i.type}:${i.refId}`)), [items])
 
@@ -746,7 +836,7 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
             </div>
 
             {/* Search */}
-            <div className="p-3 border-b border-slate-100">
+            <div className="p-3 pb-2 border-b border-slate-100 space-y-2">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                 <input
@@ -755,6 +845,37 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
                   placeholder={`Search ${PALETTE_TABS.find((t) => t.key === activeTab)?.label.toLowerCase()}...`}
                   className="w-full pl-9 pr-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white text-slate-900 placeholder-slate-400"
                 />
+              </div>
+
+              {/* Filter & sort */}
+              <div className="grid grid-cols-2 gap-2">
+                <div className="relative">
+                  <SlidersHorizontal className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
+                  <select
+                    value={activeFilter}
+                    onChange={(e) => setFilterValues((prev) => ({ ...prev, [activeTab]: e.target.value }))}
+                    aria-label={`Filter by ${activeControls.filterLabel.toLowerCase()}`}
+                    className="w-full pl-7 pr-6 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white text-slate-700 capitalize"
+                  >
+                    <option value="all">{activeControls.filterAllLabel}</option>
+                    {filterOptions.map((opt) => (
+                      <option key={opt} value={opt} className="capitalize">{opt}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="relative">
+                  <ArrowUpDown className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
+                  <select
+                    value={activeSort}
+                    onChange={(e) => setSortKeys((prev) => ({ ...prev, [activeTab]: e.target.value }))}
+                    aria-label="Sort items"
+                    className="w-full pl-7 pr-6 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white text-slate-700"
+                  >
+                    {activeControls.sorts.map((s) => (
+                      <option key={s.key} value={s.key}>{s.label}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
             </div>
 
