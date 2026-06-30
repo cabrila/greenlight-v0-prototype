@@ -132,7 +132,10 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
   const canvasRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const pendingImageIdRef = useRef<string | null>(null)
-  const hasLoadedRef = useRef(false)
+  // When the load effect populates state, the resulting render must NOT trigger
+  // a save (it would persist stale/empty state and clobber storage). This ref
+  // tells the save effect to skip exactly that one load-induced run.
+  const skipNextSaveRef = useRef(true)
 
   const [zoom, setZoom] = useState(1)
   const [pan, setPan] = useState({ x: 0, y: 0 })
@@ -275,7 +278,6 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
   /* ---------------------------------------------------------------- */
 
   useEffect(() => {
-    hasLoadedRef.current = false
     try {
       const saved = localStorage.getItem(storageKey)
       if (saved) {
@@ -291,14 +293,18 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
     } catch {
       /* ignore */
     }
-    // allow the auto-save effect to run only after the initial load has applied
-    hasLoadedRef.current = true
+    // The state updates above will trigger the save effect on the next commit;
+    // skip that one run so we don't persist stale state over what we just loaded.
+    skipNextSaveRef.current = true
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [storageKey])
 
-  /* Auto-save: persist on any change to canvas state */
+  /* Auto-save: persist on every change (add, move, edit, group, zoom, pan). */
   useEffect(() => {
-    if (!hasLoadedRef.current) return
+    if (skipNextSaveRef.current) {
+      skipNextSaveRef.current = false
+      return
+    }
     try {
       localStorage.setItem(storageKey, JSON.stringify({ items, zoom, pan, viewSize, groupNames, savedAt: Date.now() }))
     } catch {
