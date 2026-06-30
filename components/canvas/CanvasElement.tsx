@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { useEffect, useRef, useState } from "react"
-import { X, Image as ImageIcon } from "lucide-react"
+import { X, Image as ImageIcon, Upload } from "lucide-react"
 import { isValidImageUrl } from "@/lib/utils"
 import type { CanvasItem } from "./CanvasItemCard"
 
@@ -165,11 +165,12 @@ export default function CanvasElement({
           <img src={item.image || "/placeholder.svg"} alt={item.title || "Image"} className="w-full h-full object-cover" draggable={false} />
         ) : (
           <button
-            className="el-control w-full h-full flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50/40 transition-colors"
+            className="el-control w-full h-full flex flex-col items-center justify-center gap-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50/40 transition-colors"
             onClick={(e) => { e.stopPropagation(); onSetImage(item.id) }}
           >
-            <ImageIcon className="w-8 h-8" strokeWidth={1.5} />
-            <span className="text-xs font-medium">Add image URL</span>
+            <Upload className="w-7 h-7" strokeWidth={1.5} />
+            <span className="text-xs font-medium">Upload image</span>
+            <span className="text-[10px] text-slate-400">Click or double-click</span>
           </button>
         )}
         {removeBtn}

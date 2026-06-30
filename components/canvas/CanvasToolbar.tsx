@@ -1,9 +1,8 @@
 "use client"
 
-import { MousePointer2, Hand, Frame, Type, Square, Circle, Image as ImageIcon, Squircle, Group } from "lucide-react"
+import { MousePointer2, Type, Image as ImageIcon, Group } from "lucide-react"
 
-export type CanvasTool =
-  | "select" | "pan" | "frame" | "text" | "rectangle" | "ellipse" | "image" | "rounded"
+export type CanvasTool = "select" | "text" | "image"
 
 interface ToolDef {
   key: CanvasTool
@@ -11,18 +10,11 @@ interface ToolDef {
   icon: typeof MousePointer2
 }
 
-const GROUP_A: ToolDef[] = [
-  { key: "select", label: "Select / Move (V)", icon: MousePointer2 },
-  { key: "pan", label: "Hand / Pan (H)", icon: Hand },
-]
+const SELECT_TOOL: ToolDef = { key: "select", label: "Select / Move (V)", icon: MousePointer2 }
 
-const GROUP_B: ToolDef[] = [
-  { key: "frame", label: "Frame (F)", icon: Frame },
+const CREATE_TOOLS: ToolDef[] = [
   { key: "text", label: "Text (T)", icon: Type },
-  { key: "rectangle", label: "Rectangle (R)", icon: Square },
-  { key: "ellipse", label: "Ellipse (O)", icon: Circle },
-  { key: "image", label: "Image", icon: ImageIcon },
-  { key: "rounded", label: "Rounded rectangle", icon: Squircle },
+  { key: "image", label: "Image (upload)", icon: ImageIcon },
 ]
 
 interface CanvasToolbarProps {
@@ -60,11 +52,11 @@ export default function CanvasToolbar({
       className="absolute left-4 top-1/2 -translate-y-1/2 z-40 flex flex-col items-center gap-1 bg-white rounded-2xl shadow-lg border border-slate-200 p-1.5"
       onMouseDown={(e) => e.stopPropagation()}
     >
-      {GROUP_A.map((d) => <ToolButton key={d.key} def={d} />)}
+      <ToolButton def={SELECT_TOOL} />
 
       <span className="w-6 h-px bg-slate-200 my-1" />
 
-      {GROUP_B.map((d) => <ToolButton key={d.key} def={d} />)}
+      {CREATE_TOOLS.map((d) => <ToolButton key={d.key} def={d} />)}
 
       <span className="w-6 h-px bg-slate-200 my-1" />
 

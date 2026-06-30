@@ -67,6 +67,8 @@ const CREATION_LABEL: Record<string, string> = {
 export default function CanvasModal({ onClose }: CanvasModalProps) {
   const { state, dispatch } = useCasting()
   const canvasRef = useRef<HTMLDivElement>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const pendingImageIdRef = useRef<string | null>(null)
 
   const [zoom, setZoom] = useState(1)
   const [pan, setPan] = useState({ x: 0, y: 0 })
@@ -75,6 +77,7 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
 
   const [items, setItems] = useState<CanvasItem[]>([])
   const [selectedIds, setSelectedIds] = useState<string[]>([])
+  const [groupNames, setGroupNames] = useState<Record<string, string>>({})
 
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [activeTab, setActiveTab] = useState<PaletteTab>("actor")
@@ -188,6 +191,7 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
         if (data.zoom) setZoom(data.zoom)
         if (data.pan) setPan(data.pan)
         if (data.viewSize) setViewSize(data.viewSize)
+        if (data.groupNames && typeof data.groupNames === "object") setGroupNames(data.groupNames)
       }
     } catch {
       /* ignore */
@@ -197,7 +201,7 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
 
   const handleSave = () => {
     try {
-      localStorage.setItem(storageKey, JSON.stringify({ items, zoom, pan, viewSize, savedAt: Date.now() }))
+      localStorage.setItem(storageKey, JSON.stringify({ items, zoom, pan, viewSize, groupNames, savedAt: Date.now() }))
       dispatch({
         type: "ADD_NOTIFICATION",
         payload: {
@@ -292,16 +296,31 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
     setSelectedIds([id])
     setActiveTool("select")
     if (type === "image") {
-      // defer prompt so the element renders first
-      setTimeout(() => promptImage(id), 50)
+      // defer the file picker so the element renders first
+      setTimeout(() => triggerImageUpload(id), 50)
     }
   }
 
-  const promptImage = (id: string) => {
-    const url = window.prompt("Paste an image URL:")
-    if (url && isValidImageUrl(url)) {
-      setItems((prev) => prev.map((it) => (it.id === id ? { ...it, image: url } : it)))
+  const triggerImageUpload = (id: string) => {
+    pendingImageIdRef.current = id
+    fileInputRef.current?.click()
+  }
+
+  const handleFileSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    const id = pendingImageIdRef.current
+    pendingImageIdRef.current = null
+    e.target.value = ""
+    if (!file || !id) return
+    if (!file.type.startsWith("image/")) return
+    const reader = new FileReader()
+    reader.onload = () => {
+      const dataUrl = typeof reader.result === "string" ? reader.result : ""
+      if (dataUrl) {
+        setItems((prev) => prev.map((it) => (it.id === id ? { ...it, image: dataUrl } : it)))
+      }
     }
+    reader.readAsDataURL(file)
   }
 
   /* ---------------------------------------------------------------- */
@@ -408,11 +427,53 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
     if (selectedIds.length < 2) return
     const gid = `grp-${Date.now()}`
     setItems((prev) => prev.map((it) => (selectedIds.includes(it.id) ? { ...it, groupId: gid } : it)))
+    setGroupNames((prev) => ({ ...prev, [gid]: "New group" }))
   }
 
   const ungroupSelected = () => {
+    const removedGids = new Set(
+      items.filter((it) => selectedIds.includes(it.id) && it.groupId).map((it) => it.groupId as string),
+    )
     setItems((prev) => prev.map((it) => (selectedIds.includes(it.id) ? { ...it, groupId: undefined } : it)))
+    setGroupNames((prev) => {
+      const next = { ...prev }
+      removedGids.forEach((g) => delete next[g])
+      return next
+    })
   }
+
+  const renameGroup = (gid: string, name: string) => {
+    setGroupNames((prev) => ({ ...prev, [gid]: name }))
+  }
+
+  /* Bounding box for every group, derived from member positions/sizes */
+  const groupBoxes = useMemo(() => {
+    const PAD = 18
+    const byGroup = new Map<string, CanvasItem[]>()
+    items.forEach((it) => {
+      if (!it.groupId) return
+      const arr = byGroup.get(it.groupId) || []
+      arr.push(it)
+      byGroup.set(it.groupId, arr)
+    })
+    const boxes: { id: string; x: number; y: number; width: number; height: number; selected: boolean }[] = []
+    byGroup.forEach((members, gid) => {
+      if (members.length < 2) return
+      const minX = Math.min(...members.map((m) => m.x))
+      const minY = Math.min(...members.map((m) => m.y))
+      const maxX = Math.max(...members.map((m) => m.x + (m.width ?? cardWidth)))
+      const maxY = Math.max(...members.map((m) => m.y + (m.height ?? CARD_DIMENSIONS[viewSize].height)))
+      boxes.push({
+        id: gid,
+        x: minX - PAD,
+        y: minY - PAD,
+        width: maxX - minX + PAD * 2,
+        height: maxY - minY + PAD * 2,
+        selected: members.some((m) => selectedIds.includes(m.id)),
+      })
+    })
+    return boxes
+  }, [items, selectedIds, cardWidth, viewSize])
 
   /* ---------------------------------------------------------------- */
   /*  Pan, zoom & tool interactions                                    */
@@ -531,11 +592,7 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
       }
       switch (e.key.toLowerCase()) {
         case "v": setActiveTool("select"); break
-        case "h": setActiveTool("pan"); break
-        case "f": setActiveTool("frame"); break
         case "t": setActiveTool("text"); break
-        case "r": setActiveTool("rectangle"); break
-        case "o": setActiveTool("ellipse"); break
         case "escape": setActiveTool("select"); setSelectedIds([]); break
         case "delete":
         case "backspace":
@@ -560,9 +617,8 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
   }, [items])
 
   const cursorForTool =
-    activeTool === "pan" ? (isPanning ? "grabbing" : "grab")
-      : isElement(activeTool as CanvasItemType) ? "crosshair"
-        : isPanning ? "grabbing" : "default"
+    isElement(activeTool as CanvasItemType) ? "crosshair"
+      : isPanning ? "grabbing" : "default"
 
   const interactive = activeTool === "select"
 
@@ -773,6 +829,29 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
             className="absolute top-0 left-0 origin-top-left"
             style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})` }}
           >
+            {/* Group bounding boxes with renameable titles */}
+            {groupBoxes.map((box) => (
+              <div
+                key={box.id}
+                className="absolute pointer-events-none"
+                style={{ left: box.x, top: box.y, width: box.width, height: box.height, zIndex: 0 }}
+              >
+                <div
+                  className={`absolute inset-0 rounded-xl border-2 ${
+                    box.selected ? "border-emerald-500 bg-emerald-500/[0.06]" : "border-emerald-400/50 bg-emerald-500/[0.03]"
+                  }`}
+                />
+                <input
+                  className="pointer-events-auto absolute -top-7 left-0 max-w-full bg-white/90 backdrop-blur-sm text-xs font-semibold text-emerald-700 rounded-md px-2 py-0.5 border border-emerald-200 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  value={groupNames[box.id] ?? "Group"}
+                  onChange={(e) => renameGroup(box.id, e.target.value)}
+                  onMouseDown={(e) => e.stopPropagation()}
+                  aria-label="Group title"
+                  spellCheck={false}
+                />
+              </div>
+            ))}
+
             {items.map((item) =>
               isElement(item.type) ? (
                 <CanvasElement
@@ -786,7 +865,7 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
                   onResize={handleResize}
                   onRemove={handleRemove}
                   onTextChange={handleTextChange}
-                  onSetImage={promptImage}
+                  onSetImage={triggerImageUpload}
                 />
               ) : (
                 <CanvasItemCard
@@ -813,13 +892,22 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
                 </div>
                 <h3 className="text-lg font-semibold text-slate-700">Build your production board</h3>
                 <p className="text-sm text-slate-500 mt-1 text-pretty">
-                  Add cast, props, costume &amp; makeup, and locations from the library. Use the tool rail to add frames, text, shapes, and images, then group and arrange them.
+                  Add cast, props, costume &amp; makeup, and locations from the library. Use the tool rail to add text and uploaded images, then group and rename your arrangements.
                 </p>
               </div>
             </div>
           )}
         </div>
       </div>
+
+      {/* Hidden input used by the Image tool / image elements for uploads */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={handleFileSelected}
+      />
     </div>
   )
 }
