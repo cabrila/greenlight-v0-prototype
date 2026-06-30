@@ -6,7 +6,7 @@ import {
   X, ZoomIn, ZoomOut, RotateCcw, Maximize2, Search, Trash2,
   User, Package, Shirt, MapPin, PanelLeftClose, PanelLeftOpen,
   Plus, Trash, LayoutGrid, Rows3, Grid2x2, Grid3x3,
-  SlidersHorizontal, ArrowUpDown, Wand2, ChevronDown, Film, Clapperboard, GalleryHorizontalEnd,
+  SlidersHorizontal, ArrowUpDown, Wand2, ChevronDown, Film, Clapperboard, GalleryHorizontalEnd, UserCog, Mountain,
 } from "lucide-react"
 import { useCasting } from "@/components/casting/CastingContext"
 import { isValidImageUrl } from "@/lib/utils"
@@ -17,6 +17,7 @@ import CanvasWidget from "./CanvasWidget"
 import CanvasToolbar, { type CanvasTool } from "./CanvasToolbar"
 import CanvasDock from "./CanvasDock"
 import CanvasSceneCards, { type WidgetScene, type SceneTimelineClip } from "./CanvasSceneCards"
+import CanvasDesigner, { type DesignerSubject, type DesignerAsset } from "./CanvasDesigner"
 import CanvasBoardSwitcher, { type CanvasBoard } from "./CanvasBoardSwitcher"
 import { DEFAULT_TRACKS, SCENES_TRACK_ID, createTimelineClip, type Track } from "./CanvasTimeline"
 
@@ -60,12 +61,16 @@ const WIDGET_SIZES: Record<string, { width: number; height: number }> = {
   "scene-generator": { width: 460, height: 620 },
   "casting-board": { width: 900, height: 560 },
   "scene-cards": { width: 940, height: 600 },
+  "character-designer": { width: 460, height: 640 },
+  "location-designer": { width: 460, height: 640 },
 }
 
 const CANVAS_TOOLS: { type: CanvasItemType; label: string; description: string; icon: typeof Film }[] = [
   { type: "scene-generator", label: "Scene Generator", description: "Compose a scene from cast, location & mood", icon: Film },
   { type: "casting-board", label: "Character Casting", description: "Snap actors onto project characters", icon: Clapperboard },
   { type: "scene-cards", label: "Scene Cards", description: "Pre-filled, editable scene cards from your script", icon: Clapperboard },
+  { type: "character-designer", label: "Character Designer", description: "Build a character look from actor, costume, makeup & props", icon: UserCog },
+  { type: "location-designer", label: "Location Designer", description: "Compose a location from references, props & elements", icon: Mountain },
   { type: "timeline", label: "Editing Timeline", description: "Build a multi-track edit & pre-visualize it", icon: GalleryHorizontalEnd },
 ]
 
@@ -310,6 +315,60 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
   )
   const widgetLocations = useMemo(
     () => locationItems.map((l) => ({ id: l.refId, name: l.title })),
+    [locationItems],
+  )
+
+  /* ---- Character / Location Designer pools ---- */
+  // Characters with their script description for prompt pre-fill.
+  const designerCharacters = useMemo<DesignerSubject[]>(() => {
+    return (currentProject?.characters || []).map((c) => {
+      let image = isValidImageUrl(c.conceptArt) ? c.conceptArt : undefined
+      if (!image) {
+        const fromActor = actorItems.find((a) => a.subtitle?.toUpperCase() === c.name.toUpperCase())
+        image = fromActor?.image
+      }
+      return { id: c.id, name: c.name, image, description: c.description || "" }
+    })
+  }, [currentProject, actorItems])
+
+  // Script locations (unique scene locations), seeded with a database image/notes when matched.
+  const designerLocationSubjects = useMemo<DesignerSubject[]>(() => {
+    const out: DesignerSubject[] = []
+    const seen = new Set<string>()
+    const dbByName = new Map<string, { image?: string; notes?: string }>()
+    ;(currentProject?.locationInventory?.length ? currentProject.locationInventory : currentProject?.locations || []).forEach((l) => {
+      const photo = (l.media || []).find((m) => m.type === "photo" && isValidImageUrl(m.url))?.url
+      dbByName.set(l.name.toUpperCase(), { image: photo, notes: l.notes })
+    })
+    ;(state.scenes || []).forEach((s) => {
+      const name = s.location?.trim()
+      if (!name || seen.has(name.toUpperCase())) return
+      seen.add(name.toUpperCase())
+      const db = dbByName.get(name.toUpperCase())
+      out.push({ id: name, name, image: db?.image, description: db?.notes?.trim() || s.description?.trim() || "" })
+    })
+    return out
+  }, [currentProject, state.scenes])
+
+  const designerActors = useMemo<DesignerAsset[]>(
+    () => actorItems.map((a) => ({ id: a.refId, name: a.title, image: a.image })),
+    [actorItems],
+  )
+  const designerProps = useMemo<DesignerAsset[]>(
+    () => propItems.map((p) => ({ id: p.refId, name: p.title, image: p.image })),
+    [propItems],
+  )
+  // Wardrobe pieces vs. hair/makeup consumables, split by inventory type.
+  const designerCostumes = useMemo<DesignerAsset[]>(() => {
+    const inv = currentProject?.costumes?.inventory || []
+    return inv.filter((c) => c.type !== "hmu-consumable").map((c) => ({ id: c.id, name: c.name, image: c.imageUrl }))
+  }, [currentProject])
+  const designerMakeup = useMemo<DesignerAsset[]>(() => {
+    const inv = currentProject?.costumes?.inventory || []
+    return inv.filter((c) => c.type === "hmu-consumable").map((c) => ({ id: c.id, name: c.name, image: c.imageUrl }))
+  }, [currentProject])
+  const designerLocationAssets = useMemo<DesignerAsset[]>(
+    () => locationItems.map((l) => ({ id: l.refId, name: l.title, image: l.image })),
     [locationItems],
   )
 
@@ -1334,7 +1393,26 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
                 style={{ display: "contents" }}
                 onContextMenu={(e) => handleItemContextMenu(e, item.id)}
               >
-                {item.type === "scene-cards" ? (
+                {item.type === "character-designer" || item.type === "location-designer" ? (
+                <CanvasDesigner
+                  item={item}
+                  isSelected={selectedIds.includes(item.id)}
+                  interactive={interactive}
+                  zoom={zoom}
+                  mode={item.type === "character-designer" ? "character" : "location"}
+                  subjects={item.type === "character-designer" ? designerCharacters : designerLocationSubjects}
+                  actors={designerActors}
+                  costumes={designerCostumes}
+                  makeup={designerMakeup}
+                  props={designerProps}
+                  locationAssets={designerLocationAssets}
+                  onSelect={handleSelect}
+                  onDrag={handleItemDrag}
+                  onResize={handleResize}
+                  onRemove={handleRemove}
+                  onDataChange={handleWidgetDataChange}
+                />
+              ) : item.type === "scene-cards" ? (
                 <CanvasSceneCards
                   item={item}
                   isSelected={selectedIds.includes(item.id)}
