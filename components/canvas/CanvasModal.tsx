@@ -14,6 +14,7 @@ import { closeAllModals } from "../modals/ModalManager"
 import CanvasItemCard, { type CanvasItem, type CanvasItemType, type ViewSize, TYPE_CONFIG, CARD_DIMENSIONS } from "./CanvasItemCard"
 import CanvasElement from "./CanvasElement"
 import CanvasToolbar, { type CanvasTool } from "./CanvasToolbar"
+import CanvasChatbot from "./CanvasChatbot"
 
 interface CanvasModalProps {
   onClose: () => void
@@ -1024,6 +1025,9 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
               </div>
             </div>
           )}
+
+          {/* Creative Go-Pilot AI chat */}
+          <CanvasChatbot />
         </div>
       </div>
 
