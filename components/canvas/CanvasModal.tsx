@@ -819,14 +819,11 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
           >
             {sidebarOpen ? <PanelLeftClose className="w-5 h-5" /> : <PanelLeftOpen className="w-5 h-5" />}
           </button>
-          <div className="flex items-center gap-2 min-w-0">
-            <div className="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center shrink-0">
-              <LayoutGrid className="w-4 h-4 text-white" />
-            </div>
-            <div className="min-w-0">
-              <h1 className="text-base font-semibold text-slate-900 leading-tight truncate">Production Canvas</h1>
-              <p className="text-xs text-slate-500 truncate">{currentProject?.name || "No project"}</p>
-            </div>
+          <div className="flex items-center gap-3 min-w-0">
+            <img src="/images/gogreenlight-logo.png" alt="GoGreenlight" className="h-7 w-auto shrink-0" />
+            <div className="w-px h-5 bg-slate-200 shrink-0" />
+            <h1 className="text-base font-semibold text-slate-900 leading-tight shrink-0">Canvas</h1>
+            <span className="text-sm text-slate-500 font-medium truncate">{currentProject?.name || "No project"}</span>
           </div>
         </div>
 
