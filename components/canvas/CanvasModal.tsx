@@ -6,7 +6,7 @@ import {
   X, ZoomIn, ZoomOut, RotateCcw, Maximize2, Search, Trash2,
   User, Package, Shirt, MapPin, PanelLeftClose, PanelLeftOpen,
   Plus, Trash, LayoutGrid, Rows3, Grid2x2, Grid3x3,
-  SlidersHorizontal, ArrowUpDown, Wand2, ChevronDown, Film, Clapperboard,
+  SlidersHorizontal, ArrowUpDown, Wand2, ChevronDown, Film, Clapperboard, GalleryHorizontalEnd,
 } from "lucide-react"
 import { useCasting } from "@/components/casting/CastingContext"
 import { isValidImageUrl } from "@/lib/utils"
@@ -14,6 +14,7 @@ import { closeAllModals } from "../modals/ModalManager"
 import CanvasItemCard, { type CanvasItem, type CanvasItemType, type ViewSize, TYPE_CONFIG, CARD_DIMENSIONS } from "./CanvasItemCard"
 import CanvasElement from "./CanvasElement"
 import CanvasWidget from "./CanvasWidget"
+import CanvasTimeline from "./CanvasTimeline"
 import CanvasToolbar, { type CanvasTool } from "./CanvasToolbar"
 import CanvasChatbot from "./CanvasChatbot"
 
@@ -49,17 +50,19 @@ const VIEW_OPTIONS: { key: ViewSize; label: string; icon: typeof Rows3 }[] = [
 const ELEMENT_TYPES: CanvasItemType[] = ["text", "rectangle", "rounded", "ellipse", "frame", "image"]
 const isElement = (t: CanvasItemType) => ELEMENT_TYPES.includes(t)
 
-const WIDGET_TYPES: CanvasItemType[] = ["scene-generator", "casting-board"]
+const WIDGET_TYPES: CanvasItemType[] = ["scene-generator", "casting-board", "timeline"]
 const isWidget = (t: CanvasItemType) => WIDGET_TYPES.includes(t)
 
 const WIDGET_SIZES: Record<string, { width: number; height: number }> = {
   "scene-generator": { width: 460, height: 620 },
   "casting-board": { width: 900, height: 560 },
+  timeline: { width: 980, height: 480 },
 }
 
 const CANVAS_TOOLS: { type: CanvasItemType; label: string; description: string; icon: typeof Film }[] = [
   { type: "scene-generator", label: "Scene Generator", description: "Compose a scene from cast, location & mood", icon: Film },
   { type: "casting-board", label: "Character Casting", description: "Snap actors onto project characters", icon: Clapperboard },
+  { type: "timeline", label: "Editing Timeline", description: "Build a multi-track edit & pre-visualize it", icon: GalleryHorizontalEnd },
 ]
 
 const DEFAULT_SIZES: Record<string, { width: number; height: number }> = {
@@ -1095,7 +1098,19 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
             ))}
 
             {items.map((item) =>
-              isWidget(item.type) ? (
+              item.type === "timeline" ? (
+                <CanvasTimeline
+                  key={item.id}
+                  item={item}
+                  isSelected={selectedIds.includes(item.id)}
+                  interactive={interactive}
+                  zoom={zoom}
+                  onSelect={handleSelect}
+                  onDrag={handleItemDrag}
+                  onRemove={handleRemove}
+                  onDataChange={handleWidgetDataChange}
+                />
+              ) : isWidget(item.type) ? (
                 <CanvasWidget
                   key={item.id}
                   item={item}
