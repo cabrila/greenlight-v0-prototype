@@ -53,6 +53,7 @@ import {
 } from "lucide-react"
 import { useCasting } from "@/components/casting/CastingContext"
 import { openModal, navigateToModal } from "./ModalManager"
+import { addAssetToCanvas } from "@/lib/canvasStore"
 import ModalHeader from "@/components/layout/ModalHeader"
 import FloatingSidebar from "@/components/layout/FloatingSidebar"
 import EmbeddedCoPilot from "@/components/copilot/EmbeddedCoPilot"
@@ -1770,8 +1771,17 @@ export default function LocationsModal({ onClose }: LocationsModalProps) {
     setAddAtCoords(null)
   }
 
-const handleAddToCanvas = (loc: ProjectLocation) => {
-  navigateToModal("canvas")
+  const handleAddToCanvas = (loc: ProjectLocation) => {
+    addAssetToCanvas(projectId, {
+      refId: loc.id,
+      type: "location",
+      title: loc.name,
+      subtitle: loc.address,
+      image: loc.media?.find((m) => m.type === "photo")?.url,
+      meta: loc.status?.replace(/-/g, " "),
+      tags: loc.vibeTags,
+    })
+    navigateToModal("canvas")
   }
 
   const handleAddAtCoords = useCallback((lat: number, lng: number) => {
