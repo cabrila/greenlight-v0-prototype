@@ -5,7 +5,7 @@ import { useState, useRef, useCallback, useEffect, useMemo } from "react"
 import {
   X, ZoomIn, ZoomOut, RotateCcw, Maximize2, Search, Trash2,
   User, Package, Shirt, MapPin, PanelLeftClose, PanelLeftOpen,
-  Plus, Save, Trash, LayoutGrid, Rows3, Grid2x2, Grid3x3,
+  Plus, Trash, LayoutGrid, Rows3, Grid2x2, Grid3x3,
   SlidersHorizontal, ArrowUpDown,
 } from "lucide-react"
 import { useCasting } from "@/components/casting/CastingContext"
@@ -132,6 +132,7 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
   const canvasRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const pendingImageIdRef = useRef<string | null>(null)
+  const hasLoadedRef = useRef(false)
 
   const [zoom, setZoom] = useState(1)
   const [pan, setPan] = useState({ x: 0, y: 0 })
@@ -274,6 +275,7 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
   /* ---------------------------------------------------------------- */
 
   useEffect(() => {
+    hasLoadedRef.current = false
     try {
       const saved = localStorage.getItem(storageKey)
       if (saved) {
@@ -283,32 +285,26 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
         if (data.pan) setPan(data.pan)
         if (data.viewSize) setViewSize(data.viewSize)
         if (data.groupNames && typeof data.groupNames === "object") setGroupNames(data.groupNames)
+      } else {
+        setItems([])
       }
     } catch {
       /* ignore */
     }
+    // allow the auto-save effect to run only after the initial load has applied
+    hasLoadedRef.current = true
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [storageKey])
 
-  const handleSave = () => {
+  /* Auto-save: persist on any change to canvas state */
+  useEffect(() => {
+    if (!hasLoadedRef.current) return
     try {
       localStorage.setItem(storageKey, JSON.stringify({ items, zoom, pan, viewSize, groupNames, savedAt: Date.now() }))
-      dispatch({
-        type: "ADD_NOTIFICATION",
-        payload: {
-          id: `canvas-save-${Date.now()}`,
-          type: "system",
-          title: "Canvas saved",
-          message: `${items.length} item(s) saved to this project's canvas`,
-          timestamp: Date.now(),
-          read: false,
-          priority: "low",
-        },
-      })
     } catch {
       /* ignore */
     }
-  }
+  }, [items, zoom, pan, viewSize, groupNames, storageKey])
 
   /* ---------------------------------------------------------------- */
   /*  Coordinate helpers                                               */
@@ -808,11 +804,6 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
           </div>
 
           <button onClick={clearCanvas} className="p-2 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-red-600 transition-colors" title="Clear canvas"><Trash className="w-4 h-4" /></button>
-
-          <button onClick={handleSave} className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-emerald-500 text-white hover:bg-emerald-600 transition-colors text-sm font-medium">
-            <Save className="w-4 h-4" />
-            <span className="hidden sm:inline">Save</span>
-          </button>
 
           <button onClick={handleClose} className="p-2 rounded-lg text-slate-600 hover:bg-slate-100 transition-colors" title="Close canvas"><X className="w-5 h-5" /></button>
         </div>
