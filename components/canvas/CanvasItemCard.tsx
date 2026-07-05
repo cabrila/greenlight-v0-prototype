@@ -13,7 +13,7 @@ export type CanvasItemType =
   | "actor" | "prop" | "costume" | "location" | "note"
   | "text" | "rectangle" | "rounded" | "ellipse" | "frame" | "image"
   | "scene-generator" | "casting-board" | "timeline" | "scene-cards"
-  | "character-designer" | "location-designer"
+  | "character-designer" | "location-designer" | "costume-studio"
 
 export type ViewSize = "full" | "medium" | "small"
 
@@ -65,6 +65,7 @@ export const TYPE_CONFIG: Record<CanvasItemType, TypeConfig> = {
   "scene-cards": { label: "Scene Cards", icon: Clapperboard, chip: "bg-emerald-100 text-emerald-700", bar: "bg-emerald-500", ring: "ring-emerald-500" },
   "character-designer": { label: "Character Designer", icon: UserCog, chip: "bg-emerald-100 text-emerald-700", bar: "bg-emerald-500", ring: "ring-emerald-500" },
   "location-designer": { label: "Location Designer", icon: Mountain, chip: "bg-emerald-100 text-emerald-700", bar: "bg-emerald-500", ring: "ring-emerald-500" },
+  "costume-studio": { label: "Costume Studio", icon: Shirt, chip: "bg-rose-100 text-rose-700", bar: "bg-rose-500", ring: "ring-rose-500" },
 }
 
 /* card dimensions per view size (width, approx height for fit calc) */

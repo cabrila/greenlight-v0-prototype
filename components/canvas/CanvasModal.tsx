@@ -7,6 +7,7 @@ import {
   User, Package, Shirt, MapPin, PanelLeftClose, PanelLeftOpen,
   Plus, Trash, LayoutGrid, Rows3, Grid2x2, Grid3x3,
   SlidersHorizontal, ArrowUpDown, Wand2, ChevronDown, Film, Clapperboard, GalleryHorizontalEnd, UserCog, Mountain,
+  Play, Scissors,
 } from "lucide-react"
 import { useCasting } from "@/components/casting/CastingContext"
 import { isValidImageUrl } from "@/lib/utils"
@@ -19,6 +20,10 @@ import CanvasDock from "./CanvasDock"
 import CanvasSceneCards, { type WidgetScene, type SceneTimelineClip } from "./CanvasSceneCards"
 import CanvasDesigner, { type DesignerSubject, type DesignerAsset } from "./CanvasDesigner"
 import CanvasBoardSwitcher, { type CanvasBoard } from "./CanvasBoardSwitcher"
+import CanvasCostumeStudio from "./CanvasCostumeStudio"
+import CanvasPresence from "./CanvasPresence"
+import CanvasPlayerConfig from "./CanvasPlayerConfig"
+import CanvasPlayerView, { type PlayerAsset, type PlayerConfig } from "./CanvasPlayerView"
 import { DEFAULT_TRACKS, SCENES_TRACK_ID, createTimelineClip, type Track } from "./CanvasTimeline"
 
 interface CanvasModalProps {
@@ -63,6 +68,7 @@ const WIDGET_SIZES: Record<string, { width: number; height: number }> = {
   "scene-cards": { width: 940, height: 600 },
   "character-designer": { width: 460, height: 640 },
   "location-designer": { width: 460, height: 640 },
+  "costume-studio": { width: 460, height: 660 },
 }
 
 const CANVAS_TOOLS: { type: CanvasItemType; label: string; description: string; icon: typeof Film }[] = [
@@ -70,6 +76,7 @@ const CANVAS_TOOLS: { type: CanvasItemType; label: string; description: string; 
   { type: "casting-board", label: "Character Casting", description: "Snap actors onto project characters", icon: Clapperboard },
   { type: "scene-cards", label: "Scene Cards", description: "Pre-filled, editable scene cards from your script", icon: Clapperboard },
   { type: "character-designer", label: "Character Designer", description: "Build a character look from actor, costume, makeup & props", icon: UserCog },
+  { type: "costume-studio", label: "Costume Studio", description: "Combine fabric, colors & inspiration into a dress, then merge with an actor", icon: Scissors },
   { type: "location-designer", label: "Location Designer", description: "Compose a location from references, props & elements", icon: Mountain },
   { type: "timeline", label: "Editing Timeline", description: "Build a multi-track edit & pre-visualize it", icon: GalleryHorizontalEnd },
 ]
@@ -195,6 +202,10 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
 
   // Right-click context menu for canvas items/groups.
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; itemId: string } | null>(null)
+
+  // Player view: configure a review player from the current selection, then run it.
+  const [playerConfigOpen, setPlayerConfigOpen] = useState(false)
+  const [playerConfig, setPlayerConfig] = useState<PlayerConfig | null>(null)
 
   // Multiple canvas boards ("pages") per project.
   const [boards, setBoards] = useState<CanvasBoard[]>([{ id: "default", name: "Board 1" }])
@@ -419,6 +430,30 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
           image: (it.images && it.images.length ? it.images[0] : it.image) || undefined,
         })),
     [items, selectedIds],
+  )
+
+  /* Selected visual assets eligible for the Player view (slideshow). */
+  const PLAYER_TYPES: CanvasItemType[] = ["actor", "prop", "costume", "location", "image"]
+  const playerAssets = useMemo<PlayerAsset[]>(
+    () =>
+      items
+        .filter((it) => selectedIds.includes(it.id) && PLAYER_TYPES.includes(it.type))
+        .map((it) => ({
+          id: it.id,
+          title: it.title || TYPE_CONFIG[it.type]?.label || "Asset",
+          subtitle: it.subtitle,
+          type: it.type,
+          image: it.image,
+          images: it.images,
+        })),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [items, selectedIds],
+  )
+
+  /* Content anchor points so simulated collaborator cursors gravitate to items. */
+  const presenceAnchors = useMemo(
+    () => items.map((it) => ({ x: it.x + (it.width ?? cardWidth) / 2, y: it.y + (it.height ?? 160) / 2 })),
+    [items, cardWidth],
   )
 
   const activeControls = PALETTE_CONTROLS[activeTab]
@@ -1200,6 +1235,18 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
             })}
           </div>
 
+          {playerAssets.length >= 2 && (
+            <button
+              onClick={() => setPlayerConfigOpen(true)}
+              className="flex items-center gap-1.5 px-2.5 py-2 rounded-lg bg-slate-900 text-white hover:bg-slate-800 transition-colors text-sm font-medium"
+              title="Present selected assets in the player"
+            >
+              <Play className="w-4 h-4" />
+              <span className="hidden md:inline">Present</span>
+              <span className="tabular-nums">{playerAssets.length}</span>
+            </button>
+          )}
+
           {selectedIds.length > 0 && (
             <button
               onClick={removeSelected}
@@ -1360,6 +1407,18 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
             onUngroup={ungroupSelected}
           />
 
+          {/* Live collaborator cursors + follow controls (simulated presence) */}
+          <CanvasPresence
+            pan={pan}
+            zoom={zoom}
+            viewportRef={canvasRef}
+            anchors={presenceAnchors}
+            onViewportRequest={(nextPan, nextZoom) => {
+              setPan(nextPan)
+              setZoom(nextZoom)
+            }}
+          />
+
           <div
             className="absolute top-0 left-0 origin-top-left"
             style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})` }}
@@ -1393,7 +1452,21 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
                 style={{ display: "contents" }}
                 onContextMenu={(e) => handleItemContextMenu(e, item.id)}
               >
-                {item.type === "character-designer" || item.type === "location-designer" ? (
+                {item.type === "costume-studio" ? (
+                <CanvasCostumeStudio
+                  item={item}
+                  isSelected={selectedIds.includes(item.id)}
+                  interactive={interactive}
+                  zoom={zoom}
+                  inspiration={designerCostumes}
+                  actors={designerActors}
+                  onSelect={handleSelect}
+                  onDrag={handleItemDrag}
+                  onResize={handleResize}
+                  onRemove={handleRemove}
+                  onDataChange={handleWidgetDataChange}
+                />
+              ) : item.type === "character-designer" || item.type === "location-designer" ? (
                 <CanvasDesigner
                   item={item}
                   isSelected={selectedIds.includes(item.id)}
@@ -1515,13 +1588,31 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
           const ctxItem = items.find((i) => i.id === contextMenu.itemId)
           const isGroup = !!ctxItem?.groupId && memberIds.length > 1
           const eligible = items.filter((it) => memberIds.includes(it.id) && TIMELINE_TYPES.includes(it.type))
+          const playerEligible = items.filter((it) => memberIds.includes(it.id) && PLAYER_TYPES.includes(it.type))
           return (
             <div
-              className="fixed z-[100] min-w-[190px] bg-white rounded-lg shadow-xl border border-slate-200 py-1"
+              className="fixed z-[100] min-w-[210px] bg-white rounded-lg shadow-xl border border-slate-200 py-1"
               style={{ top: contextMenu.y, left: contextMenu.x }}
               onMouseDown={(e) => e.stopPropagation()}
               role="menu"
             >
+              <button
+                type="button"
+                role="menuitem"
+                disabled={playerEligible.length < 2}
+                onClick={() => {
+                  setSelectedIds(memberIds)
+                  setPlayerConfigOpen(true)
+                  setContextMenu(null)
+                }}
+                className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-slate-700"
+              >
+                <Play className="w-4 h-4 shrink-0" />
+                <span className="flex-1 text-left">
+                  Configure player view
+                  {playerEligible.length > 1 ? ` (${playerEligible.length})` : ""}
+                </span>
+              </button>
               <button
                 type="button"
                 role="menuitem"
@@ -1541,6 +1632,27 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
             </div>
           )
         })()}
+
+      {/* Player configuration modal */}
+      {playerConfigOpen && (
+        <CanvasPlayerConfig
+          assets={playerAssets}
+          onCancel={() => setPlayerConfigOpen(false)}
+          onStart={(config) => {
+            setPlayerConfig(config)
+            setPlayerConfigOpen(false)
+          }}
+        />
+      )}
+
+      {/* Full-screen player / review session */}
+      {playerConfig && playerAssets.length > 0 && (
+        <CanvasPlayerView
+          assets={playerAssets}
+          config={playerConfig}
+          onClose={() => setPlayerConfig(null)}
+        />
+      )}
     </div>
   )
 }
