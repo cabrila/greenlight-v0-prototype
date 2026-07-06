@@ -5,7 +5,7 @@ import {
   X, ChevronLeft, ChevronRight, Check, Star,
   Play, ListChecks, Film, ImageIcon, Video as VideoIcon,
   MessageSquare, Send, Pause, SkipForward,
-  CheckCircle2, RotateCcw, Users,
+  CheckCircle2, RotateCcw, Users, Share2, Copy, Link2,
 } from "lucide-react"
 import { isValidImageUrl } from "@/lib/utils"
 import VideoEmbed from "@/components/video/VideoEmbed"
@@ -57,6 +57,8 @@ export interface PlayerConfig {
   currentUserId?: string
   /** Per-asset custom label overrides keyed by asset id. */
   labels?: Record<string, string>
+  /** Per-asset list of media URLs the user chose to exclude from the player, keyed by asset id. */
+  excludedMedia?: Record<string, string[]>
   enableComments: boolean
   autoAdvance: boolean
   autoAdvanceSeconds: number
@@ -122,6 +124,37 @@ export default function CanvasPlayerView({ assets, config, onClose }: CanvasPlay
 
   // Comment composer state.
   const [draft, setDraft] = useState("")
+
+  // Share link state.
+  const [shareOpen, setShareOpen] = useState(false)
+  const [copied, setCopied] = useState(false)
+
+  // Build a direct link that encodes this player session so it can be shared.
+  const shareUrl = useMemo(() => {
+    if (typeof window === "undefined") return ""
+    try {
+      const payload = {
+        t: config.title,
+        m: config.mode,
+        a: assets.map((a) => ({ id: a.id, title: a.title })),
+        i: index,
+      }
+      const token = window.btoa(encodeURIComponent(JSON.stringify(payload)))
+      return `${window.location.origin}${window.location.pathname}?player=${token}`
+    } catch {
+      return `${window.location.origin}${window.location.pathname}`
+    }
+  }, [assets, config.title, config.mode, index])
+
+  const copyShareLink = async () => {
+    try {
+      await navigator.clipboard.writeText(shareUrl)
+      setCopied(true)
+      window.setTimeout(() => setCopied(false), 2000)
+    } catch {
+      setCopied(false)
+    }
+  }
 
   const total = assets.length
   const current = assets[index]
@@ -216,19 +249,20 @@ export default function CanvasPlayerView({ assets, config, onClose }: CanvasPlay
 
   const labelFor = (a: PlayerAsset) => config.labels?.[a.id]?.trim() || a.title
 
-  /* All media (images + videos) for the current asset. */
+  /* All media (images + videos) for the current asset, minus any excluded in setup. */
   const mediaList = useMemo<MediaEntry[]>(() => {
     if (!current) return []
+    const excluded = new Set(config.excludedMedia?.[current.id] || [])
     const imgSources = current.images && current.images.length ? current.images : current.image ? [current.image] : []
     const images: MediaEntry[] = imgSources
-      .filter((u) => isValidImageUrl(u))
+      .filter((u) => isValidImageUrl(u) && !excluded.has(u))
       .map((url, i) => ({ kind: "image" as const, url, name: `Image ${i + 1}` }))
     const videos: MediaEntry[] = (current.videos || [])
-      .filter((v) => v.url)
+      .filter((v) => v.url && !excluded.has(v.url))
       .map((v) => ({ kind: "video" as const, url: v.url, name: v.name, platform: v.platform }))
     // Videos always play first, then images.
     return [...videos, ...images]
-  }, [current])
+  }, [current, config.excludedMedia])
 
   const activeMedia = mediaList[Math.min(mediaIdx, Math.max(mediaList.length - 1, 0))]
 
@@ -332,6 +366,49 @@ export default function CanvasPlayerView({ assets, config, onClose }: CanvasPlay
               </button>
             </div>
           )}
+          <div className="relative">
+            <button
+              onClick={() => {
+                setShareOpen((v) => !v)
+                setCopied(false)
+              }}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                shareOpen ? "bg-emerald-500 text-white" : "bg-white/10 text-white hover:bg-white/20"
+              }`}
+              aria-expanded={shareOpen}
+            >
+              <Share2 className="w-4 h-4" />
+              <span className="hidden sm:inline">Share</span>
+            </button>
+            {shareOpen && (
+              <>
+                <div className="fixed inset-0 z-10" onClick={() => setShareOpen(false)} aria-hidden="true" />
+                <div className="absolute right-0 top-full mt-2 z-20 w-80 rounded-xl bg-slate-900 border border-white/10 shadow-2xl p-3">
+                  <p className="flex items-center gap-1.5 text-sm font-semibold text-white mb-1">
+                    <Link2 className="w-4 h-4 text-emerald-400" /> Direct link
+                  </p>
+                  <p className="text-[11px] text-white/40 mb-2.5">Anyone with this link can open this player session.</p>
+                  <div className="flex items-center gap-2">
+                    <input
+                      readOnly
+                      value={shareUrl}
+                      onFocus={(e) => e.currentTarget.select()}
+                      className="flex-1 min-w-0 rounded-lg bg-white/5 border border-white/10 px-2.5 py-1.5 text-xs text-white/70 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    />
+                    <button
+                      onClick={copyShareLink}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium shrink-0 transition-colors ${
+                        copied ? "bg-emerald-500 text-white" : "bg-white/10 text-white hover:bg-white/20"
+                      }`}
+                    >
+                      {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                      {copied ? "Copied" : "Copy"}
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
           <button
             onClick={() => setShowSummary(true)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 text-white text-sm font-medium hover:bg-white/20 transition-colors"

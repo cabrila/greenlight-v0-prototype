@@ -1,7 +1,10 @@
 "use client"
 
 import { useState } from "react"
-import { X, Plus, Trash2, Play, ThumbsUp, Star, Users, Tag, Minus, MessageSquare, Timer, UserCheck } from "lucide-react"
+import {
+  X, Plus, Trash2, Play, ThumbsUp, Star, Users, Tag, Minus, MessageSquare, Timer, UserCheck,
+  ImageIcon, Video as VideoIcon, Eye, EyeOff, ChevronDown, Clapperboard,
+} from "lucide-react"
 import { isValidImageUrl } from "@/lib/utils"
 import type { PlayerAsset, PlayerConfig, DecisionMaker, PlayerMode, DecisionButton, DecisionTone } from "./CanvasPlayerView"
 
@@ -19,6 +22,25 @@ const DEFAULT_BUTTONS: DecisionButton[] = [
   { id: "yes", label: "Yes", tone: "positive" },
   { id: "no", label: "No", tone: "negative" },
 ]
+
+interface AssetMedia {
+  kind: "video" | "image"
+  url: string
+  name: string
+  platform?: string
+}
+
+/** All media for an asset, videos first (to match the player's playback order). */
+function assetMedia(a: PlayerAsset): AssetMedia[] {
+  const videos: AssetMedia[] = (a.videos || [])
+    .filter((v) => v.url)
+    .map((v, i) => ({ kind: "video" as const, url: v.url, name: v.name || `Video ${i + 1}`, platform: v.platform }))
+  const imgSources = a.images && a.images.length ? a.images : a.image ? [a.image] : []
+  const images: AssetMedia[] = imgSources
+    .filter((u) => isValidImageUrl(u))
+    .map((url, i) => ({ kind: "image" as const, url, name: `Image ${i + 1}` }))
+  return [...videos, ...images]
+}
 
 interface CanvasPlayerConfigProps {
   assets: PlayerAsset[]
@@ -42,6 +64,17 @@ export default function CanvasPlayerConfig({ assets, onCancel, onStart }: Canvas
   ])
   // Which decision maker represents the current user (the only one able to vote in the player).
   const [currentUserId, setCurrentUserId] = useState("dm-1")
+  // Per-asset excluded media URLs, and which asset's media panel is expanded.
+  const [excludedMedia, setExcludedMedia] = useState<Record<string, string[]>>({})
+  const [expandedAsset, setExpandedAsset] = useState<string | null>(null)
+
+  const toggleMedia = (assetId: string, url: string) =>
+    setExcludedMedia((prev) => {
+      const set = new Set(prev[assetId] || [])
+      if (set.has(url)) set.delete(url)
+      else set.add(url)
+      return { ...prev, [assetId]: Array.from(set) }
+    })
 
   const addDecisionMaker = () => {
     const id = `dm-${Date.now()}-${Math.random().toString(36).slice(2, 5)}`
@@ -92,6 +125,7 @@ export default function CanvasPlayerConfig({ assets, onCancel, onStart }: Canvas
       decisionMakers: cleaned,
       currentUserId: meId,
       labels,
+      excludedMedia,
       enableComments,
       autoAdvance,
       autoAdvanceSeconds,
@@ -281,32 +315,98 @@ export default function CanvasPlayerConfig({ assets, onCancel, onStart }: Canvas
             </button>
           </div>
 
-          {/* Labels editor */}
-          {showLabels && (
-            <div>
-              <span className="block text-sm font-semibold text-slate-800 mb-1.5">Slide labels</span>
-              <div className="space-y-2 max-h-44 overflow-y-auto pr-1">
-                {assets.map((a) => {
-                  const img = a.images?.find((u) => isValidImageUrl(u)) || (isValidImageUrl(a.image) ? a.image : undefined)
-                  return (
-                    <div key={a.id} className="flex items-center gap-2">
+          {/* Slides & media editor */}
+          <div>
+            <span className="block text-sm font-semibold text-slate-800 mb-1.5">Slides &amp; media</span>
+            <p className="text-[11px] text-slate-400 mb-2">
+              Rename slides and choose exactly which images and videos appear in the player for each asset.
+            </p>
+            <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
+              {assets.map((a) => {
+                const media = assetMedia(a)
+                const excluded = new Set(excludedMedia[a.id] || [])
+                const includedCount = media.filter((m) => !excluded.has(m.url)).length
+                const thumb = a.images?.find((u) => isValidImageUrl(u)) || (isValidImageUrl(a.image) ? a.image : undefined)
+                const isOpen = expandedAsset === a.id
+                return (
+                  <div key={a.id} className="rounded-xl border border-slate-200 overflow-hidden">
+                    <div className="flex items-center gap-2 p-2">
                       <div className="w-9 h-9 rounded-md overflow-hidden bg-slate-100 shrink-0">
-                        {img ? (
+                        {thumb ? (
                           // eslint-disable-next-line @next/next/no-img-element
-                          <img src={img || "/placeholder.svg"} alt={a.title} crossOrigin="anonymous" className="w-full h-full object-cover" />
+                          <img src={thumb || "/placeholder.svg"} alt={a.title} crossOrigin="anonymous" className="w-full h-full object-cover" />
                         ) : null}
                       </div>
-                      <input
-                        value={labels[a.id] ?? a.title}
-                        onChange={(e) => setLabels((prev) => ({ ...prev, [a.id]: e.target.value }))}
-                        className="flex-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                      />
+                      {showLabels ? (
+                        <input
+                          value={labels[a.id] ?? a.title}
+                          onChange={(e) => setLabels((prev) => ({ ...prev, [a.id]: e.target.value }))}
+                          className="flex-1 min-w-0 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                        />
+                      ) : (
+                        <span className="flex-1 min-w-0 truncate text-sm font-medium text-slate-700">{a.title}</span>
+                      )}
+                      <button
+                        onClick={() => setExpandedAsset(isOpen ? null : a.id)}
+                        disabled={media.length === 0}
+                        className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium border transition-colors shrink-0 disabled:opacity-40 disabled:cursor-not-allowed ${
+                          isOpen ? "border-emerald-500 bg-emerald-50 text-emerald-700" : "border-slate-200 text-slate-500 hover:bg-slate-50"
+                        }`}
+                        title="Choose which media to include"
+                        aria-expanded={isOpen}
+                      >
+                        <Clapperboard className="w-3.5 h-3.5" />
+                        {media.length > 0 ? `${includedCount}/${media.length}` : "0"}
+                        <ChevronDown className={`w-3.5 h-3.5 transition-transform ${isOpen ? "rotate-180" : ""}`} />
+                      </button>
                     </div>
-                  )
-                })}
-              </div>
+
+                    {isOpen && media.length > 0 && (
+                      <div className="border-t border-slate-100 bg-slate-50 p-2 grid grid-cols-3 gap-2">
+                        {media.map((m) => {
+                          const off = excluded.has(m.url)
+                          return (
+                            <button
+                              key={m.url}
+                              onClick={() => toggleMedia(a.id, m.url)}
+                              className={`group relative aspect-video rounded-lg overflow-hidden border-2 transition-colors ${
+                                off ? "border-slate-200 opacity-45" : "border-emerald-500"
+                              }`}
+                              title={off ? `Include ${m.name}` : `Exclude ${m.name}`}
+                              aria-pressed={!off}
+                            >
+                              {m.kind === "image" ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img src={m.url || "/placeholder.svg"} alt={m.name} crossOrigin="anonymous" className="w-full h-full object-cover" />
+                              ) : (
+                                <span className="w-full h-full flex flex-col items-center justify-center gap-1 bg-slate-800 text-white/80">
+                                  <VideoIcon className="w-4 h-4" />
+                                  <span className="text-[9px] px-1 truncate max-w-full">{m.platform || "Video"}</span>
+                                </span>
+                              )}
+                              <span
+                                className={`absolute top-1 right-1 w-5 h-5 rounded-full flex items-center justify-center text-white ${
+                                  off ? "bg-slate-400" : "bg-emerald-500"
+                                }`}
+                              >
+                                {off ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+                              </span>
+                              <span className="absolute bottom-1 left-1 flex items-center gap-0.5 px-1 py-0.5 rounded bg-black/50 text-[8px] text-white">
+                                {m.kind === "video" ? <VideoIcon className="w-2.5 h-2.5" /> : <ImageIcon className="w-2.5 h-2.5" />}
+                              </span>
+                            </button>
+                          )
+                        })}
+                      </div>
+                    )}
+                    {isOpen && includedCount === 0 && (
+                      <p className="px-3 pb-2 text-[11px] text-red-500 bg-slate-50">At least one media item should stay included.</p>
+                    )}
+                  </div>
+                )
+              })}
             </div>
-          )}
+          </div>
 
           {/* Decision makers */}
           <div>
