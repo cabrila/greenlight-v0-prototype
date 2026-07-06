@@ -175,6 +175,9 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
   const [pan, setPan] = useState({ x: 0, y: 0 })
   const [isPanning, setIsPanning] = useState(false)
   const panStartRef = useRef({ x: 0, y: 0 })
+  // Marquee (drag-to-select) rectangle, stored in canvas coordinates while dragging.
+  const [marquee, setMarquee] = useState<{ x1: number; y1: number; x2: number; y2: number } | null>(null)
+  const marqueeStartRef = useRef<{ x: number; y: number; additive: boolean; base: string[] } | null>(null)
 
   const [items, setItems] = useState<CanvasItem[]>([])
   const [selectedIds, setSelectedIds] = useState<string[]>([])
@@ -1052,11 +1055,19 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
       return
     }
 
-    // Select tool: let cards handle their own drag; clicking empty clears.
-    if (activeTool === "select" && onCard) return
-    if (activeTool === "select" && !e.ctrlKey && !e.metaKey && !e.shiftKey) setSelectedIds([])
+    // Select tool: cards handle their own drag; empty-canvas drag draws a marquee.
+    if (activeTool === "select") {
+      if (onCard) return
+      if (e.button !== 0) return
+      const additive = e.ctrlKey || e.metaKey || e.shiftKey
+      const c = clientToCanvas(e.clientX, e.clientY)
+      marqueeStartRef.current = { x: c.x, y: c.y, additive, base: additive ? selectedIds : [] }
+      if (!additive) setSelectedIds([])
+      setMarquee({ x1: c.x, y1: c.y, x2: c.x, y2: c.y })
+      return
+    }
 
-    // Pan (pan tool, or empty-canvas drag in select mode)
+    // Hand tool (or middle-mouse anywhere): pan the canvas.
     setIsPanning(true)
     panStartRef.current = { x: e.clientX - pan.x, y: e.clientY - pan.y }
   }
@@ -1072,6 +1083,40 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
       document.removeEventListener("mouseup", up)
     }
   }, [isPanning])
+
+  // Marquee drag: update the rectangle and live-select intersecting items.
+  useEffect(() => {
+    if (!marquee) return
+    const move = (e: MouseEvent) => {
+      const start = marqueeStartRef.current
+      if (!start) return
+      const c = clientToCanvas(e.clientX, e.clientY)
+      const rect = { x1: start.x, y1: start.y, x2: c.x, y2: c.y }
+      setMarquee(rect)
+      const minX = Math.min(rect.x1, rect.x2)
+      const maxX = Math.max(rect.x1, rect.x2)
+      const minY = Math.min(rect.y1, rect.y2)
+      const maxY = Math.max(rect.y1, rect.y2)
+      const hits = items
+        .filter((it) => {
+          const { w, h } = itemDims(it)
+          return it.x < maxX && it.x + w > minX && it.y < maxY && it.y + h > minY
+        })
+        .map((it) => it.id)
+      setSelectedIds(start.additive ? Array.from(new Set([...start.base, ...hits])) : hits)
+    }
+    const up = () => {
+      setMarquee(null)
+      marqueeStartRef.current = null
+    }
+    document.addEventListener("mousemove", move)
+    document.addEventListener("mouseup", up)
+    return () => {
+      document.removeEventListener("mousemove", move)
+      document.removeEventListener("mouseup", up)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [marquee !== null, items, pan, zoom])
 
   const handleWheel = useCallback(
     (e: WheelEvent) => {
@@ -1153,6 +1198,7 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
       }
       switch (e.key.toLowerCase()) {
         case "v": setActiveTool("select"); break
+        case "h": setActiveTool("hand"); break
         case "t": setActiveTool("text"); break
         case "c": setActiveTool("note"); break
         case "escape": setActiveTool("select"); setSelectedIds([]); break
@@ -1180,7 +1226,9 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
 
   const cursorForTool =
     activeTool === "note" || isElement(activeTool as CanvasItemType) ? "crosshair"
-      : isPanning ? "grabbing" : "default"
+      : activeTool === "hand" ? (isPanning ? "grabbing" : "grab")
+      : marquee ? "crosshair"
+      : "default"
 
   const interactive = activeTool === "select"
 
@@ -1486,6 +1534,19 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
             className="absolute top-0 left-0 origin-top-left"
             style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})` }}
           >
+            {/* Marquee selection rectangle */}
+            {marquee && (
+              <div
+                className="absolute pointer-events-none border-2 border-emerald-500 bg-emerald-500/10 rounded-sm z-50"
+                style={{
+                  left: Math.min(marquee.x1, marquee.x2),
+                  top: Math.min(marquee.y1, marquee.y2),
+                  width: Math.abs(marquee.x2 - marquee.x1),
+                  height: Math.abs(marquee.y2 - marquee.y1),
+                }}
+              />
+            )}
+
             {/* Group bounding boxes with renameable titles */}
             {groupBoxes.map((box) => (
               <div

@@ -1,8 +1,8 @@
 "use client"
 
-import { MousePointer2, Type, Image as ImageIcon, MessageCircle, Group } from "lucide-react"
+import { MousePointer2, Hand, Type, Image as ImageIcon, MessageCircle, Group } from "lucide-react"
 
-export type CanvasTool = "select" | "text" | "image" | "note"
+export type CanvasTool = "select" | "hand" | "text" | "image" | "note"
 
 interface ToolDef {
   key: CanvasTool
@@ -10,7 +10,10 @@ interface ToolDef {
   icon: typeof MousePointer2
 }
 
-const SELECT_TOOL: ToolDef = { key: "select", label: "Select / Move (V)", icon: MousePointer2 }
+const NAV_TOOLS: ToolDef[] = [
+  { key: "select", label: "Select / Marquee (V)", icon: MousePointer2 },
+  { key: "hand", label: "Hand / Pan (H)", icon: Hand },
+]
 
 const CREATE_TOOLS: ToolDef[] = [
   { key: "text", label: "Text (T)", icon: Type },
@@ -53,7 +56,7 @@ export default function CanvasToolbar({
       className="absolute left-4 top-1/2 -translate-y-1/2 z-40 flex flex-col items-center gap-1 bg-white rounded-2xl shadow-lg border border-slate-200 p-1.5"
       onMouseDown={(e) => e.stopPropagation()}
     >
-      <ToolButton def={SELECT_TOOL} />
+      {NAV_TOOLS.map((d) => <ToolButton key={d.key} def={d} />)}
 
       <span className="w-6 h-px bg-slate-200 my-1" />
 
