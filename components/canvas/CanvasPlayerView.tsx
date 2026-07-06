@@ -5,6 +5,7 @@ import {
   X, ChevronLeft, ChevronRight, Check, Star,
   Play, ListChecks, Film, ImageIcon, Video as VideoIcon,
   MessageSquare, Send, Pause, SkipForward,
+  CheckCircle2, RotateCcw, Users,
 } from "lucide-react"
 import { isValidImageUrl } from "@/lib/utils"
 import VideoEmbed from "@/components/video/VideoEmbed"
@@ -113,6 +114,7 @@ export default function CanvasPlayerView({ assets, config, onClose }: CanvasPlay
   const [decisions, setDecisions] = useState<DecisionState>({})
   const [comments, setComments] = useState<CommentState>({})
   const [showSummary, setShowSummary] = useState(false)
+  const [ended, setEnded] = useState(false)
   const [mediaIdx, setMediaIdx] = useState(0)
   const [countdown, setCountdown] = useState<number | null>(null)
 
@@ -141,6 +143,7 @@ export default function CanvasPlayerView({ assets, config, onClose }: CanvasPlay
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         if (showSummary) setShowSummary(false)
+        else if (ended) setEnded(false)
         else onClose()
       } else if (e.key === "ArrowRight") {
         go(1)
@@ -150,7 +153,7 @@ export default function CanvasPlayerView({ assets, config, onClose }: CanvasPlay
     }
     window.addEventListener("keydown", onKey)
     return () => window.removeEventListener("keydown", onKey)
-  }, [go, onClose, showSummary])
+  }, [go, onClose, showSummary, ended])
 
   // Reset the active media whenever the asset changes.
   useEffect(() => {
@@ -178,6 +181,11 @@ export default function CanvasPlayerView({ assets, config, onClose }: CanvasPlay
     // A registered selection (re)starts the auto-advance timer.
     if (config.autoAdvance && index < total - 1) {
       setCountdown(config.autoAdvanceSeconds || 5)
+    }
+    // On the final asset, a registered decision surfaces the end screen.
+    if (index === total - 1) {
+      setCountdown(null)
+      window.setTimeout(() => setEnded(true), 650)
     }
   }
 
@@ -228,6 +236,55 @@ export default function CanvasPlayerView({ assets, config, onClose }: CanvasPlay
       return { asset: a, buttonCounts, avg, ratedCount: ratings.length, commentCount: (comments[a.id] || []).length }
     })
   }, [assets, decisions, comments, config.decisionMakers, config.buttons])
+
+  const decidedCount = useMemo(
+    () => assets.filter((a) => config.decisionMakers.some((dm) => decisions[a.id]?.[dm.id])).length,
+    [assets, decisions, config.decisionMakers],
+  )
+  const totalComments = useMemo(
+    () => assets.reduce((s, a) => s + (comments[a.id]?.length || 0), 0),
+    [assets, comments],
+  )
+
+  const summaryRows = (
+    <>
+      {summary.map(({ asset, buttonCounts, avg, ratedCount, commentCount }) => {
+        const img = firstImage(asset)
+        return (
+          <div key={asset.id} className="flex items-center gap-3 rounded-xl bg-white/[0.04] border border-white/10 p-2.5">
+            <div className="w-12 h-12 rounded-lg overflow-hidden bg-slate-800 shrink-0">
+              {img ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={img || "/placeholder.svg"} alt={labelFor(asset)} crossOrigin="anonymous" className="w-full h-full object-cover" />
+              ) : null}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-medium text-white truncate">{labelFor(asset)}</p>
+              <p className="text-[11px] text-white/40 truncate flex items-center gap-1">
+                <MessageSquare className="w-3 h-3" /> {commentCount}
+                {asset.subtitle ? ` · ${asset.subtitle}` : ""}
+              </p>
+            </div>
+            {isRate ? (
+              <div className="flex items-center gap-1.5 shrink-0">
+                <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
+                <span className="text-sm font-semibold text-white tabular-nums">{avg ? avg.toFixed(1) : "—"}</span>
+                <span className="text-[11px] text-white/40">({ratedCount})</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end max-w-[45%]">
+                {config.buttons.map((b) => (
+                  <span key={b.id} className={`flex items-center gap-1 text-sm font-medium ${TONE_TEXT[b.tone]}`}>
+                    {b.label} {buttonCounts[b.id] || 0}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        )
+      })}
+    </>
+  )
 
   if (!current) return null
 
@@ -529,6 +586,57 @@ export default function CanvasPlayerView({ assets, config, onClose }: CanvasPlay
         </div>
       </div>
 
+      {/* End screen — appears once a decision is made on the final asset */}
+      {ended && (
+        <div className="absolute inset-0 z-30 flex items-center justify-center bg-slate-950/90 backdrop-blur-md p-6">
+          <div className="w-full max-w-2xl max-h-[86vh] flex flex-col rounded-2xl bg-slate-900 border border-white/10 shadow-2xl overflow-hidden">
+            <div className="px-6 pt-6 pb-5 border-b border-white/10 text-center">
+              <span className="mx-auto mb-3 w-14 h-14 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+                <CheckCircle2 className="w-8 h-8" />
+              </span>
+              <h3 className="text-xl font-bold text-white text-balance">Review complete</h3>
+              <p className="text-sm text-white/50 mt-1">{config.title || "Player session"}</p>
+              <div className="mt-4 flex items-center justify-center gap-2 flex-wrap">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.06] text-white/80 text-xs font-medium">
+                  <ListChecks className="w-3.5 h-3.5 text-emerald-400" />
+                  {decidedCount} of {total} decided
+                </span>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.06] text-white/80 text-xs font-medium">
+                  <Users className="w-3.5 h-3.5 text-sky-400" />
+                  {config.decisionMakers.length} decision maker{config.decisionMakers.length === 1 ? "" : "s"}
+                </span>
+                {config.enableComments && (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.06] text-white/80 text-xs font-medium">
+                    <MessageSquare className="w-3.5 h-3.5 text-amber-400" />
+                    {totalComments} comment{totalComments === 1 ? "" : "s"}
+                  </span>
+                )}
+              </div>
+            </div>
+            <div className="flex-1 overflow-y-auto p-3 space-y-2">
+              {summaryRows}
+            </div>
+            <div className="px-5 py-3 border-t border-white/10 flex items-center justify-between gap-2">
+              <button
+                onClick={() => {
+                  setEnded(false)
+                  setIndex(0)
+                }}
+                className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white/10 text-white text-sm font-medium hover:bg-white/20 transition-colors"
+              >
+                <RotateCcw className="w-4 h-4" /> Review again
+              </button>
+              <button
+                onClick={onClose}
+                className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600 transition-colors"
+              >
+                <Check className="w-4 h-4" /> Done &amp; close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Summary overlay */}
       {showSummary && (
         <div className="absolute inset-0 z-20 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-6" onClick={() => setShowSummary(false)}>
@@ -546,41 +654,7 @@ export default function CanvasPlayerView({ assets, config, onClose }: CanvasPlay
               </button>
             </div>
             <div className="flex-1 overflow-y-auto p-3 space-y-2">
-              {summary.map(({ asset, buttonCounts, avg, ratedCount, commentCount }) => {
-                const img = firstImage(asset)
-                return (
-                  <div key={asset.id} className="flex items-center gap-3 rounded-xl bg-white/[0.04] border border-white/10 p-2.5">
-                    <div className="w-12 h-12 rounded-lg overflow-hidden bg-slate-800 shrink-0">
-                      {img ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={img || "/placeholder.svg"} alt={labelFor(asset)} crossOrigin="anonymous" className="w-full h-full object-cover" />
-                      ) : null}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium text-white truncate">{labelFor(asset)}</p>
-                      <p className="text-[11px] text-white/40 truncate flex items-center gap-1">
-                        <MessageSquare className="w-3 h-3" /> {commentCount}
-                        {asset.subtitle ? ` · ${asset.subtitle}` : ""}
-                      </p>
-                    </div>
-                    {isRate ? (
-                      <div className="flex items-center gap-1.5 shrink-0">
-                        <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
-                        <span className="text-sm font-semibold text-white tabular-nums">{avg ? avg.toFixed(1) : "—"}</span>
-                        <span className="text-[11px] text-white/40">({ratedCount})</span>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end max-w-[45%]">
-                        {config.buttons.map((b) => (
-                          <span key={b.id} className={`flex items-center gap-1 text-sm font-medium ${TONE_TEXT[b.tone]}`}>
-                            {b.label} {buttonCounts[b.id] || 0}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )
-              })}
+              {summaryRows}
             </div>
             <div className="px-5 py-3 border-t border-white/10 flex items-center justify-end gap-2">
               <button
