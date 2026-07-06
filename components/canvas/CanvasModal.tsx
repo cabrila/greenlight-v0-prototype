@@ -1559,14 +1559,38 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
                     box.selected ? "border-emerald-500 bg-emerald-500/[0.06]" : "border-emerald-400/50 bg-emerald-500/[0.03]"
                   }`}
                 />
-                <input
-                  className="pointer-events-auto absolute -top-7 left-0 max-w-full bg-white/90 backdrop-blur-sm text-xs font-semibold text-emerald-700 rounded-md px-2 py-0.5 border border-emerald-200 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                  value={groupNames[box.id] ?? "Group"}
-                  onChange={(e) => renameGroup(box.id, e.target.value)}
-                  onMouseDown={(e) => e.stopPropagation()}
-                  aria-label="Group title"
-                  spellCheck={false}
-                />
+                <div className="pointer-events-none absolute -top-7 left-0 right-0 flex items-center gap-1.5">
+                  <input
+                    className="pointer-events-auto min-w-0 flex-1 max-w-[60%] bg-white/90 backdrop-blur-sm text-xs font-semibold text-emerald-700 rounded-md px-2 py-0.5 border border-emerald-200 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    value={groupNames[box.id] ?? "Group"}
+                    onChange={(e) => renameGroup(box.id, e.target.value)}
+                    onMouseDown={(e) => e.stopPropagation()}
+                    aria-label="Group title"
+                    spellCheck={false}
+                  />
+                  {(() => {
+                    const groupPlayerIds = items
+                      .filter((it) => it.groupId === box.id && PLAYER_TYPES.includes(it.type))
+                      .map((it) => it.id)
+                    if (groupPlayerIds.length < 2) return null
+                    return (
+                      <button
+                        type="button"
+                        onMouseDown={(e) => e.stopPropagation()}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setSelectedIds(items.filter((it) => it.groupId === box.id).map((it) => it.id))
+                          setPlayerConfigOpen(true)
+                        }}
+                        title={`Configure a player view for this group's ${groupPlayerIds.length} assets`}
+                        className="pointer-events-auto shrink-0 flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-500 text-white text-xs font-medium hover:bg-emerald-600 transition-colors"
+                      >
+                        <Play className="w-3 h-3" />
+                        Player view ({groupPlayerIds.length})
+                      </button>
+                    )
+                  })()}
+                </div>
               </div>
             ))}
 
