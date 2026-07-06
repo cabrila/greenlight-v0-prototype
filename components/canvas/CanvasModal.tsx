@@ -432,6 +432,36 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
     [items, selectedIds],
   )
 
+  /* All embedded videos (reels, self-tapes, Vimeo/YouTube) keyed by source asset id. */
+  const videosByRefId = useMemo(() => {
+    const map: Record<string, { name: string; url: string; platform?: string }[]> = {}
+    if (!currentProject) return map
+    const pushVids = (id: string, arr: any[], fallback: string) => {
+      if (!Array.isArray(arr)) return
+      arr.forEach((v: any, i: number) => {
+        if (!v?.url) return
+        if (!map[id]) map[id] = []
+        map[id].push({ name: v.title || v.name || `${fallback} ${i + 1}`, url: v.url, platform: v.platform })
+      })
+    }
+    currentProject.characters.forEach((char) => {
+      const lists: any[] = []
+      state.tabDefinitions.forEach((tabDef) => {
+        if (tabDef.key === "shortLists") char.actors.shortLists.forEach((sl: any) => lists.push(...sl.actors))
+        else lists.push(...((char.actors as any)[tabDef.key] || []))
+      })
+      lists.forEach((actor: any) => {
+        if (!actor?.id || map[actor.id]) return
+        pushVids(actor.id, actor.mediaMaterials, "Media")
+        pushVids(actor.id, actor.reels, "Reel")
+        pushVids(actor.id, actor.selfTapes, "Self-tape")
+        pushVids(actor.id, actor.vimeoVideos, "Video")
+        pushVids(actor.id, actor.youtubeVideos, "Video")
+      })
+    })
+    return map
+  }, [currentProject, state.tabDefinitions])
+
   /* Selected visual assets eligible for the Player view (slideshow). */
   const PLAYER_TYPES: CanvasItemType[] = ["actor", "prop", "costume", "location", "image"]
   const playerAssets = useMemo<PlayerAsset[]>(
@@ -445,9 +475,10 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
           type: it.type,
           image: it.image,
           images: it.images,
+          videos: videosByRefId[it.refId],
         })),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [items, selectedIds],
+    [items, selectedIds, videosByRefId],
   )
 
   /* Content anchor points so simulated collaborator cursors gravitate to items. */
