@@ -135,7 +135,7 @@ export default function CanvasPlayerConfig({ assets, onCancel, onStart }: Canvas
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/70 backdrop-blur-sm p-4" onMouseDown={onCancel}>
       <div
-        className="w-full max-w-lg max-h-[90vh] flex flex-col rounded-2xl bg-white shadow-2xl overflow-hidden"
+        className="w-full max-w-lg lg:max-w-4xl max-h-[90vh] flex flex-col rounded-2xl bg-white shadow-2xl overflow-hidden"
         onMouseDown={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -155,8 +155,8 @@ export default function CanvasPlayerConfig({ assets, onCancel, onStart }: Canvas
           </div>
         </div>
 
-        {/* Body */}
-        <div className="flex-1 overflow-y-auto p-5 space-y-5">
+        {/* Body — single column when narrow, two balanced columns when wide */}
+        <div className="flex-1 overflow-y-auto p-5 space-y-5 lg:space-y-0 lg:columns-2 lg:gap-5 lg:[column-fill:balance] lg:[&>div]:mb-5 lg:[&>div]:break-inside-avoid">
           {/* Title */}
           <div>
             <label className="block text-sm font-semibold text-slate-800 mb-1.5">Session title</label>
