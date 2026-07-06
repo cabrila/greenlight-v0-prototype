@@ -3,7 +3,7 @@
 import type React from "react"
 import { useEffect, useRef, useState } from "react"
 import {
-  X, ChevronDown, ChevronRight, Film, Clapperboard, Sparkles, UserPlus,
+  X, ChevronDown, ChevronRight, Film, Clapperboard, Sparkles, UserPlus, Play,
 } from "lucide-react"
 import { isValidImageUrl } from "@/lib/utils"
 import type { CanvasItem } from "./CanvasItemCard"
@@ -33,6 +33,8 @@ interface CanvasWidgetProps {
   onResize: (id: string, width: number, height: number) => void
   onRemove: (id: string) => void
   onDataChange: (id: string, data: Record<string, any>) => void
+  /** Launch the player config for every actor cast under a character. */
+  onConfigurePlayer?: (charName: string, actors: WidgetActor[]) => void
 }
 
 const MIN_W = 360
@@ -84,7 +86,7 @@ function Section({
 
 export default function CanvasWidget({
   item, isSelected, interactive, zoom, actors, characters, locations,
-  onSelect, onDrag, onResize, onRemove, onDataChange,
+  onSelect, onDrag, onResize, onRemove, onDataChange, onConfigurePlayer,
 }: CanvasWidgetProps) {
   const [isDragging, setIsDragging] = useState(false)
   const [isResizing, setIsResizing] = useState(false)
@@ -418,6 +420,20 @@ export default function CanvasWidget({
                 <div className="flex flex-col items-center gap-2 px-3 pt-4 pb-3 bg-white border-b-2 border-slate-300">
                   <Avatar src={char.image} name={char.name} size={56} />
                   <span className="text-sm font-bold text-slate-800 text-center text-pretty">{char.name}</span>
+                  <button
+                    type="button"
+                    disabled={assigned.length === 0}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      onConfigurePlayer?.(char.name, assigned)
+                    }}
+                    className="widget-control mt-0.5 flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500 text-white text-xs font-medium hover:bg-emerald-600 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed transition-colors"
+                    title={assigned.length ? `Configure a player view for ${char.name}'s ${assigned.length} actor${assigned.length === 1 ? "" : "s"}` : "Cast actors first to configure a player view"}
+                  >
+                    <Play className="w-3 h-3" />
+                    Player view
+                    {assigned.length > 0 ? ` (${assigned.length})` : ""}
+                  </button>
                 </div>
                 {/* Drop hint */}
                 <div

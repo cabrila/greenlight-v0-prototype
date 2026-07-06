@@ -206,6 +206,9 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
   // Player view: configure a review player from the current selection, then run it.
   const [playerConfigOpen, setPlayerConfigOpen] = useState(false)
   const [playerConfig, setPlayerConfig] = useState<PlayerConfig | null>(null)
+  // When launching a player for a whole character (from the casting board), the
+  // assets come from that character's cast rather than the canvas selection.
+  const [playerAssetsOverride, setPlayerAssetsOverride] = useState<PlayerAsset[] | null>(null)
 
   // Multiple canvas boards ("pages") per project.
   const [boards, setBoards] = useState<CanvasBoard[]>([{ id: "default", name: "Board 1" }])
@@ -480,6 +483,35 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [items, selectedIds, videosByRefId],
   )
+
+  // Assets fed to the player: a character's whole cast (from the casting board) when
+  // set, otherwise the assets selected on the canvas.
+  const effectivePlayerAssets = playerAssetsOverride ?? playerAssets
+
+  // Launch the player configuration for every actor cast under a character.
+  const handleConfigureCharacterPlayer = (charName: string, castActors: { refId: string; name: string; image?: string }[]) => {
+    const assets: PlayerAsset[] = castActors.map((a) => {
+      const src = actorItems.find((it) => it.refId === a.refId)
+      return {
+        id: a.refId,
+        title: a.name,
+        subtitle: charName,
+        type: "actor" as CanvasItemType,
+        image: src?.image || a.image,
+        images: src?.images,
+        videos: videosByRefId[a.refId],
+      }
+    })
+    if (assets.length === 0) return
+    setPlayerAssetsOverride(assets)
+    setPlayerConfigOpen(true)
+  }
+
+  const closePlayer = () => {
+    setPlayerConfig(null)
+    setPlayerConfigOpen(false)
+    setPlayerAssetsOverride(null)
+  }
 
   /* Content anchor points so simulated collaborator cursors gravitate to items. */
   const presenceAnchors = useMemo(
@@ -1544,6 +1576,7 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
                   onResize={handleResize}
                   onRemove={handleRemove}
                   onDataChange={handleWidgetDataChange}
+                  onConfigurePlayer={handleConfigureCharacterPlayer}
                 />
               ) : isElement(item.type) ? (
                 <CanvasElement
@@ -1667,8 +1700,11 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
       {/* Player configuration modal */}
       {playerConfigOpen && (
         <CanvasPlayerConfig
-          assets={playerAssets}
-          onCancel={() => setPlayerConfigOpen(false)}
+          assets={effectivePlayerAssets}
+          onCancel={() => {
+            setPlayerConfigOpen(false)
+            setPlayerAssetsOverride(null)
+          }}
           onStart={(config) => {
             setPlayerConfig(config)
             setPlayerConfigOpen(false)
@@ -1677,11 +1713,11 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
       )}
 
       {/* Full-screen player / review session */}
-      {playerConfig && playerAssets.length > 0 && (
+      {playerConfig && effectivePlayerAssets.length > 0 && (
         <CanvasPlayerView
-          assets={playerAssets}
+          assets={effectivePlayerAssets}
           config={playerConfig}
-          onClose={() => setPlayerConfig(null)}
+          onClose={closePlayer}
         />
       )}
     </div>
