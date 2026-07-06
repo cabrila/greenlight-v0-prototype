@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { X, Plus, Trash2, Play, ThumbsUp, Star, Users, Tag, Minus, MessageSquare, Timer } from "lucide-react"
+import { X, Plus, Trash2, Play, ThumbsUp, Star, Users, Tag, Minus, MessageSquare, Timer, UserCheck } from "lucide-react"
 import { isValidImageUrl } from "@/lib/utils"
 import type { PlayerAsset, PlayerConfig, DecisionMaker, PlayerMode, DecisionButton, DecisionTone } from "./CanvasPlayerView"
 
@@ -38,8 +38,10 @@ export default function CanvasPlayerConfig({ assets, onCancel, onStart }: Canvas
   const [autoAdvance, setAutoAdvance] = useState(true)
   const [autoAdvanceSeconds, setAutoAdvanceSeconds] = useState(5)
   const [decisionMakers, setDecisionMakers] = useState<DecisionMaker[]>([
-    { id: "dm-1", name: "Director", role: "Creative lead", color: DM_COLORS[0] },
+    { id: "dm-1", name: "You", role: "Reviewer", color: DM_COLORS[0] },
   ])
+  // Which decision maker represents the current user (the only one able to vote in the player).
+  const [currentUserId, setCurrentUserId] = useState("dm-1")
 
   const addDecisionMaker = () => {
     const id = `dm-${Date.now()}-${Math.random().toString(36).slice(2, 5)}`
@@ -50,7 +52,12 @@ export default function CanvasPlayerConfig({ assets, onCancel, onStart }: Canvas
   const updateDM = (id: string, patch: Partial<DecisionMaker>) =>
     setDecisionMakers((prev) => prev.map((d) => (d.id === id ? { ...d, ...patch } : d)))
 
-  const removeDM = (id: string) => setDecisionMakers((prev) => prev.filter((d) => d.id !== id))
+  const removeDM = (id: string) =>
+    setDecisionMakers((prev) => {
+      const next = prev.filter((d) => d.id !== id)
+      if (id === currentUserId) setCurrentUserId(next[0]?.id || "")
+      return next
+    })
 
   /* ---- decision button editing (approve mode) ---- */
   const addButton = () => {
@@ -74,6 +81,7 @@ export default function CanvasPlayerConfig({ assets, onCancel, onStart }: Canvas
     const cleanedButtons = buttons
       .map((b) => ({ ...b, label: b.label.trim() || "Option" }))
       .filter((b, i, arr) => arr.findIndex((x) => x.id === b.id) === i)
+    const meId = cleaned.find((d) => d.id === currentUserId)?.id || cleaned[0]?.id
     onStart({
       title: title.trim() || "Player",
       showLabels,
@@ -82,6 +90,7 @@ export default function CanvasPlayerConfig({ assets, onCancel, onStart }: Canvas
       starCount,
       buttons: cleanedButtons.length ? cleanedButtons : DEFAULT_BUTTONS,
       decisionMakers: cleaned,
+      currentUserId: meId,
       labels,
       enableComments,
       autoAdvance,
@@ -312,39 +321,56 @@ export default function CanvasPlayerConfig({ assets, onCancel, onStart }: Canvas
                 <Plus className="w-3.5 h-3.5" /> Add
               </button>
             </div>
+            <p className="text-[11px] text-slate-400 mb-2">
+              Add everyone reviewing here. In the player you can only cast a decision as yourself — mark which one is you.
+            </p>
             <div className="space-y-2">
-              {decisionMakers.map((dm) => (
-                <div key={dm.id} className="flex items-center gap-2 rounded-xl border border-slate-200 p-2">
-                  <span
-                    className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0"
-                    style={{ backgroundColor: dm.color }}
-                  >
-                    {(dm.name || "?").charAt(0).toUpperCase()}
-                  </span>
-                  <div className="flex-1 min-w-0 grid grid-cols-2 gap-2">
-                    <input
-                      value={dm.name}
-                      onChange={(e) => updateDM(dm.id, { name: e.target.value })}
-                      placeholder="Name"
-                      className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                    />
-                    <input
-                      value={dm.role}
-                      onChange={(e) => updateDM(dm.id, { role: e.target.value })}
-                      placeholder="Role"
-                      list="dm-roles"
-                      className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                    />
+              {decisionMakers.map((dm) => {
+                const isMe = dm.id === currentUserId
+                return (
+                  <div key={dm.id} className="flex items-center gap-2 rounded-xl border border-slate-200 p-2">
+                    <span
+                      className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0"
+                      style={{ backgroundColor: dm.color }}
+                    >
+                      {(dm.name || "?").charAt(0).toUpperCase()}
+                    </span>
+                    <div className="flex-1 min-w-0 grid grid-cols-2 gap-2">
+                      <input
+                        value={dm.name}
+                        onChange={(e) => updateDM(dm.id, { name: e.target.value })}
+                        placeholder="Name"
+                        className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      />
+                      <input
+                        value={dm.role}
+                        onChange={(e) => updateDM(dm.id, { role: e.target.value })}
+                        placeholder="Role"
+                        list="dm-roles"
+                        className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      />
+                    </div>
+                    <button
+                      onClick={() => setCurrentUserId(dm.id)}
+                      className={`flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border transition-colors shrink-0 ${
+                        isMe ? "border-emerald-500 bg-emerald-50 text-emerald-700" : "border-slate-200 text-slate-400 hover:bg-slate-50"
+                      }`}
+                      title="Mark this participant as you (only you can vote in the player)"
+                      aria-pressed={isMe}
+                    >
+                      <UserCheck className="w-3.5 h-3.5" />
+                      {isMe ? "You" : "Me?"}
+                    </button>
+                    <button
+                      onClick={() => removeDM(dm.id)}
+                      className="p-1.5 rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-500 transition-colors shrink-0"
+                      aria-label="Remove decision maker"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
                   </div>
-                  <button
-                    onClick={() => removeDM(dm.id)}
-                    className="p-1.5 rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-500 transition-colors shrink-0"
-                    aria-label="Remove decision maker"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              ))}
+                )
+              })}
               {decisionMakers.length === 0 && (
                 <p className="text-sm text-slate-400 py-3 text-center">Add at least one decision maker to collect votes.</p>
               )}

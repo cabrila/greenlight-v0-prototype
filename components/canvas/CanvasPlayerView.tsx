@@ -53,6 +53,8 @@ export interface PlayerConfig {
   /** custom decision buttons used in approve mode */
   buttons: DecisionButton[]
   decisionMakers: DecisionMaker[]
+  /** id of the decision maker that represents the current user (the only one who can vote here). */
+  currentUserId?: string
   /** Per-asset custom label overrides keyed by asset id. */
   labels?: Record<string, string>
   enableComments: boolean
@@ -120,12 +122,21 @@ export default function CanvasPlayerView({ assets, config, onClose }: CanvasPlay
 
   // Comment composer state.
   const [draft, setDraft] = useState("")
-  const [author, setAuthor] = useState("You")
 
   const total = assets.length
   const current = assets[index]
   const isRate = config.mode === "rate"
   const starCount = Math.max(1, config.starCount || 5)
+
+  // The current user is the only participant who can vote or comment in this session.
+  const me = useMemo(
+    () => config.decisionMakers.find((d) => d.id === config.currentUserId) || config.decisionMakers[0],
+    [config.decisionMakers, config.currentUserId],
+  )
+  const others = useMemo(
+    () => config.decisionMakers.filter((d) => d.id !== me?.id),
+    [config.decisionMakers, me?.id],
+  )
 
   const cancelCountdown = useCallback(() => setCountdown(null), [])
 
@@ -192,11 +203,10 @@ export default function CanvasPlayerView({ assets, config, onClose }: CanvasPlay
   const addComment = (assetId: string) => {
     const text = draft.trim()
     if (!text) return
-    const dm = config.decisionMakers.find((d) => d.name === author)
     const entry: Comment = {
       id: `c-${Date.now()}-${Math.random().toString(36).slice(2, 5)}`,
-      author,
-      color: dm?.color,
+      author: me?.name || "You",
+      color: me?.color,
       text,
       ts: Date.now(),
     }
@@ -216,7 +226,8 @@ export default function CanvasPlayerView({ assets, config, onClose }: CanvasPlay
     const videos: MediaEntry[] = (current.videos || [])
       .filter((v) => v.url)
       .map((v) => ({ kind: "video" as const, url: v.url, name: v.name, platform: v.platform }))
-    return [...images, ...videos]
+    // Videos always play first, then images.
+    return [...videos, ...images]
   }, [current])
 
   const activeMedia = mediaList[Math.min(mediaIdx, Math.max(mediaList.length - 1, 0))]
@@ -427,29 +438,33 @@ export default function CanvasPlayerView({ assets, config, onClose }: CanvasPlay
         {/* Decision + comments panel */}
         <aside className="w-96 shrink-0 border-l border-white/10 bg-slate-900/60 flex flex-col">
           <div className="px-4 py-3 border-b border-white/10">
-            <h3 className="text-sm font-semibold text-white">Decisions</h3>
+            <h3 className="text-sm font-semibold text-white">Your decision</h3>
             <p className="text-xs text-white/50">
-              {isRate ? `Rate this asset out of ${starCount}` : "Choose an option from each perspective"}
+              {isRate ? `Rate this asset out of ${starCount}` : "Choose your verdict — you decide only for yourself"}
             </p>
           </div>
           <div className="flex-1 overflow-y-auto p-3 space-y-2.5">
-            {config.decisionMakers.length === 0 && (
+            {!me && (
               <p className="text-sm text-white/40 text-center py-6">No decision makers configured.</p>
             )}
-            {config.decisionMakers.map((dm) => {
-              const v = per[dm.id] || {}
+
+            {/* Only the current user can cast a decision. */}
+            {me && (() => {
+              const v = per[me.id] || {}
               return (
-                <div key={dm.id} className="rounded-xl bg-white/[0.04] border border-white/10 p-3">
+                <div className="rounded-xl bg-white/[0.06] border border-emerald-500/30 p-3">
                   <div className="flex items-center gap-2.5 mb-2.5">
                     <span
                       className="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold text-white shrink-0"
-                      style={{ backgroundColor: dm.color }}
+                      style={{ backgroundColor: me.color }}
                     >
-                      {dm.name.charAt(0).toUpperCase()}
+                      {me.name.charAt(0).toUpperCase()}
                     </span>
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium text-white truncate leading-tight">{dm.name}</p>
-                      {dm.role && <p className="text-[11px] text-white/40 truncate">{dm.role}</p>}
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium text-white truncate leading-tight">
+                        {me.name} <span className="text-emerald-400 font-normal">(You)</span>
+                      </p>
+                      {me.role && <p className="text-[11px] text-white/40 truncate">{me.role}</p>}
                     </div>
                   </div>
 
@@ -460,7 +475,7 @@ export default function CanvasPlayerView({ assets, config, onClose }: CanvasPlay
                         return (
                           <button
                             key={n}
-                            onClick={() => setVerdict(current.id, dm.id, { rating: n })}
+                            onClick={() => setVerdict(current.id, me.id, { rating: n })}
                             className="p-0.5 transition-transform hover:scale-110"
                             aria-label={`Rate ${n}`}
                           >
@@ -476,7 +491,7 @@ export default function CanvasPlayerView({ assets, config, onClose }: CanvasPlay
                         return (
                           <button
                             key={b.id}
-                            onClick={() => setVerdict(current.id, dm.id, { buttonId: b.id })}
+                            onClick={() => setVerdict(current.id, me.id, { buttonId: b.id })}
                             className={`flex-1 min-w-[64px] flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-sm font-medium transition-colors ${
                               chosen ? TONE_ACTIVE[b.tone] : "bg-white/5 text-white/60 hover:bg-white/10"
                             }`}
@@ -489,7 +504,53 @@ export default function CanvasPlayerView({ assets, config, onClose }: CanvasPlay
                   )}
                 </div>
               )
-            })}
+            })()}
+
+            {/* Other participants are shown for context but cannot be voted on here. */}
+            {others.length > 0 && (
+              <div className="pt-1">
+                <p className="text-[11px] uppercase tracking-wide text-white/30 font-medium px-1 mb-1.5">
+                  Other participants
+                </p>
+                <div className="space-y-1.5">
+                  {others.map((dm) => {
+                    const v = per[dm.id] || {}
+                    const hasVote = isRate ? typeof v.rating === "number" : !!v.buttonId
+                    const btn = v.buttonId ? config.buttons.find((b) => b.id === v.buttonId) : undefined
+                    return (
+                      <div
+                        key={dm.id}
+                        className="flex items-center gap-2.5 rounded-lg bg-white/[0.02] border border-white/[0.06] px-2.5 py-2"
+                      >
+                        <span
+                          className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold text-white shrink-0 opacity-80"
+                          style={{ backgroundColor: dm.color }}
+                        >
+                          {dm.name.charAt(0).toUpperCase()}
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-xs font-medium text-white/70 truncate leading-tight">{dm.name}</p>
+                          {dm.role && <p className="text-[10px] text-white/30 truncate">{dm.role}</p>}
+                        </div>
+                        {hasVote ? (
+                          isRate ? (
+                            <span className="flex items-center gap-1 text-xs text-amber-400 shrink-0">
+                              <Star className="w-3.5 h-3.5 fill-amber-400" /> {v.rating}
+                            </span>
+                          ) : (
+                            <span className={`text-xs font-medium shrink-0 ${btn ? TONE_TEXT[btn.tone] : "text-white/40"}`}>
+                              {btn?.label}
+                            </span>
+                          )
+                        ) : (
+                          <span className="text-[10px] text-white/30 shrink-0">Pending</span>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Comments */}
@@ -520,16 +581,15 @@ export default function CanvasPlayerView({ assets, config, onClose }: CanvasPlay
                 ))}
               </div>
               <div className="p-2.5 border-t border-white/10 space-y-2">
-                <select
-                  value={author}
-                  onChange={(e) => setAuthor(e.target.value)}
-                  className="w-full rounded-lg bg-white/5 border border-white/10 px-2 py-1.5 text-xs text-white/80 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                >
-                  <option value="You">You</option>
-                  {config.decisionMakers.map((dm) => (
-                    <option key={dm.id} value={dm.name}>{dm.name}</option>
-                  ))}
-                </select>
+                <div className="flex items-center gap-1.5 text-[11px] text-white/40">
+                  <span
+                    className="w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold text-white shrink-0"
+                    style={{ backgroundColor: me?.color || "#64748b" }}
+                  >
+                    {(me?.name || "You").charAt(0).toUpperCase()}
+                  </span>
+                  <span>Commenting as {me?.name || "You"}</span>
+                </div>
                 <div className="flex items-end gap-2">
                   <textarea
                     value={draft}
