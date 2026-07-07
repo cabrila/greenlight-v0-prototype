@@ -1,10 +1,9 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { CastingProvider, useCasting } from "@/components/casting/CastingContext"
+import { CastingProvider } from "@/components/casting/CastingContext"
 import { ActorGridProvider } from "@/components/actors/ActorGridContext"
 import ModalManager from "@/components/modals/ModalManager"
-import PlayerViewModal from "@/components/modals/PlayerViewModal"
 import { UploadNotificationProvider } from "@/hooks/useUploadNotifications"
 import { useSubmissionIntegration } from "@/hooks/useSubmissionIntegration"
 import { mockData } from "@/lib/mockData"
@@ -38,8 +37,6 @@ export default function CastingApp() {
 }
 
 function CastingAppContent() {
-  const { state, dispatch } = useCasting()
-
   // Initialize submission integration
   useSubmissionIntegration()
 
@@ -64,19 +61,9 @@ function CastingAppContent() {
       {/* Main Content - Splash Screen as Home */}
       <SplashScreen />
 
-      {/* Modal Manager handles all modals including CastingModal */}
+      {/* Modal Manager handles all modals, including every Player View phase
+          (config / player / summary), each rendered via its own ModalPortal. */}
       <ModalManager />
-
-      {/* Player View Modal — the "config" and "summary" phases are handled by ModalManager */}
-      {state.currentFocus.playerView.isOpen &&
-        state.currentFocus.playerView.phase !== "config" &&
-        state.currentFocus.playerView.phase !== "summary" && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <PlayerViewModal onClose={() => dispatch({ type: "CLOSE_PLAYER_VIEW" })} />
-        </div>
-      )}
-
-      
     </div>
   )
 }
