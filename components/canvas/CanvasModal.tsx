@@ -943,6 +943,11 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
     setGreenlightTarget(null)
   }
 
+  // Clear the greenlit/approved status from the given assets.
+  const removeGreenlight = (itemIds: string[]) => {
+    setItems((prev) => prev.map((it) => (itemIds.includes(it.id) ? { ...it, greenlit: false } : it)))
+  }
+
   /* ---------------------------------------------------------------- */
   /*  Add to Editing Timeline (right-click)                            */
   /* ---------------------------------------------------------------- */
@@ -1778,6 +1783,7 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
           const playerEligible = items.filter((it) => memberIds.includes(it.id) && PLAYER_TYPES.includes(it.type))
           const greenlightEligible = items.filter((it) => memberIds.includes(it.id) && PLAYER_TYPES.includes(it.type))
           const allGreenlit = greenlightEligible.length > 0 && greenlightEligible.every((it) => it.greenlit)
+          const greenlitItems = greenlightEligible.filter((it) => it.greenlit)
           return (
             <div
               className="fixed z-[100] min-w-[210px] bg-white rounded-lg shadow-xl border border-slate-200 py-1"
@@ -1835,6 +1841,23 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
                   {!allGreenlit && greenlightEligible.length > 1 ? ` (${greenlightEligible.length})` : ""}
                 </span>
               </button>
+              {greenlitItems.length > 0 && (
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={() => {
+                    removeGreenlight(greenlitItems.map((it) => it.id))
+                    setContextMenu(null)
+                  }}
+                  className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-slate-800 transition-colors"
+                >
+                  <X className="w-4 h-4 shrink-0" />
+                  <span className="flex-1 text-left">
+                    Remove greenlight
+                    {greenlitItems.length > 1 ? ` (${greenlitItems.length})` : ""}
+                  </span>
+                </button>
+              )}
             </div>
           )
         })()}
