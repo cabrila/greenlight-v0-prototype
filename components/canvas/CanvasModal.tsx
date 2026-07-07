@@ -264,6 +264,29 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
     return out
   }, [currentProject, state.tabDefinitions])
 
+  // Actor details (age, playing age, location, skills) keyed by actor id, for the player view.
+  const actorMetaById = useMemo<Record<string, { age?: string; playingAge?: string; location?: string; skills?: string[] }>>(() => {
+    if (!currentProject) return {}
+    const map: Record<string, { age?: string; playingAge?: string; location?: string; skills?: string[] }> = {}
+    currentProject.characters.forEach((char) => {
+      const lists: any[] = []
+      state.tabDefinitions.forEach((tabDef) => {
+        if (tabDef.key === "shortLists") char.actors.shortLists.forEach((sl: any) => lists.push(...sl.actors))
+        else lists.push(...((char.actors as any)[tabDef.key] || []))
+      })
+      lists.forEach((actor: any) => {
+        if (!actor?.id || map[actor.id]) return
+        map[actor.id] = {
+          age: actor.age,
+          playingAge: actor.playingAge,
+          location: actor.location,
+          skills: Array.isArray(actor.skills) ? actor.skills : undefined,
+        }
+      })
+    })
+    return map
+  }, [currentProject, state.tabDefinitions])
+
   const propItems = useMemo<PaletteItem[]>(() => {
     if (!currentProject) return []
     const source = (currentProject.propInventory?.length ? currentProject.propInventory : currentProject.props) || []
@@ -482,9 +505,10 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
           image: it.image,
           images: it.images,
           videos: videosByRefId[it.refId],
+          actor: it.type === "actor" ? actorMetaById[it.refId] : undefined,
         })),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [items, selectedIds, videosByRefId],
+    [items, selectedIds, videosByRefId, actorMetaById],
   )
 
   // Assets fed to the player: a character's whole cast (from the casting board) when
@@ -503,6 +527,7 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
         image: src?.image || a.image,
         images: src?.images,
         videos: videosByRefId[a.refId],
+        actor: actorMetaById[a.refId],
       }
     })
     if (assets.length === 0) return
