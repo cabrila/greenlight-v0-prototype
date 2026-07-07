@@ -4,6 +4,7 @@ import { useCasting } from "@/components/casting/CastingContext"
 import { useState, useEffect } from "react"
 import { X, ChevronLeft, ChevronRight, Play, CheckCircle2, XCircle, HelpCircle, Users, Plus, Star, Heart, Calendar, User, MapPin, ImageIcon, Video, FileText, ArrowLeft, ArrowRight, ChevronDown, ChevronUp, MoreHorizontal, MessageSquare, Layout, ClipboardList } from 'lucide-react'
 import { getVideoPlatform } from "@/utils/videoUtils"
+import { getActorImageSlides } from "@/utils/playerMedia"
 import { generatePlaceholderUrl } from "@/utils/imageUtils"
 import PlayerViewActionsModal from "./PlayerViewActionsModal"
 import PlayerViewNotes from "@/components/player/PlayerViewNotes"
@@ -48,6 +49,31 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
     showNotes: true,
     showTeamVotes: true,
     decisions: { yes: true, maybe: true, no: true },
+  }
+
+  // Decision buttons to render — use the configured (renamed/added) buttons when
+  // present, otherwise derive them from the legacy decisions map.
+  const activeDecisionButtons: Array<{ id: string; label: string; outcome: "yes" | "maybe" | "no" }> =
+    sessionConfig.decisionButtons && sessionConfig.decisionButtons.length > 0
+      ? sessionConfig.decisionButtons.filter((b) => b.enabled && b.label.trim())
+      : [
+          ...(sessionConfig.decisions.yes ? [{ id: "yes", label: "Yes", outcome: "yes" as const }] : []),
+          ...(sessionConfig.decisions.maybe ? [{ id: "maybe", label: "Maybe", outcome: "maybe" as const }] : []),
+          ...(sessionConfig.decisions.no ? [{ id: "no", label: "No", outcome: "no" as const }] : []),
+        ]
+
+  const decisionButtonStyles = (outcome: "yes" | "maybe" | "no", selected: boolean) => {
+    if (outcome === "yes")
+      return selected
+        ? "bg-[#b5c9a8] text-[#4a5b3f] ring-2 ring-[#8fa67e]"
+        : "bg-[#d5dece] text-[#6b7a5e] hover:bg-[#c8d4bf]"
+    if (outcome === "maybe")
+      return selected
+        ? "bg-[#f0d9b5] text-[#7a6a3a] ring-2 ring-[#d4b88a]"
+        : "bg-[#f5e6d0] text-[#9b8a5e] hover:bg-[#eddbbd]"
+    return selected
+      ? "bg-[#e8b4b8] text-[#8b4c4f] ring-2 ring-[#d49396]"
+      : "bg-[#f0cdd0] text-[#a06b6e] hover:bg-[#e8bfc3]"
   }
 
   const handleAddToCanvas = () => {
@@ -422,8 +448,25 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
   }
 
   // Continue with the rest of the component logic...
-  const currentHeadshotIndex = state.currentFocus.playerView.currentHeadshotIndex
-  const headshots = currentActor.headshots || []
+  const rawCurrentHeadshotIndex = state.currentFocus.playerView.currentHeadshotIndex
+
+  // Per-actor slide/media overrides configured in the "Configure Player" step.
+  const slideConfig = sessionConfig.slides?.[currentActor.id]
+  const hiddenMediaKeys = new Set(slideConfig?.hidden ?? [])
+  const slideNames = slideConfig?.names ?? {}
+
+  // Visible image slides for this actor (hidden ones removed), preserving their
+  // configured custom names. Downstream code treats `headshots` as the list of
+  // image URLs that should appear in the player.
+  const visibleImageSlides = getActorImageSlides(currentActor)
+    .filter((im) => !hiddenMediaKeys.has(im.key))
+    .map((im) => ({ url: im.url, name: slideNames[im.key] ?? "" }))
+  const headshots = visibleImageSlides.map((im) => im.url)
+
+  // Clamp the stored headshot index to the (possibly shorter) visible list.
+  const currentHeadshotIndex =
+    rawCurrentHeadshotIndex >= 0 && rawCurrentHeadshotIndex < headshots.length ? rawCurrentHeadshotIndex : 0
+  const currentSlideName = visibleImageSlides[currentHeadshotIndex]?.name || ""
 
   const getActualHeadshotUrl = (index = 0) => {
     if (headshots.length === 0) {
@@ -473,6 +516,26 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
     })
   }
 
+  // After a selection, either auto-advance (respecting the configured delay) or
+  // simply show the confirmation and let the user navigate manually.
+  const advanceAfterVote = () => {
+    const auto = sessionConfig.autoAdvance ?? true
+    if (!auto) {
+      setTimeout(() => setIsTransitioning(false), 800)
+      return
+    }
+    const delayMs = Math.max(0, sessionConfig.autoAdvanceSeconds ?? 1) * 1000
+    setTimeout(() => {
+      if (currentIndex < currentList.length - 1) {
+        handleNavigate(1)
+      } else {
+        setIsTransitioning(false)
+        // Session complete — show the decision summary.
+        dispatch({ type: "OPEN_PLAYER_SUMMARY" })
+      }
+    }, delayMs)
+  }
+
   const handleVote = (vote: "yes" | "no" | "maybe") => {
     if (!state.currentUser) return
 
@@ -500,16 +563,7 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
     })
 
     setIsTransitioning(true)
-
-    setTimeout(() => {
-      if (currentIndex < currentList.length - 1) {
-        handleNavigate(1)
-      } else {
-        setIsTransitioning(false)
-        // Session complete — show the decision summary.
-        dispatch({ type: "OPEN_PLAYER_SUMMARY" })
-      }
-    }, 800)
+    advanceAfterVote()
   }
 
   const handleMaybeWithNote = () => {
@@ -552,16 +606,7 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
     setMaybeNoteText("")
 
     setIsTransitioning(true)
-
-    setTimeout(() => {
-      if (currentIndex < currentList.length - 1) {
-        handleNavigate(1)
-      } else {
-        setIsTransitioning(false)
-        // Session complete — show the decision summary.
-        dispatch({ type: "OPEN_PLAYER_SUMMARY" })
-      }
-    }, 800)
+    advanceAfterVote()
   }
 
   const handleNavigate = (direction: number) => {
@@ -672,7 +717,11 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
     return media
   }
 
+  // Apply the per-actor media overrides: hide de-selected videos and apply any
+  // custom names configured for the session.
   const allMedia = getAllMedia()
+    .filter((media) => !hiddenMediaKeys.has(`vid:${media.url}`))
+    .map((media) => ({ ...media, name: slideNames[`vid:${media.url}`] ?? media.name }))
 
   const handleMoreActions = () => {
     setShowActionsModal(true)
@@ -892,6 +941,13 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
                         >
                           <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
                         </button>
+                      </div>
+                    )}
+
+                    {/* Custom slide name - Responsive */}
+                    {currentSlideName && (
+                      <div className="absolute top-1 sm:top-2 left-1/2 transform -translate-x-1/2 max-w-[90%] bg-black/70 backdrop-blur-sm text-white text-xs px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-full font-medium truncate">
+                        {currentSlideName}
                       </div>
                     )}
 
@@ -1276,49 +1332,22 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
               <div
                 className="grid gap-1.5 sm:gap-2 mb-3 sm:mb-4"
                 style={{
-                  gridTemplateColumns: `repeat(${
-                    [sessionConfig.decisions.yes, sessionConfig.decisions.maybe, sessionConfig.decisions.no].filter(
-                      Boolean,
-                    ).length || 1
-                  }, minmax(0, 1fr))`,
+                  gridTemplateColumns: `repeat(${activeDecisionButtons.length || 1}, minmax(0, 1fr))`,
                 }}
               >
-                {sessionConfig.decisions.yes && (
+                {activeDecisionButtons.map((btn) => (
                   <button
-                    onClick={() => handleVote("yes")}
-                    className={`px-2 sm:px-3 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold rounded-full text-center transition-all duration-200 ${
-                      currentUserVote === "yes"
-                        ? "bg-[#b5c9a8] text-[#4a5b3f] ring-2 ring-[#8fa67e]"
-                        : "bg-[#d5dece] text-[#6b7a5e] hover:bg-[#c8d4bf]"
-                    }`}
+                    key={btn.id}
+                    onClick={() => handleVote(btn.outcome)}
+                    title={btn.label}
+                    className={`px-2 sm:px-3 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold rounded-full text-center transition-all duration-200 truncate ${decisionButtonStyles(
+                      btn.outcome,
+                      currentUserVote === btn.outcome,
+                    )}`}
                   >
-                    Yes
+                    {btn.label}
                   </button>
-                )}
-                {sessionConfig.decisions.maybe && (
-                  <button
-                    onClick={() => handleVote("maybe")}
-                    className={`px-2 sm:px-3 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold rounded-full text-center transition-all duration-200 ${
-                      currentUserVote === "maybe"
-                        ? "bg-[#f0d9b5] text-[#7a6a3a] ring-2 ring-[#d4b88a]"
-                        : "bg-[#f5e6d0] text-[#9b8a5e] hover:bg-[#eddbbd]"
-                    }`}
-                  >
-                    Maybe
-                  </button>
-                )}
-                {sessionConfig.decisions.no && (
-                  <button
-                    onClick={() => handleVote("no")}
-                    className={`px-2 sm:px-3 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold rounded-full text-center transition-all duration-200 ${
-                      currentUserVote === "no"
-                        ? "bg-[#e8b4b8] text-[#8b4c4f] ring-2 ring-[#d49396]"
-                        : "bg-[#f0cdd0] text-[#a06b6e] hover:bg-[#e8bfc3]"
-                    }`}
-                  >
-                    No
-                  </button>
-                )}
+                ))}
               </div>
 
               {/* Team Votes - Responsive */}

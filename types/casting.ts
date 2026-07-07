@@ -750,6 +750,26 @@ export interface CurrentFocus {
   }
 }
 
+// A single decision/vote button shown in the player. Labels are editable and
+// extra buttons can be added, but each maps to one of the three underlying
+// outcomes so team-vote aggregation and the summary keep working.
+export interface PlayerDecisionButton {
+  id: string
+  label: string
+  outcome: "yes" | "maybe" | "no"
+  enabled: boolean
+}
+
+// Per-actor slide/media overrides. Keys are stable media identifiers:
+//   image slides -> `img:<index>` (index into the actor's headshots)
+//   videos       -> `vid:<url>`
+export interface PlayerSlideConfig {
+  // Custom display names for a media item, keyed by media id.
+  names?: Record<string, string>
+  // Media ids that should be hidden from the player for this actor.
+  hidden?: string[]
+}
+
 // Configuration chosen in the "Configure Player" step before a casting player session starts.
 export interface PlayerSessionConfig {
   title: string
@@ -767,6 +787,15 @@ export interface PlayerSessionConfig {
     maybe: boolean
     no: boolean
   }
+  // Editable/extendable decision buttons. When present these drive the player;
+  // otherwise the player falls back to `decisions`.
+  decisionButtons?: PlayerDecisionButton[]
+  // Automatically advance to the next actor after a selection is made.
+  autoAdvance?: boolean
+  // Delay (in seconds) before auto-advancing.
+  autoAdvanceSeconds?: number
+  // Per-actor slide & media overrides, keyed by actor id.
+  slides?: Record<string, PlayerSlideConfig>
 }
 
 export interface CardViewSettings {

@@ -19,7 +19,15 @@ export const DEFAULT_PLAYER_SESSION_CONFIG: PlayerSessionConfig = {
   showNotes: true,
   showTeamVotes: true,
   decisions: { yes: true, maybe: true, no: true },
-}
+  decisionButtons: [
+  { id: "yes", label: "Yes", outcome: "yes", enabled: true },
+  { id: "maybe", label: "Maybe", outcome: "maybe", enabled: true },
+  { id: "no", label: "No", outcome: "no", enabled: true },
+  ],
+  autoAdvance: true,
+  autoAdvanceSeconds: 1,
+  slides: {},
+  }
 
 const CastingContext = createContext<{
   state: CastingState
