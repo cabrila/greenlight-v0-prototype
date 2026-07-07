@@ -145,6 +145,7 @@ export type CastingAction =
   | { type: "SET_SORT_OPTION"; payload: string }
   | { type: "OPEN_PLAYER_VIEW"; payload?: { actorIndex: number } }
   | { type: "OPEN_PLAYER_CONFIG" }
+  | { type: "OPEN_PLAYER_SUMMARY" }
   | { type: "START_PLAYER_VIEW"; payload: { config: PlayerSessionConfig } }
   | { type: "CLOSE_PLAYER_VIEW" }
   | { type: "NAVIGATE_PLAYER_VIEW"; payload: number }
@@ -744,7 +745,7 @@ export interface CurrentFocus {
     isOpen: boolean
     currentIndex: number
     currentHeadshotIndex: number
-    phase?: "config" | "player"
+    phase?: "config" | "player" | "summary"
     config?: PlayerSessionConfig
   }
 }

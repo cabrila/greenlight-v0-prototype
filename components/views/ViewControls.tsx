@@ -18,6 +18,7 @@ import {
   Save,
   Database,
   ChevronDown,
+  ClipboardList,
 } from "lucide-react"
 import { openModal } from "@/components/modals/ModalManager"
 import TerminologyContextMenu from "@/components/ui/TerminologyContextMenu"
@@ -381,6 +382,16 @@ export default function ViewControls() {
                 <div className="w-px h-5 bg-slate-300 mx-1"></div>
               </div>
             )}
+
+            {/* Summary Button */}
+            <button
+              onClick={() => dispatch({ type: "OPEN_PLAYER_SUMMARY" })}
+              className="flex items-center space-x-1.5 px-3 py-2 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-slate-900 rounded-lg font-medium transition-all duration-200 text-sm whitespace-nowrap shadow-sm"
+              title="View decision summary for this list"
+            >
+              <ClipboardList className="w-4 h-4" />
+              <span>Summary</span>
+            </button>
 
             {/* Player View Button */}
             <button

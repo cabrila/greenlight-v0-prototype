@@ -953,6 +953,20 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
       }
       break
 
+    case "OPEN_PLAYER_SUMMARY":
+      newState = {
+        ...state,
+        currentFocus: {
+          ...state.currentFocus,
+          playerView: {
+            ...state.currentFocus.playerView,
+            isOpen: true,
+            phase: "summary",
+          },
+        },
+      }
+      break
+
     case "CLOSE_PLAYER_VIEW":
       newState = {
         ...state,

@@ -2,7 +2,7 @@
 
 import { useCasting } from "@/components/casting/CastingContext"
 import { useState, useEffect } from "react"
-import { X, ChevronLeft, ChevronRight, Play, CheckCircle2, XCircle, HelpCircle, Users, Plus, Star, Heart, Calendar, User, MapPin, ImageIcon, Video, FileText, ArrowLeft, ArrowRight, ChevronDown, ChevronUp, MoreHorizontal, MessageSquare, Layout } from 'lucide-react'
+import { X, ChevronLeft, ChevronRight, Play, CheckCircle2, XCircle, HelpCircle, Users, Plus, Star, Heart, Calendar, User, MapPin, ImageIcon, Video, FileText, ArrowLeft, ArrowRight, ChevronDown, ChevronUp, MoreHorizontal, MessageSquare, Layout, ClipboardList } from 'lucide-react'
 import { getVideoPlatform } from "@/utils/videoUtils"
 import { generatePlaceholderUrl } from "@/utils/imageUtils"
 import PlayerViewActionsModal from "./PlayerViewActionsModal"
@@ -506,6 +506,8 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
         handleNavigate(1)
       } else {
         setIsTransitioning(false)
+        // Session complete — show the decision summary.
+        dispatch({ type: "OPEN_PLAYER_SUMMARY" })
       }
     }, 800)
   }
@@ -556,6 +558,8 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
         handleNavigate(1)
       } else {
         setIsTransitioning(false)
+        // Session complete — show the decision summary.
+        dispatch({ type: "OPEN_PLAYER_SUMMARY" })
       }
     }, 800)
   }
@@ -794,6 +798,14 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
               <div className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-lg">
                 Use ← → keys to navigate
               </div>
+              <button
+                onClick={() => dispatch({ type: "OPEN_PLAYER_SUMMARY" })}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg font-medium text-sm hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                title="View decision summary"
+              >
+                <ClipboardList className="w-4 h-4" />
+                <span className="hidden sm:inline">Summary</span>
+              </button>
               <button
                 onClick={handleClose}
                 className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl"
