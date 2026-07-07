@@ -5,7 +5,19 @@ import { useActorGrid } from "./ActorGridContext"
 import { useCasting } from "@/components/casting/CastingContext"
 import type { Character, Actor } from "@/types/casting"
 import { useState, useCallback, useEffect, useRef } from "react"
-import { ArrowRightCircle, Mail, Crown, List, CheckCircle, MapPin, Phone, Calendar, Check } from "lucide-react"
+import {
+  ArrowRightCircle,
+  Mail,
+  Crown,
+  List,
+  CheckCircle,
+  MapPin,
+  Phone,
+  Calendar,
+  Check,
+  ChevronDown,
+  ListPlus,
+} from "lucide-react"
 import { openModal } from "@/components/modals/ModalManager"
 import ActorCard from "@/components/actors/ActorCard"
 
@@ -26,6 +38,8 @@ export default function ActorGrid({ character }: ActorGridProps) {
   const [isMultiDragging, setIsMultiDragging] = useState(false)
 
   const [showFilters, setShowFilters] = useState(false)
+  const [showMoveMenu, setShowMoveMenu] = useState(false)
+  const moveMenuRef = useRef<HTMLDivElement | null>(null)
   // Removed local state for filters:
   // const [statusFilter, setStatusFilter] = useState<string[]>([])
   // const [ageRangeFilter, setAgeRangeFilter] = useState<{ min: number; max: number }>({ min: 0, max: 100 })
@@ -904,11 +918,36 @@ export default function ActorGrid({ character }: ActorGridProps) {
   const handleMoveToList = useCallback(() => {
     if (selectedActorIds.size === 0) return
 
+    setShowMoveMenu(false)
     openModal("moveMultipleActors", {
       actorIds: Array.from(selectedActorIds),
       characterId: character.id,
     })
   }, [selectedActorIds, character.id])
+
+  const handleMoveToNewList = useCallback(() => {
+    if (selectedActorIds.size === 0) return
+
+    setShowMoveMenu(false)
+    openModal("moveToNewList", {
+      actorIds: Array.from(selectedActorIds),
+      characterId: character.id,
+    })
+  }, [selectedActorIds, character.id])
+
+  // Close the Move dropdown when clicking outside of it
+  useEffect(() => {
+    if (!showMoveMenu) return
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (moveMenuRef.current && !moveMenuRef.current.contains(event.target as Node)) {
+        setShowMoveMenu(false)
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [showMoveMenu])
 
   const handleContactActors = useCallback(() => {
     if (selectedActorIds.size === 0) return
@@ -1245,13 +1284,49 @@ export default function ActorGrid({ character }: ActorGridProps) {
                 <span>Book Audition</span>
               </button>
 
-              <button
-                onClick={handleMoveToList}
-                className="flex items-center space-x-2 px-3 py-2.5 bg-white border-2 border-slate-300 text-slate-700 hover:border-slate-400 hover:bg-slate-50 rounded-lg font-medium transition-all duration-200 shadow-sm text-sm"
-              >
-                <ArrowRightCircle className="w-4 h-4" />
-                <span className="hidden sm:inline">Move</span>
-              </button>
+              <div className="relative" ref={moveMenuRef}>
+                <button
+                  onClick={() => setShowMoveMenu((prev) => !prev)}
+                  aria-haspopup="menu"
+                  aria-expanded={showMoveMenu}
+                  className="flex items-center space-x-2 px-3 py-2.5 bg-white border-2 border-slate-300 text-slate-700 hover:border-slate-400 hover:bg-slate-50 rounded-lg font-medium transition-all duration-200 shadow-sm text-sm"
+                >
+                  <ArrowRightCircle className="w-4 h-4" />
+                  <span className="hidden sm:inline">Move</span>
+                  <ChevronDown className={`w-4 h-4 transition-transform ${showMoveMenu ? "rotate-180" : ""}`} />
+                </button>
+
+                {showMoveMenu && (
+                  <div
+                    role="menu"
+                    className="absolute right-0 mt-2 w-60 bg-white border border-slate-200 rounded-lg shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-1 duration-150"
+                  >
+                    <button
+                      role="menuitem"
+                      onClick={handleMoveToList}
+                      className="w-full flex items-start space-x-3 px-4 py-3 text-left hover:bg-slate-50 transition-colors"
+                    >
+                      <ArrowRightCircle className="w-4 h-4 mt-0.5 text-slate-500 flex-shrink-0" />
+                      <div>
+                        <div className="text-sm font-medium text-slate-800">Move to Existing List</div>
+                        <div className="text-xs text-slate-500">Choose a current list or shortlist</div>
+                      </div>
+                    </button>
+                    <div className="h-px bg-slate-100" />
+                    <button
+                      role="menuitem"
+                      onClick={handleMoveToNewList}
+                      className="w-full flex items-start space-x-3 px-4 py-3 text-left hover:bg-slate-50 transition-colors"
+                    >
+                      <ListPlus className="w-4 h-4 mt-0.5 text-emerald-600 flex-shrink-0" />
+                      <div>
+                        <div className="text-sm font-medium text-slate-800">Move to New List</div>
+                        <div className="text-xs text-slate-500">Create a new list and move here</div>
+                      </div>
+                    </button>
+                  </div>
+                )}
+              </div>
 
               <button
                 onClick={handleContactActors}

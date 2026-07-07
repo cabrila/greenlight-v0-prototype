@@ -20,6 +20,7 @@ import MoreActionsModal from "./MoreActionsModal"
 import MoveActorModal from "./MoveActorModal"
 import MoveActorToCharacterModal from "./MoveActorToCharacterModal"
 import MoveMultipleActorsModal from "./MoveMultipleActorsModal"
+import MoveToNewListModal from "./MoveToNewListModal"
 import ConfirmDeleteModal from "./ConfirmDeleteModal"
 import UploadCSVModal from "./UploadCSVModal"
 import UploadCharactersModal from "./UploadCharactersModal"
@@ -286,6 +287,8 @@ export default function ModalManager() {
           return <MoveActorToCharacterModal onClose={handleClose} {...modal.data} />
         case "moveMultipleActors":
           return <MoveMultipleActorsModal onClose={handleClose} {...modal.data} />
+        case "moveToNewList":
+          return <MoveToNewListModal onClose={handleClose} {...modal.data} />
         case "confirmDelete":
           return <ConfirmDeleteModal onClose={handleClose} {...modal.data} />
         case "uploadCSV":
