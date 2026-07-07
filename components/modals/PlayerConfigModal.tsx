@@ -298,7 +298,7 @@ export default function PlayerConfigModal({ onClose }: { onClose: () => void }) 
               </button>
             </div>
             <p className="text-xs text-slate-500 mb-2">
-              Rename labels, toggle visibility, or add buttons. Each button records a Yes, Maybe, or No outcome.
+              Rename labels, toggle visibility, or add buttons. Each button records a Positive, Negative, or Neutral outcome.
             </p>
             <div className="space-y-2">
               {buttons.map((b) => (
@@ -326,9 +326,9 @@ export default function PlayerConfigModal({ onClose }: { onClose: () => void }) 
                     onChange={(e) => updateButton(b.id, { outcome: e.target.value as PlayerDecisionButton["outcome"] })}
                     className={`flex-shrink-0 text-xs font-semibold rounded-md border px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-500 ${OUTCOME_STYLES[b.outcome]}`}
                   >
-                    <option value="yes">Yes</option>
-                    <option value="maybe">Maybe</option>
-                    <option value="no">No</option>
+                    <option value="yes">Positive</option>
+                    <option value="no">Negative</option>
+                    <option value="maybe">Neutral</option>
                   </select>
                   <button
                     onClick={() => removeButton(b.id)}
