@@ -878,6 +878,18 @@ export default function ActorCard({
   const currentUserVote = state.currentUser ? actor.userVotes[state.currentUser.id] : null
   const contactStatus = getContactStatus()
 
+  // Rejected when at least one team member has voted and every vote cast is "no".
+  const isRejected = voteStats.votedUsers > 0 && voteStats.noVotes === voteStats.votedUsers
+
+  // Semi-transparent red overlay shown on top of a rejected actor's card.
+  const RejectedOverlay = () =>
+    isRejected ? (
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 z-20 rounded-xl bg-error-500/25 ring-2 ring-error-500/50"
+      />
+    ) : null
+
   // Handle card click for selection
   const handleCardClick = (e: React.MouseEvent) => {
     if (onSelect) {
@@ -975,6 +987,7 @@ export default function ActorCard({
         onDragOver={handleDragOver}
         onDrop={handleDrop}
       >
+        <RejectedOverlay />
         <SelectionCheckbox />
 
         {/* Drop Position Indicator */}
@@ -1070,6 +1083,7 @@ export default function ActorCard({
         onDragOver={handleDragOver}
         onDrop={handleDrop}
       >
+        <RejectedOverlay />
         <SelectionCheckbox />
 
         {/* Drop Position Indicators */}
@@ -1266,6 +1280,7 @@ export default function ActorCard({
         onDragOver={handleDragOver}
         onDrop={handleDrop}
       >
+        <RejectedOverlay />
         <SelectionCheckbox />
 
         {/* Drop Position Indicators */}
