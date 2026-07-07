@@ -1162,6 +1162,72 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
       }
       break
 
+    case "GREENLIGHT_ACTORS": {
+      const { actorIds, characterId: greenlightCharacterId } = action.payload
+      const greenlightActorIds: string[] = actorIds
+
+      // Build a userVotes map where every team member has voted "yes".
+      const allYesVotes: Record<string, "yes"> = {}
+      for (const user of state.users) {
+        allYesVotes[user.id] = "yes"
+      }
+
+      const greenlitActor = (actor: any) => {
+        if (!greenlightActorIds.includes(actor.id)) return actor
+        return {
+          ...actor,
+          userVotes: { ...allYesVotes },
+          consensusAction: { type: "yes", isGreenlit: true },
+          isSoftRejected: false,
+          isGreenlit: true,
+          isCast: true,
+        }
+      }
+
+      const greenlitProjects = state.projects.map((project) => ({
+        ...project,
+        characters: project.characters.map((character) => {
+          if (character.id !== greenlightCharacterId) return character
+          return {
+            ...character,
+            actors: {
+              ...character.actors,
+              longList: character.actors.longList.map(greenlitActor),
+              audition: character.actors.audition.map(greenlitActor),
+              approval: character.actors.approval.map(greenlitActor),
+              shortLists: character.actors.shortLists.map((sl) => ({
+                ...sl,
+                actors: sl.actors.map(greenlitActor),
+              })),
+              ...Object.fromEntries(
+                Object.entries(character.actors)
+                  .filter(([key]) => !["longList", "audition", "approval", "shortLists"].includes(key))
+                  .map(([key, actors]) => [key, Array.isArray(actors) ? actors.map(greenlitActor) : actors]),
+              ),
+            },
+          }
+        }),
+      }))
+
+      const greenlightNotification = {
+        id: `greenlight-${Date.now()}-${Math.random()}`,
+        type: "system" as const,
+        title: "Actors Greenlit!",
+        message: `🎉 ${greenlightActorIds.length} actor${greenlightActorIds.length > 1 ? "s" : ""} greenlit — all decisions set to Yes.`,
+        timestamp: Date.now(),
+        read: false,
+        priority: "high" as const,
+        characterId: greenlightCharacterId,
+      }
+
+      newState = {
+        ...state,
+        notifications: [greenlightNotification, ...state.notifications],
+        projects: greenlitProjects,
+      }
+      break
+    }
+
     case "ADD_CONTACT_STATUS": {
       const { actorIds, characterId, contactType, templateName, timestamp } = action.payload
 

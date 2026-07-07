@@ -1083,6 +1083,29 @@ export default function ActorGrid({ character }: ActorGridProps) {
     })
   }, [selectedActorIds, character.id, activeTabKey, character.actors.shortLists, dispatch, clearSelection])
 
+  const handleGreenlightActors = useCallback(() => {
+    if (selectedActorIds.size === 0) return
+
+    const actorIds = Array.from(selectedActorIds)
+    if (
+      !confirm(
+        `Greenlight ${actorIds.length} actor${actorIds.length > 1 ? "s" : ""}?\n\nThis sets every team member's decision to Yes and marks ${actorIds.length > 1 ? "them" : "the actor"} as Greenlit.`,
+      )
+    ) {
+      return
+    }
+
+    dispatch({
+      type: "GREENLIGHT_ACTORS",
+      payload: {
+        actorIds,
+        characterId: character.id,
+      },
+    })
+
+    clearSelection()
+  }, [selectedActorIds, character.id, dispatch, clearSelection])
+
   // Add this function after the existing handlers
   const handleGridClick = useCallback((e: React.MouseEvent) => {
     // Only clear selection if clicking directly on the grid background, not on actor cards
@@ -1265,24 +1288,34 @@ export default function ActorGrid({ character }: ActorGridProps) {
             </div>
 
             <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-              <button
-                onClick={() => {
-                  dispatch({
-                    type: "OPEN_MODAL",
-                    payload: {
-                      type: "bookAudition",
-                      data: {
-                        selectedCharacters: character ? [character.id] : [],
-                        preselectedActors: Array.from(selectedActorIds),
+              {isApprovalTab ? (
+                <button
+                  onClick={handleGreenlightActors}
+                  className="flex items-center space-x-2 px-4 py-2.5 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white rounded-lg font-semibold transition-all duration-200 shadow-md hover:shadow-lg text-sm"
+                >
+                  <CheckCircle className="w-4 h-4" />
+                  <span>Greenlight</span>
+                </button>
+              ) : (
+                <button
+                  onClick={() => {
+                    dispatch({
+                      type: "OPEN_MODAL",
+                      payload: {
+                        type: "bookAudition",
+                        data: {
+                          selectedCharacters: character ? [character.id] : [],
+                          preselectedActors: Array.from(selectedActorIds),
+                        },
                       },
-                    },
-                  })
-                }}
-                className="flex items-center space-x-2 px-4 py-2.5 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white rounded-lg font-semibold transition-all duration-200 shadow-md hover:shadow-lg text-sm"
-              >
-                <Calendar className="w-4 h-4" />
-                <span>Book Audition</span>
-              </button>
+                    })
+                  }}
+                  className="flex items-center space-x-2 px-4 py-2.5 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white rounded-lg font-semibold transition-all duration-200 shadow-md hover:shadow-lg text-sm"
+                >
+                  <Calendar className="w-4 h-4" />
+                  <span>Book Audition</span>
+                </button>
+              )}
 
               <div className="relative" ref={moveMenuRef}>
                 <button
