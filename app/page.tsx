@@ -67,8 +67,10 @@ function CastingAppContent() {
       {/* Modal Manager handles all modals including CastingModal */}
       <ModalManager />
 
-      {/* Player View Modal — the "config" phase is handled by ModalManager */}
-      {state.currentFocus.playerView.isOpen && state.currentFocus.playerView.phase !== "config" && (
+      {/* Player View Modal — the "config" and "summary" phases are handled by ModalManager */}
+      {state.currentFocus.playerView.isOpen &&
+        state.currentFocus.playerView.phase !== "config" &&
+        state.currentFocus.playerView.phase !== "summary" && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <PlayerViewModal onClose={() => dispatch({ type: "CLOSE_PLAYER_VIEW" })} />
         </div>
