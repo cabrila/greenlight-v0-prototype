@@ -6,6 +6,7 @@ import {
   User, Package, Shirt, MapPin, StickyNote, X, Check, Trash2,
   Type, Square, Squircle, Circle, Frame, Image as ImageIcon,
   Clapperboard, Film, GalleryHorizontalEnd, ChevronLeft, ChevronRight, UserCog, Mountain,
+  ShieldCheck,
 } from "lucide-react"
 import { isValidImageUrl } from "@/lib/utils"
 
@@ -35,6 +36,8 @@ export interface CanvasItem {
   height?: number
   text?: string
   groupId?: string
+  /* set when the asset has been approved/greenlit on the canvas */
+  greenlit?: boolean
   /* widget-only state (scene generator / casting board) */
   widgetData?: Record<string, any>
 }
@@ -98,6 +101,7 @@ export default function CanvasItemCard({
   const config = TYPE_CONFIG[item.type]
   const Icon = config.icon
   const width = CARD_DIMENSIONS[viewSize].width
+  const greenlit = !!item.greenlit
 
   /* Image gallery: browse all available images for this asset directly on the card */
   const galleryImages = useMemo(() => {
@@ -326,11 +330,21 @@ export default function CanvasItemCard({
     return (
       <div
         data-canvas-card="true"
-        className={`group absolute flex items-center gap-2 rounded-lg bg-white shadow-md overflow-hidden select-none border border-slate-200 ${isSelected ? `ring-2 ${config.ring} ring-offset-1` : ""}`}
+        className={`group absolute flex items-center gap-2 rounded-lg bg-white shadow-md overflow-hidden select-none border ${
+          greenlit ? "border-emerald-500 ring-2 ring-emerald-500 ring-offset-1" : "border-slate-200"
+        } ${isSelected && !greenlit ? `ring-2 ${config.ring} ring-offset-1` : ""}`}
         style={{ left: item.x, top: item.y, width, cursor: !interactive ? "inherit" : isDragging ? "grabbing" : "grab", zIndex: isSelected || isDragging ? 30 : 2 }}
         onMouseDown={handleMouseDown}
       >
-        <div className={`w-1 self-stretch ${config.bar}`} />
+        <div className={`w-1 self-stretch ${greenlit ? "bg-emerald-500" : config.bar}`} />
+        {greenlit && (
+          <span
+            className="card-control absolute top-1 right-1 z-10 inline-flex items-center gap-0.5 px-1 py-0.5 rounded bg-emerald-500 text-white text-[8px] font-bold uppercase tracking-wide shadow-sm"
+            title="Greenlit"
+          >
+            <ShieldCheck className="w-2.5 h-2.5" />
+          </span>
+        )}
         <div className="relative w-9 h-9 my-1.5 rounded-md bg-slate-100 overflow-hidden shrink-0 flex items-center justify-center">
           {hasImage ? (
             <img src={currentImage || "/placeholder.svg"} alt={item.title} className="w-full h-full object-cover" draggable={false} />
@@ -369,11 +383,13 @@ export default function CanvasItemCard({
   return (
     <div
       data-canvas-card="true"
-      className={`group absolute rounded-xl bg-white shadow-md overflow-hidden select-none border border-slate-200 ${isSelected ? `ring-2 ${config.ring} ring-offset-2` : ""}`}
+      className={`group absolute rounded-xl bg-white shadow-md overflow-hidden select-none border ${
+        greenlit ? "border-emerald-500 ring-2 ring-emerald-500 ring-offset-2" : "border-slate-200"
+      } ${isSelected && !greenlit ? `ring-2 ${config.ring} ring-offset-2` : ""}`}
       style={{ left: item.x, top: item.y, width, cursor: !interactive ? "inherit" : isDragging ? "grabbing" : "grab", zIndex: isSelected || isDragging ? 30 : 2 }}
       onMouseDown={handleMouseDown}
     >
-      <div className={`h-1.5 w-full ${config.bar}`} />
+      <div className={`h-1.5 w-full ${greenlit ? "bg-emerald-500" : config.bar}`} />
       {selectControls}
 
       <div className="relative w-full aspect-[4/3] bg-slate-100 flex items-center justify-center overflow-hidden">
@@ -383,6 +399,15 @@ export default function CanvasItemCard({
           <Icon className={compact ? "w-8 h-8 text-slate-300" : "w-10 h-10 text-slate-300"} strokeWidth={1.5} />
         )}
         {galleryNav}
+        {greenlit && (
+          <span
+            className="card-control absolute bottom-1.5 left-1.5 z-10 inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-emerald-500 text-white text-[10px] font-bold uppercase tracking-wide shadow"
+            title="Greenlit"
+          >
+            <ShieldCheck className="w-3 h-3" />
+            Greenlight
+          </span>
+        )}
       </div>
 
       <div className={compact ? "p-2" : "p-3"}>

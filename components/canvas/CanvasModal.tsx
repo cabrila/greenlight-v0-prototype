@@ -7,7 +7,7 @@ import {
   User, Package, Shirt, MapPin, PanelLeftClose, PanelLeftOpen,
   Plus, Trash, LayoutGrid, Rows3, Grid2x2, Grid3x3,
   SlidersHorizontal, ArrowUpDown, Wand2, ChevronDown, Film, Clapperboard, GalleryHorizontalEnd, UserCog, Mountain,
-  Play, Scissors,
+  Play, Scissors, ShieldCheck, AlertTriangle,
 } from "lucide-react"
 import { useCasting } from "@/components/casting/CastingContext"
 import { isValidImageUrl } from "@/lib/utils"
@@ -205,6 +205,9 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
 
   // Right-click context menu for canvas items/groups.
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; itemId: string } | null>(null)
+
+  // Greenlight confirmation: holds the asset ids awaiting approval confirmation.
+  const [greenlightTarget, setGreenlightTarget] = useState<string[] | null>(null)
 
   // Player view: configure a review player from the current selection, then run it.
   const [playerConfigOpen, setPlayerConfigOpen] = useState(false)
@@ -928,6 +931,16 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
       setItems([])
       setSelectedIds([])
     }
+  }
+
+  /* ---------------------------------------------------------------- */
+  /*  Greenlight (approve) an asset (right-click)                      */
+  /* ---------------------------------------------------------------- */
+
+  // Mark the given assets as greenlit/approved on the canvas.
+  const confirmGreenlight = (itemIds: string[]) => {
+    setItems((prev) => prev.map((it) => (itemIds.includes(it.id) ? { ...it, greenlit: true } : it)))
+    setGreenlightTarget(null)
   }
 
   /* ---------------------------------------------------------------- */
@@ -1763,6 +1776,8 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
           const isGroup = !!ctxItem?.groupId && memberIds.length > 1
           const eligible = items.filter((it) => memberIds.includes(it.id) && TIMELINE_TYPES.includes(it.type))
           const playerEligible = items.filter((it) => memberIds.includes(it.id) && PLAYER_TYPES.includes(it.type))
+          const greenlightEligible = items.filter((it) => memberIds.includes(it.id) && PLAYER_TYPES.includes(it.type))
+          const allGreenlit = greenlightEligible.length > 0 && greenlightEligible.every((it) => it.greenlit)
           return (
             <div
               className="fixed z-[100] min-w-[210px] bg-white rounded-lg shadow-xl border border-slate-200 py-1"
@@ -1803,9 +1818,75 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
                   {eligible.length > 1 ? ` (${eligible.length})` : ""}
                 </span>
               </button>
+              <div className="my-1 h-px bg-slate-100" />
+              <button
+                type="button"
+                role="menuitem"
+                disabled={greenlightEligible.length === 0 || allGreenlit}
+                onClick={() => {
+                  setGreenlightTarget(greenlightEligible.map((it) => it.id))
+                  setContextMenu(null)
+                }}
+                className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-emerald-700 hover:bg-emerald-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+              >
+                <ShieldCheck className="w-4 h-4 shrink-0" />
+                <span className="flex-1 text-left">
+                  {allGreenlit ? "Greenlit" : "Greenlight"}
+                  {!allGreenlit && greenlightEligible.length > 1 ? ` (${greenlightEligible.length})` : ""}
+                </span>
+              </button>
             </div>
           )
         })()}
+
+      {/* Greenlight confirmation modal */}
+      {greenlightTarget && (
+        <div
+          className="fixed inset-0 z-[110] flex items-center justify-center bg-black/50 p-4"
+          onMouseDown={() => setGreenlightTarget(null)}
+        >
+          <div
+            className="w-full max-w-md rounded-2xl bg-white shadow-2xl overflow-hidden"
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="greenlight-title"
+            onMouseDown={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-start gap-3 px-6 pt-6">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-600">
+                <AlertTriangle className="h-6 w-6" />
+              </span>
+              <div className="min-w-0">
+                <h3 id="greenlight-title" className="text-lg font-semibold text-slate-900">
+                  Confirm greenlight
+                </h3>
+                <p className="mt-1 text-sm text-slate-600 leading-relaxed">
+                  Greenlighting marks{" "}
+                  {greenlightTarget.length > 1 ? `these ${greenlightTarget.length} assets` : "this asset"} as fully
+                  approved. Please confirm that everything has been reviewed and approved before proceeding.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center justify-end gap-3 px-6 py-5 mt-2">
+              <button
+                type="button"
+                onClick={() => setGreenlightTarget(null)}
+                className="px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-100 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => confirmGreenlight(greenlightTarget)}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600 transition-colors"
+              >
+                <ShieldCheck className="h-4 w-4" />
+                Confirm greenlight
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Player configuration modal */}
       {playerConfigOpen && (
