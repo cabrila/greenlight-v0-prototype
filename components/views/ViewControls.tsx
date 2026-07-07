@@ -221,7 +221,7 @@ export default function ViewControls() {
   }, [])
 
   const handleOpenPlayerView = () => {
-    dispatch({ type: "OPEN_PLAYER_VIEW" })
+    dispatch({ type: "OPEN_PLAYER_CONFIG" })
   }
 
   const sortOptions = state.sortOptionDefinitions || [

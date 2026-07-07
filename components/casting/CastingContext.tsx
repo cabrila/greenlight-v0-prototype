@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { createContext, type ReactNode, useReducer, useEffect, useContext } from "react"
-import type { CastingState, CastingAction, Actor, Notification } from "@/types/casting"
+import type { CastingState, CastingAction, Actor, Notification, PlayerSessionConfig } from "@/types/casting"
 import { saveToLocalStorage, clearLocalStorage, loadFromLocalStorage, saveToLocalStorageImmediate } from "@/utils/localStorage"
 import { MOCK_SCHEDULE_ENTRIES, MOCK_SCENES, MOCK_PRODUCTION_PHASES } from "@/data/mockScriptAndSchedule"
 
@@ -11,6 +11,15 @@ function safeArray<T>(arr: T[] | undefined | null): T[] {
   return Array.isArray(arr) ? arr : []
 }
 // ---------------------------------------------------------
+
+// Default settings for the "Configure Player" step (casting player sessions).
+export const DEFAULT_PLAYER_SESSION_CONFIG: PlayerSessionConfig = {
+  title: "Review session",
+  sections: { age: true, playingAge: true, location: true, status: true, skills: true },
+  showNotes: true,
+  showTeamVotes: true,
+  decisions: { yes: true, maybe: true, no: true },
+}
 
 const CastingContext = createContext<{
   state: CastingState
@@ -153,6 +162,8 @@ function getInitialState(): CastingState {
         isOpen: false,
         currentIndex: 0,
         currentHeadshotIndex: 0,
+        phase: "player",
+        config: DEFAULT_PLAYER_SESSION_CONFIG,
       },
     },
     modals: {},
@@ -900,7 +911,42 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
           playerView: {
             ...state.currentFocus.playerView,
             isOpen: true,
+            phase: "player",
             currentIndex: action.payload?.actorIndex || 0,
+            currentHeadshotIndex: 0,
+          },
+        },
+      }
+      break
+
+    case "OPEN_PLAYER_CONFIG":
+      newState = {
+        ...state,
+        currentFocus: {
+          ...state.currentFocus,
+          playerView: {
+            ...state.currentFocus.playerView,
+            isOpen: true,
+            phase: "config",
+            currentIndex: 0,
+            currentHeadshotIndex: 0,
+          },
+        },
+      }
+      break
+
+    case "START_PLAYER_VIEW":
+      newState = {
+        ...state,
+        currentFocus: {
+          ...state.currentFocus,
+          cardDisplayMode: "player",
+          playerView: {
+            ...state.currentFocus.playerView,
+            isOpen: true,
+            phase: "player",
+            config: action.payload.config,
+            currentIndex: 0,
             currentHeadshotIndex: 0,
           },
         },

@@ -14,6 +14,7 @@ import UserPermissionsModal from "./UserPermissionsModal"
 import NotificationsModal from "./NotificationsModal"
 import ManageStatusesModal from "./ManageStatusesModal"
 import PlayerViewModal from "./PlayerViewModal"
+import PlayerConfigModal from "./PlayerConfigModal"
 import MoreActionsModal from "./MoreActionsModal"
 import MoveActorModal from "./MoveActorModal"
 import MoveActorToCharacterModal from "./MoveActorToCharacterModal"
@@ -148,6 +149,10 @@ export default function ModalManager() {
 
   // Render Player View separately since it's controlled by state, not modal system
   if (isPlayerViewOpen) {
+    // The "Configure Player" step precedes the actual player session.
+    if (state.currentFocus.playerView.phase === "config") {
+      return <PlayerConfigModal onClose={() => dispatch({ type: "CLOSE_PLAYER_VIEW" })} />
+    }
     return <PlayerViewModal onClose={() => dispatch({ type: "CLOSE_PLAYER_VIEW" })} />
   }
 

@@ -41,6 +41,15 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
   const currentProject = state.projects.find((p) => p.id === state.currentFocus.currentProjectId)
   const currentCharacter = currentProject?.characters.find((c) => c.id === state.currentFocus.characterId)
 
+  // Session settings chosen in the "Configure Player" step. Fall back to showing everything.
+  const sessionConfig = state.currentFocus.playerView.config ?? {
+    title: "Review session",
+    sections: { age: true, playingAge: true, location: true, status: true, skills: true },
+    showNotes: true,
+    showTeamVotes: true,
+    decisions: { yes: true, maybe: true, no: true },
+  }
+
   const handleAddToCanvas = () => {
     if (!currentActor || !currentProject || !currentCharacter) return
 
@@ -923,19 +932,19 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
                       {currentActor.name}
                     </h3>
                     <div className="space-y-1 text-xs">
-                      {currentActor.age && (
+                      {sessionConfig.sections.age && currentActor.age && (
                         <div className="flex items-center space-x-2">
                           <Calendar className="w-3 h-3 text-gray-400 flex-shrink-0" />
                           <span className="text-gray-600 dark:text-gray-400">Age: {currentActor.age}</span>
                         </div>
                       )}
-                      {currentActor.playingAge && (
+                      {sessionConfig.sections.playingAge && currentActor.playingAge && (
                         <div className="flex items-center space-x-2">
                           <User className="w-3 h-3 text-gray-400 flex-shrink-0" />
                           <span className="text-gray-600 dark:text-gray-400">Playing: {currentActor.playingAge}</span>
                         </div>
                       )}
-                      {currentActor.location && (
+                      {sessionConfig.sections.location && currentActor.location && (
                         <div className="flex items-center space-x-2">
                           <MapPin className="w-3 h-3 text-gray-400 flex-shrink-0" />
                           <span className="text-gray-600 dark:text-gray-400 truncate">{currentActor.location}</span>
@@ -945,6 +954,7 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
                   </div>
 
                   {/* Collapsible Status Section */}
+                  {sessionConfig.sections.status && (
                   <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700">
                     <button
                       onClick={() => toggleSection("status")}
@@ -980,7 +990,10 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
                     )}
                   </div>
 
+                  )}
+
                   {/* Collapsible Skills Section */}
+                  {sessionConfig.sections.skills && (
                   <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700">
                     <button
                       onClick={() => toggleSection("skills")}
@@ -1015,6 +1028,8 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
                       </div>
                     )}
                   </div>
+
+                  )}
 
                   {/* Assets Section */}
                   <div className="bg-white dark:bg-gray-800 rounded-lg p-2 sm:p-3 shadow-sm border border-gray-100 dark:border-gray-700">
@@ -1246,40 +1261,56 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
               </h4>
 
               {/* Vote Buttons - Responsive Grid */}
-              <div className="grid grid-cols-3 gap-1.5 sm:gap-2 mb-3 sm:mb-4">
-                <button
-                  onClick={() => handleVote("yes")}
-                  className={`px-2 sm:px-3 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold rounded-full text-center transition-all duration-200 ${
-                    currentUserVote === "yes"
-                      ? "bg-[#b5c9a8] text-[#4a5b3f] ring-2 ring-[#8fa67e]"
-                      : "bg-[#d5dece] text-[#6b7a5e] hover:bg-[#c8d4bf]"
-                  }`}
-                >
-                  Yes
-                </button>
-                <button
-                  onClick={() => handleVote("maybe")}
-                  className={`px-2 sm:px-3 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold rounded-full text-center transition-all duration-200 ${
-                    currentUserVote === "maybe"
-                      ? "bg-[#f0d9b5] text-[#7a6a3a] ring-2 ring-[#d4b88a]"
-                      : "bg-[#f5e6d0] text-[#9b8a5e] hover:bg-[#eddbbd]"
-                  }`}
-                >
-                  Maybe
-                </button>
-                <button
-                  onClick={() => handleVote("no")}
-                  className={`px-2 sm:px-3 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold rounded-full text-center transition-all duration-200 ${
-                    currentUserVote === "no"
-                      ? "bg-[#e8b4b8] text-[#8b4c4f] ring-2 ring-[#d49396]"
-                      : "bg-[#f0cdd0] text-[#a06b6e] hover:bg-[#e8bfc3]"
-                  }`}
-                >
-                  No
-                </button>
+              <div
+                className="grid gap-1.5 sm:gap-2 mb-3 sm:mb-4"
+                style={{
+                  gridTemplateColumns: `repeat(${
+                    [sessionConfig.decisions.yes, sessionConfig.decisions.maybe, sessionConfig.decisions.no].filter(
+                      Boolean,
+                    ).length || 1
+                  }, minmax(0, 1fr))`,
+                }}
+              >
+                {sessionConfig.decisions.yes && (
+                  <button
+                    onClick={() => handleVote("yes")}
+                    className={`px-2 sm:px-3 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold rounded-full text-center transition-all duration-200 ${
+                      currentUserVote === "yes"
+                        ? "bg-[#b5c9a8] text-[#4a5b3f] ring-2 ring-[#8fa67e]"
+                        : "bg-[#d5dece] text-[#6b7a5e] hover:bg-[#c8d4bf]"
+                    }`}
+                  >
+                    Yes
+                  </button>
+                )}
+                {sessionConfig.decisions.maybe && (
+                  <button
+                    onClick={() => handleVote("maybe")}
+                    className={`px-2 sm:px-3 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold rounded-full text-center transition-all duration-200 ${
+                      currentUserVote === "maybe"
+                        ? "bg-[#f0d9b5] text-[#7a6a3a] ring-2 ring-[#d4b88a]"
+                        : "bg-[#f5e6d0] text-[#9b8a5e] hover:bg-[#eddbbd]"
+                    }`}
+                  >
+                    Maybe
+                  </button>
+                )}
+                {sessionConfig.decisions.no && (
+                  <button
+                    onClick={() => handleVote("no")}
+                    className={`px-2 sm:px-3 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold rounded-full text-center transition-all duration-200 ${
+                      currentUserVote === "no"
+                        ? "bg-[#e8b4b8] text-[#8b4c4f] ring-2 ring-[#d49396]"
+                        : "bg-[#f0cdd0] text-[#a06b6e] hover:bg-[#e8bfc3]"
+                    }`}
+                  >
+                    No
+                  </button>
+                )}
               </div>
 
               {/* Team Votes - Responsive */}
+              {sessionConfig.showTeamVotes && (
               <div className="bg-white dark:bg-gray-800 rounded-lg p-2 sm:p-3 shadow-sm border border-gray-100 dark:border-gray-700 mb-3">
                 <h5 className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2 flex items-center">
                   <Users className="w-3 h-3 mr-2" />
@@ -1312,6 +1343,8 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
                 </div>
               </div>
 
+              )}
+
               {/* More Actions Button - Responsive */}
               <button
                 onClick={handleMoreActions}
@@ -1323,11 +1356,13 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
             </div>
 
             {/* Notes Section */}
-            <div className="flex-1 min-h-0 overflow-hidden">
-              <div className="h-full">
-                <PlayerViewNotes actor={currentActor} characterId={currentCharacter.id} />
+            {sessionConfig.showNotes && (
+              <div className="flex-1 min-h-0 overflow-hidden">
+                <div className="h-full">
+                  <PlayerViewNotes actor={currentActor} characterId={currentCharacter.id} />
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
 

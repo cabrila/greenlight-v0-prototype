@@ -144,6 +144,8 @@ export type CastingAction =
   | { type: "SET_VIEW_MODE"; payload: "detailed" | "compact" | "player" }
   | { type: "SET_SORT_OPTION"; payload: string }
   | { type: "OPEN_PLAYER_VIEW"; payload?: { actorIndex: number } }
+  | { type: "OPEN_PLAYER_CONFIG" }
+  | { type: "START_PLAYER_VIEW"; payload: { config: PlayerSessionConfig } }
   | { type: "CLOSE_PLAYER_VIEW" }
   | { type: "NAVIGATE_PLAYER_VIEW"; payload: number }
   | { type: "SET_PLAYER_HEADSHOT"; payload: number }
@@ -742,6 +744,27 @@ export interface CurrentFocus {
     isOpen: boolean
     currentIndex: number
     currentHeadshotIndex: number
+    phase?: "config" | "player"
+    config?: PlayerSessionConfig
+  }
+}
+
+// Configuration chosen in the "Configure Player" step before a casting player session starts.
+export interface PlayerSessionConfig {
+  title: string
+  sections: {
+    age: boolean
+    playingAge: boolean
+    location: boolean
+    status: boolean
+    skills: boolean
+  }
+  showNotes: boolean
+  showTeamVotes: boolean
+  decisions: {
+    yes: boolean
+    maybe: boolean
+    no: boolean
   }
 }
 
