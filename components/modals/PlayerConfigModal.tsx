@@ -269,8 +269,8 @@ export default function PlayerConfigModal({ onClose }: { onClose: () => void }) 
               <div className="space-y-2">
                 <ToggleRow
                   icon={<Users className="w-4 h-4" />}
-                  label="Team votes"
-                  description="Show how the rest of the team voted"
+                  label="Team decisions"
+                  description="Show how the rest of the team decided"
                   checked={config.showTeamVotes}
                   onChange={(v) => setConfig((prev) => ({ ...prev, showTeamVotes: v }))}
                 />

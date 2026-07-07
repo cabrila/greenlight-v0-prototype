@@ -1337,7 +1337,7 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
             <div className="p-3 sm:p-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
               <h4 className="text-sm sm:text-base font-bold text-gray-900 dark:text-white mb-3 flex items-center">
                 <div className="w-2 h-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full mr-2"></div>
-                Cast Your Vote
+                Make Your Decision
               </h4>
 
               {/* Vote Buttons - Responsive Grid */}
@@ -1367,7 +1367,7 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
               <div className="bg-white dark:bg-gray-800 rounded-lg p-2 sm:p-3 shadow-sm border border-gray-100 dark:border-gray-700 mb-3">
                 <h5 className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2 flex items-center">
                   <Users className="w-3 h-3 mr-2" />
-                  Team Votes
+                  Team Decisions
                 </h5>
                 <div className="space-y-1">
                   {state.users.map((user) => {
@@ -1479,7 +1479,7 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
                     disabled={!maybeNoteText.trim()}
                     className="px-5 py-2 text-sm font-semibold rounded-full transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed bg-[#f0d9b5] text-[#7a6a3a] hover:bg-[#e8cf9f] ring-1 ring-[#d4b88a]/50"
                   >
-                    Submit & Vote Maybe
+                    Submit Decision
                   </button>
                 </div>
               </div>
