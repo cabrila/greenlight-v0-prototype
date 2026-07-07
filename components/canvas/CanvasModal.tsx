@@ -1828,6 +1828,7 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
           assets={effectivePlayerAssets}
           config={playerConfig}
           onClose={closePlayer}
+          projectName={currentProject?.name}
         />
       )}
     </div>

@@ -96,6 +96,8 @@ interface CanvasPlayerViewProps {
   assets: PlayerAsset[]
   config: PlayerConfig
   onClose: () => void
+  /** Name of the project this player session belongs to, shown in the header. */
+  projectName?: string
 }
 
 const TONE_ACTIVE: Record<DecisionTone, string> = {
@@ -124,7 +126,7 @@ function firstImage(a: PlayerAsset): string | undefined {
   return isValidImageUrl(a.image) ? a.image : undefined
 }
 
-export default function CanvasPlayerView({ assets, config, onClose }: CanvasPlayerViewProps) {
+export default function CanvasPlayerView({ assets, config, onClose, projectName }: CanvasPlayerViewProps) {
   const [index, setIndex] = useState(0)
   const [decisions, setDecisions] = useState<DecisionState>({})
   const [comments, setComments] = useState<CommentState>({})
@@ -356,6 +358,9 @@ export default function CanvasPlayerView({ assets, config, onClose }: CanvasPlay
             <Film className="w-4 h-4" />
           </span>
           <div className="min-w-0">
+            {projectName && (
+              <p className="text-xs font-semibold text-emerald-400 truncate uppercase tracking-wide">{projectName}</p>
+            )}
             <h2 className="text-sm font-semibold text-white truncate">{config.title || "Player"}</h2>
             <p className="text-xs text-white/50">
               {index + 1} of {total} · {config.decisionMakers.length} decision maker{config.decisionMakers.length === 1 ? "" : "s"}
