@@ -165,6 +165,7 @@ function getInitialState(): CastingState {
         status: [],
         ageRange: { min: 0, max: 100 },
         location: [],
+        decision: [],
       },
       playerView: {
         isOpen: false,
@@ -218,6 +219,7 @@ function getInitialState(): CastingState {
       status: [],
       ageRange: { min: 0, max: 100 },
       location: [],
+      decision: [],
       showFilters: false,
     },
     canvasActors: [], // Add canvasActors to initial state
@@ -359,6 +361,7 @@ function validateAndCompleteState(state: any): CastingState {
         status: state.currentFocus?.filters?.status || [],
         ageRange: state.currentFocus?.filters?.ageRange || { min: 0, max: 100 },
         location: state.currentFocus?.filters?.location || [],
+        decision: state.currentFocus?.filters?.decision || [],
       },
     },
 
@@ -3151,6 +3154,19 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
       }
       break
 
+    case "SET_DECISION_FILTER":
+      newState = {
+        ...state,
+        currentFocus: {
+          ...state.currentFocus,
+          filters: {
+            ...state.currentFocus.filters,
+            decision: action.payload,
+          },
+        },
+      }
+      break
+
     case "CLEAR_ALL_FILTERS":
       newState = {
         ...state,
@@ -3161,6 +3177,7 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
             status: [],
             ageRange: { min: 0, max: 100 },
             location: [],
+            decision: [],
           },
         },
       }

@@ -121,6 +121,7 @@ export default function ViewControls() {
     if (filters.status.length > 0) count++
     if (filters.ageRange.min > 0 || filters.ageRange.max < 100) count++
     if (filters.location.length > 0) count++
+    if (filters.decision && filters.decision.length > 0) count++
     setActiveFiltersCount(count)
   }, [filters])
 
@@ -143,6 +144,18 @@ export default function ViewControls() {
     dispatch({
       type: "SET_LOCATION_FILTER",
       payload: newLocationFilter,
+    })
+  }
+
+  const handleDecisionFilterChange = (decision: "yes" | "maybe" | "no") => {
+    const current = filters.decision || []
+    const newDecisionFilter = current.includes(decision)
+      ? current.filter((d) => d !== decision)
+      : [...current, decision]
+
+    dispatch({
+      type: "SET_DECISION_FILTER",
+      payload: newDecisionFilter,
     })
   }
 
@@ -645,6 +658,41 @@ export default function ViewControls() {
 
             <div>
               <h4 className="text-sm font-semibold text-slate-700 mb-3 flex items-center">
+                <ClipboardList className="w-4 h-4 mr-2 text-slate-500" />
+                Decisions
+                {filters.decision && filters.decision.length > 0 && (
+                  <span className="ml-2 bg-emerald-100 text-emerald-700 text-xs px-2 py-0.5 rounded-full font-semibold">
+                    {filters.decision.length}
+                  </span>
+                )}
+              </h4>
+              <p className="text-xs text-slate-500 mb-3">Filter by decisions made in the player views.</p>
+              <div className="space-y-2">
+                {[
+                  { value: "yes" as const, label: "Positive", bgColor: "#dcfce7", textColor: "#15803d" },
+                  { value: "no" as const, label: "Negative", bgColor: "#fee2e2", textColor: "#b91c1c" },
+                  { value: "maybe" as const, label: "Neutral", bgColor: "#fef3c7", textColor: "#b45309" },
+                ].map((decision) => (
+                  <label key={decision.value} className="flex items-center space-x-2 cursor-pointer group">
+                    <input
+                      type="checkbox"
+                      checked={(filters.decision || []).includes(decision.value)}
+                      onChange={() => handleDecisionFilterChange(decision.value)}
+                      className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 w-4 h-4"
+                    />
+                    <span
+                      className="text-xs px-2 py-1 rounded-md font-medium transition-all"
+                      style={{ backgroundColor: decision.bgColor, color: decision.textColor }}
+                    >
+                      {decision.label}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <h4 className="text-sm font-semibold text-slate-700 mb-3 flex items-center">
                 <SortAsc className="w-4 h-4 mr-2 text-slate-500" />
                 Age Range
                 {(filters.ageRange.min > 0 || filters.ageRange.max < 100) && (
@@ -736,6 +784,11 @@ export default function ViewControls() {
                 {filters.location.length > 0 && (
                   <span className="bg-purple-100 text-purple-700 text-xs px-3 py-1 rounded-full font-medium">
                     {filters.location.length} Location{filters.location.length > 1 ? "s" : ""}
+                  </span>
+                )}
+                {filters.decision && filters.decision.length > 0 && (
+                  <span className="bg-amber-100 text-amber-700 text-xs px-3 py-1 rounded-full font-medium">
+                    {filters.decision.length} Decision{filters.decision.length > 1 ? "s" : ""}
                   </span>
                 )}
               </div>

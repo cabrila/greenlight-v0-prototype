@@ -292,6 +292,16 @@ export default function ActorGrid({ character }: ActorGridProps) {
       })
     }
 
+    // Apply decision filter (decisions made in the player views).
+    // Positive -> "yes", Negative -> "no", Neutral -> "maybe".
+    // An actor matches if any team member cast a decision in a selected category.
+    if (filters.decision && filters.decision.length > 0) {
+      filtered = filtered.filter((actor) => {
+        const votes = Object.values(actor.userVotes || {})
+        return votes.some((vote) => filters.decision.includes(vote as "yes" | "maybe" | "no"))
+      })
+    }
+
     // Apply vote filter
     if (voteFilter) {
       filtered = filtered.filter((actor) => {

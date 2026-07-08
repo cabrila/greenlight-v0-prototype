@@ -121,6 +121,8 @@ export interface CastingState {
   productionPhases: ProductionPhase[]
   scenes: Scene[]
   tabNotifications: Record<string, TabNotification[]>
+  // Legacy top-level filters snapshot kept in sync for persistence/restore.
+  filters?: CurrentFocus["filters"]
 }
 
 export type CastingAction =
@@ -254,6 +256,7 @@ export type CastingAction =
   | { type: "SET_STATUS_FILTER"; payload: string[] }
   | { type: "SET_AGE_RANGE_FILTER"; payload: { min: number; max: number } }
   | { type: "SET_LOCATION_FILTER"; payload: string[] }
+  | { type: "SET_DECISION_FILTER"; payload: Array<"yes" | "maybe" | "no"> }
   | { type: "CLEAR_ALL_FILTERS" }
   | { type: "TOGGLE_FILTERS" }
   | { type: "ADD_SCENE"; payload: Scene }
@@ -741,6 +744,14 @@ export interface CurrentFocus {
   searchTerm: string
   searchTags: SearchTag[]
   savedSearches: SavedSearch[]
+  filters: {
+    showFilters: boolean
+    status: string[]
+    ageRange: { min: number; max: number }
+    location: string[]
+    // Decisions made in the player views: yes=Positive, no=Negative, maybe=Neutral.
+    decision: Array<"yes" | "maybe" | "no">
+  }
   playerView: {
     isOpen: boolean
     currentIndex: number
