@@ -10,6 +10,7 @@ import {
 } from "lucide-react"
 import { isValidImageUrl } from "@/lib/utils"
 import VideoEmbed from "@/components/video/VideoEmbed"
+import SummaryMoveBar from "@/components/modals/SummaryMoveBar"
 
 export interface PlayerVideo {
   name: string
@@ -132,6 +133,16 @@ export default function CanvasPlayerView({ assets, config, onClose, projectName 
   const [comments, setComments] = useState<CommentState>({})
   const [showSummary, setShowSummary] = useState(false)
   const [ended, setEnded] = useState(false)
+
+  // Selection for the summary "Move" action (actor-type assets only).
+  const [selectedSummaryIds, setSelectedSummaryIds] = useState<Set<string>>(new Set())
+  const toggleSummarySelected = (id: string) =>
+    setSelectedSummaryIds((prev) => {
+      const next = new Set(prev)
+      next.has(id) ? next.delete(id) : next.add(id)
+      return next
+    })
+  const clearSummarySelection = () => setSelectedSummaryIds(new Set())
   const [mediaIdx, setMediaIdx] = useState(0)
   const [countdown, setCountdown] = useState<number | null>(null)
 
@@ -308,8 +319,30 @@ export default function CanvasPlayerView({ assets, config, onClose, projectName 
     <>
       {summary.map(({ asset, buttonCounts, avg, ratedCount, commentCount }) => {
         const img = firstImage(asset)
+        const isActor = asset.type === "actor"
+        const selected = selectedSummaryIds.has(asset.id)
         return (
-          <div key={asset.id} className="flex items-center gap-3 rounded-xl bg-white/[0.04] border border-white/10 p-2.5">
+          <div
+            key={asset.id}
+            onClick={isActor ? () => toggleSummarySelected(asset.id) : undefined}
+            className={`flex items-center gap-3 rounded-xl border p-2.5 transition-colors ${
+              isActor ? "cursor-pointer" : ""
+            } ${
+              selected
+                ? "bg-emerald-500/15 border-emerald-400/50 ring-1 ring-emerald-400/40"
+                : "bg-white/[0.04] border-white/10 hover:bg-white/[0.07]"
+            }`}
+          >
+            {isActor && (
+              <input
+                type="checkbox"
+                checked={selected}
+                onChange={() => toggleSummarySelected(asset.id)}
+                onClick={(e) => e.stopPropagation()}
+                aria-label={`Select ${labelFor(asset)}`}
+                className="w-4 h-4 shrink-0 accent-emerald-500 cursor-pointer"
+              />
+            )}
             <div className="w-12 h-12 rounded-lg overflow-hidden bg-slate-800 shrink-0">
               {img ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -814,6 +847,15 @@ export default function CanvasPlayerView({ assets, config, onClose, projectName 
             <div className="flex-1 overflow-y-auto p-3 space-y-2">
               {summaryRows}
             </div>
+            {selectedSummaryIds.size > 0 && (
+              <div className="px-5 py-3 border-t border-white/10">
+                <SummaryMoveBar
+                  selectedActorIds={Array.from(selectedSummaryIds)}
+                  onCleared={clearSummarySelection}
+                  theme="dark"
+                />
+              </div>
+            )}
             <div className="px-5 py-3 border-t border-white/10 flex items-center justify-between gap-2">
               <button
                 onClick={() => {
@@ -854,6 +896,15 @@ export default function CanvasPlayerView({ assets, config, onClose, projectName 
             <div className="flex-1 overflow-y-auto p-3 space-y-2">
               {summaryRows}
             </div>
+            {selectedSummaryIds.size > 0 && (
+              <div className="px-5 py-3 border-t border-white/10">
+                <SummaryMoveBar
+                  selectedActorIds={Array.from(selectedSummaryIds)}
+                  onCleared={clearSummarySelection}
+                  theme="dark"
+                />
+              </div>
+            )}
             <div className="px-5 py-3 border-t border-white/10 flex items-center justify-end gap-2">
               <button
                 onClick={() => setShowSummary(false)}

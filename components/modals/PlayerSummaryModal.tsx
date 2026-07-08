@@ -1,12 +1,13 @@
 "use client"
 
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
 import { useCasting } from "@/components/casting/CastingContext"
 import { motion } from "framer-motion"
 import { ModalPortal } from "@/components/ui/modal-portal"
 import { generatePlaceholderUrl } from "@/utils/imageUtils"
 import { X, Play, CheckCircle2, XCircle, HelpCircle, MessageSquare, Users, ClipboardList, BarChart3 } from "lucide-react"
 import type { Actor } from "@/types/casting"
+import SummaryMoveBar from "@/components/modals/SummaryMoveBar"
 
 /**
  * Summary board shown when a casting Player View session is completed, and also
@@ -53,6 +54,16 @@ export default function PlayerSummaryModal({ onClose }: { onClose: () => void })
     const notes = rows.reduce((s, r) => s + r.noteCount, 0)
     return { decidedActors, yes, maybe, no, notes }
   }, [rows])
+
+  // Selection for the "Move" action in the summary.
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+  const toggleSelected = (id: string) =>
+    setSelectedIds((prev) => {
+      const next = new Set(prev)
+      next.has(id) ? next.delete(id) : next.add(id)
+      return next
+    })
+  const clearSelection = () => setSelectedIds(new Set())
 
   const handleClose = () => {
     dispatch({ type: "CLOSE_PLAYER_VIEW" })
@@ -146,8 +157,21 @@ export default function PlayerSummaryModal({ onClose }: { onClose: () => void })
             rows.map(({ actor, yes, maybe, no, noteCount, decided }) => (
               <div
                 key={actor.id}
-                className="flex items-center gap-3 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-2.5"
+                onClick={() => toggleSelected(actor.id)}
+                className={`flex items-center gap-3 rounded-xl border p-2.5 cursor-pointer transition-colors ${
+                  selectedIds.has(actor.id)
+                    ? "bg-emerald-50 dark:bg-emerald-900/20 border-emerald-300 dark:border-emerald-700 ring-1 ring-emerald-300 dark:ring-emerald-700"
+                    : "bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700/60"
+                }`}
               >
+                <input
+                  type="checkbox"
+                  checked={selectedIds.has(actor.id)}
+                  onChange={() => toggleSelected(actor.id)}
+                  onClick={(e) => e.stopPropagation()}
+                  aria-label={`Select ${actor.name}`}
+                  className="w-4 h-4 shrink-0 accent-emerald-500 cursor-pointer"
+                />
                 <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-200 dark:bg-gray-700 shrink-0">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
@@ -179,6 +203,17 @@ export default function PlayerSummaryModal({ onClose }: { onClose: () => void })
             ))
           )}
         </div>
+
+        {/* Move bar (shown when actors are selected) */}
+        {selectedIds.size > 0 && (
+          <div className="px-6 py-3 border-t border-gray-200 dark:border-gray-700">
+            <SummaryMoveBar
+              selectedActorIds={Array.from(selectedIds)}
+              onCleared={clearSelection}
+              theme="light"
+            />
+          </div>
+        )}
 
         {/* Footer */}
         <div className="px-6 py-3 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between gap-2">
