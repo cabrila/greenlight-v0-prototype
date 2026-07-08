@@ -1393,10 +1393,10 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
             <button
               onClick={() => setPlayerConfigOpen(true)}
               className="flex items-center gap-1.5 px-2.5 py-2 rounded-lg bg-slate-900 text-white hover:bg-slate-800 transition-colors text-sm font-medium"
-              title="Present selected assets in the player"
+              title="Review selected assets in the player"
             >
               <Play className="w-4 h-4" />
-              <span className="hidden md:inline">Present</span>
+              <span className="hidden md:inline">Review</span>
               <span className="tabular-nums">{playerAssets.length}</span>
             </button>
           )}
