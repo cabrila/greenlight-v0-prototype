@@ -1,7 +1,8 @@
 "use client"
 
 import type React from "react"
-import { useMemo, useRef, useState } from "react"
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
+import { createPortal } from "react-dom"
 
 export interface MentionPerson {
   id: string
@@ -119,12 +120,55 @@ export function MentionTextarea({
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState("")
   const [activeIndex, setActiveIndex] = useState(0)
+  const [menuStyle, setMenuStyle] = useState<React.CSSProperties | null>(null)
 
   const suggestions = useMemo(() => {
     if (!open) return []
     const q = query.toLowerCase()
     return people.filter((p) => p.name.toLowerCase().includes(q)).slice(0, 6)
   }, [open, query, people])
+
+  // Position the menu in a fixed, body-level layer so it is never clipped by a
+  // scroll/overflow container and always renders above other UI (e.g. the
+  // canvas player view portal).
+  const MENU_WIDTH = 224 // w-56
+  const MENU_MAX_HEIGHT = 208 // max-h-52
+  const recomputePosition = useCallback(() => {
+    const el = ref.current
+    if (!el) return
+    const rect = el.getBoundingClientRect()
+    const left = Math.max(8, Math.min(rect.left, window.innerWidth - MENU_WIDTH - 8))
+    const spaceAbove = rect.top
+    const placeAbove = spaceAbove > MENU_MAX_HEIGHT + 8
+    const style: React.CSSProperties = {
+      position: "fixed",
+      left,
+      width: MENU_WIDTH,
+      zIndex: 10000, // above the highest app layer (SYSTEM_ALERT = 9999)
+    }
+    if (placeAbove) {
+      style.bottom = window.innerHeight - rect.top + 4
+    } else {
+      style.top = rect.bottom + 4
+    }
+    setMenuStyle(style)
+  }, [ref])
+
+  // Keep the menu anchored while open, even on scroll or resize.
+  useLayoutEffect(() => {
+    if (open && suggestions.length > 0) recomputePosition()
+  }, [open, suggestions.length, query, recomputePosition])
+
+  useEffect(() => {
+    if (!open) return
+    const handler = () => recomputePosition()
+    window.addEventListener("scroll", handler, true)
+    window.addEventListener("resize", handler)
+    return () => {
+      window.removeEventListener("scroll", handler, true)
+      window.removeEventListener("resize", handler)
+    }
+  }, [open, recomputePosition])
 
   // Detect an in-progress "@token" immediately before the caret.
   const detectMention = (el: HTMLTextAreaElement) => {
@@ -195,44 +239,47 @@ export function MentionTextarea({
     }
   }
 
+  const menu =
+    open && suggestions.length > 0 && menuStyle && typeof document !== "undefined"
+      ? createPortal(
+          <ul
+            role="listbox"
+            style={menuStyle}
+            className={`max-h-52 overflow-y-auto rounded-lg border shadow-xl py-1 ${
+              dark ? "bg-slate-800 border-white/10" : "bg-white border-slate-200"
+            }`}
+          >
+            {suggestions.map((p, i) => (
+              <li key={p.id}>
+                <button
+                  type="button"
+                  onMouseDown={(e) => {
+                    e.preventDefault()
+                    applyMention(p)
+                  }}
+                  onMouseEnter={() => setActiveIndex(i)}
+                  className={`w-full flex items-center gap-2 px-2.5 py-1.5 text-sm text-left transition-colors ${
+                    i === activeIndex ? (dark ? "bg-white/10" : "bg-slate-100") : ""
+                  } ${dark ? "text-white" : "text-slate-700"}`}
+                >
+                  <span
+                    className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold text-white shrink-0"
+                    style={{ backgroundColor: p.color || "#64748b" }}
+                  >
+                    {p.name.charAt(0).toUpperCase()}
+                  </span>
+                  <span className="truncate">{p.name}</span>
+                </button>
+              </li>
+            ))}
+          </ul>,
+          document.body,
+        )
+      : null
+
   return (
     <div className="relative flex-1">
-      {open && suggestions.length > 0 && (
-        <ul
-          role="listbox"
-          className={`absolute bottom-full mb-1 left-0 z-50 w-56 max-h-52 overflow-y-auto rounded-lg border shadow-lg py-1 ${
-            dark ? "bg-slate-800 border-white/10" : "bg-white border-slate-200"
-          }`}
-        >
-          {suggestions.map((p, i) => (
-            <li key={p.id}>
-              <button
-                type="button"
-                onMouseDown={(e) => {
-                  e.preventDefault()
-                  applyMention(p)
-                }}
-                onMouseEnter={() => setActiveIndex(i)}
-                className={`w-full flex items-center gap-2 px-2.5 py-1.5 text-sm text-left transition-colors ${
-                  i === activeIndex
-                    ? dark
-                      ? "bg-white/10"
-                      : "bg-slate-100"
-                    : ""
-                } ${dark ? "text-white" : "text-slate-700"}`}
-              >
-                <span
-                  className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold text-white shrink-0"
-                  style={{ backgroundColor: p.color || "#64748b" }}
-                >
-                  {p.name.charAt(0).toUpperCase()}
-                </span>
-                <span className="truncate">{p.name}</span>
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
+      {menu}
       <textarea
         ref={ref}
         value={value}
