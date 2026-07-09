@@ -24,6 +24,7 @@ export const DEFAULT_PLAYER_SESSION_CONFIG: PlayerSessionConfig = {
   { id: "maybe", label: "Maybe", outcome: "maybe", enabled: true },
   { id: "no", label: "No", outcome: "no", enabled: true },
   ],
+  showDecisionButtons: true,
   autoAdvance: true,
   autoAdvanceSeconds: 1,
   slides: {},

@@ -171,10 +171,10 @@ export default function CanvasPlayerConfig({ assets, onCancel, onStart }: Canvas
           {/* Decision mode */}
           <div>
             <span className="block text-sm font-semibold text-slate-800 mb-1.5">Decision style</span>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-3 gap-2">
               <button
                 onClick={() => setMode("approve")}
-                className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border text-sm font-medium transition-colors ${
+                className={`flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl border text-sm font-medium transition-colors ${
                   mode === "approve" ? "border-emerald-500 bg-emerald-50 text-emerald-700" : "border-slate-200 text-slate-600 hover:bg-slate-50"
                 }`}
               >
@@ -182,13 +182,26 @@ export default function CanvasPlayerConfig({ assets, onCancel, onStart }: Canvas
               </button>
               <button
                 onClick={() => setMode("rate")}
-                className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border text-sm font-medium transition-colors ${
+                className={`flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl border text-sm font-medium transition-colors ${
                   mode === "rate" ? "border-emerald-500 bg-emerald-50 text-emerald-700" : "border-slate-200 text-slate-600 hover:bg-slate-50"
                 }`}
               >
                 <Star className="w-4 h-4" /> Star rating
               </button>
+              <button
+                onClick={() => setMode("browse")}
+                className={`flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl border text-sm font-medium transition-colors ${
+                  mode === "browse" ? "border-emerald-500 bg-emerald-50 text-emerald-700" : "border-slate-200 text-slate-600 hover:bg-slate-50"
+                }`}
+              >
+                <EyeOff className="w-4 h-4" /> None
+              </button>
             </div>
+            {mode === "browse" && (
+              <p className="mt-2 text-xs text-slate-500">
+                No decision buttons — reviewers can only move between assets and leave comments.
+              </p>
+            )}
 
             {/* Star count editor */}
             {mode === "rate" && (
@@ -264,13 +277,15 @@ export default function CanvasPlayerConfig({ assets, onCancel, onStart }: Canvas
               </span>
               <input type="checkbox" checked={enableComments} onChange={(e) => setEnableComments(e.target.checked)} className="w-4 h-4 accent-emerald-500" />
             </label>
-            <label className="flex items-center justify-between rounded-xl border border-slate-200 px-3 py-2.5 cursor-pointer">
-              <span className="flex items-center gap-2 text-sm text-slate-700">
-                <Timer className="w-4 h-4 text-slate-400" /> Auto-advance after a selection
-              </span>
-              <input type="checkbox" checked={autoAdvance} onChange={(e) => setAutoAdvance(e.target.checked)} className="w-4 h-4 accent-emerald-500" />
-            </label>
-            {autoAdvance && (
+            {mode !== "browse" && (
+              <label className="flex items-center justify-between rounded-xl border border-slate-200 px-3 py-2.5 cursor-pointer">
+                <span className="flex items-center gap-2 text-sm text-slate-700">
+                  <Timer className="w-4 h-4 text-slate-400" /> Auto-advance after a selection
+                </span>
+                <input type="checkbox" checked={autoAdvance} onChange={(e) => setAutoAdvance(e.target.checked)} className="w-4 h-4 accent-emerald-500" />
+              </label>
+            )}
+            {mode !== "browse" && autoAdvance && (
               <div className="flex items-center justify-between rounded-xl border border-slate-200 px-3 py-2.5">
                 <span className="text-sm text-slate-600">Countdown seconds</span>
                 <div className="flex items-center gap-2">

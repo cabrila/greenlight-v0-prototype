@@ -4,7 +4,7 @@ import { useState } from "react"
 import { useCasting, DEFAULT_PLAYER_SESSION_CONFIG } from "@/components/casting/CastingContext"
 import {
   X, Play, Calendar, User, MapPin, Star, MessageSquare, Users, Eye, EyeOff,
-  Clapperboard, Plus, Trash2, ChevronRight, Clock, ImageIcon, Video, Minus,
+  Clapperboard, Plus, Trash2, ChevronRight, Clock, ImageIcon, Video, Minus, ThumbsUp,
 } from "lucide-react"
 import { motion } from "framer-motion"
 import { ModalPortal } from "@/components/ui/modal-portal"
@@ -84,10 +84,13 @@ export default function PlayerConfigModal({ onClose }: { onClose: () => void }) 
             { id: "maybe", label: "Maybe", outcome: "maybe", enabled: base.decisions.maybe },
             { id: "no", label: "No", outcome: "no", enabled: base.decisions.no },
           ],
+    showDecisionButtons: base.showDecisionButtons ?? true,
     autoAdvance: base.autoAdvance ?? true,
     autoAdvanceSeconds: base.autoAdvanceSeconds ?? 1,
     slides: base.slides ?? {},
   }))
+
+  const decisionButtonsEnabled = config.showDecisionButtons ?? true
 
   // Which actor's slides/media panel is expanded (null = none).
   const [expandedActorId, setExpandedActorId] = useState<string | null>(null)
@@ -289,19 +292,30 @@ export default function PlayerConfigModal({ onClose }: { onClose: () => void }) 
           <div>
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500">Decision buttons</h3>
-              <button
-                onClick={addButton}
-                className="flex items-center gap-1 text-xs font-semibold text-emerald-600 hover:text-emerald-700 transition-colors"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                Add button
-              </button>
+              {decisionButtonsEnabled && (
+                <button
+                  onClick={addButton}
+                  className="flex items-center gap-1 text-xs font-semibold text-emerald-600 hover:text-emerald-700 transition-colors"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  Add button
+                </button>
+              )}
             </div>
-            <p className="text-xs text-slate-500 mb-2">
-              Rename labels, toggle visibility, or add buttons. Each button records a Positive, Negative, or Neutral outcome.
-            </p>
-            <div className="space-y-2">
-              {buttons.map((b) => (
+            <ToggleRow
+              icon={<ThumbsUp className="w-4 h-4" />}
+              label="Show decision buttons"
+              description="Turn off to browse actors and leave comments only"
+              checked={decisionButtonsEnabled}
+              onChange={(v) => setConfig((prev) => ({ ...prev, showDecisionButtons: v }))}
+            />
+            {decisionButtonsEnabled && (
+              <>
+                <p className="text-xs text-slate-500 mt-3 mb-2">
+                  Rename labels, toggle visibility, or add buttons. Each button records a Positive, Negative, or Neutral outcome.
+                </p>
+                <div className="space-y-2">
+                  {buttons.map((b) => (
                 <div
                   key={b.id}
                   className={`flex items-center gap-2 px-2.5 py-2 rounded-lg border ${
@@ -339,12 +353,14 @@ export default function PlayerConfigModal({ onClose }: { onClose: () => void }) 
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
-              ))}
-            </div>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
 
-          {/* Playback */}
-          <div>
+          {/* Playback — auto-advance only applies when decisions can be made */}
+          <div className={decisionButtonsEnabled ? "" : "hidden"}>
             <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2">Playback</h3>
             <div className="space-y-2">
               <ToggleRow

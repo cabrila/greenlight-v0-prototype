@@ -1335,35 +1335,44 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
           <div className="w-[25%] min-w-[240px] max-w-[320px] bg-gradient-to-b from-gray-50 to-white dark:from-gray-800 dark:to-gray-900 border-l border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden flex-shrink-0">
             {/* Voting Section - Responsive */}
             <div className="p-3 sm:p-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
-              <h4 className="text-sm sm:text-base font-bold text-gray-900 dark:text-white mb-3 flex items-center">
-                <div className="w-2 h-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full mr-2"></div>
-                Make Your Decision
-              </h4>
+              {(sessionConfig.showDecisionButtons ?? true) ? (
+                <h4 className="text-sm sm:text-base font-bold text-gray-900 dark:text-white mb-3 flex items-center">
+                  <div className="w-2 h-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full mr-2"></div>
+                  Make Your Decision
+                </h4>
+              ) : (
+                <h4 className="text-sm sm:text-base font-bold text-gray-900 dark:text-white mb-3 flex items-center">
+                  <div className="w-2 h-2 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full mr-2"></div>
+                  Review &amp; Comment
+                </h4>
+              )}
 
-              {/* Vote Buttons - Responsive Grid */}
-              <div
-                className="grid gap-1.5 sm:gap-2 mb-3 sm:mb-4"
-                style={{
-                  gridTemplateColumns: `repeat(${activeDecisionButtons.length || 1}, minmax(0, 1fr))`,
-                }}
-              >
-                {activeDecisionButtons.map((btn) => (
-                  <button
-                    key={btn.id}
-                    onClick={() => handleVote(btn.outcome)}
-                    title={btn.label}
-                    className={`px-2 sm:px-3 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold rounded-full text-center transition-all duration-200 truncate ${decisionButtonStyles(
-                      btn.outcome,
-                      currentUserVote === btn.outcome,
-                    )}`}
-                  >
-                    {btn.label}
-                  </button>
-                ))}
-              </div>
+              {/* Vote Buttons - Responsive Grid (hidden in browse-only mode) */}
+              {(sessionConfig.showDecisionButtons ?? true) && (
+                <div
+                  className="grid gap-1.5 sm:gap-2 mb-3 sm:mb-4"
+                  style={{
+                    gridTemplateColumns: `repeat(${activeDecisionButtons.length || 1}, minmax(0, 1fr))`,
+                  }}
+                >
+                  {activeDecisionButtons.map((btn) => (
+                    <button
+                      key={btn.id}
+                      onClick={() => handleVote(btn.outcome)}
+                      title={btn.label}
+                      className={`px-2 sm:px-3 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold rounded-full text-center transition-all duration-200 truncate ${decisionButtonStyles(
+                        btn.outcome,
+                        currentUserVote === btn.outcome,
+                      )}`}
+                    >
+                      {btn.label}
+                    </button>
+                  ))}
+                </div>
+              )}
 
               {/* Team Votes - Responsive */}
-              {sessionConfig.showTeamVotes && (
+              {sessionConfig.showTeamVotes && (sessionConfig.showDecisionButtons ?? true) && (
               <div className="bg-white dark:bg-gray-800 rounded-lg p-2 sm:p-3 shadow-sm border border-gray-100 dark:border-gray-700 mb-3">
                 <h5 className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2 flex items-center">
                   <Users className="w-3 h-3 mr-2" />

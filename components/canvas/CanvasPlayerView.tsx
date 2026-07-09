@@ -53,7 +53,7 @@ export interface DecisionButton {
   tone: DecisionTone
 }
 
-export type PlayerMode = "approve" | "rate"
+export type PlayerMode = "approve" | "rate" | "browse"
 
 export interface PlayerConfig {
   title: string
@@ -183,6 +183,8 @@ export default function CanvasPlayerView({ assets, config, onClose, projectName 
   const total = assets.length
   const current = assets[index]
   const isRate = config.mode === "rate"
+  // Browse-only mode: no decision controls, reviewers can only navigate and comment.
+  const isBrowse = config.mode === "browse"
   const starCount = Math.max(1, config.starCount || 5)
 
   // The current user is the only participant who can vote or comment in this session.
@@ -356,7 +358,12 @@ export default function CanvasPlayerView({ assets, config, onClose, projectName 
                 {asset.subtitle ? ` · ${asset.subtitle}` : ""}
               </p>
             </div>
-            {isRate ? (
+            {isBrowse ? (
+              <div className="flex items-center gap-1.5 shrink-0 text-white/60">
+                <MessageSquare className="w-4 h-4" />
+                <span className="text-sm font-medium tabular-nums">{commentCount}</span>
+              </div>
+            ) : isRate ? (
               <div className="flex items-center gap-1.5 shrink-0">
                 <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
                 <span className="text-sm font-semibold text-white tabular-nums">{avg ? avg.toFixed(1) : "—"}</span>
@@ -609,11 +616,16 @@ export default function CanvasPlayerView({ assets, config, onClose, projectName 
         {/* Decision + comments panel */}
         <aside className="w-96 shrink-0 border-l border-white/10 bg-slate-900/60 flex flex-col">
           <div className="px-4 py-3 border-b border-white/10">
-            <h3 className="text-sm font-semibold text-white">Your decision</h3>
+            <h3 className="text-sm font-semibold text-white">{isBrowse ? "Review & comment" : "Your decision"}</h3>
             <p className="text-xs text-white/50">
-              {isRate ? `Rate this asset out of ${starCount}` : "Choose your verdict — you decide only for yourself"}
+              {isBrowse
+                ? "Browse the assets and leave comments"
+                : isRate
+                  ? `Rate this asset out of ${starCount}`
+                  : "Choose your verdict — you decide only for yourself"}
             </p>
           </div>
+          {!isBrowse && (
           <div className="flex-1 overflow-y-auto p-3 space-y-2.5">
             {!me && (
               <p className="text-sm text-white/40 text-center py-6">No decision makers configured.</p>
@@ -723,10 +735,11 @@ export default function CanvasPlayerView({ assets, config, onClose, projectName 
               </div>
             )}
           </div>
+          )}
 
           {/* Comments */}
           {config.enableComments && (
-            <div className="border-t border-white/10 flex flex-col max-h-[42%]">
+            <div className={`border-t border-white/10 flex flex-col ${isBrowse ? "flex-1" : "max-h-[42%]"}`}>
               <div className="px-4 py-2.5 flex items-center gap-2 border-b border-white/10">
                 <MessageSquare className="w-4 h-4 text-white/50" />
                 <h3 className="text-sm font-semibold text-white">Comments</h3>

@@ -801,6 +801,9 @@ export interface PlayerSessionConfig {
   // Editable/extendable decision buttons. When present these drive the player;
   // otherwise the player falls back to `decisions`.
   decisionButtons?: PlayerDecisionButton[]
+  // When false, decision buttons are hidden in the player — reviewers can only
+  // browse between actors and leave comments. Defaults to true.
+  showDecisionButtons?: boolean
   // Automatically advance to the next actor after a selection is made.
   autoAdvance?: boolean
   // Delay (in seconds) before auto-advancing.
