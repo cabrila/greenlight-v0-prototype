@@ -2,10 +2,11 @@
 
 import type React from "react"
 
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, useMemo } from "react"
 import { useCasting } from "@/components/casting/CastingContext"
-import { MessageSquare, Plus, Edit2, Trash2, Save, X } from "lucide-react"
-import type { Actor, Note } from "@/types/casting"
+import { MessageSquare, Plus, Edit2, Trash2, Save, X, Users } from "lucide-react"
+import type { Actor, Note, Notification } from "@/types/casting"
+import { MentionTextarea, MentionText, extractMentions, type MentionPerson } from "@/components/player/mentions"
 
 interface PlayerViewNotesProps {
   actor: Actor
@@ -34,6 +35,38 @@ export default function PlayerViewNotes({ actor, characterId }: PlayerViewNotesP
   const [isAddingNote, setIsAddingNote] = useState(false)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const editTextareaRef = useRef<HTMLTextAreaElement>(null)
+
+  // People that can be @mentioned — all users except the author.
+  const mentionPeople = useMemo<MentionPerson[]>(
+    () =>
+      state.users.map((u) => ({
+        id: u.id,
+        name: u.name,
+        color: u.bgColor,
+      })),
+    [state.users],
+  )
+
+  // Fire a mention notification (mimicking a real notify) for each tagged user.
+  const notifyMentions = (text: string, mentionedIds: string[]) => {
+    mentionedIds
+      .filter((id) => id !== state.currentUser?.id)
+      .forEach((userId) => {
+        const notification: Notification = {
+          id: `mention-${Date.now()}-${Math.random()}`,
+          type: "mention",
+          title: "You were mentioned",
+          message: `${state.currentUser?.name || "Someone"} tagged you on ${actor.name}: "${text.slice(0, 80)}"`,
+          timestamp: Date.now(),
+          read: false,
+          priority: "high",
+          actorId: actor.id,
+          characterId,
+          userId,
+        }
+        dispatch({ type: "ADD_NOTIFICATION", payload: notification })
+      })
+  }
 
   // Auto-resize textarea with max height constraint and prevent parent growth
   const autoResizeTextarea = (textarea: HTMLTextAreaElement) => {
@@ -88,6 +121,8 @@ export default function PlayerViewNotes({ actor, characterId }: PlayerViewNotesP
       },
     })
 
+    notifyMentions(note.text, extractMentions(note.text, mentionPeople))
+
     setNewNoteText("")
     setIsAddingNote(false)
   }
@@ -109,6 +144,8 @@ export default function PlayerViewNotes({ actor, characterId }: PlayerViewNotesP
         text: editingText.trim(),
       },
     })
+
+    notifyMentions(editingText.trim(), extractMentions(editingText.trim(), mentionPeople))
 
     setEditingNoteId(null)
     setEditingText("")
@@ -184,26 +221,18 @@ export default function PlayerViewNotes({ actor, characterId }: PlayerViewNotesP
                   </div>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <textarea
-                    ref={textareaRef}
+                  <MentionTextarea
+                    textareaRef={textareaRef}
                     value={newNoteText}
-                    onChange={(e) => {
-                      setNewNoteText(e.target.value)
-                      // Debounce the auto-resize to prevent excessive calls
-                      clearTimeout(window.textareaResizeTimeout)
-                      window.textareaResizeTimeout = setTimeout(() => {
-                        autoResizeTextarea(e.target)
-                      }, 100)
-                    }}
-                    onKeyDown={(e) => handleKeyDown(e, handleAddNote)}
-                    placeholder="Add a note..."
+                    onChange={setNewNoteText}
+                    people={mentionPeople}
+                    placeholder="Add a note... use @ to tag someone"
                     className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded text-sm resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 min-h-[48px] max-h-[180px]"
                     rows={2}
                     autoFocus
-                    style={{ height: "48px" }}
                   />
                   <div className="flex items-center justify-between mt-2">
-                    <span className="text-xs text-gray-500">Cmd/Ctrl + Enter to save</span>
+                    <span className="text-xs text-gray-500">Type @ to tag a teammate</span>
                     <div className="flex space-x-1">
                       <button
                         onClick={() => {
@@ -294,25 +323,17 @@ export default function PlayerViewNotes({ actor, characterId }: PlayerViewNotesP
 
                       {isEditing ? (
                         <div>
-                          <textarea
-                            ref={editTextareaRef}
+                          <MentionTextarea
+                            textareaRef={editTextareaRef}
                             value={editingText}
-                            onChange={(e) => {
-                              setEditingText(e.target.value)
-                              // Debounced auto-resize
-                              clearTimeout(window.editTextareaResizeTimeout)
-                              window.editTextareaResizeTimeout = setTimeout(() => {
-                                autoResizeTextarea(e.target)
-                              }, 100)
-                            }}
-                            onKeyDown={(e) => handleKeyDown(e, handleSaveEdit)}
+                            onChange={setEditingText}
+                            people={mentionPeople}
                             className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded text-sm resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 min-h-[48px] max-h-[180px]"
                             rows={2}
                             autoFocus
-                            style={{ height: "48px" }}
                           />
                           <div className="flex items-center justify-between mt-2">
-                            <span className="text-xs text-gray-500">Cmd/Ctrl + Enter to save</span>
+                            <span className="text-xs text-gray-500">Type @ to tag a teammate</span>
                             <div className="flex space-x-1">
                               <button
                                 onClick={handleCancelEdit}
@@ -332,9 +353,24 @@ export default function PlayerViewNotes({ actor, characterId }: PlayerViewNotesP
                           </div>
                         </div>
                       ) : (
-                        <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap break-words">
-                          {note.text}
-                        </p>
+                        <>
+                          <MentionText
+                            text={note.text}
+                            people={mentionPeople}
+                            className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap break-words"
+                          />
+                          {(() => {
+                            const tagged = extractMentions(note.text, mentionPeople)
+                              .map((id) => state.users.find((u) => u.id === id)?.name)
+                              .filter(Boolean) as string[]
+                            return tagged.length > 0 ? (
+                              <div className="mt-1.5 flex items-center gap-1 text-[11px] text-blue-600 dark:text-blue-400">
+                                <Users className="w-3 h-3" />
+                                <span className="truncate">Notified {tagged.join(", ")}</span>
+                              </div>
+                            ) : null
+                          })()}
+                        </>
                       )}
                     </div>
                   </div>

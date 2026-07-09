@@ -709,7 +709,7 @@ export interface Status {
 
 export interface Notification {
   id: string
-  type: "system" | "user" | "vote" | "sent"
+  type: "system" | "user" | "vote" | "sent" | "mention" | "comment"
   title: string
   message: string
   timestamp: number

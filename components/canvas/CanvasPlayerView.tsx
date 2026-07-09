@@ -11,6 +11,7 @@ import {
 import { isValidImageUrl } from "@/lib/utils"
 import VideoEmbed from "@/components/video/VideoEmbed"
 import SummaryMoveBar from "@/components/modals/SummaryMoveBar"
+import { MentionTextarea, MentionText, extractMentions, type MentionPerson } from "@/components/player/mentions"
 
 export interface PlayerVideo {
   name: string
@@ -88,6 +89,8 @@ interface Comment {
   color?: string
   text: string
   ts: number
+  /** Ids of decision makers tagged with @mentions in this comment. */
+  mentions?: string[]
 }
 
 type DecisionState = Record<string, Record<string, Verdict>>
@@ -197,6 +200,12 @@ export default function CanvasPlayerView({ assets, config, onClose, projectName 
     [config.decisionMakers, me?.id],
   )
 
+  // People that can be @mentioned in comments (everyone in the session).
+  const mentionPeople = useMemo<MentionPerson[]>(
+    () => config.decisionMakers.map((d) => ({ id: d.id, name: d.name, color: d.color })),
+    [config.decisionMakers],
+  )
+
   const cancelCountdown = useCallback(() => setCountdown(null), [])
 
   const goTo = useCallback(
@@ -268,6 +277,7 @@ export default function CanvasPlayerView({ assets, config, onClose, projectName 
       color: me?.color,
       text,
       ts: Date.now(),
+      mentions: extractMentions(text, mentionPeople).filter((id) => id !== me?.id),
     }
     setComments((prev) => ({ ...prev, [assetId]: [...(prev[assetId] || []), entry] }))
     setDraft("")
@@ -749,20 +759,35 @@ export default function CanvasPlayerView({ assets, config, onClose, projectName 
                 {currentComments.length === 0 && (
                   <p className="text-xs text-white/30 text-center py-4">No comments yet. Add the first note.</p>
                 )}
-                {currentComments.map((c) => (
-                  <div key={c.id} className="rounded-lg bg-white/[0.04] border border-white/10 p-2.5">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span
-                        className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold text-white shrink-0"
-                        style={{ backgroundColor: c.color || "#64748b" }}
-                      >
-                        {c.author.charAt(0).toUpperCase()}
-                      </span>
-                      <span className="text-xs font-medium text-white/80 truncate">{c.author}</span>
+                {currentComments.map((c) => {
+                  const taggedNames = (c.mentions || [])
+                    .map((id) => config.decisionMakers.find((d) => d.id === id)?.name)
+                    .filter(Boolean) as string[]
+                  return (
+                    <div key={c.id} className="rounded-lg bg-white/[0.04] border border-white/10 p-2.5">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span
+                          className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold text-white shrink-0"
+                          style={{ backgroundColor: c.color || "#64748b" }}
+                        >
+                          {c.author.charAt(0).toUpperCase()}
+                        </span>
+                        <span className="text-xs font-medium text-white/80 truncate">{c.author}</span>
+                      </div>
+                      <MentionText
+                        text={c.text}
+                        people={mentionPeople}
+                        className="text-sm text-white/70 leading-snug whitespace-pre-wrap break-words"
+                      />
+                      {taggedNames.length > 0 && (
+                        <div className="mt-1.5 flex items-center gap-1 text-[10px] text-sky-300/80">
+                          <Users className="w-3 h-3" />
+                          <span className="truncate">Notified {taggedNames.join(", ")}</span>
+                        </div>
+                      )}
                     </div>
-                    <p className="text-sm text-white/70 leading-snug whitespace-pre-wrap break-words">{c.text}</p>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
               <div className="p-2.5 border-t border-white/10 space-y-2">
                 <div className="flex items-center gap-1.5 text-[11px] text-white/40">
@@ -775,18 +800,15 @@ export default function CanvasPlayerView({ assets, config, onClose, projectName 
                   <span>Commenting as {me?.name || "You"}</span>
                 </div>
                 <div className="flex items-end gap-2">
-                  <textarea
+                  <MentionTextarea
                     value={draft}
-                    onChange={(e) => setDraft(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing && e.keyCode !== 229) {
-                        e.preventDefault()
-                        addComment(current.id)
-                      }
-                    }}
+                    onChange={setDraft}
+                    people={mentionPeople}
+                    onSubmit={() => addComment(current.id)}
                     rows={2}
-                    placeholder="Add a comment…"
-                    className="flex-1 resize-none rounded-lg bg-white/5 border border-white/10 px-2.5 py-1.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    dark
+                    placeholder="Add a comment… use @ to tag someone"
+                    className="w-full resize-none rounded-lg bg-white/5 border border-white/10 px-2.5 py-1.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   />
                   <button
                     onClick={() => addComment(current.id)}
