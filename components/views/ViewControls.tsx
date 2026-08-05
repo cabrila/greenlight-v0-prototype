@@ -25,6 +25,7 @@ import SearchTags from "@/components/ui/SearchTags"
 import SavedSearchesManager from "@/components/ui/SavedSearchesManager"
 import type { SearchTag } from "@/components/ui/SearchTags"
 import { useActorGrid } from "@/components/actors/ActorGridContext"
+import ConfigureReviewModal, { type ReviewAsset, type ReviewConfig } from "@/components/modals/ConfigureReviewModal"
 
 export default function ViewControls() {
   const { state, dispatch } = useCasting()
@@ -220,7 +221,39 @@ export default function ViewControls() {
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
 
+  const [showConfigureReview, setShowConfigureReview] = useState(false)
+
+  // Assets available to review: the current character's cast, narrowed to the
+  // user's selection when they've picked specific cards.
+  const reviewAssets: ReviewAsset[] = (() => {
+    const pool = currentCharacter?.actors?.longList || []
+    const scoped = selectedActorIds.size > 0 ? pool.filter((a) => selectedActorIds.has(a.id)) : pool
+    return scoped.map((a) => ({
+      id: a.id,
+      title: a.name,
+      subtitle: currentCharacter?.name ? `for ${currentCharacter.name}` : undefined,
+      image: a.headshots?.[0],
+      typeLabel: "Cast",
+    }))
+  })()
+
+  const reviewParticipants = (state.users || []).map((u) => ({
+    id: u.id,
+    name: u.name,
+    initials: u.initials,
+    role: u.role,
+    color: u.color,
+    bgColor: u.bgColor,
+  }))
+
   const handleOpenPlayerView = () => {
+    setShowConfigureReview(true)
+  }
+
+  const handleConfirmReview = (config: ReviewConfig) => {
+    // Prototype: record the created review request, then launch the player.
+    console.log("[v0] Review session created (casting):", config)
+    setShowConfigureReview(false)
     dispatch({ type: "OPEN_PLAYER_VIEW" })
   }
 
@@ -390,6 +423,17 @@ export default function ViewControls() {
               <Play className="w-4 h-4" />
               <span>Review Sessions</span>
             </button>
+
+            {showConfigureReview && (
+              <ConfigureReviewModal
+                assets={reviewAssets}
+                participants={reviewParticipants}
+                defaultTitle={currentCharacter?.name ? `${currentCharacter.name} — casting review` : "Casting review"}
+                sourceLabel="casting workspace"
+                onCancel={() => setShowConfigureReview(false)}
+                onConfirm={handleConfirmReview}
+              />
+            )}
             <div className="w-px h-5 bg-slate-300 mx-1"></div>
 
             {/* View Mode Toggle */}
