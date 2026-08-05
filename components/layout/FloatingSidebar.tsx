@@ -24,6 +24,7 @@ import {
   Film,
   Home,
   Layout,
+  LayoutDashboard,
 } from "lucide-react"
 import { useCasting } from "@/components/casting/CastingContext"
 import { openModal, closeModal, navigateToModal } from "@/components/modals/ModalManager"
@@ -95,6 +96,7 @@ export default function FloatingSidebar({ isOpen, onClose, onToggle, currentModa
   // Navigation items for the slim strip
   // Order: Project, Script, Characters, Casting, then other items, with Casting Tools at bottom
   const navItems = [
+    { icon: LayoutDashboard, label: "Dashboard", modal: "dashboard", color: "hover:text-emerald-600 hover:bg-emerald-50" },
     { icon: Home, label: "Project", action: handleGoHome, color: "hover:text-emerald-600 hover:bg-emerald-50" },
     { icon: ScrollText, label: "Script", modal: "script", color: "hover:text-amber-600 hover:bg-amber-50" },
     { icon: UserCircle, label: "Characters", modal: "characters", color: "hover:text-purple-600 hover:bg-purple-50" },
@@ -203,6 +205,19 @@ export default function FloatingSidebar({ isOpen, onClose, onToggle, currentModa
 
           {/* Navigation Items */}
           <div className="flex-1 overflow-y-auto p-4 space-y-2">
+            {/* Dashboard Button - top of the menu, project entry point */}
+            <button
+              onClick={() => handleNavigation("dashboard")}
+              className={`w-full flex items-center space-x-3 px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border ${
+                currentModal === "dashboard"
+                  ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                  : "text-slate-700 hover:text-emerald-600 bg-white/60 hover:bg-white border-slate-200/50"
+              }`}
+            >
+              <LayoutDashboard className="w-4 h-4" />
+              <span>Dashboard</span>
+            </button>
+
             {/* Home Button */}
             <button
               onClick={handleGoHome}
