@@ -2206,13 +2206,13 @@ const renderGridView = () => (
             )}
           </div>
 
-          {/* Player View button */}
+          {/* Review Sessions button */}
           <button
             onClick={() => openPlayerView(0)}
             className="flex items-center gap-2 px-3 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 transition-colors"
           >
             <Play className="w-4 h-4" />
-            Player
+            Review Sessions
           </button>
 
           {/* Contacts button */}
@@ -4034,7 +4034,7 @@ const renderGridView = () => (
                   <div>
                     <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
                       <Play className="w-5 h-5 text-cyan-600" />
-                      Player View
+                      Review Sessions
                     </h2>
                     <p className="text-xs text-gray-500">
                       {playerViewIndex + 1} of {playerViewParticipants.length} participants

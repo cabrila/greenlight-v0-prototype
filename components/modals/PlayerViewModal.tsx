@@ -242,7 +242,7 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
         >
           <div className="flex justify-between items-center p-8 border-b border-gray-200 dark:border-gray-700">
             <h2 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
-              Player View
+              Review Sessions
             </h2>
             <button
               onClick={handleClose}
@@ -257,7 +257,7 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
             </div>
             <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">No Project Selected</h3>
             <p className="text-gray-600 dark:text-gray-400 mb-6 text-lg">
-              Please select a project to use the Player View feature.
+              Please select a project to use the Review Sessions feature.
             </p>
             <button
               onClick={handleClose}
@@ -282,7 +282,7 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
         >
           <div className="flex justify-between items-center p-8 border-b border-gray-200 dark:border-gray-700">
             <h2 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
-              Player View
+              Review Sessions
             </h2>
             <button
               onClick={handleClose}
@@ -299,8 +299,8 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
               No {terminology.character?.singular || "Character"} Selected
             </h3>
             <p className="text-gray-600 dark:text-gray-400 mb-6 text-lg">
-              Please select a {safeToLowerCase(terminology.character?.singular || "character")} to use the Player View
-              feature.
+              Please select a {safeToLowerCase(terminology.character?.singular || "character")} to use the Review
+              Sessions feature.
             </p>
             <button
               onClick={handleClose}
@@ -367,7 +367,7 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
 
               <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-2xl p-6 mb-8">
                 <p className="text-gray-700 dark:text-gray-300 leading-relaxed text-lg">
-                  The Player View becomes available once you've added {safeToLowerCase(actorsLabel)} to the{" "}
+                  Review Sessions become available once you've added {safeToLowerCase(actorsLabel)} to the{" "}
                   <span className="font-bold text-emerald-600 dark:text-emerald-400">{currentCharacter.name}</span>{" "}
                   {safeToLowerCase(characterLabel)}. Start by adding some {safeToLowerCase(actorsLabel)} to begin
                   reviewing and voting.
@@ -402,7 +402,7 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
                   onClick={handleClose}
                   className="w-full px-8 py-4 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-lg font-medium"
                 >
-                  Close Player View
+                  Close Review Sessions
                 </button>
               </div>
             </motion.div>

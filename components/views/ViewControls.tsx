@@ -382,13 +382,13 @@ export default function ViewControls() {
               </div>
             )}
 
-            {/* Player View Button */}
+            {/* Review Sessions Button */}
             <button
               onClick={handleOpenPlayerView}
               className="flex items-center space-x-1.5 px-3 py-2 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white rounded-lg font-medium transition-all duration-200 text-sm whitespace-nowrap shadow-md hover:shadow-lg"
             >
               <Play className="w-4 h-4" />
-              <span>Player View</span>
+              <span>Review Sessions</span>
             </button>
             <div className="w-px h-5 bg-slate-300 mx-1"></div>
 
