@@ -11,6 +11,7 @@ interface CreatedReviewSectionProps {
   onOpen: (review: CreatedReview) => void
   onSendReminder: (review: CreatedReview) => void
   onConclude: (review: CreatedReview) => void
+  onDismiss: (review: CreatedReview) => void
 }
 
 export default function CreatedReviewSection({
@@ -19,6 +20,7 @@ export default function CreatedReviewSection({
   onOpen,
   onSendReminder,
   onConclude,
+  onDismiss,
 }: CreatedReviewSectionProps) {
   return (
     <section aria-labelledby="your-reviews-heading">
@@ -51,6 +53,7 @@ export default function CreatedReviewSection({
               onOpen={onOpen}
               onSendReminder={onSendReminder}
               onConclude={onConclude}
+              onDismiss={onDismiss}
             />
           ))}
         </div>

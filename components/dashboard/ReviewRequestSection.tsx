@@ -10,9 +10,10 @@ interface ReviewRequestSectionProps {
   reviews: ReviewRequest[]
   onOpen: (review: ReviewRequest) => void
   onAction: (review: ReviewRequest) => void
+  onDismiss: (review: ReviewRequest) => void
 }
 
-export default function ReviewRequestSection({ reviews, onOpen, onAction }: ReviewRequestSectionProps) {
+export default function ReviewRequestSection({ reviews, onOpen, onAction, onDismiss }: ReviewRequestSectionProps) {
   const open = sortReviewRequests(reviews.filter((r) => !r.currentUserHasResponded))
 
   return (
@@ -38,7 +39,13 @@ export default function ReviewRequestSection({ reviews, onOpen, onAction }: Revi
       ) : (
         <div className="grid grid-cols-1 gap-3">
           {open.map((review) => (
-            <ReviewCard key={review.id} review={review} onOpen={onOpen} onAction={onAction} />
+            <ReviewCard
+              key={review.id}
+              review={review}
+              onOpen={onOpen}
+              onAction={onAction}
+              onDismiss={onDismiss}
+            />
           ))}
         </div>
       )}

@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { CheckCircle2, Bell, AlertCircle, LayoutDashboard } from "lucide-react"
+import { CheckCircle2, Bell, AlertCircle, LayoutDashboard, Settings, BarChart3 } from "lucide-react"
 import { useCasting } from "@/components/casting/CastingContext"
 import FloatingSidebar from "@/components/layout/FloatingSidebar"
 import ModalHeader from "@/components/layout/ModalHeader"
@@ -9,6 +9,7 @@ import { navigateToModal } from "./ModalManager"
 import ReviewRequestSection from "@/components/dashboard/ReviewRequestSection"
 import CreatedReviewSection from "@/components/dashboard/CreatedReviewSection"
 import VerticalOverviewGrid from "@/components/dashboard/VerticalOverviewGrid"
+import ConfirmDialog from "@/components/dashboard/ConfirmDialog"
 import type { VerticalFilter } from "@/components/dashboard/VerticalStatusCard"
 import {
   mockReviewRequests,
@@ -18,6 +19,11 @@ import {
   type ReviewRequest,
   type CreatedReview,
 } from "@/lib/dashboardData"
+
+// Describes a review pending dismissal, awaiting confirmation in the warning dialog.
+type PendingDismiss =
+  | { kind: "request"; review: ReviewRequest }
+  | { kind: "created"; review: CreatedReview }
 
 interface DashboardModalProps {
   onClose: () => void
@@ -34,9 +40,11 @@ export default function DashboardModal({ onClose }: DashboardModalProps) {
   const [status, setStatus] = useState<LoadStatus>("loading")
 
   // Live-ish state so actions have real, visible effects in the prototype.
+  const [reviewRequests, setReviewRequests] = useState<ReviewRequest[]>([])
   const [createdReviews, setCreatedReviews] = useState<CreatedReview[]>([])
   const [reminderState, setReminderState] = useState<Record<string, "sending" | "sent" | undefined>>({})
   const [toast, setToast] = useState<{ tone: "success" | "info"; message: string } | null>(null)
+  const [pendingDismiss, setPendingDismiss] = useState<PendingDismiss | null>(null)
 
   // Simulate a realistic initial load of dashboard data.
   useEffect(() => {
@@ -44,6 +52,7 @@ export default function DashboardModal({ onClose }: DashboardModalProps) {
     const timer = setTimeout(() => {
       if (cancelled) return
       try {
+        setReviewRequests(mockReviewRequests)
         setCreatedReviews(mockCreatedReviews)
         setStatus("ready")
       } catch {
@@ -84,9 +93,35 @@ export default function DashboardModal({ onClose }: DashboardModalProps) {
   }
 
   const handleConclude = (review: CreatedReview) => {
+    const early = !(review.allResponsesReceived && review.canConclude)
     setCreatedReviews((prev) => prev.filter((r) => r.id !== review.id))
-    setToast({ tone: "success", message: `"${review.title}" has been concluded.` })
+    setToast({
+      tone: "success",
+      message: early
+        ? `"${review.title}" was concluded before all responses were in.`
+        : `"${review.title}" has been concluded.`,
+    })
   }
+
+  // Dismissal is a destructive action, so it is routed through a warning dialog.
+  const requestDismiss = (kind: PendingDismiss["kind"], review: ReviewRequest | CreatedReview) =>
+    setPendingDismiss({ kind, review } as PendingDismiss)
+
+  const confirmDismiss = () => {
+    if (!pendingDismiss) return
+    if (pendingDismiss.kind === "request") {
+      setReviewRequests((prev) => prev.filter((r) => r.id !== pendingDismiss.review.id))
+      setToast({ tone: "info", message: `Review request "${pendingDismiss.review.title}" was dismissed.` })
+    } else {
+      setCreatedReviews((prev) => prev.filter((r) => r.id !== pendingDismiss.review.id))
+      setToast({ tone: "info", message: `Review "${pendingDismiss.review.title}" was dismissed.` })
+    }
+    setPendingDismiss(null)
+  }
+
+  const handleOpenSettings = () => navigateToModal("projectManager")
+  const handleOpenReports = () =>
+    setToast({ tone: "info", message: "Reports are coming soon for this project." })
 
   const handleOpenRoute = (route: string) => navigateToModal(route)
   const handleFilterRoute = (route: string, _filter: VerticalFilter) => {
@@ -110,17 +145,39 @@ export default function DashboardModal({ onClose }: DashboardModalProps) {
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-6xl mx-auto w-full px-5 sm:px-8 py-6 sm:py-8">
           {/* Project header */}
-          <header className="mb-8">
-            <div className="flex items-center gap-2 text-emerald-700 mb-1.5">
-              <LayoutDashboard className="w-4 h-4" aria-hidden="true" />
-              <span className="text-xs font-semibold uppercase tracking-widest">Project Dashboard</span>
+          <header className="mb-8 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 text-emerald-700 mb-1.5">
+                <LayoutDashboard className="w-4 h-4" aria-hidden="true" />
+                <span className="text-xs font-semibold uppercase tracking-widest">Project Dashboard</span>
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-semibold text-slate-900 text-balance">
+                {currentProject?.name || "Untitled Project"}
+              </h1>
+              <p className="text-sm text-slate-500 mt-1.5">
+                Welcome back, {firstName}. Here&apos;s what needs your attention.
+              </p>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-semibold text-slate-900 text-balance">
-              {currentProject?.name || "Untitled Project"}
-            </h1>
-            <p className="text-sm text-slate-500 mt-1.5">
-              Welcome back, {firstName}. Here&apos;s what needs your attention.
-            </p>
+
+            {/* Quick actions */}
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={handleOpenSettings}
+                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg border border-slate-200 bg-white text-slate-700 text-sm font-medium hover:bg-slate-50 hover:border-slate-300 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+              >
+                <Settings className="w-4 h-4 text-slate-400" aria-hidden="true" />
+                Project Settings
+              </button>
+              <button
+                type="button"
+                onClick={handleOpenReports}
+                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg border border-slate-200 bg-white text-slate-700 text-sm font-medium hover:bg-slate-50 hover:border-slate-300 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+              >
+                <BarChart3 className="w-4 h-4 text-slate-400" aria-hidden="true" />
+                Reports
+              </button>
+            </div>
           </header>
 
           {status === "loading" && <DashboardSkeleton />}
@@ -138,9 +195,10 @@ export default function DashboardModal({ onClose }: DashboardModalProps) {
               {/* Reviews: two columns on wide screens, stacked on mobile */}
               <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 xl:gap-6">
                 <ReviewRequestSection
-                  reviews={mockReviewRequests}
+                  reviews={reviewRequests}
                   onOpen={handleRequestOpen}
                   onAction={handleRequestAction}
+                  onDismiss={(review) => requestDismiss("request", review)}
                 />
                 <CreatedReviewSection
                   reviews={createdReviews}
@@ -148,6 +206,7 @@ export default function DashboardModal({ onClose }: DashboardModalProps) {
                   onOpen={handleCreatedOpen}
                   onSendReminder={handleSendReminder}
                   onConclude={handleConclude}
+                  onDismiss={(review) => requestDismiss("created", review)}
                 />
               </div>
 
@@ -161,6 +220,24 @@ export default function DashboardModal({ onClose }: DashboardModalProps) {
           )}
         </div>
       </div>
+
+      {/* Dismiss warning */}
+      <ConfirmDialog
+        open={pendingDismiss !== null}
+        title={
+          pendingDismiss?.kind === "request"
+            ? "Dismiss this review request?"
+            : "Dismiss this review?"
+        }
+        message={
+          pendingDismiss?.kind === "request"
+            ? `"${pendingDismiss?.review.title}" will be removed from your list. You won't be reminded to respond, and this can't be undone.`
+            : `"${pendingDismiss?.review.title}" will be removed from your dashboard. Participants will no longer be able to respond, and this can't be undone.`
+        }
+        confirmLabel="Dismiss"
+        onConfirm={confirmDismiss}
+        onCancel={() => setPendingDismiss(null)}
+      />
 
       {/* Toast feedback */}
       {toast && (

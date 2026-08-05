@@ -1,11 +1,12 @@
 "use client"
 
-import { Eye, Bell, CheckCircle, Loader2 } from "lucide-react"
+import { Eye, Bell, CheckCircle, Loader2, XCircle } from "lucide-react"
 import type { CreatedReview } from "@/lib/dashboardData"
 import { VERTICAL_META } from "./verticalMeta"
 import DeadlineBadge from "./DeadlineBadge"
 import ReviewProgress from "./ReviewProgress"
 import MissingParticipants from "./MissingParticipants"
+import CardActionMenu from "./CardActionMenu"
 
 interface CreatedReviewCardProps {
   review: CreatedReview
@@ -14,6 +15,7 @@ interface CreatedReviewCardProps {
   onOpen: (review: CreatedReview) => void
   onSendReminder: (review: CreatedReview) => void
   onConclude: (review: CreatedReview) => void
+  onDismiss: (review: CreatedReview) => void
 }
 
 // Card for a review the current user created and must follow up on.
@@ -24,6 +26,7 @@ export default function CreatedReviewCard({
   onOpen,
   onSendReminder,
   onConclude,
+  onDismiss,
 }: CreatedReviewCardProps) {
   const meta = VERTICAL_META[review.vertical]
   const ready = review.allResponsesReceived && review.canConclude
@@ -56,7 +59,20 @@ export default function CreatedReviewCard({
             <h3 className="text-sm font-semibold text-slate-900 truncate">{review.title}</h3>
           </div>
         </div>
-        <DeadlineBadge deadline={review.deadline} />
+        <div className="flex items-center gap-1 shrink-0">
+          <DeadlineBadge deadline={review.deadline} />
+          <CardActionMenu
+            label="Review session options"
+            items={[
+              {
+                label: "Dismiss review",
+                icon: XCircle,
+                danger: true,
+                onSelect: () => onDismiss(review),
+              },
+            ]}
+          />
+        </div>
       </div>
 
       <div className="mb-3 pl-[42px]">
@@ -94,19 +110,8 @@ export default function CreatedReviewCard({
           {ready ? "Review results" : "View responses"}
         </button>
 
-        {ready ? (
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation()
-              onConclude(review)
-            }}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-semibold hover:bg-emerald-700 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-1"
-          >
-            <CheckCircle className="w-3.5 h-3.5" aria-hidden="true" />
-            Conclude review
-          </button>
-        ) : (
+        {/* Send reminder is only relevant while responses are still outstanding. */}
+        {!ready && (
           <button
             type="button"
             disabled={reminderSent || reminding}
@@ -134,6 +139,26 @@ export default function CreatedReviewCard({
             )}
           </button>
         )}
+
+        {/* Conclude is always available. It reads green once everyone has
+            responded, and stays a neutral gray (but still actionable) when
+            responses are still outstanding. */}
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation()
+            onConclude(review)
+          }}
+          title={ready ? "Conclude this review" : "Conclude before all participants have responded"}
+          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 ${
+            ready
+              ? "bg-emerald-600 text-white hover:bg-emerald-700 focus-visible:ring-emerald-500"
+              : "bg-slate-200 text-slate-600 hover:bg-slate-300 focus-visible:ring-slate-400"
+          }`}
+        >
+          <CheckCircle className="w-3.5 h-3.5" aria-hidden="true" />
+          Conclude review
+        </button>
       </div>
     </div>
   )

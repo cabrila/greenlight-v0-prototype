@@ -1,20 +1,22 @@
 "use client"
 
-import { ArrowRight, UserPlus } from "lucide-react"
+import { ArrowRight, UserPlus, XCircle } from "lucide-react"
 import type { ReviewRequest } from "@/lib/dashboardData"
 import { getDeadlineInfo } from "@/lib/dashboardData"
 import { VERTICAL_META } from "./verticalMeta"
 import DeadlineBadge from "./DeadlineBadge"
 import ReviewProgress from "./ReviewProgress"
+import CardActionMenu from "./CardActionMenu"
 
 interface ReviewCardProps {
   review: ReviewRequest
   onOpen: (review: ReviewRequest) => void
   onAction: (review: ReviewRequest) => void
+  onDismiss: (review: ReviewRequest) => void
 }
 
 // Card for a review the current user has been invited to and must respond to.
-export default function ReviewCard({ review, onOpen, onAction }: ReviewCardProps) {
+export default function ReviewCard({ review, onOpen, onAction, onDismiss }: ReviewCardProps) {
   const meta = VERTICAL_META[review.vertical]
   const { tone } = getDeadlineInfo(review.deadline)
   const urgent = tone === "overdue" || tone === "today"
@@ -47,7 +49,20 @@ export default function ReviewCard({ review, onOpen, onAction }: ReviewCardProps
             <h3 className="text-sm font-semibold text-slate-900 truncate">{review.title}</h3>
           </div>
         </div>
-        <DeadlineBadge deadline={review.deadline} />
+        <div className="flex items-center gap-1 shrink-0">
+          <DeadlineBadge deadline={review.deadline} />
+          <CardActionMenu
+            label="Review request options"
+            items={[
+              {
+                label: "Dismiss request",
+                icon: XCircle,
+                danger: true,
+                onSelect: () => onDismiss(review),
+              },
+            ]}
+          />
+        </div>
       </div>
 
       {/* Subject + creator */}
