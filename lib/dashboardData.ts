@@ -74,6 +74,8 @@ export interface VerticalCard {
   greenlitCount: number
   activeReviewCount: number
   route: string
+  /** True when this vertical has new activity since the user last viewed it. */
+  hasUpdates?: boolean
 }
 
 // Schedule follows a slightly different counting model.
@@ -224,6 +226,7 @@ export const mockVerticalCards: VerticalCard[] = [
     greenlitCount: 10,
     activeReviewCount: 3,
     route: VERTICAL_ROUTE.characters,
+    hasUpdates: true,
   },
   {
     id: "locations",
@@ -260,6 +263,7 @@ export const mockVerticalCards: VerticalCard[] = [
     greenlitCount: 34,
     activeReviewCount: 5,
     route: VERTICAL_ROUTE.props,
+    hasUpdates: true,
   },
 ]
 

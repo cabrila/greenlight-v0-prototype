@@ -55,17 +55,30 @@ export default function VerticalStatusCard({ card, onOpen, onFilter }: VerticalS
     <div className="rounded-xl border border-slate-200 bg-white p-4 flex flex-col hover:shadow-md hover:border-slate-300 transition-all duration-200">
       {/* Header */}
       <div className="flex items-center gap-2.5 mb-3">
-        <span className={`w-9 h-9 rounded-lg ${meta.chip} flex items-center justify-center shrink-0`}>
+        <span className={`relative w-9 h-9 rounded-lg ${meta.chip} flex items-center justify-center shrink-0`}>
           <meta.Icon className={`w-5 h-5 ${meta.icon}`} aria-hidden="true" />
+          {card.hasUpdates && (
+            <span className="absolute -top-1 -right-1 flex h-3 w-3" aria-hidden="true">
+              <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 animate-ping" />
+              <span className="relative inline-flex h-3 w-3 rounded-full bg-emerald-500 ring-2 ring-white" />
+            </span>
+          )}
         </span>
         <button
           type="button"
           onClick={() => onOpen(card)}
           className="text-left min-w-0 flex-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded"
         >
-          <h3 className="text-sm font-semibold text-slate-900 truncate hover:text-emerald-700 transition-colors">
-            {card.name}
-          </h3>
+          <span className="flex items-center gap-1.5 min-w-0">
+            <h3 className="text-sm font-semibold text-slate-900 truncate hover:text-emerald-700 transition-colors">
+              {card.name}
+            </h3>
+            {card.hasUpdates && (
+              <span className="shrink-0 inline-flex items-center rounded-full bg-emerald-50 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-200">
+                Updates
+              </span>
+            )}
+          </span>
           <p className="text-xs text-slate-400 tabular-nums">
             {card.totalCount} {card.totalLabel}
           </p>
