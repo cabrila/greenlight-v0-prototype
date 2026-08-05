@@ -878,6 +878,11 @@ export default function ActorCard({
   const currentUserVote = state.currentUser ? actor.userVotes[state.currentUser.id] : null
   const contactStatus = getContactStatus()
 
+  // Short, human-readable reference code derived from the actor id (e.g. "#A1B2C3D4").
+  const actorCode = actor.id
+    ? `#${String(actor.id).replace(/[^a-zA-Z0-9]/g, "").slice(0, 8).toUpperCase()}`
+    : ""
+
   // Rejected when at least one team member has voted and every vote cast is "no".
   const isRejected = voteStats.votedUsers > 0 && voteStats.noVotes === voteStats.votedUsers
 
@@ -1270,8 +1275,8 @@ export default function ActorCard({
   if (viewMode !== "list-view" && viewMode !== "simple") {
     return (
       <div
-        className={`group relative bg-white border border-slate-200 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer w-full min-w-[325px] max-w-[350px] ${
-          isSelected ? "ring-2 ring-success-500" : ""
+        className={`group relative bg-white border-2 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer w-full min-w-[325px] max-w-[360px] flex flex-col ${
+          isSelected ? "border-success-600 ring-2 ring-success-500" : "border-success-700/70"
         } ${shouldShowDragging ? "opacity-50 scale-95 rotate-1" : ""} ${isDropTarget ? "ring-2 ring-info-400" : ""}`}
         onClick={handleCardClick}
         draggable
@@ -1289,29 +1294,22 @@ export default function ActorCard({
           <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-info-400 rounded z-10" />
         )}
 
+        {/* Quick Assign - shows on hover, top-right of image */}
         <button
           onClick={handleQuickAssignToProject}
-          className="absolute top-3 left-3 bg-indigo-500 bg-opacity-90 hover:bg-opacity-100 text-white rounded-lg p-2 shadow-sm hover:shadow-md transition-all z-10 opacity-0 group-hover:opacity-100"
+          className="absolute top-3 right-3 bg-indigo-500 bg-opacity-90 hover:bg-opacity-100 text-white rounded-lg p-2 shadow-sm hover:shadow-md transition-all z-30 opacity-0 group-hover:opacity-100"
           title="Assign to Project"
         >
           <FolderPlus className="w-4 h-4" />
         </button>
 
-        {/* More Actions Button - Upper Right Corner of Card */}
-        <button
-          onClick={handleMoreActions}
-          className="absolute top-3 right-3 bg-white bg-opacity-90 hover:bg-opacity-100 text-slate-600 hover:text-slate-800 rounded-lg p-2 shadow-sm hover:shadow-md transition-all z-10"
-        >
-          <MoreHorizontal className="w-4 h-4" />
-        </button>
-
         {/* Content */}
         <div className="p-5 overflow-hidden">
-          {/* Top Section: Image + Actor Info */}
-          <div className="flex gap-4 mb-4">
-            {/* Image Container - Fixed size 100x120 */}
+          {/* Top Section: Image on top, Actor Info below */}
+          <div className="flex flex-col gap-4 mb-4">
+            {/* Image Container - full width, landscape */}
             <div
-              className={`relative bg-slate-100 flex-shrink-0 w-[130px] h-[145px] rounded-lg overflow-hidden ${
+              className={`relative bg-slate-100 w-full aspect-[4/3] rounded-xl overflow-hidden ${
                 isDragOver ? "bg-info-100 border-2 border-dashed border-info-400" : ""
               }`}
               onDragEnter={handleImageDragEnter}
@@ -1388,21 +1386,23 @@ export default function ActorCard({
                       e.stopPropagation()
                       navigateHeadshot(-1)
                     }}
-                    className="absolute left-1 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white rounded-full p-1 hover:bg-opacity-70 transition-all opacity-0 group-hover:opacity-100"
+                    className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-white/85 hover:bg-white text-slate-700 rounded-full shadow-md transition-all z-20"
+                    aria-label="Previous photo"
                   >
-                    <ChevronLeft className="w-3 h-3" />
+                    <ChevronLeft className="w-4 h-4" />
                   </button>
                   <button
                     onClick={(e) => {
                       e.stopPropagation()
                       navigateHeadshot(1)
                     }}
-                    className="absolute right-1 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white rounded-full p-1 hover:bg-opacity-70 transition-all opacity-0 group-hover:opacity-100"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-white/85 hover:bg-white text-slate-700 rounded-full shadow-md transition-all z-20"
+                    aria-label="Next photo"
                   >
-                    <ChevronRight className="w-3 h-3" />
+                    <ChevronRight className="w-4 h-4" />
                   </button>
-                  <div className="absolute bottom-1 right-1 bg-black bg-opacity-50 text-white text-xs px-1 py-0.5 rounded">
-                    {currentHeadshotIndex + 1}/{actor.headshots.length}
+                  <div className="absolute bottom-2 right-2 bg-black/60 text-white text-xs font-medium px-2 py-0.5 rounded-md z-20">
+                    {currentHeadshotIndex + 1} / {actor.headshots.length}
                   </div>
                 </>
               )}
@@ -1414,49 +1414,61 @@ export default function ActorCard({
             </div>
 
             {/* Actor Info Section */}
-            <div className="flex-1 min-w-0 overflow-hidden">
-              {/* Actor Name */}
+            <div className="w-full min-w-0 overflow-hidden">
+              {/* Actor Name + ID + Menu */}
               <div className="mb-3">
-                <div className="flex items-center gap-2 mb-1">
+                <div className="flex items-start justify-between gap-2 mb-1">
+                  <div className="flex items-center gap-2 flex-wrap min-w-0">
+                    <button
+                      onClick={handleNameClick}
+                      className="font-bold text-xl text-slate-900 hover:text-success-600 transition-colors break-words text-left leading-tight"
+                    >
+                      {actor.name}
+                    </button>
+                    {actorCode && (
+                      <span className="text-xs font-medium text-slate-400 whitespace-nowrap">{actorCode}</span>
+                    )}
+                    {actor.isCast && (
+                      <div className="flex items-center space-x-1">
+                        <Crown className="w-4 h-4 text-success-600" />
+                        <span className="text-xs text-success-600 font-semibold truncate">Cast as {character.name}</span>
+                      </div>
+                    )}
+                  </div>
                   <button
-                    onClick={handleNameClick}
-                    className="font-bold text-lg text-slate-900 hover:text-success-600 transition-colors break-words text-left"
+                    onClick={handleMoreActions}
+                    className="flex-shrink-0 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg p-1.5 transition-colors"
+                    title="More actions"
                   >
-                    {actor.name}
+                    <MoreHorizontal className="w-5 h-5" />
                   </button>
-                  {actor.isCast && (
-                    <div className="flex items-center space-x-1">
-                      <Crown className="w-4 h-4 text-success-600" />
-                      <span className="text-xs text-success-600 font-semibold truncate">Cast as {character.name}</span>
-                    </div>
-                  )}
                 </div>
 
-                {/* Basic Info - Stacked Layout */}
-                <div className="space-y-1 text-xs text-slate-400 overflow-hidden">
+                {/* Basic Info - Inline */}
+                <div className="flex items-center flex-wrap gap-x-4 gap-y-1.5 text-sm text-slate-500 overflow-hidden">
                   {state.cardViewSettings.age && actor.age && (
-                    <div className="flex items-center gap-2">
-                      <Calendar className="w-3 h-3 text-slate-400 flex-shrink-0" />
-                      <span className="font-medium text-slate-400">Age: {actor.age}</span>
-                    </div>
-                  )}
-                  {state.cardViewSettings.playingAge && actor.playingAge && (
-                    <div className="flex items-center gap-2">
-                      <User className="w-3 h-3 text-slate-400 flex-shrink-0" />
-                      <span className="font-medium text-slate-400">Playing: {actor.playingAge}</span>
-                    </div>
+                    <span className="whitespace-nowrap">
+                      Age <span className="font-semibold text-slate-800">{actor.age}</span>
+                    </span>
                   )}
                   {state.cardViewSettings.location && actor.location && (
-                    <div className="flex items-center gap-2 min-w-0">
-                      <MapPin className="w-3 h-3 text-slate-400 flex-shrink-0" />
-                      <span className="truncate font-medium text-slate-400">{actor.location}</span>
-                    </div>
+                    <span className="min-w-0 truncate">
+                      Location <span className="font-semibold text-slate-800">{actor.location}</span>
+                    </span>
+                  )}
+                  {state.cardViewSettings.playingAge && actor.playingAge && (
+                    <span className="flex items-center gap-1.5 whitespace-nowrap">
+                      Play age
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full border border-slate-300 text-slate-700 font-semibold text-xs">
+                        {actor.playingAge}
+                      </span>
+                    </span>
                   )}
                   {state.cardViewSettings.agent && actor.agent && (
-                    <div className="flex items-center gap-2 min-w-0">
-                      <User className="w-3 h-3 text-slate-400 flex-shrink-0" />
-                      <span className="truncate font-medium text-slate-400">{actor.agent}</span>
-                    </div>
+                    <span className="flex items-center gap-1.5 min-w-0">
+                      <User className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+                      <span className="truncate font-medium text-slate-600">{actor.agent}</span>
+                    </span>
                   )}
                   {state.cardViewSettings.imdbUrl && actor.imdbUrl && (
                     <a
@@ -1464,7 +1476,7 @@ export default function ActorCard({
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={(e) => e.stopPropagation()}
-                      className="flex items-center gap-2 text-info-600 hover:text-info-800 transition-colors"
+                      className="flex items-center gap-1.5 text-info-600 hover:text-info-800 transition-colors"
                     >
                       <span className="text-xs font-medium underline">IMDB Profile</span>
                     </a>
@@ -1554,7 +1566,7 @@ export default function ActorCard({
                 {actor.skills.map((skill, index) => (
                   <span
                     key={index}
-                    className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-info-100 text-info-700 border border-info-200"
+                    className="inline-flex items-center px-3 py-1 rounded-lg text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200"
                   >
                     {skill}
                   </span>
@@ -1574,36 +1586,12 @@ export default function ActorCard({
           {state.cardViewSettings.showVotes && (
             <div className="border-t border-slate-200 pt-4">
               <div className="flex items-center justify-between mb-3">
-                <div className="flex space-x-2 overflow-hidden">
-                  {state.users.map((user) => {
-                    const userVote = actor.userVotes[user.id]
-                    let bgGradient = "bg-gradient-to-br from-slate-200 to-slate-300"
-                    let textColor = "text-slate-600"
-
-                    if (userVote === "yes") {
-                      bgGradient = "bg-gradient-to-br from-emerald-500 to-emerald-600"
-                      textColor = "text-white"
-                    } else if (userVote === "no") {
-                      bgGradient = "bg-gradient-to-br from-red-500 to-red-600"
-                      textColor = "text-white"
-                    } else if (userVote === "maybe") {
-                      bgGradient = "bg-gradient-to-br from-blue-500 to-blue-600"
-                      textColor = "text-white"
-                    }
-
-                    return (
-                      <div
-                        key={user.id}
-                        className={`w-6 h-6 rounded-xl flex items-center justify-center text-[10px] font-bold ${bgGradient} ${textColor} shadow-sm flex-shrink-0`}
-                        title={user.name}
-                      >
-                        {user.initials}
-                      </div>
-                    )
-                  })}
-                </div>
-                <span className="text-sm text-slate-500 font-medium flex-shrink-0 whitespace-nowrap">
-                  {voteStats.votedUsers}/{voteStats.totalUsers} voted
+                <span className="text-sm font-semibold text-slate-800">Selection</span>
+                <span className="text-sm text-slate-500 flex-shrink-0 whitespace-nowrap">
+                  <span className="font-semibold text-slate-700">
+                    {voteStats.votedUsers}/{voteStats.totalUsers}
+                  </span>{" "}
+                  voted
                 </span>
               </div>
 
@@ -1623,37 +1611,48 @@ export default function ActorCard({
 
               {/* Action Buttons - Hide for cast actors */}
               {!actor.isCast && state.currentUser && state.cardViewSettings.showActionButtons && (
-                <div className="grid grid-cols-3 gap-1">
-                  <button
-                    onClick={(e) => { e.stopPropagation(); handleVote("yes") }}
-                    className={`px-1.5 py-1 text-[10px] font-semibold rounded-full text-center transition-all duration-200 active:scale-95 ${
-                      currentUserVote === "yes"
-                        ? "bg-[#b5c9a8] text-[#4a5b3f] ring-2 ring-[#8fa67e]"
-                        : "bg-[#d5dece] text-[#6b7a5e] hover:bg-[#c8d4bf]"
-                    }`}
-                  >
-                    Yes
-                  </button>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); handleVote("maybe") }}
-                    className={`px-1.5 py-1 text-[10px] font-semibold rounded-full text-center transition-all duration-200 active:scale-95 ${
-                      currentUserVote === "maybe"
-                        ? "bg-[#f0d9b5] text-[#7a6a3a] ring-2 ring-[#d4b88a]"
-                        : "bg-[#f5e6d0] text-[#9b8a5e] hover:bg-[#eddbbd]"
-                    }`}
-                  >
-                    Maybe
-                  </button>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); handleVote("no") }}
-                    className={`px-1.5 py-1 text-[10px] font-semibold rounded-full text-center transition-all duration-200 active:scale-95 ${
-                      currentUserVote === "no"
-                        ? "bg-[#e8b4b8] text-[#8b4c4f] ring-2 ring-[#d49396]"
-                        : "bg-[#f0cdd0] text-[#a06b6e] hover:bg-[#e8bfc3]"
-                    }`}
-                  >
-                    No
-                  </button>
+                <div className="grid grid-cols-3 gap-2">
+                  {(
+                    [
+                      { value: "yes", label: "Yes", base: "bg-[#b5c9a8] text-[#3f5033]" },
+                      { value: "maybe", label: "Maybe", base: "bg-[#f0d9b5] text-[#7a6a3a]" },
+                      { value: "no", label: "No", base: "bg-[#e8b4b8] text-[#8b4c4f]" },
+                    ] as const
+                  ).map((opt) => {
+                    const voters = state.users.filter((u) => actor.userVotes[u.id] === opt.value)
+                    const isActive = currentUserVote === opt.value
+                    return (
+                      <button
+                        key={opt.value}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleVote(opt.value)
+                        }}
+                        className={`flex items-center justify-between gap-1 px-3 py-2 rounded-full text-sm font-semibold transition-all duration-200 active:scale-95 ${opt.base} ${
+                          isActive ? "ring-2 ring-slate-900/70" : "hover:brightness-95"
+                        }`}
+                      >
+                        <span>{opt.label}</span>
+                        {voters.length > 0 && (
+                          <span className="flex items-center gap-0.5 flex-shrink-0">
+                            <span
+                              className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold ring-2 ring-white/70"
+                              style={{
+                                backgroundColor: voters[0].bgColor || "#64748b",
+                                color: voters[0].color || "#ffffff",
+                              }}
+                              title={voters.map((v) => v.name).join(", ")}
+                            >
+                              {voters[0].initials}
+                            </span>
+                            {voters.length > 1 && (
+                              <span className="text-[10px] font-bold opacity-80">+{voters.length - 1}</span>
+                            )}
+                          </span>
+                        )}
+                      </button>
+                    )
+                  })}
                 </div>
               )}
             </div>
