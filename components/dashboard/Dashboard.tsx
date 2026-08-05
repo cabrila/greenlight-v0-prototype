@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
-import { AlertCircle, LayoutDashboard, RefreshCw } from "lucide-react"
+import { AlertCircle, BarChart3, LayoutDashboard, RefreshCw, Settings } from "lucide-react"
 import { useCasting } from "@/components/casting/CastingContext"
 import { navigateToModal } from "@/components/modals/ModalManager"
 import {
@@ -47,6 +47,7 @@ export default function Dashboard() {
   const [data, setData] = useState<DashboardData | null>(null)
   const [reminded, setReminded] = useState<Record<string, boolean>>({})
   const [concluded, setConcluded] = useState<Record<string, boolean>>({})
+  const [dismissed, setDismissed] = useState<Record<string, boolean>>({})
 
   // Simulate an async load of the dashboard snapshot.
   const load = () => {
@@ -79,10 +80,16 @@ export default function Dashboard() {
 
   const handleSendReminder = (id: string) => setReminded((r) => ({ ...r, [id]: true }))
   const handleConclude = (id: string) => setConcluded((c) => ({ ...c, [id]: true }))
+  const handleDismiss = (id: string) => setDismissed((d) => ({ ...d, [id]: true }))
+
+  const activeRequests = useMemo(
+    () => (data?.requests || []).filter((r) => !dismissed[r.id]),
+    [data, dismissed],
+  )
 
   const activeCreated = useMemo(
-    () => (data?.created || []).filter((r) => !concluded[r.id]),
-    [data, concluded],
+    () => (data?.created || []).filter((r) => !concluded[r.id] && !dismissed[r.id]),
+    [data, concluded, dismissed],
   )
 
   const firstName = currentUser?.name?.split(" ")[0]
@@ -90,18 +97,37 @@ export default function Dashboard() {
   return (
     <main className="mx-auto w-full max-w-6xl px-5 py-8 sm:px-8">
       {/* Header */}
-      <header className="mb-8">
-        <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-emerald-600">
-          <LayoutDashboard className="h-4 w-4" aria-hidden="true" />
-          Project dashboard
+      <header className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-emerald-600">
+            <LayoutDashboard className="h-4 w-4" aria-hidden="true" />
+            Project dashboard
+          </div>
+          <h1 className="mt-2 text-2xl font-semibold tracking-tight text-slate-900 text-balance sm:text-3xl">
+            {currentProject?.name || "Untitled project"}
+          </h1>
+          <p className="mt-1 text-sm text-slate-500">
+            {firstName ? `Welcome back, ${firstName}. ` : ""}
+            Here&apos;s what needs your attention across the production.
+          </p>
         </div>
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight text-slate-900 text-balance sm:text-3xl">
-          {currentProject?.name || "Untitled project"}
-        </h1>
-        <p className="mt-1 text-sm text-slate-500">
-          {firstName ? `Welcome back, ${firstName}. ` : ""}
-          Here&apos;s what needs your attention across the production.
-        </p>
+
+        <div className="flex shrink-0 items-center gap-2">
+          <button
+            onClick={() => navigateToModal("projectManager")}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm transition-colors hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+          >
+            <Settings className="h-4 w-4 text-slate-500" aria-hidden="true" />
+            Project Settings
+          </button>
+          <button
+            onClick={() => navigateToModal("reports")}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm transition-colors hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+          >
+            <BarChart3 className="h-4 w-4 text-slate-500" aria-hidden="true" />
+            Reports
+          </button>
+        </div>
       </header>
 
       {status === "loading" && <DashboardSkeleton />}
@@ -129,12 +155,18 @@ export default function Dashboard() {
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
             <section aria-labelledby="requests-heading">
               <div id="requests-heading">
-                <SectionHeader title="Reviews requiring your response" count={data.requests.length} />
+                <SectionHeader title="Reviews requiring your response" count={activeRequests.length} />
               </div>
-              {data.requests.length > 0 ? (
+              {activeRequests.length > 0 ? (
                 <div className="flex flex-col gap-3">
-                  {data.requests.map((r) => (
-                    <ReviewCard key={r.id} variant="request" review={r} onOpen={openVertical} />
+                  {activeRequests.map((r) => (
+                    <ReviewCard
+                      key={r.id}
+                      variant="request"
+                      review={r}
+                      onOpen={openVertical}
+                      onDismiss={handleDismiss}
+                    />
                   ))}
                 </div>
               ) : (
@@ -159,6 +191,7 @@ export default function Dashboard() {
                       onOpen={openVertical}
                       onSendReminder={handleSendReminder}
                       onConclude={handleConclude}
+                      onDismiss={handleDismiss}
                       reminderSent={reminded[r.id]}
                     />
                   ))}

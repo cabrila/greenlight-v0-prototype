@@ -1,13 +1,16 @@
 "use client"
 
-import { ArrowRight, Bell, CheckCircle2, ClipboardList, FileCheck2 } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
+import { ArrowRight, Bell, CheckCircle2, ClipboardList, FileCheck2, MoreHorizontal, Trash2 } from "lucide-react"
 import type { ReviewRequest, CreatedReview } from "@/types/dashboard"
 import { DeadlineBadge, ReviewProgress, MissingParticipants } from "./DashboardPrimitives"
+import ConfirmDialog from "./ConfirmDialog"
 
 interface RequestCardProps {
   variant: "request"
   review: ReviewRequest
   onOpen: (route: string) => void
+  onDismiss: (id: string) => void
 }
 
 interface CreatedCardProps {
@@ -16,6 +19,7 @@ interface CreatedCardProps {
   onOpen: (route: string) => void
   onSendReminder: (id: string) => void
   onConclude: (id: string) => void
+  onDismiss: (id: string) => void
   reminderSent?: boolean
 }
 
@@ -30,6 +34,22 @@ function urgencyRing(status: string) {
 
 export default function ReviewCard(props: ReviewCardProps) {
   const { review, onOpen } = props
+
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [confirmDismiss, setConfirmDismiss] = useState(false)
+  const menuRef = useRef<HTMLDivElement>(null)
+
+  // Close the dropdown when clicking outside of it.
+  useEffect(() => {
+    if (!menuOpen) return
+    const onClick = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenuOpen(false)
+    }
+    document.addEventListener("mousedown", onClick)
+    return () => document.removeEventListener("mousedown", onClick)
+  }, [menuOpen])
+
+  const isRequest = props.variant === "request"
 
   return (
     <article
@@ -57,7 +77,39 @@ export default function ReviewCard(props: ReviewCardProps) {
             )}
           </p>
         </div>
-        <DeadlineBadge deadline={review.deadline} status={review.status} />
+        <div className="flex shrink-0 items-center gap-1.5">
+          <DeadlineBadge deadline={review.deadline} status={review.status} />
+          {/* Contextual kebab menu */}
+          <div className="relative" ref={menuRef}>
+            <button
+              onClick={() => setMenuOpen((o) => !o)}
+              aria-label="Review options"
+              aria-haspopup="menu"
+              aria-expanded={menuOpen}
+              className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+            >
+              <MoreHorizontal className="h-4 w-4" aria-hidden="true" />
+            </button>
+            {menuOpen && (
+              <div
+                role="menu"
+                className="absolute right-0 top-full z-20 mt-1 w-44 overflow-hidden rounded-xl border border-slate-200 bg-white py-1 shadow-lg"
+              >
+                <button
+                  role="menuitem"
+                  onClick={() => {
+                    setMenuOpen(false)
+                    setConfirmDismiss(true)
+                  }}
+                  className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs font-medium text-red-600 transition-colors hover:bg-red-50 focus:outline-none focus-visible:bg-red-50"
+                >
+                  <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
+                  Dismiss {isRequest ? "request" : "review"}
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Progress */}
@@ -101,15 +153,8 @@ export default function ReviewCard(props: ReviewCardProps) {
               <FileCheck2 className="h-3.5 w-3.5 text-slate-400" aria-hidden="true" />
               {props.review.canConclude ? "Review results" : "View responses"}
             </button>
-            {props.review.canConclude ? (
-              <button
-                onClick={() => props.onConclude(props.review.id)}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-emerald-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-1"
-              >
-                <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
-                Conclude review
-              </button>
-            ) : (
+            {/* Send reminder is only relevant while responses are still outstanding */}
+            {!props.review.canConclude && (
               <button
                 onClick={() => props.onSendReminder(props.review.id)}
                 disabled={props.reminderSent}
@@ -128,9 +173,46 @@ export default function ReviewCard(props: ReviewCardProps) {
                 )}
               </button>
             )}
+            {/* Conclude is always available. Green once everyone has responded,
+                otherwise a muted gray to signal it's an early close. */}
+            <button
+              onClick={() => props.onConclude(props.review.id)}
+              title={
+                props.review.canConclude
+                  ? "All responses received — conclude this review"
+                  : "Conclude now, before all participants have responded"
+              }
+              className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 ${
+                props.review.canConclude
+                  ? "bg-emerald-600 hover:bg-emerald-700 focus-visible:ring-emerald-500"
+                  : "bg-slate-400 hover:bg-slate-500 focus-visible:ring-slate-400"
+              }`}
+            >
+              <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
+              Conclude review
+            </button>
           </>
         )}
       </div>
+
+      {/* Dismiss confirmation */}
+      <ConfirmDialog
+        open={confirmDismiss}
+        tone="danger"
+        title={isRequest ? "Dismiss this review request?" : "Dismiss this review?"}
+        description={
+          isRequest
+            ? `"${review.title}" will be removed from your dashboard. You can still access it from the ${review.verticalLabel} view, but it won't appear here as needing your response.`
+            : `"${review.title}" will be removed from your dashboard. Participants keep their access, but you'll no longer track its responses here.`
+        }
+        confirmLabel="Dismiss"
+        cancelLabel="Keep"
+        onCancel={() => setConfirmDismiss(false)}
+        onConfirm={() => {
+          setConfirmDismiss(false)
+          props.onDismiss(review.id)
+        }}
+      />
     </article>
   )
 }
