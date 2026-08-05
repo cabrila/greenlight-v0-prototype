@@ -11,7 +11,7 @@ import {
 import { useCasting } from "@/components/casting/CastingContext"
 import { isValidImageUrl } from "@/lib/utils"
 import { closeAllModals } from "../modals/ModalManager"
-import ConfigureReviewModal, { type ReviewAsset, type ReviewConfig } from "../modals/ConfigureReviewModal"
+import ConfigureReviewModal, { type ReviewAsset, type ReviewConfig, type ReviewVertical } from "../modals/ConfigureReviewModal"
 import CanvasItemCard, { type CanvasItem, type CanvasItemType, type ViewSize, TYPE_CONFIG, CARD_DIMENSIONS } from "./CanvasItemCard"
 import CanvasElement from "./CanvasElement"
 import CanvasWidget from "./CanvasWidget"
@@ -1085,15 +1085,36 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
   // pure drawing elements (text, shapes) that aren't production assets.
   const reviewAssets: ReviewAsset[] = useMemo(() => {
     const selected = new Set(selectedIds)
+    const verticalFor = (t: CanvasItemType): ReviewVertical =>
+      t === "actor" ? "cast" : t === "location" ? "location" : t === "prop" ? "prop" : t === "costume" ? "costume" : "generic"
     return items
       .filter((it) => selected.has(it.id) && !isElement(it.type) && !isWidget(it.type) && it.type !== "note")
-      .map((it) => ({
-        id: it.id,
-        title: it.title || TYPE_CONFIG[it.type]?.label || "Asset",
-        subtitle: it.subtitle,
-        image: it.image || it.images?.[0],
-        typeLabel: TYPE_CONFIG[it.type]?.label,
-      }))
+      .map((it) => {
+        const imgs = it.images && it.images.length > 0 ? it.images : it.image ? [it.image] : []
+        const isLocation = it.type === "location"
+        const content = [
+          ...imgs.map((_, i) => ({
+            id: `image-${i}`,
+            label: isLocation ? `Photo ${i + 1}` : `Image ${i + 1}`,
+            kind: (isLocation ? "map" : "image") as "map" | "image",
+          })),
+          ...(it.subtitle || it.meta
+            ? [{ id: "details", label: isLocation ? "Location details" : "Details & specs", kind: "field" as const }]
+            : []),
+          ...(it.tags && it.tags.length > 0
+            ? [{ id: "tags", label: `Tags (${it.tags.length})`, kind: "field" as const }]
+            : []),
+        ]
+        return {
+          id: it.id,
+          title: it.title || TYPE_CONFIG[it.type]?.label || "Asset",
+          subtitle: it.subtitle,
+          image: it.image || it.images?.[0],
+          typeLabel: TYPE_CONFIG[it.type]?.label,
+          vertical: verticalFor(it.type),
+          content,
+        }
+      })
   }, [items, selectedIds])
 
   const reviewParticipants = useMemo(

@@ -12,11 +12,30 @@ import {
   Users,
   Play,
   Check,
+  ChevronRight,
+  ImageIcon,
+  Video,
+  FileText,
+  StickyNote,
+  Map as MapIcon,
+  LayoutGrid,
+  Layers,
+  SlidersHorizontal,
 } from "lucide-react"
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
 /* ------------------------------------------------------------------ */
+
+export type ReviewVertical = "cast" | "location" | "prop" | "costume" | "generic"
+
+export type ReviewContentKind = "image" | "video" | "field" | "note" | "map" | "document"
+
+export interface ReviewContentItem {
+  id: string
+  label: string
+  kind: ReviewContentKind
+}
 
 export interface ReviewAsset {
   id: string
@@ -24,6 +43,10 @@ export interface ReviewAsset {
   subtitle?: string
   image?: string
   typeLabel?: string
+  /** Vertical this asset belongs to — drives the recommended player layout. */
+  vertical?: ReviewVertical
+  /** Discrete content pieces the reviewer could be shown for this asset. */
+  content?: ReviewContentItem[]
 }
 
 export interface ReviewParticipant {
@@ -37,6 +60,8 @@ export interface ReviewParticipant {
 
 export type ReviewMode = "buttons" | "comments" | "stars"
 
+export type PlayerLayout = "spotlight" | "gallery" | "detail"
+
 export interface ReviewConfig {
   title: string
   mode: ReviewMode
@@ -45,16 +70,18 @@ export interface ReviewConfig {
   deadline: string
   note: string
   assetIds: string[]
+  /** Map of assetId -> included content item ids. */
+  includedContent: Record<string, string[]>
+  /** Customized player view layout. */
+  playerLayout: PlayerLayout
+  /** Dominant vertical of the reviewed assets. */
+  vertical: ReviewVertical
 }
 
 interface ConfigureReviewModalProps {
-  /** Assets the user selected to review. */
   assets: ReviewAsset[]
-  /** Team members who can be invited as reviewers. */
   participants: ReviewParticipant[]
-  /** Prefilled session name. */
   defaultTitle?: string
-  /** Label describing where the review was launched from, e.g. "canvas selection". */
   sourceLabel?: string
   onCancel: () => void
   onConfirm: (config: ReviewConfig) => void
@@ -70,6 +97,64 @@ const REVIEW_MODES: { key: ReviewMode; label: string; description: string; icon:
   { key: "stars", label: "Stars (1–5)", description: "Rated score per asset", icon: Star },
 ]
 
+const CONTENT_ICONS: Record<ReviewContentKind, typeof ImageIcon> = {
+  image: ImageIcon,
+  video: Video,
+  field: FileText,
+  note: StickyNote,
+  map: MapIcon,
+  document: FileText,
+}
+
+/** Layout presets, labelled per-vertical so Locations, Cast, etc. read naturally. */
+const LAYOUT_PRESETS: {
+  key: PlayerLayout
+  icon: typeof LayoutGrid
+  label: (v: ReviewVertical) => string
+  description: (v: ReviewVertical) => string
+}[] = [
+  {
+    key: "spotlight",
+    icon: Play,
+    label: (v) => (v === "cast" ? "Headshot spotlight" : "Hero spotlight"),
+    description: (v) =>
+      v === "cast"
+        ? "One large headshot with reel below"
+        : "One large image with details below",
+  },
+  {
+    key: "gallery",
+    icon: LayoutGrid,
+    label: (v) => (v === "location" ? "Location gallery" : "Gallery grid"),
+    description: (v) =>
+      v === "location" ? "All photos in a scannable grid" : "Every image shown as a grid",
+  },
+  {
+    key: "detail",
+    icon: Layers,
+    label: () => "Detail panel",
+    description: (v) =>
+      v === "cast" ? "Media beside full profile fields" : "Media beside all specs & notes",
+  },
+]
+
+/** Recommended default layout for each vertical. */
+const DEFAULT_LAYOUT: Record<ReviewVertical, PlayerLayout> = {
+  cast: "spotlight",
+  location: "gallery",
+  prop: "detail",
+  costume: "detail",
+  generic: "spotlight",
+}
+
+const VERTICAL_LABEL: Record<ReviewVertical, string> = {
+  cast: "Cast",
+  location: "Locations",
+  prop: "Props",
+  costume: "Costume / HMU",
+  generic: "Assets",
+}
+
 function toInitials(name: string) {
   return name
     .split(" ")
@@ -78,6 +163,24 @@ function toInitials(name: string) {
     .slice(0, 2)
     .join("")
     .toUpperCase()
+}
+
+/** Pick the most common vertical across the selected assets. */
+function dominantVertical(assets: ReviewAsset[]): ReviewVertical {
+  const counts: Record<string, number> = {}
+  for (const a of assets) {
+    const v = a.vertical || "generic"
+    counts[v] = (counts[v] || 0) + 1
+  }
+  let best: ReviewVertical = "generic"
+  let bestN = -1
+  for (const [v, n] of Object.entries(counts)) {
+    if (n > bestN) {
+      best = v as ReviewVertical
+      bestN = n
+    }
+  }
+  return best
 }
 
 /* ------------------------------------------------------------------ */
@@ -92,6 +195,8 @@ export default function ConfigureReviewModal({
   onCancel,
   onConfirm,
 }: ConfigureReviewModalProps) {
+  const vertical = useMemo(() => dominantVertical(assets), [assets])
+
   const [title, setTitle] = useState(defaultTitle || "New review session")
   const [mode, setMode] = useState<ReviewMode>("buttons")
   const [buttonLabels, setButtonLabels] = useState<string[]>(["Approve", "Maybe", "Pass"])
@@ -100,6 +205,15 @@ export default function ConfigureReviewModal({
   const [deadline, setDeadline] = useState("")
   const [note, setNote] = useState("")
   const [assetIds, setAssetIds] = useState<string[]>(assets.map((a) => a.id))
+  const [playerLayout, setPlayerLayout] = useState<PlayerLayout>(DEFAULT_LAYOUT[vertical])
+  const [expandedAsset, setExpandedAsset] = useState<string | null>(null)
+
+  // Per-asset content selection — everything included by default.
+  const [includedContent, setIncludedContent] = useState<Record<string, string[]>>(() => {
+    const init: Record<string, string[]> = {}
+    for (const a of assets) init[a.id] = (a.content || []).map((c) => c.id)
+    return init
+  })
 
   const includedCount = assetIds.length
   const canStart = includedCount > 0 && reviewerIds.length > 0 && title.trim().length > 0
@@ -109,6 +223,13 @@ export default function ConfigureReviewModal({
 
   const toggleAsset = (id: string) =>
     setAssetIds((prev) => (prev.includes(id) ? prev.filter((a) => a !== id) : [...prev, id]))
+
+  const toggleContent = (assetId: string, contentId: string) =>
+    setIncludedContent((prev) => {
+      const cur = prev[assetId] || []
+      const next = cur.includes(contentId) ? cur.filter((c) => c !== contentId) : [...cur, contentId]
+      return { ...prev, [assetId]: next }
+    })
 
   const addLabel = () => {
     const v = newLabel.trim()
@@ -128,6 +249,9 @@ export default function ConfigureReviewModal({
 
   const submit = () => {
     if (!canStart) return
+    // Only report content for assets that are actually included.
+    const scopedContent: Record<string, string[]> = {}
+    for (const id of assetIds) scopedContent[id] = includedContent[id] || []
     onConfirm({
       title: title.trim(),
       mode,
@@ -136,6 +260,9 @@ export default function ConfigureReviewModal({
       deadline,
       note: note.trim(),
       assetIds,
+      includedContent: scopedContent,
+      playerLayout,
+      vertical,
     })
   }
 
@@ -144,11 +271,7 @@ export default function ConfigureReviewModal({
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
       {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
-        onClick={onCancel}
-        aria-hidden="true"
-      />
+      <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={onCancel} aria-hidden="true" />
 
       {/* Card */}
       <div
@@ -169,6 +292,7 @@ export default function ConfigureReviewModal({
               </h2>
               <p className="text-xs text-slate-500">
                 {includedCount} {includedCount === 1 ? "asset" : "assets"}
+                {vertical !== "generic" ? ` · ${VERTICAL_LABEL[vertical]}` : ""}
                 {sourceLabel ? ` from ${sourceLabel}` : ""}
               </p>
             </div>
@@ -272,6 +396,44 @@ export default function ConfigureReviewModal({
               )}
             </div>
 
+            {/* Player view layout (per-vertical) */}
+            <div>
+              <span className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold text-slate-700">
+                <SlidersHorizontal className="h-3.5 w-3.5 text-slate-400" />
+                {VERTICAL_LABEL[vertical]} player view
+              </span>
+              <div className="grid grid-cols-3 gap-2">
+                {LAYOUT_PRESETS.map((preset) => {
+                  const Icon = preset.icon
+                  const active = playerLayout === preset.key
+                  const recommended = DEFAULT_LAYOUT[vertical] === preset.key
+                  return (
+                    <button
+                      key={preset.key}
+                      type="button"
+                      onClick={() => setPlayerLayout(preset.key)}
+                      className={`relative flex flex-col items-start gap-1 rounded-xl border p-3 text-left transition-colors ${
+                        active
+                          ? "border-emerald-500 bg-emerald-50 ring-1 ring-emerald-500"
+                          : "border-slate-200 bg-white hover:bg-slate-50"
+                      }`}
+                    >
+                      {recommended && (
+                        <span className="absolute right-1.5 top-1.5 rounded-full bg-emerald-100 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-emerald-600">
+                          Rec
+                        </span>
+                      )}
+                      <Icon className={`h-4 w-4 ${active ? "text-emerald-600" : "text-slate-400"}`} />
+                      <span className={`text-xs font-semibold ${active ? "text-emerald-700" : "text-slate-700"}`}>
+                        {preset.label(vertical)}
+                      </span>
+                      <span className="text-[11px] leading-tight text-slate-500">{preset.description(vertical)}</span>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
             {/* Reviewers */}
             <div>
               <span className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold text-slate-700">
@@ -351,47 +513,92 @@ export default function ConfigureReviewModal({
               />
             </div>
 
-            {/* Assets to include */}
+            {/* Assets to include (with per-asset content selection) */}
             <div>
               <span className="mb-1.5 block text-xs font-semibold text-slate-700">
-                Assets to include ({includedCount}/{assets.length})
+                Assets &amp; content to include ({includedCount}/{assets.length})
               </span>
-              <div className="max-h-44 space-y-1.5 overflow-y-auto rounded-xl border border-slate-200 p-2">
+              <div className="max-h-64 space-y-1.5 overflow-y-auto rounded-xl border border-slate-200 p-2">
                 {assets.map((a) => {
                   const checked = assetIds.includes(a.id)
+                  const content = a.content || []
+                  const expanded = expandedAsset === a.id
+                  const includedForAsset = includedContent[a.id] || []
                   return (
-                    <button
+                    <div
                       key={a.id}
-                      type="button"
-                      onClick={() => toggleAsset(a.id)}
-                      className={`flex w-full items-center gap-3 rounded-lg px-2 py-1.5 text-left transition-colors ${
-                        checked ? "bg-emerald-50/60" : "opacity-60 hover:opacity-100"
-                      }`}
+                      className={`rounded-lg transition-colors ${checked ? "bg-emerald-50/60" : "opacity-60"}`}
                     >
-                      <span className="h-9 w-9 shrink-0 overflow-hidden rounded-md bg-slate-100">
-                        {a.image ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={a.image || "/placeholder.svg"} alt={a.title} className="h-full w-full object-cover" />
-                        ) : null}
-                      </span>
-                      <span className="min-w-0 flex-1">
-                        <span className="block truncate text-sm font-medium text-slate-800">{a.title}</span>
-                        {(a.typeLabel || a.subtitle) && (
-                          <span className="block truncate text-[11px] text-slate-500">
-                            {a.typeLabel}
-                            {a.typeLabel && a.subtitle ? " · " : ""}
-                            {a.subtitle}
+                      <div className="flex items-center gap-2 px-2 py-1.5">
+                        <button
+                          type="button"
+                          onClick={() => toggleAsset(a.id)}
+                          className="flex min-w-0 flex-1 items-center gap-3 text-left"
+                        >
+                          <span className="h-9 w-9 shrink-0 overflow-hidden rounded-md bg-slate-100">
+                            {a.image ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img src={a.image || "/placeholder.svg"} alt={a.title} className="h-full w-full object-cover" />
+                            ) : null}
                           </span>
+                          <span className="min-w-0 flex-1">
+                            <span className="block truncate text-sm font-medium text-slate-800">{a.title}</span>
+                            {(a.typeLabel || a.subtitle) && (
+                              <span className="block truncate text-[11px] text-slate-500">
+                                {a.typeLabel}
+                                {a.typeLabel && a.subtitle ? " · " : ""}
+                                {a.subtitle}
+                              </span>
+                            )}
+                          </span>
+                          <span
+                            className={`flex h-5 w-5 items-center justify-center rounded-md border ${
+                              checked ? "border-emerald-500 bg-emerald-500 text-white" : "border-slate-300 bg-white"
+                            }`}
+                          >
+                            {checked && <Check className="h-3.5 w-3.5" />}
+                          </span>
+                        </button>
+                        {content.length > 0 && checked && (
+                          <button
+                            type="button"
+                            onClick={() => setExpandedAsset(expanded ? null : a.id)}
+                            aria-expanded={expanded}
+                            aria-label={`${expanded ? "Hide" : "Choose"} content for ${a.title}`}
+                            className="flex shrink-0 items-center gap-0.5 rounded-md px-1.5 py-1 text-[11px] font-medium text-slate-500 hover:bg-slate-100 hover:text-slate-700"
+                          >
+                            {includedForAsset.length}/{content.length}
+                            <ChevronRight className={`h-3.5 w-3.5 transition-transform ${expanded ? "rotate-90" : ""}`} />
+                          </button>
                         )}
-                      </span>
-                      <span
-                        className={`flex h-5 w-5 items-center justify-center rounded-md border ${
-                          checked ? "border-emerald-500 bg-emerald-500 text-white" : "border-slate-300 bg-white"
-                        }`}
-                      >
-                        {checked && <Check className="h-3.5 w-3.5" />}
-                      </span>
-                    </button>
+                      </div>
+
+                      {/* Per-asset content toggles */}
+                      {expanded && checked && content.length > 0 && (
+                        <div className="ml-11 mr-2 mb-2 grid grid-cols-2 gap-1">
+                          {content.map((c) => {
+                            const Icon = CONTENT_ICONS[c.kind]
+                            const on = includedForAsset.includes(c.id)
+                            return (
+                              <button
+                                key={c.id}
+                                type="button"
+                                onClick={() => toggleContent(a.id, c.id)}
+                                className={`flex items-center gap-1.5 rounded-md border px-2 py-1 text-left text-[11px] font-medium transition-colors ${
+                                  on
+                                    ? "border-emerald-300 bg-white text-emerald-700"
+                                    : "border-slate-200 bg-slate-50 text-slate-400"
+                                }`}
+                              >
+                                <Icon className="h-3 w-3 shrink-0" />
+                                <span className="min-w-0 flex-1 truncate">{c.label}</span>
+                                {on && <Check className="h-3 w-3 shrink-0 text-emerald-500" />}
+                              </button>
+                            )
+                          })}
+                        </div>
+                      )}
+                    </div>
                   )
                 })}
               </div>

@@ -228,13 +228,29 @@ export default function ViewControls() {
   const reviewAssets: ReviewAsset[] = (() => {
     const pool = currentCharacter?.actors?.longList || []
     const scoped = selectedActorIds.size > 0 ? pool.filter((a) => selectedActorIds.has(a.id)) : pool
-    return scoped.map((a) => ({
-      id: a.id,
-      title: a.name,
-      subtitle: currentCharacter?.name ? `for ${currentCharacter.name}` : undefined,
-      image: a.headshots?.[0],
-      typeLabel: "Cast",
-    }))
+    return scoped.map((a) => {
+      const headshots = a.headshots || []
+      const videoCount = (a.vimeoVideos?.length || 0) + (a.youtubeVideos?.length || 0) + (a.submissionVideos?.length || 0)
+      const content = [
+        ...headshots.map((_, i) => ({ id: `headshot-${i}`, label: `Headshot ${i + 1}`, kind: "image" as const })),
+        ...(videoCount > 0
+          ? [{ id: "videos", label: `Reel & videos (${videoCount})`, kind: "video" as const }]
+          : []),
+        { id: "profile", label: "Profile (age, agent, skills)", kind: "field" as const },
+        ...(a.notes && a.notes.length > 0
+          ? [{ id: "notes", label: `Notes (${a.notes.length})`, kind: "note" as const }]
+          : []),
+      ]
+      return {
+        id: a.id,
+        title: a.name,
+        subtitle: currentCharacter?.name ? `for ${currentCharacter.name}` : undefined,
+        image: headshots[0],
+        typeLabel: "Cast",
+        vertical: "cast" as const,
+        content,
+      }
+    })
   })()
 
   const reviewParticipants = (state.users || []).map((u) => ({
