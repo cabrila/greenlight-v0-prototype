@@ -64,4 +64,8 @@ export interface VerticalCard {
   metrics: VerticalMetric[] // up to three: in-progress, greenlit, active reviews
   activeReviewCount: number
   route: string
+  /** True when this vertical has new activity since the user last looked. */
+  hasUpdates?: boolean
+  /** Number of new updates, shown in the signifier badge when > 0. */
+  updateCount?: number
 }

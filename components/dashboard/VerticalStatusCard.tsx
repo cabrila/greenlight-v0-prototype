@@ -1,7 +1,7 @@
 "use client"
 
 import type { LucideIcon } from "lucide-react"
-import { Users, MapPin, Shirt, Package, CalendarRange, ArrowRight } from "lucide-react"
+import { Users, MapPin, Shirt, Package, CalendarRange, ArrowRight, Sparkles } from "lucide-react"
 import type { VerticalCard, VerticalId, VerticalMetric } from "@/types/dashboard"
 import type { ScheduleCardData } from "@/lib/dashboardData"
 
@@ -52,16 +52,32 @@ interface CardShellProps {
   totalLabel: string
   children: React.ReactNode
   onOpen: () => void
+  hasUpdates?: boolean
+  updateCount?: number
 }
 
-function CardShell({ id, name, totalCount, totalLabel, children, onOpen }: CardShellProps) {
+function CardShell({ id, name, totalCount, totalLabel, children, onOpen, hasUpdates, updateCount }: CardShellProps) {
   const Icon = ICONS[id]
   return (
-    <article className="flex flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md">
+    <article
+      className={`relative flex flex-col rounded-2xl border bg-white p-5 shadow-sm transition-shadow hover:shadow-md ${
+        hasUpdates ? "border-emerald-300 ring-1 ring-emerald-100" : "border-slate-200"
+      }`}
+    >
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-2.5">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-slate-600">
+          <span
+            className={`relative flex h-9 w-9 items-center justify-center rounded-xl ${
+              hasUpdates ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-600"
+            }`}
+          >
             <Icon className="h-[18px] w-[18px]" aria-hidden="true" />
+            {hasUpdates && (
+              <span className="absolute -right-1 -top-1 flex h-3 w-3">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+                <span className="relative inline-flex h-3 w-3 rounded-full border-2 border-white bg-emerald-500" />
+              </span>
+            )}
           </span>
           <div>
             <button
@@ -75,6 +91,19 @@ function CardShell({ id, name, totalCount, totalLabel, children, onOpen }: CardS
             </p>
           </div>
         </div>
+
+        {hasUpdates && (
+          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-200">
+            <Sparkles className="h-3 w-3" aria-hidden="true" />
+            {updateCount && updateCount > 0 ? (
+              <>
+                {updateCount} new<span className="sr-only"> updates</span>
+              </>
+            ) : (
+              "Updated"
+            )}
+          </span>
+        )}
       </div>
 
       <div className="mt-4 grid grid-cols-3 gap-1 border-t border-slate-100 pt-3">{children}</div>
@@ -103,6 +132,8 @@ export function VerticalStatusCard({
       name={card.name}
       totalCount={card.totalCount}
       totalLabel={card.totalLabel}
+      hasUpdates={card.hasUpdates}
+      updateCount={card.updateCount}
       onOpen={() => onOpen(card.route)}
     >
       {card.metrics.map((m) => (

@@ -161,6 +161,8 @@ export function getVerticalCards(project?: Project | null): VerticalCard[] {
       totalCount: characterCount || 24,
       activeReviewCount: 3,
       route: "casting",
+      hasUpdates: true,
+      updateCount: 4,
       metrics: [
         { label: "casting in progress", count: 8, filter: "in-progress", tone: "progress" },
         { label: "greenlit", count: 10, filter: "greenlit", tone: "greenlit" },
@@ -200,6 +202,8 @@ export function getVerticalCards(project?: Project | null): VerticalCard[] {
       totalCount: 63,
       activeReviewCount: 5,
       route: "props",
+      hasUpdates: true,
+      updateCount: 2,
       metrics: [
         { label: "in progress", count: 21, filter: "in-progress", tone: "progress" },
         { label: "greenlit", count: 34, filter: "greenlit", tone: "greenlit" },
