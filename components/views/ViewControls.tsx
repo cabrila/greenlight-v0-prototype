@@ -25,7 +25,6 @@ import SearchTags from "@/components/ui/SearchTags"
 import SavedSearchesManager from "@/components/ui/SavedSearchesManager"
 import type { SearchTag } from "@/components/ui/SearchTags"
 import { useActorGrid } from "@/components/actors/ActorGridContext"
-import ConfigureReviewModal, { type ReviewAsset, type ReviewConfig } from "@/components/modals/ConfigureReviewModal"
 
 export default function ViewControls() {
   const { state, dispatch } = useCasting()
@@ -221,55 +220,7 @@ export default function ViewControls() {
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
 
-  const [showConfigureReview, setShowConfigureReview] = useState(false)
-
-  // Assets available to review: the current character's cast, narrowed to the
-  // user's selection when they've picked specific cards.
-  const reviewAssets: ReviewAsset[] = (() => {
-    const pool = currentCharacter?.actors?.longList || []
-    const scoped = selectedActorIds.size > 0 ? pool.filter((a) => selectedActorIds.has(a.id)) : pool
-    return scoped.map((a) => {
-      const headshots = a.headshots || []
-      const videoCount = (a.vimeoVideos?.length || 0) + (a.youtubeVideos?.length || 0) + (a.submissionVideos?.length || 0)
-      const content = [
-        ...headshots.map((_, i) => ({ id: `headshot-${i}`, label: `Headshot ${i + 1}`, kind: "image" as const })),
-        ...(videoCount > 0
-          ? [{ id: "videos", label: `Reel & videos (${videoCount})`, kind: "video" as const }]
-          : []),
-        { id: "profile", label: "Profile (age, agent, skills)", kind: "field" as const },
-        ...(a.notes && a.notes.length > 0
-          ? [{ id: "notes", label: `Notes (${a.notes.length})`, kind: "note" as const }]
-          : []),
-      ]
-      return {
-        id: a.id,
-        title: a.name,
-        subtitle: currentCharacter?.name ? `for ${currentCharacter.name}` : undefined,
-        image: headshots[0],
-        typeLabel: "Cast",
-        vertical: "cast" as const,
-        content,
-      }
-    })
-  })()
-
-  const reviewParticipants = (state.users || []).map((u) => ({
-    id: u.id,
-    name: u.name,
-    initials: u.initials,
-    role: u.role,
-    color: u.color,
-    bgColor: u.bgColor,
-  }))
-
   const handleOpenPlayerView = () => {
-    setShowConfigureReview(true)
-  }
-
-  const handleConfirmReview = (config: ReviewConfig) => {
-    // Prototype: record the created review request, then launch the player.
-    console.log("[v0] Review session created (casting):", config)
-    setShowConfigureReview(false)
     dispatch({ type: "OPEN_PLAYER_VIEW" })
   }
 
@@ -431,25 +382,14 @@ export default function ViewControls() {
               </div>
             )}
 
-            {/* Review Sessions Button */}
+            {/* Player View Button */}
             <button
               onClick={handleOpenPlayerView}
               className="flex items-center space-x-1.5 px-3 py-2 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white rounded-lg font-medium transition-all duration-200 text-sm whitespace-nowrap shadow-md hover:shadow-lg"
             >
               <Play className="w-4 h-4" />
-              <span>Review Sessions</span>
+              <span>Player View</span>
             </button>
-
-            {showConfigureReview && (
-              <ConfigureReviewModal
-                assets={reviewAssets}
-                participants={reviewParticipants}
-                defaultTitle={currentCharacter?.name ? `${currentCharacter.name} — casting review` : "Casting review"}
-                sourceLabel="casting workspace"
-                onCancel={() => setShowConfigureReview(false)}
-                onConfirm={handleConfirmReview}
-              />
-            )}
             <div className="w-px h-5 bg-slate-300 mx-1"></div>
 
             {/* View Mode Toggle */}

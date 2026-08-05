@@ -6,12 +6,11 @@ import {
   X, ZoomIn, ZoomOut, RotateCcw, Maximize2, Search, Trash2,
   User, Package, Shirt, MapPin, PanelLeftClose, PanelLeftOpen,
   Plus, Trash, LayoutGrid, Rows3, Grid2x2, Grid3x3,
-  SlidersHorizontal, ArrowUpDown, Wand2, ChevronDown, Film, Clapperboard, GalleryHorizontalEnd, UserCog, Mountain, Play,
+  SlidersHorizontal, ArrowUpDown, Wand2, ChevronDown, Film, Clapperboard, GalleryHorizontalEnd, UserCog, Mountain,
 } from "lucide-react"
 import { useCasting } from "@/components/casting/CastingContext"
 import { isValidImageUrl } from "@/lib/utils"
 import { closeAllModals } from "../modals/ModalManager"
-import ConfigureReviewModal, { type ReviewAsset, type ReviewConfig, type ReviewVertical } from "../modals/ConfigureReviewModal"
 import CanvasItemCard, { type CanvasItem, type CanvasItemType, type ViewSize, TYPE_CONFIG, CARD_DIMENSIONS } from "./CanvasItemCard"
 import CanvasElement from "./CanvasElement"
 import CanvasWidget from "./CanvasWidget"
@@ -1075,68 +1074,6 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
     onClose()
   }
 
-  /* ---------------------------------------------------------------- */
-  /*  Review sessions (Configure modal)                                */
-  /* ---------------------------------------------------------------- */
-
-  const [showConfigureReview, setShowConfigureReview] = useState(false)
-
-  // Build reviewable assets from the current canvas selection, skipping
-  // pure drawing elements (text, shapes) that aren't production assets.
-  const reviewAssets: ReviewAsset[] = useMemo(() => {
-    const selected = new Set(selectedIds)
-    const verticalFor = (t: CanvasItemType): ReviewVertical =>
-      t === "actor" ? "cast" : t === "location" ? "location" : t === "prop" ? "prop" : t === "costume" ? "costume" : "generic"
-    return items
-      .filter((it) => selected.has(it.id) && !isElement(it.type) && !isWidget(it.type) && it.type !== "note")
-      .map((it) => {
-        const imgs = it.images && it.images.length > 0 ? it.images : it.image ? [it.image] : []
-        const isLocation = it.type === "location"
-        const content = [
-          ...imgs.map((_, i) => ({
-            id: `image-${i}`,
-            label: isLocation ? `Photo ${i + 1}` : `Image ${i + 1}`,
-            kind: (isLocation ? "map" : "image") as "map" | "image",
-          })),
-          ...(it.subtitle || it.meta
-            ? [{ id: "details", label: isLocation ? "Location details" : "Details & specs", kind: "field" as const }]
-            : []),
-          ...(it.tags && it.tags.length > 0
-            ? [{ id: "tags", label: `Tags (${it.tags.length})`, kind: "field" as const }]
-            : []),
-        ]
-        return {
-          id: it.id,
-          title: it.title || TYPE_CONFIG[it.type]?.label || "Asset",
-          subtitle: it.subtitle,
-          image: it.image || it.images?.[0],
-          typeLabel: TYPE_CONFIG[it.type]?.label,
-          vertical: verticalFor(it.type),
-          content,
-        }
-      })
-  }, [items, selectedIds])
-
-  const reviewParticipants = useMemo(
-    () =>
-      (state.users || []).map((u) => ({
-        id: u.id,
-        name: u.name,
-        initials: u.initials,
-        role: u.role,
-        color: u.color,
-        bgColor: u.bgColor,
-      })),
-    [state.users],
-  )
-
-  const handleConfirmReview = (config: ReviewConfig) => {
-    // Prototype: record the created review request, then launch the player.
-    console.log("[v0] Review session created (canvas):", config)
-    setShowConfigureReview(false)
-    dispatch({ type: "OPEN_PLAYER_VIEW" })
-  }
-
   const counts = useMemo(() => {
     const c: Record<string, number> = {}
     items.forEach((i) => (c[i.type] = (c[i.type] || 0) + 1))
@@ -1270,18 +1207,6 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
             >
               <Trash2 className="w-4 h-4" />
               {selectedIds.length}
-            </button>
-          )}
-
-          {/* Review Sessions — appears once one or more reviewable assets are selected */}
-          {reviewAssets.length > 0 && (
-            <button
-              onClick={() => setShowConfigureReview(true)}
-              className="flex items-center gap-1.5 px-2.5 py-2 rounded-lg bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white transition-colors text-sm font-medium shadow-sm whitespace-nowrap"
-            >
-              <Play className="w-4 h-4" />
-              <span className="hidden md:inline">Review Sessions</span>
-              <span className="md:hidden">{reviewAssets.length}</span>
             </button>
           )}
 
@@ -1616,17 +1541,6 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
             </div>
           )
         })()}
-
-      {showConfigureReview && (
-        <ConfigureReviewModal
-          assets={reviewAssets}
-          participants={reviewParticipants}
-          defaultTitle={currentProject?.name ? `${currentProject.name} — canvas review` : "Canvas review"}
-          sourceLabel="canvas selection"
-          onCancel={() => setShowConfigureReview(false)}
-          onConfirm={handleConfirmReview}
-        />
-      )}
     </div>
   )
 }

@@ -2,7 +2,7 @@
 
 import { useCasting } from "@/components/casting/CastingContext"
 import { useState, useEffect } from "react"
-import { X, ChevronLeft, ChevronRight, Play, CheckCircle2, XCircle, HelpCircle, Users, Plus, Star, Heart, Calendar, User, MapPin, ImageIcon, Video, FileText, ArrowLeft, ArrowRight, ChevronDown, ChevronUp, MoreHorizontal, MessageSquare, Layout, Share2, Link2, Mail, Check } from 'lucide-react'
+import { X, ChevronLeft, ChevronRight, Play, CheckCircle2, XCircle, HelpCircle, Users, Plus, Star, Heart, Calendar, User, MapPin, ImageIcon, Video, FileText, ArrowLeft, ArrowRight, ChevronDown, ChevronUp, MoreHorizontal, MessageSquare, Layout } from 'lucide-react'
 import { getVideoPlatform } from "@/utils/videoUtils"
 import { generatePlaceholderUrl } from "@/utils/imageUtils"
 import PlayerViewActionsModal from "./PlayerViewActionsModal"
@@ -37,8 +37,6 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
   const [showMaybeNotePrompt, setShowMaybeNotePrompt] = useState(false)
   const [maybeNoteText, setMaybeNoteText] = useState("")
   const [showCharacterDropdown, setShowCharacterDropdown] = useState(false)
-  const [showSharePanel, setShowSharePanel] = useState(false)
-  const [shareCopied, setShareCopied] = useState(false)
 
   const currentProject = state.projects.find((p) => p.id === state.currentFocus.currentProjectId)
   const currentCharacter = currentProject?.characters.find((c) => c.id === state.currentFocus.characterId)
@@ -104,36 +102,12 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
     setShowCharacterDropdown(false)
   }
 
-  // Build a shareable review link (prototype — reflects the current session).
-  const getShareLink = () => {
-    const base = typeof window !== "undefined" ? window.location.origin : ""
-    const projectId = state.currentFocus.currentProjectId || ""
-    const characterId = state.currentFocus.characterId || ""
-    return `${base}/review/${projectId}/${characterId}`
-  }
-
-  const handleCopyShareLink = async () => {
-    try {
-      await navigator.clipboard.writeText(getShareLink())
-      setShareCopied(true)
-      setTimeout(() => setShareCopied(false), 2000)
-    } catch {
-      setShareCopied(false)
-    }
-  }
-
-  const handleEmailShare = () => {
-    const subject = encodeURIComponent(`Review session: ${currentCharacter?.name || "Casting"}`)
-    const body = encodeURIComponent(`Please review the session here:\n${getShareLink()}`)
-    if (typeof window !== "undefined") window.open(`mailto:?subject=${subject}&body=${body}`)
-  }
-
 
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       // Only handle keyboard events if no modals are showing
-      if (showActionsModal || showPhotoViewer || showMaybeNotePrompt || showCharacterDropdown || showSharePanel) return
+      if (showActionsModal || showPhotoViewer || showMaybeNotePrompt || showCharacterDropdown) return
       
       // Prevent default behavior for arrow keys
       if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
@@ -155,7 +129,7 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
 
     window.addEventListener("keydown", handleKeyDown)
     return () => window.removeEventListener("keydown", handleKeyDown)
-  }, [showActionsModal, showPhotoViewer, showMaybeNotePrompt, showCharacterDropdown, showSharePanel])
+  }, [showActionsModal, showPhotoViewer, showMaybeNotePrompt, showCharacterDropdown])
 
   // Get current terminology for user-friendly messaging with comprehensive fallbacks
   const getCurrentTerminology = () => {
@@ -268,7 +242,7 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
         >
           <div className="flex justify-between items-center p-8 border-b border-gray-200 dark:border-gray-700">
             <h2 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
-              Review Sessions
+              Player View
             </h2>
             <button
               onClick={handleClose}
@@ -283,7 +257,7 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
             </div>
             <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">No Project Selected</h3>
             <p className="text-gray-600 dark:text-gray-400 mb-6 text-lg">
-              Please select a project to use the Review Sessions feature.
+              Please select a project to use the Player View feature.
             </p>
             <button
               onClick={handleClose}
@@ -308,7 +282,7 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
         >
           <div className="flex justify-between items-center p-8 border-b border-gray-200 dark:border-gray-700">
             <h2 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
-              Review Sessions
+              Player View
             </h2>
             <button
               onClick={handleClose}
@@ -325,8 +299,8 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
               No {terminology.character?.singular || "Character"} Selected
             </h3>
             <p className="text-gray-600 dark:text-gray-400 mb-6 text-lg">
-              Please select a {safeToLowerCase(terminology.character?.singular || "character")} to use the Review
-              Sessions feature.
+              Please select a {safeToLowerCase(terminology.character?.singular || "character")} to use the Player View
+              feature.
             </p>
             <button
               onClick={handleClose}
@@ -393,7 +367,7 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
 
               <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-2xl p-6 mb-8">
                 <p className="text-gray-700 dark:text-gray-300 leading-relaxed text-lg">
-                  Review Sessions become available once you've added {safeToLowerCase(actorsLabel)} to the{" "}
+                  The Player View becomes available once you've added {safeToLowerCase(actorsLabel)} to the{" "}
                   <span className="font-bold text-emerald-600 dark:text-emerald-400">{currentCharacter.name}</span>{" "}
                   {safeToLowerCase(characterLabel)}. Start by adding some {safeToLowerCase(actorsLabel)} to begin
                   reviewing and voting.
@@ -428,7 +402,7 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
                   onClick={handleClose}
                   className="w-full px-8 py-4 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-lg font-medium"
                 >
-                  Close Review Sessions
+                  Close Player View
                 </button>
               </div>
             </motion.div>
@@ -808,53 +782,9 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
               <div className="text-lg font-semibold text-gray-700 dark:text-gray-300">{currentActor?.name}</div>
             </div>
             <div className="flex items-center space-x-4">
-              <div className="hidden sm:block text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-lg">
+              <div className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-lg">
                 Use ← → keys to navigate
               </div>
-
-              {/* Share */}
-              <div className="relative">
-                <button
-                  onClick={() => setShowSharePanel((v) => !v)}
-                  aria-expanded={showSharePanel}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white rounded-lg text-sm font-medium transition-all shadow-sm"
-                >
-                  <Share2 className="w-4 h-4" />
-                  <span className="hidden sm:inline">Share</span>
-                </button>
-
-                {showSharePanel && (
-                  <>
-                    <div className="fixed inset-0 z-40" onClick={() => setShowSharePanel(false)} aria-hidden="true" />
-                    <div className="absolute right-0 top-full mt-2 z-50 w-72 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-xl p-3">
-                      <div className="mb-2 text-xs font-semibold text-gray-500 dark:text-gray-400">
-                        Share this review session
-                      </div>
-                      <div className="flex items-center gap-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-2.5 py-2">
-                        <Link2 className="w-3.5 h-3.5 shrink-0 text-gray-400" />
-                        <span className="min-w-0 flex-1 truncate text-xs text-gray-600 dark:text-gray-300">
-                          {getShareLink()}
-                        </span>
-                      </div>
-                      <button
-                        onClick={handleCopyShareLink}
-                        className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-700"
-                      >
-                        {shareCopied ? <Check className="w-4 h-4" /> : <Link2 className="w-4 h-4" />}
-                        {shareCopied ? "Link copied" : "Copy link"}
-                      </button>
-                      <button
-                        onClick={handleEmailShare}
-                        className="mt-1.5 flex w-full items-center justify-center gap-1.5 rounded-lg border border-gray-200 dark:border-gray-700 px-3 py-2 text-sm font-semibold text-gray-700 dark:text-gray-200 transition-colors hover:bg-gray-100 dark:hover:bg-gray-700"
-                      >
-                        <Mail className="w-4 h-4" />
-                        Email reviewers
-                      </button>
-                    </div>
-                  </>
-                )}
-              </div>
-
               <button
                 onClick={handleClose}
                 className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl"

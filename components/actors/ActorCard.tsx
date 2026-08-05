@@ -1474,7 +1474,7 @@ export default function ActorCard({
                   <button
                     onClick={handleOpenPlayerView}
                     className="flex items-center gap-1 text-slate-500 bg-slate-100 hover:bg-slate-200 px-2 py-0.5 rounded-lg flex-shrink-0 transition-colors cursor-pointer"
-                    title={`Click to view ${actor.notes.length} note${actor.notes.length !== 1 ? "s" : ""} in Review Sessions`}
+                    title={`Click to view ${actor.notes.length} note${actor.notes.length !== 1 ? "s" : ""} in Player View`}
                   >
                     <MessageSquare className="w-3 h-3" />
                     <span className="text-xs font-medium">{actor.notes.length}</span>
@@ -1489,7 +1489,7 @@ export default function ActorCard({
                       <button
                         onClick={handleOpenPlayerView}
                         className="flex items-center gap-1 text-slate-500 bg-slate-100 hover:bg-slate-200 px-2 py-0.5 rounded-lg flex-shrink-0 transition-colors cursor-pointer"
-                        title={`Click to view ${videoCount} video${videoCount !== 1 ? "s" : ""} in Review Sessions`}
+                        title={`Click to view ${videoCount} video${videoCount !== 1 ? "s" : ""} in Player View`}
                       >
                         <Play className="w-3 h-3" />
                         <span className="text-xs font-medium">{videoCount}</span>
@@ -1504,7 +1504,7 @@ export default function ActorCard({
                   <button
                     onClick={handleOpenPlayerView}
                     className="flex items-center gap-1 text-slate-500 bg-slate-100 hover:bg-slate-200 px-2 py-0.5 rounded-lg flex-shrink-0 transition-colors cursor-pointer"
-                    title={`Click to view ${actor.headshots.length} photo${actor.headshots.length !== 1 ? "s" : ""} in Review Sessions`}
+                    title={`Click to view ${actor.headshots.length} photo${actor.headshots.length !== 1 ? "s" : ""} in Player View`}
                   >
                     <ImageIcon className="w-3 h-3" />
                     <span className="text-xs font-medium">{actor.headshots.length}</span>

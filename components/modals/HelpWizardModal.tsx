@@ -236,20 +236,20 @@ export default function HelpWizardModal({ onClose }: HelpWizardModalProps) {
       ),
     },
     {
-      title: "Review Sessions",
+      title: "Player View",
       icon: <Play className="w-8 h-8 text-emerald-500" />,
       content: (
         <div className="space-y-4">
-          <h3 className="text-lg font-medium text-gray-900">Using Review Sessions for Presentations</h3>
+          <h3 className="text-lg font-medium text-gray-900">Using Player View for Presentations</h3>
 
           <div className="space-y-3">
             <h4 className="font-medium text-gray-800 flex items-center">
               <Play className="w-4 h-4 mr-2 text-emerald-500" />
-              Opening Review Sessions
+              Opening Player View
             </h4>
             <div className="pl-6 space-y-2">
               <p className="text-sm text-gray-600">
-                1. Click <span className="font-medium text-emerald-600">Review Sessions</span> in the sidebar.
+                1. Click <span className="font-medium text-emerald-600">Open Player View</span> in the sidebar.
               </p>
               <p className="text-sm text-gray-600">
                 2. Use arrow keys or on-screen buttons to navigate between actors.
@@ -278,13 +278,13 @@ export default function HelpWizardModal({ onClose }: HelpWizardModalProps) {
             <div className="pl-6 space-y-2">
               <p className="text-sm text-gray-600">1. Add notes and feedback during viewing sessions.</p>
               <p className="text-sm text-gray-600">2. Mark actors for callbacks or further consideration.</p>
-              <p className="text-sm text-gray-600">3. Access actor details without leaving Review Sessions.</p>
+              <p className="text-sm text-gray-600">3. Access actor details without leaving Player View.</p>
             </div>
           </div>
 
           <div className="bg-emerald-50 p-3 rounded-md border border-emerald-200">
             <p className="text-xs text-emerald-700">
-              <strong>Pro Tip:</strong> Review Sessions are ideal for director meetings and producer presentations. The clean
+              <strong>Pro Tip:</strong> Player View is ideal for director meetings and producer presentations. The clean
               interface helps focus on the actors without distractions.
             </p>
           </div>
