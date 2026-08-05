@@ -116,7 +116,7 @@ export default function CanvasPlayerConfig({ assets, onCancel, onStart }: Canvas
       .filter((b, i, arr) => arr.findIndex((x) => x.id === b.id) === i)
     const meId = cleaned.find((d) => d.id === currentUserId)?.id || cleaned[0]?.id
     onStart({
-      title: title.trim() || "Player",
+      title: title.trim() || "Review Session",
       showLabels,
       showSubtitles,
       mode,
@@ -146,7 +146,7 @@ export default function CanvasPlayerConfig({ assets, onCancel, onStart }: Canvas
               <Play className="w-5 h-5" />
             </span>
             <div className="min-w-0 flex-1">
-              <h2 className="text-lg font-bold text-slate-800 leading-tight">Configure player</h2>
+              <h2 className="text-lg font-bold text-slate-800 leading-tight">Configure review</h2>
               <p className="text-xs text-slate-400">{assets.length} asset{assets.length === 1 ? "" : "s"} selected</p>
             </div>
             <button onClick={onCancel} className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors" aria-label="Cancel">
@@ -470,7 +470,7 @@ export default function CanvasPlayerConfig({ assets, onCancel, onStart }: Canvas
                       className={`flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border transition-colors shrink-0 ${
                         isMe ? "border-emerald-500 bg-emerald-50 text-emerald-700" : "border-slate-200 text-slate-400 hover:bg-slate-50"
                       }`}
-                      title="Mark this participant as you (only you can vote in the player)"
+                      title="Mark this participant as you (only you can vote in the review session)"
                       aria-pressed={isMe}
                     >
                       <UserCheck className="w-3.5 h-3.5" />
@@ -507,7 +507,7 @@ export default function CanvasPlayerConfig({ assets, onCancel, onStart }: Canvas
             onClick={handleStart}
             className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600 transition-colors"
           >
-            <Play className="w-4 h-4" /> Start player
+            <Play className="w-4 h-4" /> Start review
           </button>
         </div>
       </div>

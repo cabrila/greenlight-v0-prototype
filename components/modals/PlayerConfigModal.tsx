@@ -197,7 +197,7 @@ export default function PlayerConfigModal({ onClose }: { onClose: () => void }) 
               <Clapperboard className="w-5 h-5 text-emerald-600" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-slate-900">Configure Player</h2>
+              <h2 className="text-lg font-bold text-slate-900">Configure Review</h2>
               <p className="text-sm text-slate-500">
                 {currentCharacter?.name ? `${currentCharacter.name} · ` : ""}
                 {actorCount} {actorCount === 1 ? "actor" : "actors"} in this list
@@ -557,7 +557,7 @@ export default function PlayerConfigModal({ onClose }: { onClose: () => void }) 
             className="flex items-center gap-2 px-5 py-2 rounded-lg bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white text-sm font-semibold shadow-md transition-all"
           >
             <Play className="w-4 h-4" />
-            Start Player View
+            Start Review Session
           </button>
         </div>
       </motion.div>

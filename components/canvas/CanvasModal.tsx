@@ -1393,7 +1393,7 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
             <button
               onClick={() => setPlayerConfigOpen(true)}
               className="flex items-center gap-1.5 px-2.5 py-2 rounded-lg bg-slate-900 text-white hover:bg-slate-800 transition-colors text-sm font-medium"
-              title="Review selected assets in the player"
+                title="Review selected assets in the review session"
             >
               <Play className="w-4 h-4" />
               <span className="hidden md:inline">Review</span>
@@ -1625,11 +1625,11 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
                           setSelectedIds(items.filter((it) => it.groupId === box.id).map((it) => it.id))
                           setPlayerConfigOpen(true)
                         }}
-                        title={`Configure a player view for this group's ${groupPlayerIds.length} assets`}
+                        title={`Configure a review session for this group's ${groupPlayerIds.length} assets`}
                         className="pointer-events-auto shrink-0 flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-500 text-white text-xs font-medium hover:bg-emerald-600 transition-colors"
                       >
                         <Play className="w-3 h-3" />
-                        Player view ({groupPlayerIds.length})
+                        Review Session ({groupPlayerIds.length})
                       </button>
                     )
                   })()}
@@ -1804,7 +1804,7 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
               >
                 <Play className="w-4 h-4 shrink-0" />
                 <span className="flex-1 text-left">
-                  Configure player view
+                  Configure review session
                   {playerEligible.length > 1 ? ` (${playerEligible.length})` : ""}
                 </span>
               </button>

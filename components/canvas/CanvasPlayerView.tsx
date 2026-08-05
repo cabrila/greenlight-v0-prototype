@@ -411,7 +411,7 @@ export default function CanvasPlayerView({ assets, config, onClose, projectName 
             {projectName && (
               <p className="text-xs font-semibold text-emerald-400 truncate uppercase tracking-wide">{projectName}</p>
             )}
-            <h2 className="text-sm font-semibold text-white truncate">{config.title || "Player"}</h2>
+            <h2 className="text-sm font-semibold text-white truncate">{config.title || "Review Session"}</h2>
             <p className="text-xs text-white/50">
               {index + 1} of {total} · {config.decisionMakers.length} decision maker{config.decisionMakers.length === 1 ? "" : "s"}
             </p>
@@ -453,7 +453,7 @@ export default function CanvasPlayerView({ assets, config, onClose, projectName 
                   <p className="flex items-center gap-1.5 text-sm font-semibold text-white mb-1">
                     <Link2 className="w-4 h-4 text-emerald-400" /> Direct link
                   </p>
-                  <p className="text-[11px] text-white/40 mb-2.5">Anyone with this link can open this player session.</p>
+                  <p className="text-[11px] text-white/40 mb-2.5">Anyone with this link can open this review session.</p>
                   <div className="flex items-center gap-2">
                     <input
                       readOnly
@@ -485,7 +485,7 @@ export default function CanvasPlayerView({ assets, config, onClose, projectName 
           <button
             onClick={onClose}
             className="p-2 rounded-lg text-white/70 hover:bg-white/10 hover:text-white transition-colors"
-            aria-label="Close player"
+            aria-label="Close review session"
           >
             <X className="w-5 h-5" />
           </button>
@@ -861,7 +861,7 @@ export default function CanvasPlayerView({ assets, config, onClose, projectName 
                 <CheckCircle2 className="w-8 h-8" />
               </span>
               <h3 className="text-xl font-bold text-white text-balance">Review complete</h3>
-              <p className="text-sm text-white/50 mt-1">{config.title || "Player session"}</p>
+              <p className="text-sm text-white/50 mt-1">{config.title || "Review Session"}</p>
               <div className="mt-4 flex items-center justify-center gap-2 flex-wrap">
                 <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.06] text-white/80 text-xs font-medium">
                   <ListChecks className="w-3.5 h-3.5 text-emerald-400" />

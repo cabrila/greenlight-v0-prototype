@@ -1263,7 +1263,7 @@ export const mockData: CastingState = {
     { value: "detailed", label: "Detailed View" },
     { value: "simple", label: "Simple View" },
     { value: "list-view", label: "List View" },
-    { value: "player", label: "Player View" },
+    { value: "player", label: "Review Session" },
   ],
   sortOptionDefinitions: [
     { value: "alphabetical", label: "Alphabetical (A-Z)" },

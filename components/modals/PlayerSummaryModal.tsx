@@ -221,7 +221,7 @@ export default function PlayerSummaryModal({ onClose }: { onClose: () => void })
             onClick={() => dispatch({ type: "OPEN_PLAYER_VIEW", payload: { actorIndex: 0 } })}
             className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
           >
-            <Play className="w-4 h-4" /> Back to Player View
+            <Play className="w-4 h-4" /> Back to Review Session
           </button>
           <button
             onClick={handleClose}

@@ -428,10 +428,10 @@ export default function CanvasWidget({
                       onConfigurePlayer?.(char.name, assigned)
                     }}
                     className="widget-control mt-0.5 flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500 text-white text-xs font-medium hover:bg-emerald-600 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed transition-colors"
-                    title={assigned.length ? `Configure a player view for ${char.name}'s ${assigned.length} actor${assigned.length === 1 ? "" : "s"}` : "Cast actors first to configure a player view"}
+                    title={assigned.length ? `Configure a review session for ${char.name}'s ${assigned.length} actor${assigned.length === 1 ? "" : "s"}` : "Cast actors first to configure a review session"}
                   >
                     <Play className="w-3 h-3" />
-                    Player view
+                    Review Session
                     {assigned.length > 0 ? ` (${assigned.length})` : ""}
                   </button>
                 </div>

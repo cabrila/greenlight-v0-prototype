@@ -412,7 +412,7 @@ export default function ViewControls() {
               className="flex items-center space-x-1.5 px-3 py-2 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white rounded-lg font-medium transition-all duration-200 text-sm whitespace-nowrap shadow-md hover:shadow-lg"
             >
               <Play className="w-4 h-4" />
-              <span>Player View</span>
+              <span>Review Session</span>
             </button>
             <div className="w-px h-5 bg-slate-300 mx-1"></div>
 
@@ -666,7 +666,7 @@ export default function ViewControls() {
                   </span>
                 )}
               </h4>
-              <p className="text-xs text-slate-500 mb-3">Filter by decisions made in the player views.</p>
+              <p className="text-xs text-slate-500 mb-3">Filter by decisions made in review sessions.</p>
               <div className="space-y-2">
                 {[
                   { value: "yes" as const, label: "Positive", bgColor: "#dcfce7", textColor: "#15803d" },
