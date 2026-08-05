@@ -2,7 +2,7 @@
 import {
   Plus, FolderOpen, Database, Bell, Settings, HelpCircle, Users, Film,
   BarChart3, ArrowRight, FileText, Shirt, MapPin, Paintbrush, Package,
-  Calendar, Tv, LayoutDashboard
+  Calendar, Tv
 } from 'lucide-react'
 import { openModal } from "@/components/modals/ModalManager"
 import EmbeddedCoPilot from "@/components/copilot/EmbeddedCoPilot"
@@ -84,7 +84,6 @@ export default function SplashScreen() {
   // Open project manager immediately without delay
   const handleNewProject = () => openModal("projectManager")
   const handleOpenProject = () => openModal("projectManager")
-  const handleDashboard = () => openModal("dashboard")
   const handleDatabase = () => openModal("database")
   const handleNotifications = () => openModal("notifications")
   const handleSettings = () => openModal("userPermissions")
@@ -288,7 +287,7 @@ export default function SplashScreen() {
           )}
 
           {/* Primary Action Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5 max-w-5xl w-full mb-14 md:mb-16">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5 max-w-4xl w-full mb-14 md:mb-16">
             {/* New Project */}
             <button
               onClick={handleNewProject}
@@ -324,25 +323,6 @@ export default function SplashScreen() {
                 <div>
                   <h3 className="text-xl font-semibold text-white mb-1.5">Open Project</h3>
                   <p className="text-white/40 text-sm leading-relaxed">Browse and manage existing productions</p>
-                </div>
-              </div>
-            </button>
-
-            {/* Dashboard */}
-            <button
-              onClick={handleDashboard}
-              className="group relative overflow-hidden rounded-2xl bg-white/[0.08] hover:bg-white/[0.12] border border-white/[0.12] hover:border-white/20 backdrop-blur-sm transition-all duration-300 text-left"
-            >
-              <div className="relative p-6 md:p-7 flex flex-col gap-5">
-                <div className="flex items-start justify-between">
-                  <div className="p-3 bg-white/10 rounded-xl">
-                    <LayoutDashboard className="w-6 h-6 text-white/80" />
-                  </div>
-                  <ArrowRight className="w-5 h-5 text-white/20 group-hover:text-white/50 group-hover:translate-x-1 transition-all duration-300" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-semibold text-white mb-1.5">Dashboard</h3>
-                  <p className="text-white/40 text-sm leading-relaxed">Track reviews and production status at a glance</p>
                 </div>
               </div>
             </button>

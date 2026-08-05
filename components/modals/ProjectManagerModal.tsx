@@ -104,10 +104,10 @@ export default function ProjectManagerModal({ onClose }: ProjectManagerModalProp
               <button
                 onClick={() => {
 dispatch({ type: "SELECT_PROJECT", payload: currentProject.id })
-  replaceModal("dashboard")
+  replaceModal("characters")
   }}
                 className="p-2 text-success-600 hover:text-success-800 hover:bg-success-100 rounded-lg transition-colors"
-                title="Open project dashboard"
+                title="View Characters"
               >
                 <Theater className="w-5 h-5" />
               </button>
@@ -169,10 +169,10 @@ dispatch({ type: "SELECT_PROJECT", payload: currentProject.id })
                       onClick={(e) => {
                         e.stopPropagation()
 dispatch({ type: "SELECT_PROJECT", payload: project.id })
-  replaceModal("dashboard")
+  replaceModal("characters")
   }}
                       className="p-1.5 text-gray-400 hover:text-success-600 hover:bg-success-50 rounded-md transition-colors"
-                      title="Open project dashboard"
+                      title="View Characters"
                     >
                       <Theater className="w-4 h-4" />
                     </button>

@@ -24,7 +24,6 @@ import {
   Film,
   Home,
   Layout,
-  LayoutDashboard,
 } from "lucide-react"
 import { useCasting } from "@/components/casting/CastingContext"
 import { openModal, closeModal, navigateToModal } from "@/components/modals/ModalManager"
@@ -97,7 +96,6 @@ export default function FloatingSidebar({ isOpen, onClose, onToggle, currentModa
   // Order: Project, Script, Characters, Casting, then other items, with Casting Tools at bottom
   const navItems = [
     { icon: Home, label: "Project", action: handleGoHome, color: "hover:text-emerald-600 hover:bg-emerald-50" },
-    { icon: LayoutDashboard, label: "Dashboard", modal: "dashboard", color: "hover:text-slate-800 hover:bg-slate-100" },
     { icon: ScrollText, label: "Script", modal: "script", color: "hover:text-amber-600 hover:bg-amber-50" },
     { icon: UserCircle, label: "Characters", modal: "characters", color: "hover:text-purple-600 hover:bg-purple-50" },
     { icon: Film, label: "Casting", modal: "casting", color: "hover:text-emerald-600 hover:bg-emerald-50" },
@@ -212,19 +210,6 @@ export default function FloatingSidebar({ isOpen, onClose, onToggle, currentModa
             >
               <Home className="w-4 h-4" />
               <span>Home</span>
-            </button>
-
-            {/* Dashboard */}
-            <button
-              onClick={() => handleNavigation("dashboard")}
-              className={`w-full flex items-center space-x-3 px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 shadow-sm hover:shadow-md border ${
-                currentModal === "dashboard"
-                  ? "bg-slate-900 text-white border-slate-900"
-                  : "text-slate-700 hover:text-slate-900 bg-white/60 hover:bg-white border-slate-200/50"
-              }`}
-            >
-              <LayoutDashboard className="w-4 h-4" />
-              <span>Dashboard</span>
             </button>
 
             {/* Project Selector */}
