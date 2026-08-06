@@ -1275,7 +1275,7 @@ export default function ActorCard({
   if (viewMode !== "list-view" && viewMode !== "simple") {
     return (
       <div
-        className={`group relative bg-white border-2 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer w-full min-w-[325px] max-w-[360px] flex flex-col ${
+        className={`group relative bg-white border-2 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer w-[340px] h-[480px] flex flex-col ${
           isSelected ? "border-success-600 ring-2 ring-success-500" : "border-success-700/70"
         } ${shouldShowDragging ? "opacity-50 scale-95 rotate-1" : ""} ${isDropTarget ? "ring-2 ring-info-400" : ""}`}
         onClick={handleCardClick}
@@ -1304,12 +1304,12 @@ export default function ActorCard({
         </button>
 
         {/* Content */}
-        <div className="p-5 overflow-hidden">
+        <div className="p-3.5 flex flex-col flex-1 min-h-0 overflow-y-auto">
           {/* Top Section: Image on top, Actor Info below */}
-          <div className="flex flex-col gap-4 mb-4">
+          <div className="flex flex-col gap-2.5 mb-2.5">
             {/* Image Container - full width, landscape */}
             <div
-              className={`relative bg-slate-100 w-full aspect-[4/3] rounded-xl overflow-hidden ${
+              className={`relative bg-slate-100 w-full h-[150px] flex-shrink-0 rounded-xl overflow-hidden ${
                 isDragOver ? "bg-info-100 border-2 border-dashed border-info-400" : ""
               }`}
               onDragEnter={handleImageDragEnter}
@@ -1386,22 +1386,22 @@ export default function ActorCard({
                       e.stopPropagation()
                       navigateHeadshot(-1)
                     }}
-                    className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-white/85 hover:bg-white text-slate-700 rounded-full shadow-md transition-all z-20"
+                    className="absolute left-1.5 top-1/2 -translate-y-1/2 w-7 h-7 flex items-center justify-center bg-white/85 hover:bg-white text-slate-700 rounded-full shadow-md transition-all z-20"
                     aria-label="Previous photo"
                   >
-                    <ChevronLeft className="w-4 h-4" />
+                    <ChevronLeft className="w-3.5 h-3.5" />
                   </button>
                   <button
                     onClick={(e) => {
                       e.stopPropagation()
                       navigateHeadshot(1)
                     }}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-white/85 hover:bg-white text-slate-700 rounded-full shadow-md transition-all z-20"
+                    className="absolute right-1.5 top-1/2 -translate-y-1/2 w-7 h-7 flex items-center justify-center bg-white/85 hover:bg-white text-slate-700 rounded-full shadow-md transition-all z-20"
                     aria-label="Next photo"
                   >
-                    <ChevronRight className="w-4 h-4" />
+                    <ChevronRight className="w-3.5 h-3.5" />
                   </button>
-                  <div className="absolute bottom-2 right-2 bg-black/60 text-white text-xs font-medium px-2 py-0.5 rounded-md z-20">
+                  <div className="absolute bottom-1.5 right-1.5 bg-black/60 text-white text-[10px] font-medium px-1.5 py-0.5 rounded-md z-20">
                     {currentHeadshotIndex + 1} / {actor.headshots.length}
                   </div>
                 </>
@@ -1416,36 +1416,36 @@ export default function ActorCard({
             {/* Actor Info Section */}
             <div className="w-full min-w-0 overflow-hidden">
               {/* Actor Name + ID + Menu */}
-              <div className="mb-3">
+              <div className="mb-2">
                 <div className="flex items-start justify-between gap-2 mb-1">
-                  <div className="flex items-center gap-2 flex-wrap min-w-0">
+                  <div className="flex items-center gap-1.5 flex-wrap min-w-0">
                     <button
                       onClick={handleNameClick}
-                      className="font-bold text-xl text-slate-900 hover:text-success-600 transition-colors break-words text-left leading-tight"
+                      className="font-bold text-base text-slate-900 hover:text-success-600 transition-colors break-words text-left leading-tight"
                     >
                       {actor.name}
                     </button>
                     {actorCode && (
-                      <span className="text-xs font-medium text-slate-400 whitespace-nowrap">{actorCode}</span>
+                      <span className="text-[11px] font-medium text-slate-400 whitespace-nowrap">{actorCode}</span>
                     )}
                     {actor.isCast && (
                       <div className="flex items-center space-x-1">
-                        <Crown className="w-4 h-4 text-success-600" />
-                        <span className="text-xs text-success-600 font-semibold truncate">Cast as {character.name}</span>
+                        <Crown className="w-3.5 h-3.5 text-success-600" />
+                        <span className="text-[11px] text-success-600 font-semibold truncate">Cast as {character.name}</span>
                       </div>
                     )}
                   </div>
                   <button
                     onClick={handleMoreActions}
-                    className="flex-shrink-0 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg p-1.5 transition-colors"
+                    className="flex-shrink-0 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg p-1 transition-colors"
                     title="More actions"
                   >
-                    <MoreHorizontal className="w-5 h-5" />
+                    <MoreHorizontal className="w-4 h-4" />
                   </button>
                 </div>
 
                 {/* Basic Info - Inline */}
-                <div className="flex items-center flex-wrap gap-x-4 gap-y-1.5 text-sm text-slate-500 overflow-hidden">
+                <div className="flex items-center flex-wrap gap-x-3 gap-y-1 text-xs text-slate-500 overflow-hidden">
                   {state.cardViewSettings.age && actor.age && (
                     <span className="whitespace-nowrap">
                       Age <span className="font-semibold text-slate-800">{actor.age}</span>
@@ -1459,7 +1459,7 @@ export default function ActorCard({
                   {state.cardViewSettings.playingAge && actor.playingAge && (
                     <span className="flex items-center gap-1.5 whitespace-nowrap">
                       Play age
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full border border-slate-300 text-slate-700 font-semibold text-xs">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full border border-slate-300 text-slate-700 font-semibold text-[11px]">
                         {actor.playingAge}
                       </span>
                     </span>
@@ -1487,8 +1487,8 @@ export default function ActorCard({
           </div>
 
           {/* Status and Counters Row */}
-          <div className="flex items-center justify-between gap-3 mb-3">
-            <div className="flex items-center gap-3">
+          <div className="flex items-center justify-between gap-2 mb-2">
+            <div className="flex items-center gap-2">
               {/* Contact Status Indicator */}
               <div className="flex items-center gap-1 flex-shrink-0" title={contactStatus.label}>
                 <contactStatus.icon className={`w-3 h-3 ${contactStatus.color}`} />
@@ -1551,14 +1551,14 @@ export default function ActorCard({
           </div>
 
           {/* Status Display */}
-          <div className="mb-4 overflow-hidden">
+          <div className="mb-2.5 overflow-hidden">
             <StatusDisplay />
           </div>
 
           {/* Skills Section */}
           {state.cardViewSettings.skills && actor.skills && actor.skills.length > 0 && (
-            <div className="mb-4 overflow-hidden">
-              <div className="flex items-center gap-1 text-xs font-medium text-slate-600 mb-2">
+            <div className="mb-2.5 overflow-hidden">
+              <div className="flex items-center gap-1 text-[11px] font-medium text-slate-600 mb-1.5">
                 <Star className="w-3 h-3 flex-shrink-0" />
                 <span className="whitespace-nowrap">Skills & Abilities</span>
               </div>
@@ -1566,7 +1566,7 @@ export default function ActorCard({
                 {actor.skills.map((skill, index) => (
                   <span
                     key={index}
-                    className="inline-flex items-center px-3 py-1 rounded-lg text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200"
+                    className="inline-flex items-center px-2 py-0.5 rounded-lg text-[11px] font-medium bg-slate-100 text-slate-600 border border-slate-200"
                   >
                     {skill}
                   </span>
@@ -1577,17 +1577,17 @@ export default function ActorCard({
 
           {/* Notes Section */}
           {state.cardViewSettings.notes && (
-            <div className="mb-4 overflow-hidden">
+            <div className="mb-2.5 overflow-hidden">
               <NotesDisplay />
             </div>
           )}
 
           {/* Vote Section */}
           {state.cardViewSettings.showVotes && (
-            <div className="border-t border-slate-200 pt-4">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-sm font-semibold text-slate-800">Selection</span>
-                <span className="text-sm text-slate-500 flex-shrink-0 whitespace-nowrap">
+            <div className="border-t border-slate-200 pt-2.5 mt-auto">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-semibold text-slate-800">Selection</span>
+                <span className="text-xs text-slate-500 flex-shrink-0 whitespace-nowrap">
                   <span className="font-semibold text-slate-700">
                     {voteStats.votedUsers}/{voteStats.totalUsers}
                   </span>{" "}
@@ -1611,7 +1611,7 @@ export default function ActorCard({
 
               {/* Action Buttons - Hide for cast actors */}
               {!actor.isCast && state.currentUser && state.cardViewSettings.showActionButtons && (
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-3 gap-1.5">
                   {(
                     [
                       { value: "yes", label: "Yes", base: "bg-[#b5c9a8] text-[#3f5033]" },
@@ -1628,7 +1628,7 @@ export default function ActorCard({
                           e.stopPropagation()
                           handleVote(opt.value)
                         }}
-                        className={`flex items-center justify-between gap-1 px-3 py-2 rounded-full text-sm font-semibold transition-all duration-200 active:scale-95 ${opt.base} ${
+                        className={`flex items-center justify-between gap-0.5 px-2 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 active:scale-95 ${opt.base} ${
                           isActive ? "ring-2 ring-slate-900/70" : "hover:brightness-95"
                         }`}
                       >
@@ -1636,7 +1636,7 @@ export default function ActorCard({
                         {voters.length > 0 && (
                           <span className="flex items-center gap-0.5 flex-shrink-0">
                             <span
-                              className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold ring-2 ring-white/70"
+                              className="w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold ring-2 ring-white/70"
                               style={{
                                 backgroundColor: voters[0].bgColor || "#64748b",
                                 color: voters[0].color || "#ffffff",
@@ -1646,7 +1646,7 @@ export default function ActorCard({
                               {voters[0].initials}
                             </span>
                             {voters.length > 1 && (
-                              <span className="text-[10px] font-bold opacity-80">+{voters.length - 1}</span>
+                              <span className="text-[9px] font-bold opacity-80">+{voters.length - 1}</span>
                             )}
                           </span>
                         )}
