@@ -740,11 +740,11 @@ export default function ActorCard({
           </button>
         </div>
 
-        <div className="bg-slate-50 rounded-lg p-3 border border-slate-200">
-          <div className="flex items-start justify-between mb-2">
-            <div className="flex items-center space-x-2 min-w-0 flex-1">
+        <div className="bg-slate-50 rounded-lg p-2 border border-slate-200">
+          <div className="flex items-start justify-between mb-1">
+            <div className="flex items-center space-x-1.5 min-w-0 flex-1">
               <div
-                className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
+                className="w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold text-white flex-shrink-0"
                 style={{
                   backgroundColor: noteUser?.bgColor || "#6B7280",
                   color: noteUser?.color || "#FFFFFF",
@@ -814,7 +814,7 @@ export default function ActorCard({
               </div>
             </div>
           ) : (
-            <p className="text-xs text-slate-700 leading-relaxed break-words hyphens-auto">
+            <p className="text-xs text-slate-700 leading-snug break-words hyphens-auto line-clamp-2">
               {compact && latestNote.text.length > 80 ? `${latestNote.text.substring(0, 80)}...` : latestNote.text}
             </p>
           )}
@@ -1304,12 +1304,12 @@ export default function ActorCard({
         </button>
 
         {/* Content */}
-        <div className="p-3.5 flex flex-col flex-1 min-h-0 overflow-y-auto">
+        <div className="p-3.5 flex flex-col flex-1 min-h-0 overflow-hidden">
           {/* Top Section: Image on top, Actor Info below */}
-          <div className="flex flex-col gap-2.5 mb-2.5">
+          <div className="flex flex-col gap-2.5 mb-2.5 flex-shrink-0">
             {/* Image Container - full width, landscape */}
             <div
-              className={`relative bg-slate-100 w-full h-[150px] flex-shrink-0 rounded-xl overflow-hidden ${
+              className={`relative bg-slate-100 w-full h-[132px] flex-shrink-0 rounded-xl overflow-hidden ${
                 isDragOver ? "bg-info-100 border-2 border-dashed border-info-400" : ""
               }`}
               onDragEnter={handleImageDragEnter}
@@ -1487,7 +1487,7 @@ export default function ActorCard({
           </div>
 
           {/* Status and Counters Row */}
-          <div className="flex items-center justify-between gap-2 mb-2">
+          <div className="flex items-center justify-between gap-2 mb-2 flex-shrink-0">
             <div className="flex items-center gap-2">
               {/* Contact Status Indicator */}
               <div className="flex items-center gap-1 flex-shrink-0" title={contactStatus.label}>
@@ -1550,41 +1550,49 @@ export default function ActorCard({
             </button>
           </div>
 
-          {/* Status Display */}
-          <div className="mb-2.5 overflow-hidden">
-            <StatusDisplay />
+          {/* Flexible middle region - absorbs height so nothing spills past the card */}
+          <div className="flex-1 min-h-0 overflow-hidden flex flex-col gap-2.5">
+            {/* Status Display */}
+            <div className="overflow-hidden flex-shrink-0">
+              <StatusDisplay compact />
+            </div>
+
+            {/* Skills Section */}
+            {state.cardViewSettings.skills && actor.skills && actor.skills.length > 0 && (
+              <div className="overflow-hidden flex-shrink-0">
+                <div className="flex items-center gap-1 text-[11px] font-medium text-slate-600 mb-1.5">
+                  <Star className="w-3 h-3 flex-shrink-0" />
+                  <span className="whitespace-nowrap">Skills & Abilities</span>
+                </div>
+                <div className="flex flex-wrap gap-1">
+                  {actor.skills.slice(0, 4).map((skill, index) => (
+                    <span
+                      key={index}
+                      className="inline-flex items-center px-2 py-0.5 rounded-lg text-[11px] font-medium bg-slate-100 text-slate-600 border border-slate-200 max-w-[130px] truncate"
+                    >
+                      {skill}
+                    </span>
+                  ))}
+                  {actor.skills.length > 4 && (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-lg text-[11px] font-medium bg-slate-100 text-slate-500 border border-slate-200">
+                      +{actor.skills.length - 4}
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Notes Section */}
+            {state.cardViewSettings.notes && (
+              <div className="overflow-hidden min-h-0 flex-1">
+                <NotesDisplay compact />
+              </div>
+            )}
           </div>
-
-          {/* Skills Section */}
-          {state.cardViewSettings.skills && actor.skills && actor.skills.length > 0 && (
-            <div className="mb-2.5 overflow-hidden">
-              <div className="flex items-center gap-1 text-[11px] font-medium text-slate-600 mb-1.5">
-                <Star className="w-3 h-3 flex-shrink-0" />
-                <span className="whitespace-nowrap">Skills & Abilities</span>
-              </div>
-              <div className="flex flex-wrap gap-1">
-                {actor.skills.map((skill, index) => (
-                  <span
-                    key={index}
-                    className="inline-flex items-center px-2 py-0.5 rounded-lg text-[11px] font-medium bg-slate-100 text-slate-600 border border-slate-200"
-                  >
-                    {skill}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Notes Section */}
-          {state.cardViewSettings.notes && (
-            <div className="mb-2.5 overflow-hidden">
-              <NotesDisplay />
-            </div>
-          )}
 
           {/* Vote Section */}
           {state.cardViewSettings.showVotes && (
-            <div className="border-t border-slate-200 pt-2.5 mt-auto">
+            <div className="border-t border-slate-200 pt-2.5 mt-2.5 flex-shrink-0">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-xs font-semibold text-slate-800">Selection</span>
                 <span className="text-xs text-slate-500 flex-shrink-0 whitespace-nowrap">
