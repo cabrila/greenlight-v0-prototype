@@ -36,6 +36,7 @@ import {
 } from "lucide-react"
 import { useCasting } from "@/components/casting/CastingContext"
 import { openModal, navigateToModal } from "./ModalManager"
+import { addAssetToCanvas } from "@/lib/canvasStore"
 import ModalHeader from "@/components/layout/ModalHeader"
 import FloatingSidebar from "@/components/layout/FloatingSidebar"
 import EmbeddedCoPilot from "@/components/copilot/EmbeddedCoPilot"
@@ -1438,7 +1439,15 @@ export default function PropsModal({ onClose }: PropsModalProps) {
   }
 
 const handleAddToCanvas = (item: InventoryItem | ProjectProp) => {
-  navigateToModal("canvas")
+    addAssetToCanvas(projectId, {
+      refId: item.id,
+      type: "prop",
+      title: item.name,
+      subtitle: item.category,
+      image: item.imageUrl,
+      meta: item.status,
+    })
+    navigateToModal("canvas")
   }
 
   const handleAddInventoryItem = (item: InventoryItem) => {

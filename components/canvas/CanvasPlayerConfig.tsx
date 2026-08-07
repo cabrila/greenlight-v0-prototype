@@ -1,0 +1,516 @@
+"use client"
+
+import { useState } from "react"
+import {
+  X, Plus, Trash2, Play, ThumbsUp, Star, Users, Tag, Minus, MessageSquare, Timer, UserCheck,
+  ImageIcon, Video as VideoIcon, Eye, EyeOff, ChevronDown, Clapperboard,
+} from "lucide-react"
+import { isValidImageUrl } from "@/lib/utils"
+import type { PlayerAsset, PlayerConfig, DecisionMaker, PlayerMode, DecisionButton, DecisionTone } from "./CanvasPlayerView"
+
+const DM_COLORS = ["#10b981", "#0ea5e9", "#f59e0b", "#ec4899", "#8b5cf6", "#ef4444", "#14b8a6", "#f97316"]
+
+const SUGGESTED_ROLES = ["Director", "Producer", "Client", "DP", "Casting", "Costume Dept"]
+
+const TONE_META: Record<DecisionTone, { label: string; dot: string; ring: string }> = {
+  positive: { label: "Positive", dot: "bg-emerald-500", ring: "ring-emerald-500" },
+  negative: { label: "Negative", dot: "bg-red-500", ring: "ring-red-500" },
+  neutral: { label: "Neutral", dot: "bg-amber-500", ring: "ring-amber-500" },
+}
+
+const DEFAULT_BUTTONS: DecisionButton[] = [
+  { id: "yes", label: "Yes", tone: "positive" },
+  { id: "no", label: "No", tone: "negative" },
+]
+
+interface AssetMedia {
+  kind: "video" | "image"
+  url: string
+  name: string
+  platform?: string
+}
+
+/** All media for an asset, videos first (to match the player's playback order). */
+function assetMedia(a: PlayerAsset): AssetMedia[] {
+  const videos: AssetMedia[] = (a.videos || [])
+    .filter((v) => v.url)
+    .map((v, i) => ({ kind: "video" as const, url: v.url, name: v.name || `Video ${i + 1}`, platform: v.platform }))
+  const imgSources = a.images && a.images.length ? a.images : a.image ? [a.image] : []
+  const images: AssetMedia[] = imgSources
+    .filter((u) => isValidImageUrl(u))
+    .map((url, i) => ({ kind: "image" as const, url, name: `Image ${i + 1}` }))
+  return [...videos, ...images]
+}
+
+interface CanvasPlayerConfigProps {
+  assets: PlayerAsset[]
+  onCancel: () => void
+  onStart: (config: PlayerConfig) => void
+}
+
+export default function CanvasPlayerConfig({ assets, onCancel, onStart }: CanvasPlayerConfigProps) {
+  const [title, setTitle] = useState("Review session")
+  const [showLabels, setShowLabels] = useState(true)
+  const [showSubtitles, setShowSubtitles] = useState(true)
+  const [mode, setMode] = useState<PlayerMode>("approve")
+  const [starCount, setStarCount] = useState(5)
+  const [buttons, setButtons] = useState<DecisionButton[]>(DEFAULT_BUTTONS)
+  const [labels, setLabels] = useState<Record<string, string>>({})
+  const [enableComments, setEnableComments] = useState(true)
+  const [autoAdvance, setAutoAdvance] = useState(true)
+  const [autoAdvanceSeconds, setAutoAdvanceSeconds] = useState(5)
+  const [decisionMakers, setDecisionMakers] = useState<DecisionMaker[]>([
+    { id: "dm-1", name: "You", role: "Reviewer", color: DM_COLORS[0] },
+  ])
+  // Which decision maker represents the current user (the only one able to vote in the player).
+  const [currentUserId, setCurrentUserId] = useState("dm-1")
+  // Per-asset excluded media URLs, and which asset's media panel is expanded.
+  const [excludedMedia, setExcludedMedia] = useState<Record<string, string[]>>({})
+  const [expandedAsset, setExpandedAsset] = useState<string | null>(null)
+
+  const toggleMedia = (assetId: string, url: string) =>
+    setExcludedMedia((prev) => {
+      const set = new Set(prev[assetId] || [])
+      if (set.has(url)) set.delete(url)
+      else set.add(url)
+      return { ...prev, [assetId]: Array.from(set) }
+    })
+
+  const addDecisionMaker = () => {
+    const id = `dm-${Date.now()}-${Math.random().toString(36).slice(2, 5)}`
+    const color = DM_COLORS[decisionMakers.length % DM_COLORS.length]
+    setDecisionMakers((prev) => [...prev, { id, name: "", role: "", color }])
+  }
+
+  const updateDM = (id: string, patch: Partial<DecisionMaker>) =>
+    setDecisionMakers((prev) => prev.map((d) => (d.id === id ? { ...d, ...patch } : d)))
+
+  const removeDM = (id: string) =>
+    setDecisionMakers((prev) => {
+      const next = prev.filter((d) => d.id !== id)
+      if (id === currentUserId) setCurrentUserId(next[0]?.id || "")
+      return next
+    })
+
+  /* ---- decision button editing (approve mode) ---- */
+  const addButton = () => {
+    const id = `btn-${Date.now()}-${Math.random().toString(36).slice(2, 5)}`
+    setButtons((prev) => [...prev, { id, label: "Maybe", tone: "neutral" }])
+  }
+  const updateButton = (id: string, patch: Partial<DecisionButton>) =>
+    setButtons((prev) => prev.map((b) => (b.id === id ? { ...b, ...patch } : b)))
+  const removeButton = (id: string) => setButtons((prev) => prev.filter((b) => b.id !== id))
+  const cycleTone = (id: string) => {
+    const order: DecisionTone[] = ["positive", "negative", "neutral"]
+    setButtons((prev) =>
+      prev.map((b) => (b.id === id ? { ...b, tone: order[(order.indexOf(b.tone) + 1) % order.length] } : b)),
+    )
+  }
+
+  const handleStart = () => {
+    const cleaned = decisionMakers
+      .map((d) => ({ ...d, name: d.name.trim() || "Reviewer" }))
+      .filter((d, i, arr) => arr.findIndex((x) => x.id === d.id) === i)
+    const cleanedButtons = buttons
+      .map((b) => ({ ...b, label: b.label.trim() || "Option" }))
+      .filter((b, i, arr) => arr.findIndex((x) => x.id === b.id) === i)
+    const meId = cleaned.find((d) => d.id === currentUserId)?.id || cleaned[0]?.id
+    onStart({
+      title: title.trim() || "Review Session",
+      showLabels,
+      showSubtitles,
+      mode,
+      starCount,
+      buttons: cleanedButtons.length ? cleanedButtons : DEFAULT_BUTTONS,
+      decisionMakers: cleaned,
+      currentUserId: meId,
+      labels,
+      excludedMedia,
+      enableComments,
+      autoAdvance,
+      autoAdvanceSeconds,
+    })
+  }
+
+  return (
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/70 backdrop-blur-sm p-4" onMouseDown={onCancel}>
+      <div
+        className="w-full max-w-lg lg:max-w-4xl max-h-[90vh] flex flex-col rounded-2xl bg-white shadow-2xl overflow-hidden"
+        onMouseDown={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="shrink-0">
+          <div className="h-1.5 bg-emerald-500" />
+          <div className="flex items-center gap-3 px-5 py-4 border-b border-slate-100">
+            <span className="w-9 h-9 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+              <Play className="w-5 h-5" />
+            </span>
+            <div className="min-w-0 flex-1">
+              <h2 className="text-lg font-bold text-slate-800 leading-tight">Configure review</h2>
+              <p className="text-xs text-slate-400">{assets.length} asset{assets.length === 1 ? "" : "s"} selected</p>
+            </div>
+            <button onClick={onCancel} className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors" aria-label="Cancel">
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+
+        {/* Body — single column when narrow, two balanced columns when wide */}
+        <div className="flex-1 overflow-y-auto p-5 space-y-5 lg:space-y-0 lg:columns-2 lg:gap-5 lg:[column-fill:balance] lg:[&>div]:mb-5 lg:[&>div]:break-inside-avoid">
+          {/* Title */}
+          <div>
+            <label className="block text-sm font-semibold text-slate-800 mb-1.5">Session title</label>
+            <input
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="e.g. Costume options review"
+              className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            />
+          </div>
+
+          {/* Decision mode */}
+          <div>
+            <span className="block text-sm font-semibold text-slate-800 mb-1.5">Decision style</span>
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                onClick={() => setMode("approve")}
+                className={`flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl border text-sm font-medium transition-colors ${
+                  mode === "approve" ? "border-emerald-500 bg-emerald-50 text-emerald-700" : "border-slate-200 text-slate-600 hover:bg-slate-50"
+                }`}
+              >
+                <ThumbsUp className="w-4 h-4" /> Buttons
+              </button>
+              <button
+                onClick={() => setMode("rate")}
+                className={`flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl border text-sm font-medium transition-colors ${
+                  mode === "rate" ? "border-emerald-500 bg-emerald-50 text-emerald-700" : "border-slate-200 text-slate-600 hover:bg-slate-50"
+                }`}
+              >
+                <Star className="w-4 h-4" /> Star rating
+              </button>
+              <button
+                onClick={() => setMode("browse")}
+                className={`flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl border text-sm font-medium transition-colors ${
+                  mode === "browse" ? "border-emerald-500 bg-emerald-50 text-emerald-700" : "border-slate-200 text-slate-600 hover:bg-slate-50"
+                }`}
+              >
+                <EyeOff className="w-4 h-4" /> None
+              </button>
+            </div>
+            {mode === "browse" && (
+              <p className="mt-2 text-xs text-slate-500">
+                No decision buttons — reviewers can only move between assets and leave comments.
+              </p>
+            )}
+
+            {/* Star count editor */}
+            {mode === "rate" && (
+              <div className="mt-3 flex items-center justify-between rounded-xl border border-slate-200 px-3 py-2.5">
+                <span className="text-sm text-slate-600">Number of stars</span>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setStarCount((n) => Math.max(2, n - 1))}
+                    className="w-7 h-7 rounded-lg border border-slate-200 text-slate-500 flex items-center justify-center hover:bg-slate-50"
+                    aria-label="Fewer stars"
+                  >
+                    <Minus className="w-4 h-4" />
+                  </button>
+                  <span className="w-6 text-center text-sm font-semibold text-slate-800 tabular-nums">{starCount}</span>
+                  <button
+                    onClick={() => setStarCount((n) => Math.min(10, n + 1))}
+                    className="w-7 h-7 rounded-lg border border-slate-200 text-slate-500 flex items-center justify-center hover:bg-slate-50"
+                    aria-label="More stars"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Custom buttons editor */}
+            {mode === "approve" && (
+              <div className="mt-3 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium text-slate-500">Decision buttons</span>
+                  <button
+                    onClick={addButton}
+                    className="flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-50 text-emerald-700 text-xs font-medium hover:bg-emerald-100 transition-colors"
+                  >
+                    <Plus className="w-3.5 h-3.5" /> Add button
+                  </button>
+                </div>
+                {buttons.map((b) => (
+                  <div key={b.id} className="flex items-center gap-2 rounded-xl border border-slate-200 p-2">
+                    <button
+                      onClick={() => cycleTone(b.id)}
+                      className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 shrink-0"
+                      title={`Tone: ${TONE_META[b.tone].label} (click to change)`}
+                    >
+                      <span className={`w-3 h-3 rounded-full ${TONE_META[b.tone].dot}`} />
+                      <span className="text-[11px] text-slate-500">{TONE_META[b.tone].label}</span>
+                    </button>
+                    <input
+                      value={b.label}
+                      onChange={(e) => updateButton(b.id, { label: e.target.value })}
+                      placeholder="Label"
+                      className="flex-1 min-w-0 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    />
+                    <button
+                      onClick={() => removeButton(b.id)}
+                      disabled={buttons.length <= 1}
+                      className="p-1.5 rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-500 transition-colors shrink-0 disabled:opacity-30 disabled:cursor-not-allowed"
+                      aria-label="Remove button"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Behaviour toggles */}
+          <div className="space-y-2">
+            <label className="flex items-center justify-between rounded-xl border border-slate-200 px-3 py-2.5 cursor-pointer">
+              <span className="flex items-center gap-2 text-sm text-slate-700">
+                <MessageSquare className="w-4 h-4 text-slate-400" /> Enable comments
+              </span>
+              <input type="checkbox" checked={enableComments} onChange={(e) => setEnableComments(e.target.checked)} className="w-4 h-4 accent-emerald-500" />
+            </label>
+            {mode !== "browse" && (
+              <label className="flex items-center justify-between rounded-xl border border-slate-200 px-3 py-2.5 cursor-pointer">
+                <span className="flex items-center gap-2 text-sm text-slate-700">
+                  <Timer className="w-4 h-4 text-slate-400" /> Auto-advance after a selection
+                </span>
+                <input type="checkbox" checked={autoAdvance} onChange={(e) => setAutoAdvance(e.target.checked)} className="w-4 h-4 accent-emerald-500" />
+              </label>
+            )}
+            {mode !== "browse" && autoAdvance && (
+              <div className="flex items-center justify-between rounded-xl border border-slate-200 px-3 py-2.5">
+                <span className="text-sm text-slate-600">Countdown seconds</span>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setAutoAdvanceSeconds((n) => Math.max(1, n - 1))}
+                    className="w-7 h-7 rounded-lg border border-slate-200 text-slate-500 flex items-center justify-center hover:bg-slate-50"
+                    aria-label="Less time"
+                  >
+                    <Minus className="w-4 h-4" />
+                  </button>
+                  <span className="w-6 text-center text-sm font-semibold text-slate-800 tabular-nums">{autoAdvanceSeconds}</span>
+                  <button
+                    onClick={() => setAutoAdvanceSeconds((n) => Math.min(30, n + 1))}
+                    className="w-7 h-7 rounded-lg border border-slate-200 text-slate-500 flex items-center justify-center hover:bg-slate-50"
+                    aria-label="More time"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Display toggles */}
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => setShowLabels((v) => !v)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${
+                showLabels ? "border-emerald-500 bg-emerald-50 text-emerald-700" : "border-slate-200 text-slate-500"
+              }`}
+            >
+              <Tag className="w-3.5 h-3.5" /> Show labels
+            </button>
+            <button
+              onClick={() => setShowSubtitles((v) => !v)}
+              disabled={!showLabels}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors disabled:opacity-40 ${
+                showSubtitles && showLabels ? "border-emerald-500 bg-emerald-50 text-emerald-700" : "border-slate-200 text-slate-500"
+              }`}
+            >
+              Show subtitles
+            </button>
+          </div>
+
+          {/* Slides & media editor */}
+          <div>
+            <span className="block text-sm font-semibold text-slate-800 mb-1.5">Slides &amp; media</span>
+            <p className="text-[11px] text-slate-400 mb-2">
+              Rename slides and choose exactly which images and videos appear in the player for each asset.
+            </p>
+            <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
+              {assets.map((a) => {
+                const media = assetMedia(a)
+                const excluded = new Set(excludedMedia[a.id] || [])
+                const includedCount = media.filter((m) => !excluded.has(m.url)).length
+                const thumb = a.images?.find((u) => isValidImageUrl(u)) || (isValidImageUrl(a.image) ? a.image : undefined)
+                const isOpen = expandedAsset === a.id
+                return (
+                  <div key={a.id} className="rounded-xl border border-slate-200 overflow-hidden">
+                    <div className="flex items-center gap-2 p-2">
+                      <div className="w-9 h-9 rounded-md overflow-hidden bg-slate-100 shrink-0">
+                        {thumb ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={thumb || "/placeholder.svg"} alt={a.title} crossOrigin="anonymous" className="w-full h-full object-cover" />
+                        ) : null}
+                      </div>
+                      {showLabels ? (
+                        <input
+                          value={labels[a.id] ?? a.title}
+                          onChange={(e) => setLabels((prev) => ({ ...prev, [a.id]: e.target.value }))}
+                          className="flex-1 min-w-0 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                        />
+                      ) : (
+                        <span className="flex-1 min-w-0 truncate text-sm font-medium text-slate-700">{a.title}</span>
+                      )}
+                      <button
+                        onClick={() => setExpandedAsset(isOpen ? null : a.id)}
+                        disabled={media.length === 0}
+                        className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium border transition-colors shrink-0 disabled:opacity-40 disabled:cursor-not-allowed ${
+                          isOpen ? "border-emerald-500 bg-emerald-50 text-emerald-700" : "border-slate-200 text-slate-500 hover:bg-slate-50"
+                        }`}
+                        title="Choose which media to include"
+                        aria-expanded={isOpen}
+                      >
+                        <Clapperboard className="w-3.5 h-3.5" />
+                        {media.length > 0 ? `${includedCount}/${media.length}` : "0"}
+                        <ChevronDown className={`w-3.5 h-3.5 transition-transform ${isOpen ? "rotate-180" : ""}`} />
+                      </button>
+                    </div>
+
+                    {isOpen && media.length > 0 && (
+                      <div className="border-t border-slate-100 bg-slate-50 p-2 grid grid-cols-3 gap-2">
+                        {media.map((m) => {
+                          const off = excluded.has(m.url)
+                          return (
+                            <button
+                              key={m.url}
+                              onClick={() => toggleMedia(a.id, m.url)}
+                              className={`group relative aspect-video rounded-lg overflow-hidden border-2 transition-colors ${
+                                off ? "border-slate-200 opacity-45" : "border-emerald-500"
+                              }`}
+                              title={off ? `Include ${m.name}` : `Exclude ${m.name}`}
+                              aria-pressed={!off}
+                            >
+                              {m.kind === "image" ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img src={m.url || "/placeholder.svg"} alt={m.name} crossOrigin="anonymous" className="w-full h-full object-cover" />
+                              ) : (
+                                <span className="w-full h-full flex flex-col items-center justify-center gap-1 bg-slate-800 text-white/80">
+                                  <VideoIcon className="w-4 h-4" />
+                                  <span className="text-[9px] px-1 truncate max-w-full">{m.platform || "Video"}</span>
+                                </span>
+                              )}
+                              <span
+                                className={`absolute top-1 right-1 w-5 h-5 rounded-full flex items-center justify-center text-white ${
+                                  off ? "bg-slate-400" : "bg-emerald-500"
+                                }`}
+                              >
+                                {off ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+                              </span>
+                              <span className="absolute bottom-1 left-1 flex items-center gap-0.5 px-1 py-0.5 rounded bg-black/50 text-[8px] text-white">
+                                {m.kind === "video" ? <VideoIcon className="w-2.5 h-2.5" /> : <ImageIcon className="w-2.5 h-2.5" />}
+                              </span>
+                            </button>
+                          )
+                        })}
+                      </div>
+                    )}
+                    {isOpen && includedCount === 0 && (
+                      <p className="px-3 pb-2 text-[11px] text-red-500 bg-slate-50">At least one media item should stay included.</p>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+
+          {/* Decision makers */}
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="flex items-center gap-1.5 text-sm font-semibold text-slate-800">
+                <Users className="w-4 h-4 text-slate-400" /> Decision makers
+              </span>
+              <button
+                onClick={addDecisionMaker}
+                className="flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-50 text-emerald-700 text-xs font-medium hover:bg-emerald-100 transition-colors"
+              >
+                <Plus className="w-3.5 h-3.5" /> Add
+              </button>
+            </div>
+            <p className="text-[11px] text-slate-400 mb-2">
+              Add everyone reviewing here. In the player you can only cast a decision as yourself — mark which one is you.
+            </p>
+            <div className="space-y-2">
+              {decisionMakers.map((dm) => {
+                const isMe = dm.id === currentUserId
+                return (
+                  <div key={dm.id} className="flex items-center gap-2 rounded-xl border border-slate-200 p-2">
+                    <span
+                      className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0"
+                      style={{ backgroundColor: dm.color }}
+                    >
+                      {(dm.name || "?").charAt(0).toUpperCase()}
+                    </span>
+                    <div className="flex-1 min-w-0 grid grid-cols-2 gap-2">
+                      <input
+                        value={dm.name}
+                        onChange={(e) => updateDM(dm.id, { name: e.target.value })}
+                        placeholder="Name"
+                        className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      />
+                      <input
+                        value={dm.role}
+                        onChange={(e) => updateDM(dm.id, { role: e.target.value })}
+                        placeholder="Role"
+                        list="dm-roles"
+                        className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      />
+                    </div>
+                    <button
+                      onClick={() => setCurrentUserId(dm.id)}
+                      className={`flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium border transition-colors shrink-0 ${
+                        isMe ? "border-emerald-500 bg-emerald-50 text-emerald-700" : "border-slate-200 text-slate-400 hover:bg-slate-50"
+                      }`}
+                      title="Mark this participant as you (only you can vote in the review session)"
+                      aria-pressed={isMe}
+                    >
+                      <UserCheck className="w-3.5 h-3.5" />
+                      {isMe ? "You" : "Me?"}
+                    </button>
+                    <button
+                      onClick={() => removeDM(dm.id)}
+                      className="p-1.5 rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-500 transition-colors shrink-0"
+                      aria-label="Remove decision maker"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                )
+              })}
+              {decisionMakers.length === 0 && (
+                <p className="text-sm text-slate-400 py-3 text-center">Add at least one decision maker to collect votes.</p>
+              )}
+            </div>
+            <datalist id="dm-roles">
+              {SUGGESTED_ROLES.map((r) => (
+                <option key={r} value={r} />
+              ))}
+            </datalist>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="shrink-0 border-t border-slate-100 p-4 flex items-center justify-end gap-2">
+          <button onClick={onCancel} className="px-4 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 transition-colors">
+            Cancel
+          </button>
+          <button
+            onClick={handleStart}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600 transition-colors"
+          >
+            <Play className="w-4 h-4" /> Start review
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}

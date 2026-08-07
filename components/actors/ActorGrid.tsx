@@ -5,9 +5,22 @@ import { useActorGrid } from "./ActorGridContext"
 import { useCasting } from "@/components/casting/CastingContext"
 import type { Character, Actor } from "@/types/casting"
 import { useState, useCallback, useEffect, useRef } from "react"
-import { ArrowRightCircle, Mail, Crown, List, CheckCircle, MapPin, Phone, Calendar, Check } from "lucide-react"
+import {
+  ArrowRightCircle,
+  Mail,
+  Crown,
+  List,
+  CheckCircle,
+  MapPin,
+  Phone,
+  Calendar,
+  Check,
+  ChevronDown,
+  ListPlus,
+} from "lucide-react"
 import { openModal } from "@/components/modals/ModalManager"
 import ActorCard from "@/components/actors/ActorCard"
+import ActorListView from "@/components/actors/ActorListView"
 
 interface ActorGridProps {
   character: Character
@@ -26,6 +39,8 @@ export default function ActorGrid({ character }: ActorGridProps) {
   const [isMultiDragging, setIsMultiDragging] = useState(false)
 
   const [showFilters, setShowFilters] = useState(false)
+  const [showMoveMenu, setShowMoveMenu] = useState(false)
+  const moveMenuRef = useRef<HTMLDivElement | null>(null)
   // Removed local state for filters:
   // const [statusFilter, setStatusFilter] = useState<string[]>([])
   // const [ageRangeFilter, setAgeRangeFilter] = useState<{ min: number; max: number }>({ min: 0, max: 100 })
@@ -275,6 +290,16 @@ export default function ActorGrid({ character }: ActorGridProps) {
       filtered = filtered.filter((actor) => {
         if (!actor.location) return false
         return filters.location.includes(actor.location.trim())
+      })
+    }
+
+    // Apply decision filter (decisions made in the player views).
+    // Positive -> "yes", Negative -> "no", Neutral -> "maybe".
+    // An actor matches if any team member cast a decision in a selected category.
+    if (filters.decision && filters.decision.length > 0) {
+      filtered = filtered.filter((actor) => {
+        const votes = Object.values(actor.userVotes || {})
+        return votes.some((vote) => filters.decision.includes(vote as "yes" | "maybe" | "no"))
       })
     }
 
@@ -904,11 +929,36 @@ export default function ActorGrid({ character }: ActorGridProps) {
   const handleMoveToList = useCallback(() => {
     if (selectedActorIds.size === 0) return
 
+    setShowMoveMenu(false)
     openModal("moveMultipleActors", {
       actorIds: Array.from(selectedActorIds),
       characterId: character.id,
     })
   }, [selectedActorIds, character.id])
+
+  const handleMoveToNewList = useCallback(() => {
+    if (selectedActorIds.size === 0) return
+
+    setShowMoveMenu(false)
+    openModal("moveToNewList", {
+      actorIds: Array.from(selectedActorIds),
+      characterId: character.id,
+    })
+  }, [selectedActorIds, character.id])
+
+  // Close the Move dropdown when clicking outside of it
+  useEffect(() => {
+    if (!showMoveMenu) return
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (moveMenuRef.current && !moveMenuRef.current.contains(event.target as Node)) {
+        setShowMoveMenu(false)
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [showMoveMenu])
 
   const handleContactActors = useCallback(() => {
     if (selectedActorIds.size === 0) return
@@ -1044,6 +1094,29 @@ export default function ActorGrid({ character }: ActorGridProps) {
     })
   }, [selectedActorIds, character.id, activeTabKey, character.actors.shortLists, dispatch, clearSelection])
 
+  const handleGreenlightActors = useCallback(() => {
+    if (selectedActorIds.size === 0) return
+
+    const actorIds = Array.from(selectedActorIds)
+    if (
+      !confirm(
+        `Greenlight ${actorIds.length} actor${actorIds.length > 1 ? "s" : ""}?\n\nThis sets every team member's decision to Yes and marks ${actorIds.length > 1 ? "them" : "the actor"} as Greenlit.`,
+      )
+    ) {
+      return
+    }
+
+    dispatch({
+      type: "GREENLIGHT_ACTORS",
+      payload: {
+        actorIds,
+        characterId: character.id,
+      },
+    })
+
+    clearSelection()
+  }, [selectedActorIds, character.id, dispatch, clearSelection])
+
   // Add this function after the existing handlers
   const handleGridClick = useCallback((e: React.MouseEvent) => {
     // Only clear selection if clicking directly on the grid background, not on actor cards
@@ -1054,6 +1127,19 @@ export default function ActorGrid({ character }: ActorGridProps) {
   }, [])
 
   const actors = filterAndSortActors(getActorsForTab())
+
+  const handleToggleSelectAll = useCallback(
+    (select: boolean) => {
+      if (select) {
+        setSelectedActorIds(new Set(actors.map((a) => a.id)))
+        setLastSelectedId(actors.length > 0 ? actors[actors.length - 1].id : null)
+      } else {
+        setSelectedActorIds(new Set())
+        setLastSelectedId(null)
+      }
+    },
+    [actors, setSelectedActorIds, setLastSelectedId],
+  )
 
   // Special messages for Long List and Approval tabs
   const isLongListTab = activeTabKey === "longList"
@@ -1226,32 +1312,78 @@ export default function ActorGrid({ character }: ActorGridProps) {
             </div>
 
             <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-              <button
-                onClick={() => {
-                  dispatch({
-                    type: "OPEN_MODAL",
-                    payload: {
-                      type: "bookAudition",
-                      data: {
-                        selectedCharacters: character ? [character.id] : [],
-                        preselectedActors: Array.from(selectedActorIds),
+              {isApprovalTab ? (
+                <button
+                  onClick={handleGreenlightActors}
+                  className="flex items-center space-x-2 px-4 py-2.5 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white rounded-lg font-semibold transition-all duration-200 shadow-md hover:shadow-lg text-sm"
+                >
+                  <CheckCircle className="w-4 h-4" />
+                  <span>Greenlight</span>
+                </button>
+              ) : (
+                <button
+                  onClick={() => {
+                    dispatch({
+                      type: "OPEN_MODAL",
+                      payload: {
+                        type: "bookAudition",
+                        data: {
+                          selectedCharacters: character ? [character.id] : [],
+                          preselectedActors: Array.from(selectedActorIds),
+                        },
                       },
-                    },
-                  })
-                }}
-                className="flex items-center space-x-2 px-4 py-2.5 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white rounded-lg font-semibold transition-all duration-200 shadow-md hover:shadow-lg text-sm"
-              >
-                <Calendar className="w-4 h-4" />
-                <span>Book Audition</span>
-              </button>
+                    })
+                  }}
+                  className="flex items-center space-x-2 px-4 py-2.5 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white rounded-lg font-semibold transition-all duration-200 shadow-md hover:shadow-lg text-sm"
+                >
+                  <Calendar className="w-4 h-4" />
+                  <span>Book Audition</span>
+                </button>
+              )}
 
-              <button
-                onClick={handleMoveToList}
-                className="flex items-center space-x-2 px-3 py-2.5 bg-white border-2 border-slate-300 text-slate-700 hover:border-slate-400 hover:bg-slate-50 rounded-lg font-medium transition-all duration-200 shadow-sm text-sm"
-              >
-                <ArrowRightCircle className="w-4 h-4" />
-                <span className="hidden sm:inline">Move</span>
-              </button>
+              <div className="relative" ref={moveMenuRef}>
+                <button
+                  onClick={() => setShowMoveMenu((prev) => !prev)}
+                  aria-haspopup="menu"
+                  aria-expanded={showMoveMenu}
+                  className="flex items-center space-x-2 px-3 py-2.5 bg-white border-2 border-slate-300 text-slate-700 hover:border-slate-400 hover:bg-slate-50 rounded-lg font-medium transition-all duration-200 shadow-sm text-sm"
+                >
+                  <ArrowRightCircle className="w-4 h-4" />
+                  <span className="hidden sm:inline">Move</span>
+                  <ChevronDown className={`w-4 h-4 transition-transform ${showMoveMenu ? "rotate-180" : ""}`} />
+                </button>
+
+                {showMoveMenu && (
+                  <div
+                    role="menu"
+                    className="absolute right-0 mt-2 w-60 bg-white border border-slate-200 rounded-lg shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-1 duration-150"
+                  >
+                    <button
+                      role="menuitem"
+                      onClick={handleMoveToList}
+                      className="w-full flex items-start space-x-3 px-4 py-3 text-left hover:bg-slate-50 transition-colors"
+                    >
+                      <ArrowRightCircle className="w-4 h-4 mt-0.5 text-slate-500 flex-shrink-0" />
+                      <div>
+                        <div className="text-sm font-medium text-slate-800">Move to Existing List</div>
+                        <div className="text-xs text-slate-500">Choose a current list or shortlist</div>
+                      </div>
+                    </button>
+                    <div className="h-px bg-slate-100" />
+                    <button
+                      role="menuitem"
+                      onClick={handleMoveToNewList}
+                      className="w-full flex items-start space-x-3 px-4 py-3 text-left hover:bg-slate-50 transition-colors"
+                    >
+                      <ListPlus className="w-4 h-4 mt-0.5 text-emerald-600 flex-shrink-0" />
+                      <div>
+                        <div className="text-sm font-medium text-slate-800">Move to New List</div>
+                        <div className="text-xs text-slate-500">Create a new list and move here</div>
+                      </div>
+                    </button>
+                  </div>
+                )}
+              </div>
 
               <button
                 onClick={handleContactActors}
@@ -1289,23 +1421,53 @@ export default function ActorGrid({ character }: ActorGridProps) {
         </div>
       )}
 
-      {/* Actor Grid */}
-      <div
-        className={`${getGridClasses()} ${
-          isDragOverGrid
-            ? isApprovalTab
-              ? "bg-gradient-to-br from-emerald-50 via-emerald-100 to-emerald-50 rounded-2xl p-6 border-2 border-emerald-300 shadow-xl"
-              : isLongListTab
-                ? "bg-gradient-to-br from-blue-50 via-blue-100 to-blue-50 rounded-2xl p-6 border-2 border-blue-300 shadow-xl"
-                : "bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-6 border-2 border-blue-300 shadow-lg"
-            : ""
-        }`}
-        onDragOver={handleGridDragOver}
-        onDragLeave={handleGridDragLeave}
-        onDrop={handleGridDrop}
-        onClick={handleGridClick}
-      >
-        {actors.map((actor) => {
+      {/* Actor List (finder/explorer table) */}
+      {cardDisplayMode === "list-view" ? (
+        <div
+          className={`${
+            isDragOverGrid
+              ? isApprovalTab
+                ? "bg-gradient-to-br from-emerald-50 via-emerald-100 to-emerald-50 rounded-2xl p-2 border-2 border-emerald-300 shadow-xl"
+                : "bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-2 border-2 border-blue-300 shadow-lg"
+              : ""
+          }`}
+          onDragOver={handleGridDragOver}
+          onDragLeave={handleGridDragLeave}
+          onDrop={handleGridDrop}
+        >
+          <ActorListView
+            actors={actors}
+            character={character}
+            users={state.users}
+            selectedActorIds={selectedActorIds}
+            onSelect={handleActorSelect}
+            onToggleSelectAll={handleToggleSelectAll}
+            draggedActorIds={draggedActorIds}
+            dropTarget={dropTarget}
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+            onDragOver={handleDragOver}
+            onDrop={handleDrop}
+          />
+        </div>
+      ) : (
+        /* Actor Grid */
+        <div
+          className={`${getGridClasses()} ${
+            isDragOverGrid
+              ? isApprovalTab
+                ? "bg-gradient-to-br from-emerald-50 via-emerald-100 to-emerald-50 rounded-2xl p-6 border-2 border-emerald-300 shadow-xl"
+                : isLongListTab
+                  ? "bg-gradient-to-br from-blue-50 via-blue-100 to-blue-50 rounded-2xl p-6 border-2 border-blue-300 shadow-xl"
+                  : "bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-6 border-2 border-blue-300 shadow-lg"
+              : ""
+          }`}
+          onDragOver={handleGridDragOver}
+          onDragLeave={handleGridDragLeave}
+          onDrop={handleGridDrop}
+          onClick={handleGridClick}
+        >
+          {actors.map((actor) => {
           if (cardDisplayMode === "row") {
             return (
               <div
@@ -1357,10 +1519,11 @@ export default function ActorGrid({ character }: ActorGridProps) {
                 onDragOver={(e) => handleDragOver(e, actor)}
                 onDrop={(e) => handleDrop(e, actor)}
               />
-            </div>
-          )
-        })}
-      </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
     </div>
   )
 }

@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { createContext, type ReactNode, useReducer, useEffect, useContext } from "react"
-import type { CastingState, CastingAction, Actor, Notification } from "@/types/casting"
+import type { CastingState, CastingAction, Actor, Notification, PlayerSessionConfig } from "@/types/casting"
 import { saveToLocalStorage, clearLocalStorage, loadFromLocalStorage, saveToLocalStorageImmediate } from "@/utils/localStorage"
 import { MOCK_SCHEDULE_ENTRIES, MOCK_SCENES, MOCK_PRODUCTION_PHASES } from "@/data/mockScriptAndSchedule"
 
@@ -11,6 +11,24 @@ function safeArray<T>(arr: T[] | undefined | null): T[] {
   return Array.isArray(arr) ? arr : []
 }
 // ---------------------------------------------------------
+
+// Default settings for the "Configure Player" step (casting player sessions).
+export const DEFAULT_PLAYER_SESSION_CONFIG: PlayerSessionConfig = {
+  title: "Review session",
+  sections: { age: true, playingAge: true, location: true, status: true, skills: true },
+  showNotes: true,
+  showTeamVotes: true,
+  decisions: { yes: true, maybe: true, no: true },
+  decisionButtons: [
+  { id: "yes", label: "Yes", outcome: "yes", enabled: true },
+  { id: "maybe", label: "Maybe", outcome: "maybe", enabled: true },
+  { id: "no", label: "No", outcome: "no", enabled: true },
+  ],
+  showDecisionButtons: true,
+  autoAdvance: true,
+  autoAdvanceSeconds: 1,
+  slides: {},
+  }
 
 const CastingContext = createContext<{
   state: CastingState
@@ -148,11 +166,14 @@ function getInitialState(): CastingState {
         status: [],
         ageRange: { min: 0, max: 100 },
         location: [],
+        decision: [],
       },
       playerView: {
         isOpen: false,
         currentIndex: 0,
         currentHeadshotIndex: 0,
+        phase: "player",
+        config: DEFAULT_PLAYER_SESSION_CONFIG,
       },
     },
     modals: {},
@@ -199,6 +220,7 @@ function getInitialState(): CastingState {
       status: [],
       ageRange: { min: 0, max: 100 },
       location: [],
+      decision: [],
       showFilters: false,
     },
     canvasActors: [], // Add canvasActors to initial state
@@ -340,6 +362,7 @@ function validateAndCompleteState(state: any): CastingState {
         status: state.currentFocus?.filters?.status || [],
         ageRange: state.currentFocus?.filters?.ageRange || { min: 0, max: 100 },
         location: state.currentFocus?.filters?.location || [],
+        decision: state.currentFocus?.filters?.decision || [],
       },
     },
 
@@ -900,8 +923,57 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
           playerView: {
             ...state.currentFocus.playerView,
             isOpen: true,
+            phase: "player",
             currentIndex: action.payload?.actorIndex || 0,
             currentHeadshotIndex: 0,
+          },
+        },
+      }
+      break
+
+    case "OPEN_PLAYER_CONFIG":
+      newState = {
+        ...state,
+        currentFocus: {
+          ...state.currentFocus,
+          playerView: {
+            ...state.currentFocus.playerView,
+            isOpen: true,
+            phase: "config",
+            currentIndex: 0,
+            currentHeadshotIndex: 0,
+          },
+        },
+      }
+      break
+
+    case "START_PLAYER_VIEW":
+      newState = {
+        ...state,
+        currentFocus: {
+          ...state.currentFocus,
+          cardDisplayMode: "player",
+          playerView: {
+            ...state.currentFocus.playerView,
+            isOpen: true,
+            phase: "player",
+            config: action.payload.config,
+            currentIndex: 0,
+            currentHeadshotIndex: 0,
+          },
+        },
+      }
+      break
+
+    case "OPEN_PLAYER_SUMMARY":
+      newState = {
+        ...state,
+        currentFocus: {
+          ...state.currentFocus,
+          playerView: {
+            ...state.currentFocus.playerView,
+            isOpen: true,
+            phase: "summary",
           },
         },
       }
@@ -1093,6 +1165,72 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
         projects: updatedProjects,
       }
       break
+
+    case "GREENLIGHT_ACTORS": {
+      const { actorIds, characterId: greenlightCharacterId } = action.payload
+      const greenlightActorIds: string[] = actorIds
+
+      // Build a userVotes map where every team member has voted "yes".
+      const allYesVotes: Record<string, "yes"> = {}
+      for (const user of state.users) {
+        allYesVotes[user.id] = "yes"
+      }
+
+      const greenlitActor = (actor: any) => {
+        if (!greenlightActorIds.includes(actor.id)) return actor
+        return {
+          ...actor,
+          userVotes: { ...allYesVotes },
+          consensusAction: { type: "yes", isGreenlit: true },
+          isSoftRejected: false,
+          isGreenlit: true,
+          isCast: true,
+        }
+      }
+
+      const greenlitProjects = state.projects.map((project) => ({
+        ...project,
+        characters: project.characters.map((character) => {
+          if (character.id !== greenlightCharacterId) return character
+          return {
+            ...character,
+            actors: {
+              ...character.actors,
+              longList: character.actors.longList.map(greenlitActor),
+              audition: character.actors.audition.map(greenlitActor),
+              approval: character.actors.approval.map(greenlitActor),
+              shortLists: character.actors.shortLists.map((sl) => ({
+                ...sl,
+                actors: sl.actors.map(greenlitActor),
+              })),
+              ...Object.fromEntries(
+                Object.entries(character.actors)
+                  .filter(([key]) => !["longList", "audition", "approval", "shortLists"].includes(key))
+                  .map(([key, actors]) => [key, Array.isArray(actors) ? actors.map(greenlitActor) : actors]),
+              ),
+            },
+          }
+        }),
+      }))
+
+      const greenlightNotification = {
+        id: `greenlight-${Date.now()}-${Math.random()}`,
+        type: "system" as const,
+        title: "Actors Greenlit!",
+        message: `🎉 ${greenlightActorIds.length} actor${greenlightActorIds.length > 1 ? "s" : ""} greenlit — all decisions set to Yes.`,
+        timestamp: Date.now(),
+        read: false,
+        priority: "high" as const,
+        characterId: greenlightCharacterId,
+      }
+
+      newState = {
+        ...state,
+        notifications: [greenlightNotification, ...state.notifications],
+        projects: greenlitProjects,
+      }
+      break
+    }
 
     case "ADD_CONTACT_STATUS": {
       const { actorIds, characterId, contactType, templateName, timestamp } = action.payload
@@ -3017,6 +3155,19 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
       }
       break
 
+    case "SET_DECISION_FILTER":
+      newState = {
+        ...state,
+        currentFocus: {
+          ...state.currentFocus,
+          filters: {
+            ...state.currentFocus.filters,
+            decision: action.payload,
+          },
+        },
+      }
+      break
+
     case "CLEAR_ALL_FILTERS":
       newState = {
         ...state,
@@ -3027,6 +3178,7 @@ function castingReducer(state: CastingState, action: CastingAction): CastingStat
             status: [],
             ageRange: { min: 0, max: 100 },
             location: [],
+            decision: [],
           },
         },
       }

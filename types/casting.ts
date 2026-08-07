@@ -121,6 +121,8 @@ export interface CastingState {
   productionPhases: ProductionPhase[]
   scenes: Scene[]
   tabNotifications: Record<string, TabNotification[]>
+  // Legacy top-level filters snapshot kept in sync for persistence/restore.
+  filters?: CurrentFocus["filters"]
 }
 
 export type CastingAction =
@@ -144,6 +146,9 @@ export type CastingAction =
   | { type: "SET_VIEW_MODE"; payload: "detailed" | "compact" | "player" }
   | { type: "SET_SORT_OPTION"; payload: string }
   | { type: "OPEN_PLAYER_VIEW"; payload?: { actorIndex: number } }
+  | { type: "OPEN_PLAYER_CONFIG" }
+  | { type: "OPEN_PLAYER_SUMMARY" }
+  | { type: "START_PLAYER_VIEW"; payload: { config: PlayerSessionConfig } }
   | { type: "CLOSE_PLAYER_VIEW" }
   | { type: "NAVIGATE_PLAYER_VIEW"; payload: number }
   | { type: "SET_PLAYER_HEADSHOT"; payload: number }
@@ -251,6 +256,7 @@ export type CastingAction =
   | { type: "SET_STATUS_FILTER"; payload: string[] }
   | { type: "SET_AGE_RANGE_FILTER"; payload: { min: number; max: number } }
   | { type: "SET_LOCATION_FILTER"; payload: string[] }
+  | { type: "SET_DECISION_FILTER"; payload: Array<"yes" | "maybe" | "no"> }
   | { type: "CLEAR_ALL_FILTERS" }
   | { type: "TOGGLE_FILTERS" }
   | { type: "ADD_SCENE"; payload: Scene }
@@ -703,7 +709,7 @@ export interface Status {
 
 export interface Notification {
   id: string
-  type: "system" | "user" | "vote" | "sent"
+  type: "system" | "user" | "vote" | "sent" | "mention" | "comment"
   title: string
   message: string
   timestamp: number
@@ -738,11 +744,72 @@ export interface CurrentFocus {
   searchTerm: string
   searchTags: SearchTag[]
   savedSearches: SavedSearch[]
+  filters: {
+    showFilters: boolean
+    status: string[]
+    ageRange: { min: number; max: number }
+    location: string[]
+    // Decisions made in the player views: yes=Positive, no=Negative, maybe=Neutral.
+    decision: Array<"yes" | "maybe" | "no">
+  }
   playerView: {
     isOpen: boolean
     currentIndex: number
     currentHeadshotIndex: number
+    phase?: "config" | "player" | "summary"
+    config?: PlayerSessionConfig
   }
+}
+
+// A single decision/vote button shown in the player. Labels are editable and
+// extra buttons can be added, but each maps to one of the three underlying
+// outcomes so team-vote aggregation and the summary keep working.
+export interface PlayerDecisionButton {
+  id: string
+  label: string
+  outcome: "yes" | "maybe" | "no"
+  enabled: boolean
+}
+
+// Per-actor slide/media overrides. Keys are stable media identifiers:
+//   image slides -> `img:<index>` (index into the actor's headshots)
+//   videos       -> `vid:<url>`
+export interface PlayerSlideConfig {
+  // Custom display names for a media item, keyed by media id.
+  names?: Record<string, string>
+  // Media ids that should be hidden from the player for this actor.
+  hidden?: string[]
+}
+
+// Configuration chosen in the "Configure Player" step before a casting player session starts.
+export interface PlayerSessionConfig {
+  title: string
+  sections: {
+    age: boolean
+    playingAge: boolean
+    location: boolean
+    status: boolean
+    skills: boolean
+  }
+  showNotes: boolean
+  showTeamVotes: boolean
+  decisions: {
+    yes: boolean
+    maybe: boolean
+    no: boolean
+  }
+  // Editable/extendable decision buttons. When present these drive the player;
+  // otherwise the player falls back to `decisions`.
+  decisionButtons?: PlayerDecisionButton[]
+  // When false, decision buttons are hidden in the player — reviewers can only
+  // browse between actors and leave comments. Defaults to true.
+  showDecisionButtons?: boolean
+  // Automatically advance to the next actor after a selection is made.
+  autoAdvance?: boolean
+  // Delay (in seconds) before auto-advancing.
+  autoAdvanceSeconds?: number
+  // Per-actor slide & media overrides, keyed by actor id.
+  slides?: Record<string, PlayerSlideConfig>
 }
 
 export interface CardViewSettings {

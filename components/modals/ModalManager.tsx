@@ -14,10 +14,13 @@ import UserPermissionsModal from "./UserPermissionsModal"
 import NotificationsModal from "./NotificationsModal"
 import ManageStatusesModal from "./ManageStatusesModal"
 import PlayerViewModal from "./PlayerViewModal"
+import PlayerConfigModal from "./PlayerConfigModal"
+import PlayerSummaryModal from "./PlayerSummaryModal"
 import MoreActionsModal from "./MoreActionsModal"
 import MoveActorModal from "./MoveActorModal"
 import MoveActorToCharacterModal from "./MoveActorToCharacterModal"
 import MoveMultipleActorsModal from "./MoveMultipleActorsModal"
+import MoveToNewListModal from "./MoveToNewListModal"
 import ConfirmDeleteModal from "./ConfirmDeleteModal"
 import UploadCSVModal from "./UploadCSVModal"
 import UploadCharactersModal from "./UploadCharactersModal"
@@ -44,6 +47,7 @@ import ScriptModal from "./ScriptModal"
 import ProductionDesignModal from "./ProductionDesignModal"
 import CastingForTVModal from "./CastingForTVModal"
 import CastingModal from "./CastingModal"
+import DashboardModal from "./DashboardModal"
 
 export interface ModalState {
   type: string | null
@@ -148,6 +152,13 @@ export default function ModalManager() {
 
   // Render Player View separately since it's controlled by state, not modal system
   if (isPlayerViewOpen) {
+    // The "Configure Player" step precedes the actual player session.
+    if (state.currentFocus.playerView.phase === "config") {
+      return <PlayerConfigModal onClose={() => dispatch({ type: "CLOSE_PLAYER_VIEW" })} />
+    }
+    if (state.currentFocus.playerView.phase === "summary") {
+      return <PlayerSummaryModal onClose={() => dispatch({ type: "CLOSE_PLAYER_VIEW" })} />
+    }
     return <PlayerViewModal onClose={() => dispatch({ type: "CLOSE_PLAYER_VIEW" })} />
   }
 
@@ -277,6 +288,8 @@ export default function ModalManager() {
           return <MoveActorToCharacterModal onClose={handleClose} {...modal.data} />
         case "moveMultipleActors":
           return <MoveMultipleActorsModal onClose={handleClose} {...modal.data} />
+        case "moveToNewList":
+          return <MoveToNewListModal onClose={handleClose} {...modal.data} />
         case "confirmDelete":
           return <ConfirmDeleteModal onClose={handleClose} {...modal.data} />
         case "uploadCSV":
@@ -329,6 +342,8 @@ export default function ModalManager() {
           return <CastingForTVModal onClose={handleClose} />
         case "casting":
           return <CastingModal onClose={handleClose} />
+        case "dashboard":
+          return <DashboardModal onClose={handleClose} />
         default:
           return null
       }
@@ -349,7 +364,8 @@ export default function ModalManager() {
       modal.type === "schedule" ||
       modal.type === "productionDesign" ||
       modal.type === "castingForTV" ||
-      modal.type === "casting"
+      modal.type === "casting" ||
+      modal.type === "dashboard"
     ) {
       return <div key={`modal-${index}`}>{modalContent}</div>
     }

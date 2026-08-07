@@ -2,8 +2,9 @@
 
 import { useCasting } from "@/components/casting/CastingContext"
 import { useState, useEffect } from "react"
-import { X, ChevronLeft, ChevronRight, Play, CheckCircle2, XCircle, HelpCircle, Users, Plus, Star, Heart, Calendar, User, MapPin, ImageIcon, Video, FileText, ArrowLeft, ArrowRight, ChevronDown, ChevronUp, MoreHorizontal, MessageSquare, Layout } from 'lucide-react'
+import { X, ChevronLeft, ChevronRight, Play, CheckCircle2, XCircle, HelpCircle, Users, Plus, Star, Heart, Calendar, User, MapPin, ImageIcon, Video, FileText, ArrowLeft, ArrowRight, ChevronDown, ChevronUp, MoreHorizontal, MessageSquare, Layout, ClipboardList } from 'lucide-react'
 import { getVideoPlatform } from "@/utils/videoUtils"
+import { getActorImageSlides } from "@/utils/playerMedia"
 import { generatePlaceholderUrl } from "@/utils/imageUtils"
 import PlayerViewActionsModal from "./PlayerViewActionsModal"
 import PlayerViewNotes from "@/components/player/PlayerViewNotes"
@@ -40,6 +41,40 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
 
   const currentProject = state.projects.find((p) => p.id === state.currentFocus.currentProjectId)
   const currentCharacter = currentProject?.characters.find((c) => c.id === state.currentFocus.characterId)
+
+  // Session settings chosen in the "Configure Player" step. Fall back to showing everything.
+  const sessionConfig = state.currentFocus.playerView.config ?? {
+    title: "Review session",
+    sections: { age: true, playingAge: true, location: true, status: true, skills: true },
+    showNotes: true,
+    showTeamVotes: true,
+    decisions: { yes: true, maybe: true, no: true },
+  }
+
+  // Decision buttons to render — use the configured (renamed/added) buttons when
+  // present, otherwise derive them from the legacy decisions map.
+  const activeDecisionButtons: Array<{ id: string; label: string; outcome: "yes" | "maybe" | "no" }> =
+    sessionConfig.decisionButtons && sessionConfig.decisionButtons.length > 0
+      ? sessionConfig.decisionButtons.filter((b) => b.enabled && b.label.trim())
+      : [
+          ...(sessionConfig.decisions.yes ? [{ id: "yes", label: "Yes", outcome: "yes" as const }] : []),
+          ...(sessionConfig.decisions.maybe ? [{ id: "maybe", label: "Maybe", outcome: "maybe" as const }] : []),
+          ...(sessionConfig.decisions.no ? [{ id: "no", label: "No", outcome: "no" as const }] : []),
+        ]
+
+  const decisionButtonStyles = (outcome: "yes" | "maybe" | "no", selected: boolean) => {
+    if (outcome === "yes")
+      return selected
+        ? "bg-[#b5c9a8] text-[#4a5b3f] ring-2 ring-[#8fa67e]"
+        : "bg-[#d5dece] text-[#6b7a5e] hover:bg-[#c8d4bf]"
+    if (outcome === "maybe")
+      return selected
+        ? "bg-[#f0d9b5] text-[#7a6a3a] ring-2 ring-[#d4b88a]"
+        : "bg-[#f5e6d0] text-[#9b8a5e] hover:bg-[#eddbbd]"
+    return selected
+      ? "bg-[#e8b4b8] text-[#8b4c4f] ring-2 ring-[#d49396]"
+      : "bg-[#f0cdd0] text-[#a06b6e] hover:bg-[#e8bfc3]"
+  }
 
   const handleAddToCanvas = () => {
     if (!currentActor || !currentProject || !currentCharacter) return
@@ -242,7 +277,7 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
         >
           <div className="flex justify-between items-center p-8 border-b border-gray-200 dark:border-gray-700">
             <h2 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
-              Player View
+              Review Session
             </h2>
             <button
               onClick={handleClose}
@@ -257,7 +292,7 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
             </div>
             <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">No Project Selected</h3>
             <p className="text-gray-600 dark:text-gray-400 mb-6 text-lg">
-              Please select a project to use the Player View feature.
+              Please select a project to use the Review Session feature.
             </p>
             <button
               onClick={handleClose}
@@ -282,7 +317,7 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
         >
           <div className="flex justify-between items-center p-8 border-b border-gray-200 dark:border-gray-700">
             <h2 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
-              Player View
+              Review Session
             </h2>
             <button
               onClick={handleClose}
@@ -299,8 +334,8 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
               No {terminology.character?.singular || "Character"} Selected
             </h3>
             <p className="text-gray-600 dark:text-gray-400 mb-6 text-lg">
-              Please select a {safeToLowerCase(terminology.character?.singular || "character")} to use the Player View
-              feature.
+              Please select a {safeToLowerCase(terminology.character?.singular || "character")} to use the Review
+              Session feature.
             </p>
             <button
               onClick={handleClose}
@@ -367,7 +402,7 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
 
               <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-2xl p-6 mb-8">
                 <p className="text-gray-700 dark:text-gray-300 leading-relaxed text-lg">
-                  The Player View becomes available once you've added {safeToLowerCase(actorsLabel)} to the{" "}
+                  The Review Session becomes available once you've added {safeToLowerCase(actorsLabel)} to the{" "}
                   <span className="font-bold text-emerald-600 dark:text-emerald-400">{currentCharacter.name}</span>{" "}
                   {safeToLowerCase(characterLabel)}. Start by adding some {safeToLowerCase(actorsLabel)} to begin
                   reviewing and voting.
@@ -402,7 +437,7 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
                   onClick={handleClose}
                   className="w-full px-8 py-4 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-lg font-medium"
                 >
-                  Close Player View
+                  Close Review Session
                 </button>
               </div>
             </motion.div>
@@ -413,8 +448,25 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
   }
 
   // Continue with the rest of the component logic...
-  const currentHeadshotIndex = state.currentFocus.playerView.currentHeadshotIndex
-  const headshots = currentActor.headshots || []
+  const rawCurrentHeadshotIndex = state.currentFocus.playerView.currentHeadshotIndex
+
+  // Per-actor slide/media overrides configured in the "Configure Player" step.
+  const slideConfig = sessionConfig.slides?.[currentActor.id]
+  const hiddenMediaKeys = new Set(slideConfig?.hidden ?? [])
+  const slideNames = slideConfig?.names ?? {}
+
+  // Visible image slides for this actor (hidden ones removed), preserving their
+  // configured custom names. Downstream code treats `headshots` as the list of
+  // image URLs that should appear in the player.
+  const visibleImageSlides = getActorImageSlides(currentActor)
+    .filter((im) => !hiddenMediaKeys.has(im.key))
+    .map((im) => ({ url: im.url, name: slideNames[im.key] ?? "" }))
+  const headshots = visibleImageSlides.map((im) => im.url)
+
+  // Clamp the stored headshot index to the (possibly shorter) visible list.
+  const currentHeadshotIndex =
+    rawCurrentHeadshotIndex >= 0 && rawCurrentHeadshotIndex < headshots.length ? rawCurrentHeadshotIndex : 0
+  const currentSlideName = visibleImageSlides[currentHeadshotIndex]?.name || ""
 
   const getActualHeadshotUrl = (index = 0) => {
     if (headshots.length === 0) {
@@ -464,6 +516,26 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
     })
   }
 
+  // After a selection, either auto-advance (respecting the configured delay) or
+  // simply show the confirmation and let the user navigate manually.
+  const advanceAfterVote = () => {
+    const auto = sessionConfig.autoAdvance ?? true
+    if (!auto) {
+      setTimeout(() => setIsTransitioning(false), 800)
+      return
+    }
+    const delayMs = Math.max(0, sessionConfig.autoAdvanceSeconds ?? 1) * 1000
+    setTimeout(() => {
+      if (currentIndex < currentList.length - 1) {
+        handleNavigate(1)
+      } else {
+        setIsTransitioning(false)
+        // Session complete — show the decision summary.
+        dispatch({ type: "OPEN_PLAYER_SUMMARY" })
+      }
+    }, delayMs)
+  }
+
   const handleVote = (vote: "yes" | "no" | "maybe") => {
     if (!state.currentUser) return
 
@@ -491,14 +563,7 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
     })
 
     setIsTransitioning(true)
-
-    setTimeout(() => {
-      if (currentIndex < currentList.length - 1) {
-        handleNavigate(1)
-      } else {
-        setIsTransitioning(false)
-      }
-    }, 800)
+    advanceAfterVote()
   }
 
   const handleMaybeWithNote = () => {
@@ -541,14 +606,7 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
     setMaybeNoteText("")
 
     setIsTransitioning(true)
-
-    setTimeout(() => {
-      if (currentIndex < currentList.length - 1) {
-        handleNavigate(1)
-      } else {
-        setIsTransitioning(false)
-      }
-    }, 800)
+    advanceAfterVote()
   }
 
   const handleNavigate = (direction: number) => {
@@ -659,7 +717,11 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
     return media
   }
 
+  // Apply the per-actor media overrides: hide de-selected videos and apply any
+  // custom names configured for the session.
   const allMedia = getAllMedia()
+    .filter((media) => !hiddenMediaKeys.has(`vid:${media.url}`))
+    .map((media) => ({ ...media, name: slideNames[`vid:${media.url}`] ?? media.name }))
 
   const handleMoreActions = () => {
     setShowActionsModal(true)
@@ -704,7 +766,19 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
       >
         {/* Compact Header */}
         <div className="relative bg-gradient-to-r from-slate-50 via-white to-slate-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
-          <div className="flex justify-between items-center px-6 py-3">
+          {/* Project title bar */}
+          <div className="flex items-center gap-2 px-6 pt-2.5 pb-1">
+            <span className="text-xs font-semibold uppercase tracking-wide text-emerald-600 dark:text-emerald-400 truncate">
+              {currentProject?.name}
+            </span>
+            {sessionConfig.title && (
+              <>
+                <span className="text-gray-300 dark:text-gray-600">·</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400 truncate">{sessionConfig.title}</span>
+              </>
+            )}
+          </div>
+          <div className="flex justify-between items-center px-6 pb-3">
             <div className="flex items-center space-x-4">
               <div className="relative">
                 <button
@@ -785,6 +859,14 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
               <div className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-lg">
                 Use ← → keys to navigate
               </div>
+              <button
+                onClick={() => dispatch({ type: "OPEN_PLAYER_SUMMARY" })}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg font-medium text-sm hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                title="View decision summary"
+              >
+                <ClipboardList className="w-4 h-4" />
+                <span className="hidden sm:inline">Summary</span>
+              </button>
               <button
                 onClick={handleClose}
                 className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl"
@@ -874,6 +956,13 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
                       </div>
                     )}
 
+                    {/* Custom slide name - Responsive */}
+                    {currentSlideName && (
+                      <div className="absolute top-1 sm:top-2 left-1/2 transform -translate-x-1/2 max-w-[90%] bg-black/70 backdrop-blur-sm text-white text-xs px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-full font-medium truncate">
+                        {currentSlideName}
+                      </div>
+                    )}
+
                     {/* Image Counter - Responsive */}
                     {headshots.length > 1 && (
                       <div className="absolute bottom-1 sm:bottom-2 left-1/2 transform -translate-x-1/2 bg-black/70 backdrop-blur-sm text-white text-xs px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-full font-medium">
@@ -923,19 +1012,19 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
                       {currentActor.name}
                     </h3>
                     <div className="space-y-1 text-xs">
-                      {currentActor.age && (
+                      {sessionConfig.sections.age && currentActor.age && (
                         <div className="flex items-center space-x-2">
                           <Calendar className="w-3 h-3 text-gray-400 flex-shrink-0" />
                           <span className="text-gray-600 dark:text-gray-400">Age: {currentActor.age}</span>
                         </div>
                       )}
-                      {currentActor.playingAge && (
+                      {sessionConfig.sections.playingAge && currentActor.playingAge && (
                         <div className="flex items-center space-x-2">
                           <User className="w-3 h-3 text-gray-400 flex-shrink-0" />
                           <span className="text-gray-600 dark:text-gray-400">Playing: {currentActor.playingAge}</span>
                         </div>
                       )}
-                      {currentActor.location && (
+                      {sessionConfig.sections.location && currentActor.location && (
                         <div className="flex items-center space-x-2">
                           <MapPin className="w-3 h-3 text-gray-400 flex-shrink-0" />
                           <span className="text-gray-600 dark:text-gray-400 truncate">{currentActor.location}</span>
@@ -945,6 +1034,7 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
                   </div>
 
                   {/* Collapsible Status Section */}
+                  {sessionConfig.sections.status && (
                   <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700">
                     <button
                       onClick={() => toggleSection("status")}
@@ -980,7 +1070,10 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
                     )}
                   </div>
 
+                  )}
+
                   {/* Collapsible Skills Section */}
+                  {sessionConfig.sections.skills && (
                   <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700">
                     <button
                       onClick={() => toggleSection("skills")}
@@ -1015,6 +1108,8 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
                       </div>
                     )}
                   </div>
+
+                  )}
 
                   {/* Assets Section */}
                   <div className="bg-white dark:bg-gray-800 rounded-lg p-2 sm:p-3 shadow-sm border border-gray-100 dark:border-gray-700">
@@ -1240,50 +1335,48 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
           <div className="w-[25%] min-w-[240px] max-w-[320px] bg-gradient-to-b from-gray-50 to-white dark:from-gray-800 dark:to-gray-900 border-l border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden flex-shrink-0">
             {/* Voting Section - Responsive */}
             <div className="p-3 sm:p-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
-              <h4 className="text-sm sm:text-base font-bold text-gray-900 dark:text-white mb-3 flex items-center">
-                <div className="w-2 h-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full mr-2"></div>
-                Cast Your Vote
-              </h4>
+              {(sessionConfig.showDecisionButtons ?? true) ? (
+                <h4 className="text-sm sm:text-base font-bold text-gray-900 dark:text-white mb-3 flex items-center">
+                  <div className="w-2 h-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full mr-2"></div>
+                  Make Your Decision
+                </h4>
+              ) : (
+                <h4 className="text-sm sm:text-base font-bold text-gray-900 dark:text-white mb-3 flex items-center">
+                  <div className="w-2 h-2 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full mr-2"></div>
+                  Review &amp; Comment
+                </h4>
+              )}
 
-              {/* Vote Buttons - Responsive Grid */}
-              <div className="grid grid-cols-3 gap-1.5 sm:gap-2 mb-3 sm:mb-4">
-                <button
-                  onClick={() => handleVote("yes")}
-                  className={`px-2 sm:px-3 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold rounded-full text-center transition-all duration-200 ${
-                    currentUserVote === "yes"
-                      ? "bg-[#b5c9a8] text-[#4a5b3f] ring-2 ring-[#8fa67e]"
-                      : "bg-[#d5dece] text-[#6b7a5e] hover:bg-[#c8d4bf]"
-                  }`}
+              {/* Vote Buttons - Responsive Grid (hidden in browse-only mode) */}
+              {(sessionConfig.showDecisionButtons ?? true) && (
+                <div
+                  className="grid gap-1.5 sm:gap-2 mb-3 sm:mb-4"
+                  style={{
+                    gridTemplateColumns: `repeat(${activeDecisionButtons.length || 1}, minmax(0, 1fr))`,
+                  }}
                 >
-                  Yes
-                </button>
-                <button
-                  onClick={() => handleVote("maybe")}
-                  className={`px-2 sm:px-3 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold rounded-full text-center transition-all duration-200 ${
-                    currentUserVote === "maybe"
-                      ? "bg-[#f0d9b5] text-[#7a6a3a] ring-2 ring-[#d4b88a]"
-                      : "bg-[#f5e6d0] text-[#9b8a5e] hover:bg-[#eddbbd]"
-                  }`}
-                >
-                  Maybe
-                </button>
-                <button
-                  onClick={() => handleVote("no")}
-                  className={`px-2 sm:px-3 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold rounded-full text-center transition-all duration-200 ${
-                    currentUserVote === "no"
-                      ? "bg-[#e8b4b8] text-[#8b4c4f] ring-2 ring-[#d49396]"
-                      : "bg-[#f0cdd0] text-[#a06b6e] hover:bg-[#e8bfc3]"
-                  }`}
-                >
-                  No
-                </button>
-              </div>
+                  {activeDecisionButtons.map((btn) => (
+                    <button
+                      key={btn.id}
+                      onClick={() => handleVote(btn.outcome)}
+                      title={btn.label}
+                      className={`px-2 sm:px-3 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold rounded-full text-center transition-all duration-200 truncate ${decisionButtonStyles(
+                        btn.outcome,
+                        currentUserVote === btn.outcome,
+                      )}`}
+                    >
+                      {btn.label}
+                    </button>
+                  ))}
+                </div>
+              )}
 
               {/* Team Votes - Responsive */}
+              {sessionConfig.showTeamVotes && (sessionConfig.showDecisionButtons ?? true) && (
               <div className="bg-white dark:bg-gray-800 rounded-lg p-2 sm:p-3 shadow-sm border border-gray-100 dark:border-gray-700 mb-3">
                 <h5 className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2 flex items-center">
                   <Users className="w-3 h-3 mr-2" />
-                  Team Votes
+                  Team Decisions
                 </h5>
                 <div className="space-y-1">
                   {state.users.map((user) => {
@@ -1312,6 +1405,8 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
                 </div>
               </div>
 
+              )}
+
               {/* More Actions Button - Responsive */}
               <button
                 onClick={handleMoreActions}
@@ -1323,11 +1418,13 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
             </div>
 
             {/* Notes Section */}
-            <div className="flex-1 min-h-0 overflow-hidden">
-              <div className="h-full">
-                <PlayerViewNotes actor={currentActor} characterId={currentCharacter.id} />
+            {sessionConfig.showNotes && (
+              <div className="flex-1 min-h-0 overflow-hidden">
+                <div className="h-full">
+                  <PlayerViewNotes actor={currentActor} characterId={currentCharacter.id} />
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
 
@@ -1391,7 +1488,7 @@ export default function PlayerViewModal({ onClose }: { onClose: () => void }) {
                     disabled={!maybeNoteText.trim()}
                     className="px-5 py-2 text-sm font-semibold rounded-full transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed bg-[#f0d9b5] text-[#7a6a3a] hover:bg-[#e8cf9f] ring-1 ring-[#d4b88a]/50"
                   >
-                    Submit & Vote Maybe
+                    Submit Decision
                   </button>
                 </div>
               </div>

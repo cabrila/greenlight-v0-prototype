@@ -2,7 +2,8 @@
 
 import { useState, useCallback, useRef, useMemo, useEffect } from "react"
 import { useCasting } from "@/components/casting/CastingContext"
-import { openModal } from "./ModalManager"
+import { openModal, navigateToModal } from "./ModalManager"
+import { addAssetToCanvas } from "@/lib/canvasStore"
 import ModalHeader from "@/components/layout/ModalHeader"
 import FloatingSidebar from "@/components/layout/FloatingSidebar"
 import EmbeddedCoPilot from "@/components/copilot/EmbeddedCoPilot"
@@ -65,6 +66,20 @@ type VoteValue = "yes" | "no" | "maybe"
 
 function uid() {
   return Math.random().toString(36).slice(2, 11)
+}
+
+/* Add a costume/makeup inventory item to the project canvas, then open it. */
+function addCostumeToCanvas(item: CostumeInventoryItem) {
+  addAssetToCanvas(null, {
+    refId: item.id,
+    type: "costume",
+    title: item.name,
+    subtitle: item.type?.replace(/-/g, " "),
+    image: item.imageUrl,
+    meta: item.status,
+    tags: item.vibeTags,
+  })
+  navigateToModal("canvas")
 }
 
 /** Get the cast actor for a character across ALL lists */
@@ -1195,7 +1210,7 @@ function WardrobeTab({
           ) : viewMode === "grid" ? (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
               {inventory.map((item) => (
-                <InventoryCard key={item.id} item={item} onEdit={onEdit} onDelete={onDelete} onAddToCanvas={() => {}} onVote={onVote} onAddComment={onAddComment} currentUserId={currentUserId} onImageReplace={onImageReplace} />
+                <InventoryCard key={item.id} item={item} onEdit={onEdit} onDelete={onDelete} onAddToCanvas={addCostumeToCanvas} onVote={onVote} onAddComment={onAddComment} currentUserId={currentUserId} onImageReplace={onImageReplace} />
               ))}
             </div>
           ) : (
@@ -1210,7 +1225,7 @@ function WardrobeTab({
               </div>
               <div className="divide-y divide-gray-100">
                 {inventory.map((item) => (
-                  <InventoryListRow key={item.id} item={item} onEdit={onEdit} onDelete={onDelete} />
+                  <InventoryListRow key={item.id} item={item} onEdit={onEdit} onDelete={onDelete} onAddToCanvas={addCostumeToCanvas} />
                 ))}
               </div>
             </div>
@@ -1488,7 +1503,7 @@ function MakeupTab({
           ) : viewMode === "grid" ? (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
               {inventory.map((item) => (
-                <InventoryCard key={item.id} item={item} onEdit={onEdit} onDelete={onDelete} onAddToCanvas={() => {}} onVote={onVote} onAddComment={onAddComment} currentUserId={currentUserId} onImageReplace={onImageReplace} />
+                <InventoryCard key={item.id} item={item} onEdit={onEdit} onDelete={onDelete} onAddToCanvas={addCostumeToCanvas} onVote={onVote} onAddComment={onAddComment} currentUserId={currentUserId} onImageReplace={onImageReplace} />
               ))}
             </div>
           ) : (
@@ -1503,7 +1518,7 @@ function MakeupTab({
               </div>
               <div className="divide-y divide-gray-100">
                 {inventory.map((item) => (
-                  <InventoryListRow key={item.id} item={item} onEdit={onEdit} onDelete={onDelete} />
+                  <InventoryListRow key={item.id} item={item} onEdit={onEdit} onDelete={onDelete} onAddToCanvas={addCostumeToCanvas} />
                 ))}
               </div>
             </div>
