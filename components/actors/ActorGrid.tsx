@@ -20,6 +20,7 @@ import {
 } from "lucide-react"
 import { openModal } from "@/components/modals/ModalManager"
 import ActorCard from "@/components/actors/ActorCard"
+import ActorListView from "@/components/actors/ActorListView"
 
 interface ActorGridProps {
   character: Character
@@ -1127,6 +1128,19 @@ export default function ActorGrid({ character }: ActorGridProps) {
 
   const actors = filterAndSortActors(getActorsForTab())
 
+  const handleToggleSelectAll = useCallback(
+    (select: boolean) => {
+      if (select) {
+        setSelectedActorIds(new Set(actors.map((a) => a.id)))
+        setLastSelectedId(actors.length > 0 ? actors[actors.length - 1].id : null)
+      } else {
+        setSelectedActorIds(new Set())
+        setLastSelectedId(null)
+      }
+    },
+    [actors, setSelectedActorIds, setLastSelectedId],
+  )
+
   // Special messages for Long List and Approval tabs
   const isLongListTab = activeTabKey === "longList"
   const isApprovalTab = activeTabKey === "approval"
@@ -1407,23 +1421,53 @@ export default function ActorGrid({ character }: ActorGridProps) {
         </div>
       )}
 
-      {/* Actor Grid */}
-      <div
-        className={`${getGridClasses()} ${
-          isDragOverGrid
-            ? isApprovalTab
-              ? "bg-gradient-to-br from-emerald-50 via-emerald-100 to-emerald-50 rounded-2xl p-6 border-2 border-emerald-300 shadow-xl"
-              : isLongListTab
-                ? "bg-gradient-to-br from-blue-50 via-blue-100 to-blue-50 rounded-2xl p-6 border-2 border-blue-300 shadow-xl"
-                : "bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-6 border-2 border-blue-300 shadow-lg"
-            : ""
-        }`}
-        onDragOver={handleGridDragOver}
-        onDragLeave={handleGridDragLeave}
-        onDrop={handleGridDrop}
-        onClick={handleGridClick}
-      >
-        {actors.map((actor) => {
+      {/* Actor List (finder/explorer table) */}
+      {cardDisplayMode === "list-view" ? (
+        <div
+          className={`${
+            isDragOverGrid
+              ? isApprovalTab
+                ? "bg-gradient-to-br from-emerald-50 via-emerald-100 to-emerald-50 rounded-2xl p-2 border-2 border-emerald-300 shadow-xl"
+                : "bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-2 border-2 border-blue-300 shadow-lg"
+              : ""
+          }`}
+          onDragOver={handleGridDragOver}
+          onDragLeave={handleGridDragLeave}
+          onDrop={handleGridDrop}
+        >
+          <ActorListView
+            actors={actors}
+            character={character}
+            users={state.users}
+            selectedActorIds={selectedActorIds}
+            onSelect={handleActorSelect}
+            onToggleSelectAll={handleToggleSelectAll}
+            draggedActorIds={draggedActorIds}
+            dropTarget={dropTarget}
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+            onDragOver={handleDragOver}
+            onDrop={handleDrop}
+          />
+        </div>
+      ) : (
+        /* Actor Grid */
+        <div
+          className={`${getGridClasses()} ${
+            isDragOverGrid
+              ? isApprovalTab
+                ? "bg-gradient-to-br from-emerald-50 via-emerald-100 to-emerald-50 rounded-2xl p-6 border-2 border-emerald-300 shadow-xl"
+                : isLongListTab
+                  ? "bg-gradient-to-br from-blue-50 via-blue-100 to-blue-50 rounded-2xl p-6 border-2 border-blue-300 shadow-xl"
+                  : "bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-6 border-2 border-blue-300 shadow-lg"
+              : ""
+          }`}
+          onDragOver={handleGridDragOver}
+          onDragLeave={handleGridDragLeave}
+          onDrop={handleGridDrop}
+          onClick={handleGridClick}
+        >
+          {actors.map((actor) => {
           if (cardDisplayMode === "row") {
             return (
               <div
@@ -1475,10 +1519,11 @@ export default function ActorGrid({ character }: ActorGridProps) {
                 onDragOver={(e) => handleDragOver(e, actor)}
                 onDrop={(e) => handleDrop(e, actor)}
               />
-            </div>
-          )
-        })}
-      </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
     </div>
   )
 }
