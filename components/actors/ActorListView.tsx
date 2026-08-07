@@ -254,7 +254,16 @@ export default function ActorListView({
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation()
-                      const synthetic = { ...e, ctrlKey: true, metaKey: true } as unknown as React.MouseEvent
+                      // Toggle a single row without affecting other selections (ctrl/meta behavior).
+                      // Build a plain object with the fields/methods handleActorSelect uses, since
+                      // spreading a React synthetic event does not copy its prototype methods.
+                      const synthetic = {
+                        preventDefault: () => {},
+                        stopPropagation: () => {},
+                        shiftKey: false,
+                        ctrlKey: true,
+                        metaKey: true,
+                      } as unknown as React.MouseEvent
                       onSelect(actor.id, synthetic)
                     }}
                     aria-label={isSelected ? "Deselect" : "Select"}
