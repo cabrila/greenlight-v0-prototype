@@ -2242,7 +2242,7 @@ function AddItemModal({
 {isValidImageUrl(imageUrl) ? (
               <img src={imageUrl} alt="" className="w-full h-full object-cover" crossOrigin="anonymous" />
             ) : (
-              <div className={`w-full h-full flex items-center justify-center ${isDragOver ? "bg-gray-100" : ""}`}><Shirt className="w-8 h-8 text-gray-300" /></div>
+              <div className="w-full h-full flex items-center justify-center"><Shirt className="w-8 h-8 text-gray-300" /></div>
             )}
             </button>
             <input ref={imgInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => { if (e.target.files?.[0]) handleImgUpload(e.target.files[0]) }} />
