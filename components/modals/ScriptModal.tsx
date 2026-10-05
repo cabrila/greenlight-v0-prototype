@@ -400,7 +400,7 @@ function ScriptBlockRow({
           onContextMenu={handleContextMenu}
           className={`outline-none whitespace-pre-wrap ${blockStyles[block.type]} text-gray-900`}
           style={{
-            fontFamily: "'Courier Prime', 'Courier New', monospace",
+            fontFamily: "var(--font-courier-prime), 'Courier New', monospace",
             fontSize: `${baseFontSize}pt`,
             lineHeight: 1.5,
             minHeight: `${baseFontSize * 1.5}pt`,
