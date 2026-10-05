@@ -1,8 +1,8 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { MousePointer2, ThumbsUp, ThumbsDown } from "lucide-react"
-import { COLLABORATORS, type ReactionKind } from "./canvasCollaborators"
+import { MousePointer2 } from "lucide-react"
+import { COLLABORATORS } from "./canvasCollaborators"
 
 export interface PresenceTarget {
   id: string
@@ -13,54 +13,34 @@ export interface PresenceTarget {
   reviewable: boolean
 }
 
-type CursorAction = "move" | "select" | "comment" | "react-up" | "react-down"
-
 interface CursorState {
   x: number
   y: number
-  targetId: string | null
-  action: CursorAction
-  bubble: string | null
 }
-
-const COMMENT_LINES = [
-  "Love this one",
-  "Can we see more angles?",
-  "Strong option",
-  "Not sure about the tone",
-  "Works for the scene",
-  "Check availability?",
-  "This fits the brief",
-]
-
-const pick = <T,>(arr: T[]) => arr[Math.floor(Math.random() * arr.length)]
 
 interface CanvasPresenceProps {
   targets: PresenceTarget[]
   zoom: number
-  onReact: (itemId: string, userId: string, kind: ReactionKind) => void
 }
 
-/** Simulated live collaborators: cursors that wander the board, select, comment and react. */
-export default function CanvasPresence({ targets, zoom, onReact }: CanvasPresenceProps) {
+/** Simulated live collaborators: decorative cursors that wander without interacting with cards. */
+export default function CanvasPresence({ targets, zoom }: CanvasPresenceProps) {
   const targetsRef = useRef(targets)
-  const onReactRef = useRef(onReact)
   useEffect(() => {
     targetsRef.current = targets
-    onReactRef.current = onReact
-  })
+  }, [targets])
 
   const [cursors, setCursors] = useState<Record<string, CursorState>>(() => {
     const init: Record<string, CursorState> = {}
     COLLABORATORS.forEach((c, i) => {
-      init[c.id] = { x: 260 + i * 220, y: 180 + i * 90, targetId: null, action: "move", bubble: null }
+      init[c.id] = { x: 260 + i * 220, y: 180 + i * 90 }
     })
     return init
   })
 
   useEffect(() => {
     let alive = true
-    const timers: number[] = []
+    const timers = new Map<string, number>()
 
     const wanderPoint = () => {
       const ts = targetsRef.current
@@ -75,35 +55,11 @@ export default function CanvasPresence({ targets, zoom, onReact }: CanvasPresenc
     COLLABORATORS.forEach((c, i) => {
       const step = () => {
         if (!alive) return
-        const ts = targetsRef.current
-        let next: CursorState
-        if (ts.length && Math.random() < 0.72) {
-          const t = pick(ts)
-          const roll = Math.random()
-          let action: CursorAction = "select"
-          if (t.reviewable) {
-            if (roll < 0.14) action = "react-up"
-            else if (roll < 0.19) action = "react-down"
-            else if (roll < 0.33) action = "comment"
-          }
-          next = {
-            x: t.x + t.w * (0.3 + Math.random() * 0.45),
-            y: t.y + t.h * (0.35 + Math.random() * 0.45),
-            targetId: t.id,
-            action,
-            bubble: action === "comment" ? pick(COMMENT_LINES) : null,
-          }
-          if (action === "react-up" || action === "react-down") {
-            const kind: ReactionKind = action === "react-up" ? "up" : "down"
-            timers.push(window.setTimeout(() => alive && onReactRef.current(t.id, c.id, kind), 1100))
-          }
-        } else {
-          next = { ...wanderPoint(), targetId: null, action: "move", bubble: null }
-        }
+        const next = wanderPoint()
         setCursors((prev) => ({ ...prev, [c.id]: next }))
-        timers.push(window.setTimeout(step, 2000 + Math.random() * 2400))
+        timers.set(c.id, window.setTimeout(step, 2000 + Math.random() * 2400))
       }
-      timers.push(window.setTimeout(step, 500 + i * 650))
+      timers.set(c.id, window.setTimeout(step, 500 + i * 650))
     })
 
     return () => {
@@ -118,29 +74,6 @@ export default function CanvasPresence({ targets, zoom, onReact }: CanvasPresenc
     <>
       {COLLABORATORS.map((c) => {
         const cur = cursors[c.id]
-        const target = cur.targetId ? targets.find((t) => t.id === cur.targetId) : undefined
-        if (!target || cur.action === "move") return null
-        return (
-          <div
-            key={`sel-${c.id}`}
-            aria-hidden="true"
-            className="absolute pointer-events-none rounded-xl"
-            style={{
-              left: target.x - 4,
-              top: target.y - 4,
-              width: target.w + 8,
-              height: target.h + 8,
-              border: `${2 * inv}px solid ${c.color}`,
-              zIndex: 38,
-              transition: "all 300ms ease",
-            }}
-          />
-        )
-      })}
-
-      {COLLABORATORS.map((c) => {
-        const cur = cursors[c.id]
-        const reacting = cur.action === "react-up" || cur.action === "react-down"
         return (
           <div
             key={c.id}
@@ -160,14 +93,7 @@ export default function CanvasPresence({ targets, zoom, onReact }: CanvasPresenc
                   style={{ backgroundColor: c.color }}
                 >
                   {c.name.split(" ")[0]}
-                  {reacting &&
-                    (cur.action === "react-up" ? <ThumbsUp className="h-3 w-3" /> : <ThumbsDown className="h-3 w-3" />)}
                 </span>
-                {cur.bubble && (
-                  <span className="max-w-[180px] rounded-lg rounded-tl-sm bg-white px-2.5 py-1.5 text-xs text-slate-700 shadow-md border border-slate-200">
-                    {cur.bubble}
-                  </span>
-                )}
               </div>
             </div>
           </div>

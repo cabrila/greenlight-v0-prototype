@@ -792,11 +792,6 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
     [setReaction],
   )
 
-  const handleSimulatedReaction = useCallback(
-    (itemId: string, userId: string, kind: ReactionKind) => setReaction([itemId], userId, kind, false),
-    [setReaction],
-  )
-
   const selectedReviewable = items.filter((it) => selectedIds.includes(it.id) && isReviewable(it.type))
   const myUpOnSelection = selectedReviewable.length > 0 && selectedReviewable.every((it) => it.reactions?.up.includes(ME_ID))
   const myDownOnSelection = selectedReviewable.length > 0 && selectedReviewable.every((it) => it.reactions?.down.includes(ME_ID))
@@ -1620,7 +1615,7 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
               ) : null,
             )}
 
-            <CanvasPresence targets={presenceTargets} zoom={zoom} onReact={handleSimulatedReaction} />
+            <CanvasPresence targets={presenceTargets} zoom={zoom} />
 
             {marquee && (
               <div
