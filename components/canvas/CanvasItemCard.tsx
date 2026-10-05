@@ -35,6 +35,8 @@ export interface CanvasItem {
   height?: number
   text?: string
   groupId?: string
+  /** User ids who reacted thumbs up / down — stored on the item so reactions travel with it. */
+  reactions?: { up: string[]; down: string[] }
   /* widget-only state (scene generator / casting board) */
   widgetData?: Record<string, any>
 }

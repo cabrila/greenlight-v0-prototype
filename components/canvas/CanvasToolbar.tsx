@@ -1,8 +1,8 @@
 "use client"
 
-import { MousePointer2, Type, Image as ImageIcon, MessageCircle, Group } from "lucide-react"
+import { MousePointer2, Type, Image as ImageIcon, MessageCircle, Group, ThumbsUp, ThumbsDown } from "lucide-react"
 
-export type CanvasTool = "select" | "text" | "image" | "note"
+export type CanvasTool = "select" | "text" | "image" | "note" | "react-up" | "react-down"
 
 interface ToolDef {
   key: CanvasTool
@@ -16,6 +16,8 @@ const CREATE_TOOLS: ToolDef[] = [
   { key: "text", label: "Text (T)", icon: Type },
   { key: "image", label: "Image (upload)", icon: ImageIcon },
   { key: "note", label: "Comment (C)", icon: MessageCircle },
+  { key: "react-up", label: "Thumbs up — click an item (U)", icon: ThumbsUp },
+  { key: "react-down", label: "Thumbs down — click an item (D)", icon: ThumbsDown },
 ]
 
 interface CanvasToolbarProps {

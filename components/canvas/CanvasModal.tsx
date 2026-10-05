@@ -20,6 +20,13 @@ import CanvasSceneCards, { type WidgetScene, type SceneTimelineClip } from "./Ca
 import CanvasDesigner, { type DesignerSubject, type DesignerAsset } from "./CanvasDesigner"
 import CanvasBoardSwitcher, { type CanvasBoard } from "./CanvasBoardSwitcher"
 import { DEFAULT_TRACKS, SCENES_TRACK_ID, createTimelineClip, type Track } from "./CanvasTimeline"
+import CanvasPresence, { PresenceAvatars, type PresenceTarget } from "./CanvasPresence"
+import CanvasReactionBadge from "./CanvasReactionBadge"
+import CanvasSelectionBar from "./CanvasSelectionBar"
+import CanvasReviewPlayer from "./CanvasReviewPlayer"
+import { COLLABORATORS, ME_ID, applyReaction, isReviewable, type ReactionKind } from "./canvasCollaborators"
+import { resolveAssetDetails, toReviewAsset, type ReviewAssetDetails } from "./canvasReviewAssets"
+import ConfigureReviewModal, { type ReviewConfig } from "../modals/ConfigureReviewModal"
 
 interface CanvasModalProps {
   onClose: () => void
@@ -195,6 +202,15 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
 
   // Right-click context menu for canvas items/groups.
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; itemId: string } | null>(null)
+
+  // Shift-drag marquee selection (canvas coordinates).
+  const [marquee, setMarquee] = useState<{ x0: number; y0: number; x1: number; y1: number } | null>(null)
+  const marqueeRef = useRef(marquee)
+  marqueeRef.current = marquee
+
+  // Review flow: assets awaiting configuration, then the running review session.
+  const [reviewDraft, setReviewDraft] = useState<ReviewAssetDetails[] | null>(null)
+  const [activeReview, setActiveReview] = useState<{ config: ReviewConfig; assets: ReviewAssetDetails[] } | null>(null)
 
   // Multiple canvas boards ("pages") per project.
   const [boards, setBoards] = useState<CanvasBoard[]>([{ id: "default", name: "Board 1" }])
@@ -761,6 +777,42 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
     })
   }
 
+  const setReaction = useCallback((ids: string[], userId: string, kind: ReactionKind, toggle: boolean) => {
+    setItems((prev) =>
+      prev.map((it) =>
+        ids.includes(it.id) && isReviewable(it.type)
+          ? { ...it, reactions: applyReaction(it.reactions, userId, kind, toggle) }
+          : it,
+      ),
+    )
+  }, [])
+
+  const toggleMyReaction = useCallback(
+    (itemId: string, kind: ReactionKind) => setReaction([itemId], ME_ID, kind, true),
+    [setReaction],
+  )
+
+  const handleSimulatedReaction = useCallback(
+    (itemId: string, userId: string, kind: ReactionKind) => setReaction([itemId], userId, kind, false),
+    [setReaction],
+  )
+
+  const selectedReviewable = items.filter((it) => selectedIds.includes(it.id) && isReviewable(it.type))
+  const myUpOnSelection = selectedReviewable.length > 0 && selectedReviewable.every((it) => it.reactions?.up.includes(ME_ID))
+  const myDownOnSelection = selectedReviewable.length > 0 && selectedReviewable.every((it) => it.reactions?.down.includes(ME_ID))
+
+  /** Apply to every selected item; if all already have mine, remove it instead. */
+  const reactToSelection = (kind: ReactionKind) => {
+    const ids = selectedReviewable.map((it) => it.id)
+    const allMine = kind === "up" ? myUpOnSelection : myDownOnSelection
+    setReaction(ids, ME_ID, kind, allMine)
+  }
+
+  const openReview = () => {
+    if (!selectedReviewable.length) return
+    setReviewDraft(selectedReviewable.map((it) => resolveAssetDetails(it, currentProject)))
+  }
+
   const handleItemDrag = useCallback(
     (id: string, dx: number, dy: number) => {
       setSelectedIds((sel) => {
@@ -954,9 +1006,22 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
       return
     }
 
+    // Thumbs tools: react to whichever item was clicked.
+    if (activeTool === "react-up" || activeTool === "react-down") {
+      const host = target.closest("[data-item-id]") as HTMLElement | null
+      const hit = host ? items.find((i) => i.id === host.dataset.itemId) : undefined
+      if (hit && isReviewable(hit.type)) toggleMyReaction(hit.id, activeTool === "react-up" ? "up" : "down")
+      return
+    }
+
     // Select tool: let cards handle their own drag; clicking empty clears.
     if (activeTool === "select" && onCard) return
-    if (activeTool === "select" && !e.ctrlKey && !e.metaKey && !e.shiftKey) setSelectedIds([])
+    if (activeTool === "select" && e.shiftKey) {
+      const c = clientToCanvas(e.clientX, e.clientY)
+      setMarquee({ x0: c.x, y0: c.y, x1: c.x, y1: c.y })
+      return
+    }
+    if (activeTool === "select" && !e.ctrlKey && !e.metaKey) setSelectedIds([])
 
     // Pan (pan tool, or empty-canvas drag in select mode)
     setIsPanning(true)
@@ -974,6 +1039,39 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
       document.removeEventListener("mouseup", up)
     }
   }, [isPanning])
+
+  const marqueeActive = marquee !== null
+  useEffect(() => {
+    if (!marqueeActive) return
+    const move = (e: MouseEvent) => {
+      const c = clientToCanvas(e.clientX, e.clientY)
+      setMarquee((m) => (m ? { ...m, x1: c.x, y1: c.y } : m))
+    }
+    const up = () => {
+      const m = marqueeRef.current
+      setMarquee(null)
+      if (!m) return
+      const left = Math.min(m.x0, m.x1)
+      const right = Math.max(m.x0, m.x1)
+      const top = Math.min(m.y0, m.y1)
+      const bottom = Math.max(m.y0, m.y1)
+      if (right - left < 4 && bottom - top < 4) return
+      const hits = items
+        .filter((it) => {
+          const d = itemDims(it)
+          return it.x < right && it.x + d.w > left && it.y < bottom && it.y + d.h > top
+        })
+        .flatMap((it) => groupMembers(it.id))
+      setSelectedIds((prev) => Array.from(new Set([...prev, ...hits])))
+    }
+    document.addEventListener("mousemove", move)
+    document.addEventListener("mouseup", up)
+    return () => {
+      document.removeEventListener("mousemove", move)
+      document.removeEventListener("mouseup", up)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [marqueeActive])
 
   const handleWheel = useCallback(
     (e: WheelEvent) => {
@@ -1045,6 +1143,7 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
     const onKey = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement
       if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable)) return
+      if (reviewDraft || activeReview) return
       if (e.metaKey || e.ctrlKey) {
         if (e.key.toLowerCase() === "g") {
           e.preventDefault()
@@ -1057,6 +1156,8 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
         case "v": setActiveTool("select"); break
         case "t": setActiveTool("text"); break
         case "c": setActiveTool("note"); break
+        case "u": setActiveTool("react-up"); break
+        case "d": setActiveTool("react-down"); break
         case "escape": setActiveTool("select"); setSelectedIds([]); break
         case "delete":
         case "backspace":
@@ -1067,7 +1168,7 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
     document.addEventListener("keydown", onKey)
     return () => document.removeEventListener("keydown", onKey)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedIds, selectionIsGrouped, items])
+  }, [selectedIds, selectionIsGrouped, items, reviewDraft, activeReview])
 
   const handleClose = () => {
     closeAllModals()
@@ -1082,9 +1183,28 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
 
   const cursorForTool =
     activeTool === "note" || isElement(activeTool as CanvasItemType) ? "crosshair"
+      : activeTool === "react-up" || activeTool === "react-down" ? "pointer"
       : isPanning ? "grabbing" : "default"
 
   const interactive = activeTool === "select"
+
+  const presenceTargets = useMemo<PresenceTarget[]>(
+    () =>
+      items.map((it) => ({
+        id: it.id,
+        x: it.x,
+        y: it.y,
+        w: it.width ?? cardWidth,
+        h: it.height ?? CARD_DIMENSIONS[viewSize].height,
+        reviewable: isReviewable(it.type),
+      })),
+    [items, cardWidth, viewSize],
+  )
+
+  const reviewParticipants = useMemo(
+    () => COLLABORATORS.map((c) => ({ id: c.id, name: c.name, initials: c.initials, role: c.role, bgColor: c.color, color: "#ffffff" })),
+    [],
+  )
 
   /* ---------------------------------------------------------------- */
   /*  Render                                                           */
@@ -1135,6 +1255,7 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
         </div>
 
         <div className="flex items-center gap-2">
+          <PresenceAvatars />
           {/* Canvas Tools dropdown */}
           <div className="relative" ref={toolsMenuRef}>
             <button
@@ -1360,6 +1481,17 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
             onUngroup={ungroupSelected}
           />
 
+          <CanvasSelectionBar
+            selectedCount={selectedIds.length}
+            reviewableCount={selectedReviewable.length}
+            myUp={myUpOnSelection}
+            myDown={myDownOnSelection}
+            onThumbsUp={() => reactToSelection("up")}
+            onThumbsDown={() => reactToSelection("down")}
+            onReview={openReview}
+            onClear={() => setSelectedIds([])}
+          />
+
           <div
             className="absolute top-0 left-0 origin-top-left"
             style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})` }}
@@ -1390,6 +1522,7 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
             {items.map((item) => (
               <div
                 key={item.id}
+                data-item-id={item.id}
                 style={{ display: "contents" }}
                 onContextMenu={(e) => handleItemContextMenu(e, item.id)}
               >
@@ -1471,6 +1604,37 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
               )}
               </div>
             ))}
+
+            {items.map((item) =>
+              isReviewable(item.type) && item.reactions ? (
+                <CanvasReactionBadge
+                  key={`react-${item.id}`}
+                  itemId={item.id}
+                  x={item.x}
+                  y={item.y}
+                  width={item.width ?? cardWidth}
+                  zoom={zoom}
+                  reactions={item.reactions}
+                  onToggle={toggleMyReaction}
+                />
+              ) : null,
+            )}
+
+            <CanvasPresence targets={presenceTargets} zoom={zoom} onReact={handleSimulatedReaction} />
+
+            {marquee && (
+              <div
+                aria-hidden="true"
+                className="absolute pointer-events-none rounded-md border border-emerald-500 bg-emerald-500/10"
+                style={{
+                  left: Math.min(marquee.x0, marquee.x1),
+                  top: Math.min(marquee.y0, marquee.y1),
+                  width: Math.abs(marquee.x1 - marquee.x0),
+                  height: Math.abs(marquee.y1 - marquee.y0),
+                  zIndex: 50,
+                }}
+              />
+            )}
           </div>
 
           {/* Empty state */}
@@ -1541,6 +1705,28 @@ export default function CanvasModal({ onClose }: CanvasModalProps) {
             </div>
           )
         })()}
+
+      {reviewDraft && (
+        <ConfigureReviewModal
+          assets={reviewDraft.map(toReviewAsset)}
+          participants={reviewParticipants}
+          defaultTitle={`${boards.find((b) => b.id === activeBoardId)?.name ?? "Canvas"} review`}
+          sourceLabel="Canvas"
+          onCancel={() => setReviewDraft(null)}
+          onConfirm={(config) => {
+            setActiveReview({ config, assets: reviewDraft })
+            setReviewDraft(null)
+          }}
+        />
+      )}
+
+      {activeReview && (
+        <CanvasReviewPlayer
+          config={activeReview.config}
+          assets={activeReview.assets}
+          onClose={() => setActiveReview(null)}
+        />
+      )}
     </div>
   )
 }
