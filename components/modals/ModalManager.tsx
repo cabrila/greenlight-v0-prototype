@@ -2,49 +2,50 @@
 
 import { useState, useEffect } from "react"
 import { useCasting } from "@/components/casting/CastingContext"
-import AddActorModal from "./AddActorModal"
-import EditActorModal from "./EditActorModal"
-import AddCharacterModal from "./AddCharacterModal"
-import EditCharacterModal from "./EditCharacterModal"
-import AddShortlistModal from "./AddShortlistModal"
-import ProjectManagerModal from "./ProjectManagerModal"
-import CastingBreakdownModal from "./CastingBreakdownModal"
-import TeamSuggestionsModal from "./TeamSuggestionsModal"
-import UserPermissionsModal from "./UserPermissionsModal"
-import NotificationsModal from "./NotificationsModal"
-import ManageStatusesModal from "./ManageStatusesModal"
-import PlayerViewModal from "./PlayerViewModal"
-import MoreActionsModal from "./MoreActionsModal"
-import MoveActorModal from "./MoveActorModal"
-import MoveActorToCharacterModal from "./MoveActorToCharacterModal"
-import MoveMultipleActorsModal from "./MoveMultipleActorsModal"
-import ConfirmDeleteModal from "./ConfirmDeleteModal"
-import UploadCSVModal from "./UploadCSVModal"
-import UploadCharactersModal from "./UploadCharactersModal"
-import ClearCacheModal from "./ClearCacheModal"
-import NoCharacterWarningModal from "./NoCharacterWarningModal"
-import CanvasModal from "../canvas/CanvasModal"
-import ContactActorModal from "./ContactActorModal"
-import HelpWizardModal from "./HelpWizardModal"
-import CharacterDetailsModal from "./CharacterDetailsModal"
-import UploadActorsMenuModal from "./UploadActorsMenuModal"
-import CreateActorFormModal from "./CreateActorFormModal"
-import SplashScreenModal from "./SplashScreenModal"
-import BookAuditionModal from "./BookAuditionModal"
-import ScheduleModal from "./ScheduleModal"
-import DatabaseModal from "./DatabaseModal"
-import AssignToProjectModal from "./AssignToProjectModal"
-import CharactersModal from "./CharactersModal"
-import ScriptAnalysisModal from "./ScriptAnalysisModal"
-import AddFromDatabaseModal from "./AddFromDatabaseModal"
-import PropsModal from "./PropsModal"
-import LocationsModal from "./LocationsModal"
-import CostumesModal from "./CostumesModal"
-import ScriptModal from "./ScriptModal"
-import ProductionDesignModal from "./ProductionDesignModal"
-import CastingForTVModal from "./CastingForTVModal"
-import CastingModal from "./CastingModal"
-import DashboardModal from "./DashboardModal"
+import dynamic from "next/dynamic"
+const AddActorModal = dynamic(() => import("./AddActorModal"))
+const EditActorModal = dynamic(() => import("./EditActorModal"))
+const AddCharacterModal = dynamic(() => import("./AddCharacterModal"))
+const EditCharacterModal = dynamic(() => import("./EditCharacterModal"))
+const AddShortlistModal = dynamic(() => import("./AddShortlistModal"))
+const ProjectManagerModal = dynamic(() => import("./ProjectManagerModal"))
+const CastingBreakdownModal = dynamic(() => import("./CastingBreakdownModal"))
+const TeamSuggestionsModal = dynamic(() => import("./TeamSuggestionsModal"))
+const UserPermissionsModal = dynamic(() => import("./UserPermissionsModal"))
+const NotificationsModal = dynamic(() => import("./NotificationsModal"))
+const ManageStatusesModal = dynamic(() => import("./ManageStatusesModal"))
+const PlayerViewModal = dynamic(() => import("./PlayerViewModal"))
+const MoreActionsModal = dynamic(() => import("./MoreActionsModal"))
+const MoveActorModal = dynamic(() => import("./MoveActorModal"))
+const MoveActorToCharacterModal = dynamic(() => import("./MoveActorToCharacterModal"))
+const MoveMultipleActorsModal = dynamic(() => import("./MoveMultipleActorsModal"))
+const ConfirmDeleteModal = dynamic(() => import("./ConfirmDeleteModal"))
+const UploadCSVModal = dynamic(() => import("./UploadCSVModal"))
+const UploadCharactersModal = dynamic(() => import("./UploadCharactersModal"))
+const ClearCacheModal = dynamic(() => import("./ClearCacheModal"))
+const NoCharacterWarningModal = dynamic(() => import("./NoCharacterWarningModal"))
+const CanvasModal = dynamic(() => import("../canvas/CanvasModal"))
+const ContactActorModal = dynamic(() => import("./ContactActorModal"))
+const HelpWizardModal = dynamic(() => import("./HelpWizardModal"))
+const CharacterDetailsModal = dynamic(() => import("./CharacterDetailsModal"))
+const UploadActorsMenuModal = dynamic(() => import("./UploadActorsMenuModal"))
+const CreateActorFormModal = dynamic(() => import("./CreateActorFormModal"))
+const SplashScreenModal = dynamic(() => import("./SplashScreenModal"))
+const BookAuditionModal = dynamic(() => import("./BookAuditionModal"))
+const ScheduleModal = dynamic(() => import("./ScheduleModal"))
+const DatabaseModal = dynamic(() => import("./DatabaseModal"))
+const AssignToProjectModal = dynamic(() => import("./AssignToProjectModal"))
+const CharactersModal = dynamic(() => import("./CharactersModal"))
+const ScriptAnalysisModal = dynamic(() => import("./ScriptAnalysisModal"))
+const AddFromDatabaseModal = dynamic(() => import("./AddFromDatabaseModal"))
+const PropsModal = dynamic(() => import("./PropsModal"))
+const LocationsModal = dynamic(() => import("./LocationsModal"))
+const CostumesModal = dynamic(() => import("./CostumesModal"))
+const ScriptModal = dynamic(() => import("./ScriptModal"))
+const ProductionDesignModal = dynamic(() => import("./ProductionDesignModal"))
+const CastingForTVModal = dynamic(() => import("./CastingForTVModal"))
+const CastingModal = dynamic(() => import("./CastingModal"))
+const DashboardModal = dynamic(() => import("./DashboardModal"))
 
 export interface ModalState {
   type: string | null
